@@ -1,54 +1,54 @@
-# CLAUDE.md - Project Guidelines for Claude Code
+# CLAUDE.md - プロジェクトガイドライン
 
-## Project Overview
+## プロジェクト概要
 
-This project creates logic puzzle problems (思考パズル問題) for the Japan Civil Aviation College entrance exam "総合Part I" section. Problems test logical reasoning, spatial visualization, pattern recognition, and mathematical thinking.
+航空大学校入学試験「総合Part I」科目の思考パズル問題を作成するプロジェクト。
+論理的推論、空間視覚化、パターン認識、数学的思考を測定する問題を作成する。
 
-## Language
+## 言語
 
-- Primary language: **Japanese (日本語)**
-- All problem content, explanations, and documentation should be in Japanese
+- 主要言語: **日本語**
+- 問題内容、解説、ドキュメントはすべて日本語で記述
 
-## Problem Specifications
+## 問題仕様
 
-### Standard Problem (問題1)
-- Points: 6点
-- Time limit: 3 minutes
-- Difficulty: ★★★★★ (5 stars)
+### 問題1（標準難度）
+- 配点: 6点
+- 制限時間: 3分
+- 難易度: ★★★★★（5つ星）
 
-### High-Difficulty Problem (問題2)
-- Points: 6点
-- Time limit: 5 minutes
-- Difficulty: ★★★★★★★★ (8 stars)
-- Must be a harder variant derived from Problem 1
+### 問題2（高難度）
+- 配点: 6点
+- 制限時間: 5分
+- 難易度: ★★★★★★★★（8つ星）
+- 問題1の派生・高難度版として作成
 
-## Required Workflow
+## 作成ワークフロー
 
-1. **Design** - Choose problem type: constraint satisfaction, cryptography, spatial reasoning, pattern recognition, or data analysis
-2. **Python Verification** - Validate solution uniqueness with brute-force enumeration
-3. **Randomize Answer Position** - Run `python3 -c "import random; print(random.randint(1, 5))"` to determine correct answer number (1-5)
-4. **Create HTML** - Use `template.html` as base, only edit between marked sections
+1. **設計**: 問題タイプを選択（制約充足、暗号解読、空間推論、パターン認識、データ分析）
+2. **Python検証**: 総当たりで解の一意性を確認
+3. **正解番号ランダム化**: `python3 -c "import random; print(random.randint(1, 5))"` を実行
+4. **HTML作成**: `template.html` をベースに、指定セクションのみ編集
 
-## File Structure
+## ファイル構成
 
-```
-template.html    - HTML template (DO NOT modify structure/styles)
-難易度基準.md    - Difficulty standards reference
-README.md        - Full project documentation
-```
+| ファイル | 説明 |
+|---------|------|
+| template.html | HTMLテンプレート（構造・スタイル変更禁止） |
+| 難易度基準.md | 難易度基準の参考資料 |
+| README.md | プロジェクト詳細ドキュメント |
 
-## HTML Guidelines
+## HTML編集ルール
 
-- **Template**: Always use `template.html` as base
-- **Edit Zone**: Only modify between `<!-- ここから問題セクション -->` and `<!-- 解答・解説セクション -->`
-- **Colors**: Black and white only (grayscale allowed)
-- **Output naming**: `航大思考{N}.html`
+- テンプレート: 必ず `template.html` を使用
+- 編集範囲: `<!-- ここから問題セクション -->` から `<!-- 解答・解説セクション -->` の間のみ
+- カラー: 白黒のみ（グレースケール可）
+- 出力ファイル名: `航大思考{N}.html`
 
-## SVG Coordinate Guidelines
+## SVG座標ガイドライン
 
-When creating SVG graphics:
+SVG図表作成時は、各SVGの前にコメントで座標系を文書化する:
 
-1. **Document coordinate system** in comments before each SVG:
 ```html
 <!--
 座標系定義:
@@ -58,37 +58,36 @@ When creating SVG graphics:
 -->
 ```
 
-2. **Verify coordinates** with Python after creation
-3. **Ensure axis labels match** graph element positions
+作成後はPythonで座標を検証し、軸ラベルとグラフ要素の位置が一致することを確認する。
 
-## Python Verification Template
+## Python検証テンプレート
 
 ```python
 def verify_solution():
     """全ての可能性を検証し、唯一解を確認"""
     valid_solutions = []
-    # Enumerate all possibilities
-    # Apply constraints
-    # Verify uniqueness
+    # 全パターンを総当たり
+    # 制約条件を適用
+    # 解の一意性を確認
     assert len(valid_solutions) == 1, f"解が{len(valid_solutions)}個存在"
     return valid_solutions[0]
 ```
 
-## Quality Checklist
+## 品質チェックリスト
 
-- [ ] Python verification confirms unique solution
-- [ ] All constraints are necessary for solution
-- [ ] No contradicting constraints
-- [ ] SVG coordinates match intended positions
-- [ ] Table data matches calculations
-- [ ] Answer position randomized (not manually chosen)
-- [ ] Solvable in 170-310 seconds
-- [ ] Requires multi-step reasoning
+- [ ] Python検証で解が唯一であることを確認
+- [ ] すべての条件が解導出に必要
+- [ ] 矛盾する条件が存在しない
+- [ ] SVG座標が意図した位置と一致
+- [ ] 表のデータが計算結果と一致
+- [ ] 正解番号がランダム化されている
+- [ ] 170-310秒で解答可能
+- [ ] 複数ステップの推論が必要
 
-## Things to Avoid
+## 禁止事項
 
-- Visual contradictions (graph values vs. text values)
-- Obvious solutions
-- Requiring specialized aviation knowledge to solve
-- Skipping Python verification
-- Manually selecting answer positions (especially 1 or 5)
+- 視覚的矛盾（グラフ値とテキスト値の不一致）
+- 自明な解
+- 航空専門知識を必要とする問題設計
+- Python検証の省略
+- 正解番号の手動選択（特に1番や5番への固定）
