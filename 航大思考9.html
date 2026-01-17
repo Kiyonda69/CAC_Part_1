@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0);
+        }
+
+    .question-section {
+        background-color: white;
+        padding: 40px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.672);
+    }
+
+    .question-page-1 {
+        page-break-after: always;
+        min-height: 900px;
+    }
+
+    .question-page-2 {
+        min-height: 900px;
+    }
+
+    .question {
+        margin-bottom: 50px;
+        page-break-inside: avoid;
+    }
+
+    .question-number {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    .question-text {
+        margin-bottom: 15px;
+        text-align: justify;
+    }
+
+    .options {
+        margin-left: 20px;
+        line-height: 2;
+    }
+
+    .option-table {
+        margin: 15px 0;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .option-table td, .option-table th {
+        padding: 8px 15px;
+        text-align: center;
+    }
+
+    .option-table th {
+        font-weight: bold;
+    }
+
+    .underline {
+        text-decoration: underline;
+    }
+
+    .blank {
+        display: inline-block;
+        min-width: 80px;
+        height: 20px;
+        border: 2px solid #000;
+        margin: 0 5px;
+        text-align: center;
+        vertical-align: middle;
+        line-height: 20px;
+    }
+
+    /* 図表用スタイル */
+    .figure-container {
+        margin: 20px 0;
+        padding: 20px;
+        background-color: white;
+        border: 1px solid #dddddd;
+        text-align: center;
+    }
+
+    .figure-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 15px;
+    }
+
+    .figure-content {
+        display: inline-block;
+        margin: 10px auto;
+    }
+
+    /* SVG図表用 */
+    svg {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .svg-text {
+        font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+        font-size: 14px;
+    }
+
+    /* テーブル図表用 */
+    .figure-table {
+        margin: 0 auto;
+        border-collapse: collapse;
+        background-color: white;
+    }
+
+    .figure-table td {
+        border: 2px solid #333;
+        padding: 15px 20px;
+        min-width: 80px;
+        min-height: 60px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .figure-table th {
+        border: 2px solid #333;
+        padding: 10px 15px;
+        background-color: #e8e8e8;
+        font-weight: bold;
+    }
+
+    /* 凡例用 */
+    .legend {
+        margin-top: 15px;
+        font-size: 14px;
+        text-align: left;
+        display: inline-block;
+    }
+
+    .legend-item {
+        margin: 5px 0;
+    }
+
+    /* 座標系・グリッド用 */
+    .grid-container {
+        display: inline-block;
+        margin: 10px auto;
+    }
+
+    @media print {
+        body {
+            background-color: white;
+        }
+        .question-section {
+            box-shadow: none;
+            page-break-after: always;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="question-section question-page-1">
+        <!-- ========== ここから問題セクション ========== -->
+        <!-- ========== 問1 ========== -->
+        <div class="question">
+            <!-- 問題文のタイトル部分 -->
+            <div class="question-number">問1．ある航空機が図1の地図上のいずれかの位置にいる。パイロットの計器パネルには「ヘディング計器」と「相対方位指示器（RBI）」が表示されている。図2の計器表示から、自機の位置と向きとして正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+
+            <!-- 計器の説明 -->
+            <div class="question-text">
+                <strong>【計器の読み方】</strong><br>
+                ・ヘディング計器：自機の機首が向いている方位を示す（北=0度、東=90度、南=180度、西=270度）<br>
+                ・相対方位指示器（RBI）：自機から見た無線局Sへの相対方位を示す<br>
+                　- 0度：無線局は機首方向（真正面）<br>
+                　- 90度：無線局は右真横<br>
+                　- 180度：無線局は真後ろ<br>
+                　- 270度：無線局は左真横
+            </div>
+
+            <!-- 図1：地図 -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】地図と候補位置</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x400px
+                    - viewBox: 0 0 500 400
+                    - 無線局S: (300, 200)
+                    - 候補位置: ア(150,100), イ(450,100), ウ(450,300), エ(150,300), オ(120,200)
+                    -->
+                    <svg width="500" height="400" viewBox="0 0 500 400">
+                        <!-- 背景グリッド（薄い線） -->
+                        <defs>
+                            <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ddd" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        <rect width="500" height="400" fill="url(#grid)"/>
+
+                        <!-- 方位表示 -->
+                        <text x="250" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N</text>
+                        <line x1="250" y1="30" x2="250" y2="50" stroke="#333" stroke-width="2"/>
+                        <polygon points="250,30 245,40 255,40" fill="#333"/>
+
+                        <!-- 無線局S -->
+                        <circle cx="300" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="300" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">S</text>
+                        <text x="300" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局</text>
+
+                        <!-- 候補ア：(150, 100)、南東向き(135度) -->
+                        <g transform="translate(150, 100)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="10" y2="10" stroke="#333" stroke-width="2"/>
+                            <polygon points="10,10 3,6 6,3" fill="#333"/>
+                            <text x="-20" y="-10" class="svg-text" font-weight="bold">ア</text>
+                        </g>
+
+                        <!-- 候補イ：(450, 100)、西向き(270度) -->
+                        <g transform="translate(450, 100)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="-14" y2="0" stroke="#333" stroke-width="2"/>
+                            <polygon points="-14,0 -8,-4 -8,4" fill="#333"/>
+                            <text x="10" y="-10" class="svg-text" font-weight="bold">イ</text>
+                        </g>
+
+                        <!-- 候補ウ：(450, 300)、北向き(0度) -->
+                        <g transform="translate(450, 300)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
+                            <polygon points="0,-14 -4,-8 4,-8" fill="#333"/>
+                            <text x="10" y="5" class="svg-text" font-weight="bold">ウ</text>
+                        </g>
+
+                        <!-- 候補エ：(150, 300)、東向き(90度) -->
+                        <g transform="translate(150, 300)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="14" y2="0" stroke="#333" stroke-width="2"/>
+                            <polygon points="14,0 8,-4 8,4" fill="#333"/>
+                            <text x="-25" y="5" class="svg-text" font-weight="bold">エ</text>
+                        </g>
+
+                        <!-- 候補オ：(120, 200)、東向き(90度)【正解】 -->
+                        <g transform="translate(120, 200)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="14" y2="0" stroke="#333" stroke-width="2"/>
+                            <polygon points="14,0 8,-4 8,4" fill="#333"/>
+                            <text x="-25" y="5" class="svg-text" font-weight="bold">オ</text>
+                        </g>
+
+                        <!-- 凡例 -->
+                        <rect x="20" y="350" width="150" height="40" fill="white" stroke="#999" stroke-width="1"/>
+                        <circle cx="40" cy="365" r="6" fill="#eee" stroke="#333" stroke-width="1"/>
+                        <line x1="40" y1="365" x2="50" y2="365" stroke="#333" stroke-width="1.5"/>
+                        <polygon points="50,365 46,362 46,368" fill="#333"/>
+                        <text x="60" y="369" class="svg-text" font-size="11">自機（矢印は機首方向）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 図2：計器表示 -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】計器パネルの表示</div>
+                <div class="figure-content">
+                    <svg width="400" height="180" viewBox="0 0 400 180">
+                        <!-- ヘディング計器 -->
+                        <g transform="translate(100, 90)">
+                            <circle cx="0" cy="0" r="60" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="0" y="-45" text-anchor="middle" class="svg-text" font-size="11">N(0)</text>
+                            <text x="45" y="4" text-anchor="middle" class="svg-text" font-size="11">E(90)</text>
+                            <text x="0" y="52" text-anchor="middle" class="svg-text" font-size="11">S(180)</text>
+                            <text x="-45" y="4" text-anchor="middle" class="svg-text" font-size="11">W(270)</text>
+                            <!-- 目盛り -->
+                            <line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1"/>
+                            <line x1="55" y1="0" x2="50" y2="0" stroke="#333" stroke-width="1"/>
+                            <line x1="0" y1="55" x2="0" y2="50" stroke="#333" stroke-width="1"/>
+                            <line x1="-55" y1="0" x2="-50" y2="0" stroke="#333" stroke-width="1"/>
+                            <!-- 針（90度=東向き） -->
+                            <line x1="0" y1="0" x2="35" y2="0" stroke="#333" stroke-width="3"/>
+                            <polygon points="35,0 25,-5 25,5" fill="#333"/>
+                            <circle cx="0" cy="0" r="5" fill="#333"/>
+                            <text x="0" y="80" text-anchor="middle" class="svg-text" font-weight="bold">ヘディング: 90度</text>
+                        </g>
+
+                        <!-- RBI -->
+                        <g transform="translate(300, 90)">
+                            <circle cx="0" cy="0" r="60" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="0" y="-45" text-anchor="middle" class="svg-text" font-size="11">0</text>
+                            <text x="45" y="4" text-anchor="middle" class="svg-text" font-size="11">90</text>
+                            <text x="0" y="52" text-anchor="middle" class="svg-text" font-size="11">180</text>
+                            <text x="-45" y="4" text-anchor="middle" class="svg-text" font-size="11">270</text>
+                            <!-- 目盛り -->
+                            <line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1"/>
+                            <line x1="55" y1="0" x2="50" y2="0" stroke="#333" stroke-width="1"/>
+                            <line x1="0" y1="55" x2="0" y2="50" stroke="#333" stroke-width="1"/>
+                            <line x1="-55" y1="0" x2="-50" y2="0" stroke="#333" stroke-width="1"/>
+                            <!-- 機首マーク -->
+                            <polygon points="0,-58 -5,-65 5,-65" fill="#333"/>
+                            <!-- 針（0度=真正面） -->
+                            <line x1="0" y1="0" x2="0" y2="-35" stroke="#333" stroke-width="3"/>
+                            <polygon points="0,-35 -5,-25 5,-25" fill="#333"/>
+                            <circle cx="0" cy="0" r="5" fill="#333"/>
+                            <text x="0" y="80" text-anchor="middle" class="svg-text" font-weight="bold">RBI: 0度</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options">
+                (1) ア<br>
+                (2) イ<br>
+                (3) ウ<br>
+                (4) エ<br>
+                (5) オ
+            </div>
+        </div>
+
+        <!-- ========== 問1の解説 ========== -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
+            <strong>問1（正解:(5)）</strong><br><br>
+
+            <strong>【計器表示の解釈】</strong><br>
+            ・ヘディング90度 → 自機は東を向いている<br>
+            ・RBI 0度 → 無線局Sは自機の真正面にある<br><br>
+
+            <strong>【各候補の検証】</strong><br>
+            ・ア：南東向き（ヘディング約135度）→ ヘディングが一致しない<br>
+            ・イ：西向き（ヘディング270度）→ ヘディングが一致しない<br>
+            ・ウ：北向き（ヘディング0度）→ ヘディングが一致しない<br>
+            ・エ：東向き（ヘディング90度）だが、無線局Sは北東方向（RBI約326度）→ RBIが一致しない<br>
+            ・オ：東向き（ヘディング90度）で、無線局Sは真東方向（RBI 0度）→ 両方一致<br><br>
+
+            <strong>【結論】</strong><br>
+            ヘディング90度かつRBI 0度を満たすのはオのみ。<br>
+            正解:(5) オ
+        </div>
+    </div>
+
+    <div class="question-section question-page-2">
+        <!-- ========== 問2 ========== -->
+        <div class="question">
+            <!-- 問題文のタイトル部分 -->
+            <div class="question-number">問2．ある航空機が図3の地図上のいずれかの位置にいる。パイロットの計器パネルには2つの無線局（PとQ）への相対方位指示器が表示されている。図4の計器表示から、自機の位置と向きとして正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+
+            <!-- 計器の説明 -->
+            <div class="question-text">
+                <strong>【計器の読み方】</strong><br>
+                ・ヘディング計器：自機の機首が向いている方位を示す（北=0度、東=90度、南=180度、西=270度）<br>
+                ・相対方位指示器（RBI）：自機から見た各無線局への相対方位を示す<br>
+                　- 0度：無線局は機首方向（真正面）<br>
+                　- 90度：無線局は右真横<br>
+                　- 180度：無線局は真後ろ<br>
+                　- 270度：無線局は左真横
+            </div>
+
+            <!-- 図3：地図 -->
+            <div class="figure-container">
+                <div class="figure-title">【図3】地図と候補位置</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x400px
+                    - viewBox: 0 0 500 400
+                    - 無線局P: (150, 200)、無線局Q: (450, 200)
+                    - 候補位置: ア(200,100), イ(300,100), ウ(400,100), エ(300,300), オ(300,100)※向き違い
+                    -->
+                    <svg width="500" height="400" viewBox="0 0 500 400">
+                        <!-- 背景グリッド -->
+                        <defs>
+                            <pattern id="grid2" width="50" height="50" patternUnits="userSpaceOnUse">
+                                <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ddd" stroke-width="0.5"/>
+                            </pattern>
+                        </defs>
+                        <rect width="500" height="400" fill="url(#grid2)"/>
+
+                        <!-- 方位表示 -->
+                        <text x="250" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N</text>
+                        <line x1="250" y1="30" x2="250" y2="50" stroke="#333" stroke-width="2"/>
+                        <polygon points="250,30 245,40 255,40" fill="#333"/>
+
+                        <!-- 無線局P -->
+                        <circle cx="150" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="150" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">P</text>
+                        <text x="150" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局P</text>
+
+                        <!-- 無線局Q -->
+                        <circle cx="450" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="450" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">Q</text>
+                        <text x="450" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局Q</text>
+
+                        <!-- 候補ア：(200, 100)、北向き(0度) -->
+                        <g transform="translate(200, 100)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
+                            <polygon points="0,-14 -4,-8 4,-8" fill="#333"/>
+                            <text x="-20" y="-5" class="svg-text" font-weight="bold">ア</text>
+                        </g>
+
+                        <!-- 候補イ：(300, 100)、北向き(0度)【正解】 -->
+                        <g transform="translate(300, 100)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
+                            <polygon points="0,-14 -4,-8 4,-8" fill="#333"/>
+                            <text x="15" y="-5" class="svg-text" font-weight="bold">イ</text>
+                        </g>
+
+                        <!-- 候補ウ：(400, 100)、北向き(0度) -->
+                        <g transform="translate(400, 100)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
+                            <polygon points="0,-14 -4,-8 4,-8" fill="#333"/>
+                            <text x="15" y="-5" class="svg-text" font-weight="bold">ウ</text>
+                        </g>
+
+                        <!-- 候補エ：(300, 300)、東向き(90度) -->
+                        <g transform="translate(300, 300)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="14" y2="0" stroke="#333" stroke-width="2"/>
+                            <polygon points="14,0 8,-4 8,4" fill="#333"/>
+                            <text x="-20" y="5" class="svg-text" font-weight="bold">エ</text>
+                        </g>
+
+                        <!-- 候補オ：(300, 100)、南向き(180度) -->
+                        <g transform="translate(320, 130)">
+                            <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
+                            <line x1="0" y1="0" x2="0" y2="14" stroke="#333" stroke-width="2"/>
+                            <polygon points="0,14 -4,8 4,8" fill="#333"/>
+                            <text x="15" y="5" class="svg-text" font-weight="bold">オ</text>
+                        </g>
+
+                        <!-- 凡例 -->
+                        <rect x="20" y="350" width="150" height="40" fill="white" stroke="#999" stroke-width="1"/>
+                        <circle cx="40" cy="365" r="6" fill="#eee" stroke="#333" stroke-width="1"/>
+                        <line x1="40" y1="365" x2="50" y2="365" stroke="#333" stroke-width="1.5"/>
+                        <polygon points="50,365 46,362 46,368" fill="#333"/>
+                        <text x="60" y="369" class="svg-text" font-size="11">自機（矢印は機首方向）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 図4：計器表示 -->
+            <div class="figure-container">
+                <div class="figure-title">【図4】計器パネルの表示</div>
+                <div class="figure-content">
+                    <svg width="500" height="180" viewBox="0 0 500 180">
+                        <!-- ヘディング計器 -->
+                        <g transform="translate(80, 90)">
+                            <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="0" y="-40" text-anchor="middle" class="svg-text" font-size="10">N(0)</text>
+                            <text x="40" y="4" text-anchor="middle" class="svg-text" font-size="10">E(90)</text>
+                            <text x="0" y="47" text-anchor="middle" class="svg-text" font-size="10">S(180)</text>
+                            <text x="-40" y="4" text-anchor="middle" class="svg-text" font-size="10">W(270)</text>
+                            <line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1"/>
+                            <line x1="50" y1="0" x2="45" y2="0" stroke="#333" stroke-width="1"/>
+                            <line x1="0" y1="50" x2="0" y2="45" stroke="#333" stroke-width="1"/>
+                            <line x1="-50" y1="0" x2="-45" y2="0" stroke="#333" stroke-width="1"/>
+                            <!-- 針（0度=北向き） -->
+                            <line x1="0" y1="0" x2="0" y2="-30" stroke="#333" stroke-width="3"/>
+                            <polygon points="0,-30 -4,-22 4,-22" fill="#333"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <text x="0" y="73" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">ヘディング: 0度</text>
+                        </g>
+
+                        <!-- RBI(P) -->
+                        <g transform="translate(250, 90)">
+                            <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="0" y="-40" text-anchor="middle" class="svg-text" font-size="10">0</text>
+                            <text x="40" y="4" text-anchor="middle" class="svg-text" font-size="10">90</text>
+                            <text x="0" y="47" text-anchor="middle" class="svg-text" font-size="10">180</text>
+                            <text x="-40" y="4" text-anchor="middle" class="svg-text" font-size="10">270</text>
+                            <line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1"/>
+                            <line x1="50" y1="0" x2="45" y2="0" stroke="#333" stroke-width="1"/>
+                            <line x1="0" y1="50" x2="0" y2="45" stroke="#333" stroke-width="1"/>
+                            <line x1="-50" y1="0" x2="-45" y2="0" stroke="#333" stroke-width="1"/>
+                            <polygon points="0,-53 -4,-60 4,-60" fill="#333"/>
+                            <!-- 針（236度≈左後方） -->
+                            <line x1="0" y1="0" x2="-22" y2="20" stroke="#333" stroke-width="3"/>
+                            <polygon points="-22,20 -12,16 -18,10" fill="#333"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <text x="0" y="73" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">RBI(P): 236度</text>
+                        </g>
+
+                        <!-- RBI(Q) -->
+                        <g transform="translate(420, 90)">
+                            <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="0" y="-40" text-anchor="middle" class="svg-text" font-size="10">0</text>
+                            <text x="40" y="4" text-anchor="middle" class="svg-text" font-size="10">90</text>
+                            <text x="0" y="47" text-anchor="middle" class="svg-text" font-size="10">180</text>
+                            <text x="-40" y="4" text-anchor="middle" class="svg-text" font-size="10">270</text>
+                            <line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1"/>
+                            <line x1="50" y1="0" x2="45" y2="0" stroke="#333" stroke-width="1"/>
+                            <line x1="0" y1="50" x2="0" y2="45" stroke="#333" stroke-width="1"/>
+                            <line x1="-50" y1="0" x2="-45" y2="0" stroke="#333" stroke-width="1"/>
+                            <polygon points="0,-53 -4,-60 4,-60" fill="#333"/>
+                            <!-- 針（124度≈右後方） -->
+                            <line x1="0" y1="0" x2="18" y2="24" stroke="#333" stroke-width="3"/>
+                            <polygon points="18,24 14,14 8,20" fill="#333"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <text x="0" y="73" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">RBI(Q): 124度</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options">
+                (1) ア<br>
+                (2) ウ<br>
+                (3) イ<br>
+                (4) エ<br>
+                (5) オ
+            </div>
+        </div>
+
+        <!-- ========== 問2の解説 ========== -->
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
+            <strong>問2（正解:(3)）</strong><br><br>
+
+            <strong>【計器表示の解釈】</strong><br>
+            ・ヘディング0度 → 自機は北を向いている<br>
+            ・RBI(P) 236度 → 無線局Pは左後方（約南西方向から56度）<br>
+            ・RBI(Q) 124度 → 無線局Qは右後方（約南東方向から34度）<br><br>
+
+            <strong>【ヘディングによる絞り込み】</strong><br>
+            ヘディング0度（北向き）の候補：ア、イ、ウ<br>
+            →エ（東向き90度）とオ（南向き180度）は除外<br><br>
+
+            <strong>【RBIによる絞り込み】</strong><br>
+            ・ア：Pは左後方（RBI約207度）、Qは右後方（RBI約112度）→ 不一致<br>
+            ・イ：Pは左後方（RBI約236度）、Qは右後方（RBI約124度）→ 一致<br>
+            ・ウ：Pは左後方（RBI約248度）、Qは右後方（RBI約153度）→ 不一致<br><br>
+
+            <strong>【結論】</strong><br>
+            ヘディング0度、RBI(P)≈236度、RBI(Q)≈124度を全て満たすのはイのみ。<br>
+            正解:(3) イ
+        </div>
+    </div>
+</body>
+</html>
