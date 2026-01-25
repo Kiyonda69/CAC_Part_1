@@ -235,42 +235,6 @@
             }
         }
 
-        /* 結果表示 */
-        .result-box {
-            display: none;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .result-box.show {
-            display: block;
-        }
-
-        .result-box.correct {
-            background-color: #e8f5e9;
-            border: 2px solid #4CAF50;
-            color: #2e7d32;
-        }
-
-        .result-box.incorrect {
-            background-color: #ffebee;
-            border: 2px solid #f44336;
-            color: #c62828;
-        }
-
-        .result-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .result-time {
-            font-size: 14px;
-            color: #666;
-        }
-
         /* ボタン */
         .action-buttons {
             display: none;
@@ -644,12 +608,6 @@
                 </button>
             </div>
 
-            <!-- 結果表示 -->
-            <div class="result-box" id="q1-result">
-                <div class="result-title" id="q1-result-title"></div>
-                <div class="result-time" id="q1-result-time"></div>
-            </div>
-
             <!-- アクションボタン -->
             <div class="action-buttons" id="q1-actions">
                 <button class="btn btn-primary" onclick="toggleExplanation(1)">解説を表示</button>
@@ -926,12 +884,6 @@
                 </button>
             </div>
 
-            <!-- 結果表示 -->
-            <div class="result-box" id="q2-result">
-                <div class="result-title" id="q2-result-title"></div>
-                <div class="result-time" id="q2-result-time"></div>
-            </div>
-
             <!-- アクションボタン -->
             <div class="action-buttons" id="q2-actions">
                 <button class="btn btn-primary" onclick="toggleExplanation(2)">解説を表示</button>
@@ -1094,24 +1046,61 @@
 
         // 解答選択
         function selectAnswer(questionNum, selectedOption, correctOption) {
-            // 既に解答済みの場合は無視
-            if (state.answers[questionNum] !== undefined) return;
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
 
-            // タイマー停止・時間記録
-            const elapsedTime = getElapsedTime();
-            state.times[questionNum] = elapsedTime;
-            stopTimer();
+            // 既に同じ選択肢が選択されている場合は選択解除
+            if (state.answers[questionNum] === selectedOption) {
+                // 選択解除
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // アクションボタンを非表示・テキストリセット
+                const actionsDiv = document.getElementById(`q${questionNum}-actions`);
+                actionsDiv.classList.remove('show');
+                actionsDiv.querySelector('.btn-primary').textContent = '解説を表示';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                // タイマーを再開
+                document.getElementById('timer').classList.remove('stopped');
+                state.startTime = Date.now();
+                if (!state.timerInterval) {
+                    state.timerInterval = setInterval(updateTimer, 100);
+                }
+                state.isTimerRunning = true;
+
+                return;
+            }
+
+            // 初回選択時のみタイマー停止・時間記録
+            if (state.answers[questionNum] === undefined) {
+                const elapsedTime = getElapsedTime();
+                state.times[questionNum] = elapsedTime;
+                stopTimer();
+            }
 
             // 解答記録
             state.answers[questionNum] = selectedOption;
             const isCorrect = selectedOption === correctOption;
 
             // 選択肢のスタイル更新
-            const optionsContainer = document.getElementById(`q${questionNum}-options`);
-            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
-
             buttons.forEach(btn => {
-                btn.classList.add('disabled');
+                btn.classList.remove('selected', 'correct', 'incorrect');
                 const option = parseInt(btn.dataset.option);
 
                 if (option === selectedOption) {
@@ -1125,23 +1114,28 @@
                 }
             });
 
-            // 結果表示
-            const resultBox = document.getElementById(`q${questionNum}-result`);
-            const resultTitle = document.getElementById(`q${questionNum}-result-title`);
-            const resultTime = document.getElementById(`q${questionNum}-result-time`);
-
-            resultBox.classList.add('show');
-            resultBox.classList.add(isCorrect ? 'correct' : 'incorrect');
-            resultTitle.textContent = isCorrect ? '正解!' : '不正解';
-            resultTime.textContent = `解答時間: ${formatTime(elapsedTime)}`;
-
             // プログレス更新
             const progressDot = document.getElementById(`progress-${questionNum}`);
             progressDot.classList.remove('active');
             progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
 
-            // アクションボタン表示
-            document.getElementById(`q${questionNum}-actions`).classList.add('show');
+            // アクションボタン表示・テキスト更新
+            const actionsDiv = document.getElementById(`q${questionNum}-actions`);
+            actionsDiv.classList.add('show');
+            const actionBtn = actionsDiv.querySelector('.btn-primary');
+            actionBtn.textContent = '解説を隠す';
+
+            // 解説を自動的に展開
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // 解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
 
         // 解説の展開/折りたたみ
@@ -1157,9 +1151,6 @@
                 // 解説を表示
                 explanationSection.classList.add('show');
                 actionBtn.textContent = '解説を隠す';
-
-                // ナビゲーションボタンも表示
-                document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
 
                 // 解説セクションまでスクロール
                 setTimeout(() => {
