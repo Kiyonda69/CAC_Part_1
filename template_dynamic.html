@@ -236,17 +236,6 @@
         }
 
         /* ボタン */
-        .action-buttons {
-            display: none;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .action-buttons.show {
-            display: flex;
-        }
-
         .btn {
             padding: 12px 30px;
             font-size: 16px;
@@ -303,49 +292,6 @@
 
         .explanation-content strong {
             color: #333;
-        }
-
-        /* 完了画面 */
-        .completion-screen {
-            text-align: center;
-            padding: 50px 30px;
-        }
-
-        .completion-title {
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 30px;
-        }
-
-        .score-display {
-            font-size: 48px;
-            font-weight: bold;
-            color: #2196F3;
-            margin: 20px 0;
-        }
-
-        .score-detail {
-            font-size: 18px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .time-summary {
-            background-color: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-
-        .time-summary-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .time-summary-item:last-child {
-            border-bottom: none;
         }
 
         /* テーブル図表用 */
@@ -606,11 +552,6 @@
                         </g>
                     </svg>
                 </button>
-            </div>
-
-            <!-- アクションボタン -->
-            <div class="action-buttons" id="q1-actions">
-                <button class="btn btn-primary" onclick="toggleExplanation(1)">解説を表示</button>
             </div>
 
             <!-- 解説セクション（問題の下に展開） -->
@@ -884,11 +825,6 @@
                 </button>
             </div>
 
-            <!-- アクションボタン -->
-            <div class="action-buttons" id="q2-actions">
-                <button class="btn btn-primary" onclick="toggleExplanation(2)">解説を表示</button>
-            </div>
-
             <!-- 解説セクション（問題の下に展開） -->
             <div class="explanation-section" id="q2-explanation">
                 <div class="explanation-header">解説（正解: (3)）</div>
@@ -924,35 +860,7 @@
             <!-- ナビゲーション -->
             <div class="nav-buttons" id="q2-nav" style="display: none;">
                 <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
-                <button class="btn btn-primary" onclick="showCompletion()">結果を見る</button>
-            </div>
-        </div>
-
-        <!-- ========== 完了画面 ========== -->
-        <div class="screen" id="completion">
-            <div class="completion-screen">
-                <div class="completion-title">全問終了</div>
-                <div class="score-display" id="final-score">0/2</div>
-                <div class="score-detail" id="final-detail">正解数 / 問題数</div>
-
-                <div class="time-summary">
-                    <div class="time-summary-item">
-                        <span>問1 解答時間</span>
-                        <span id="time-q1">--:--</span>
-                    </div>
-                    <div class="time-summary-item">
-                        <span>問2 解答時間</span>
-                        <span id="time-q2">--:--</span>
-                    </div>
-                    <div class="time-summary-item">
-                        <span><strong>合計時間</strong></span>
-                        <span id="time-total"><strong>--:--</strong></span>
-                    </div>
-                </div>
-
-                <div class="action-buttons show">
-                    <button class="btn btn-secondary" onclick="location.reload()">もう一度挑戦</button>
-                </div>
+                <button class="btn btn-secondary hidden">（空欄）</button>
             </div>
         </div>
     </main>
@@ -1049,8 +957,8 @@
             const optionsContainer = document.getElementById(`q${questionNum}-options`);
             const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
 
-            // 既に同じ選択肢が選択されている場合は選択解除
-            if (state.answers[questionNum] === selectedOption) {
+            // 既に選択済みの場合は選択解除（どの選択肢をクリックしても解除）
+            if (state.answers[questionNum] !== undefined) {
                 // 選択解除
                 state.answers[questionNum] = undefined;
 
@@ -1065,11 +973,6 @@
 
                 // ナビゲーションを非表示
                 document.getElementById(`q${questionNum}-nav`).style.display = 'none';
-
-                // アクションボタンを非表示・テキストリセット
-                const actionsDiv = document.getElementById(`q${questionNum}-actions`);
-                actionsDiv.classList.remove('show');
-                actionsDiv.querySelector('.btn-primary').textContent = '解説を表示';
 
                 // プログレスを未解答状態に戻す
                 const progressDot = document.getElementById(`progress-${questionNum}`);
@@ -1088,11 +991,9 @@
             }
 
             // 初回選択時のみタイマー停止・時間記録
-            if (state.answers[questionNum] === undefined) {
-                const elapsedTime = getElapsedTime();
-                state.times[questionNum] = elapsedTime;
-                stopTimer();
-            }
+            const elapsedTime = getElapsedTime();
+            state.times[questionNum] = elapsedTime;
+            stopTimer();
 
             // 解答記録
             state.answers[questionNum] = selectedOption;
@@ -1119,12 +1020,6 @@
             progressDot.classList.remove('active');
             progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
 
-            // アクションボタン表示・テキスト更新
-            const actionsDiv = document.getElementById(`q${questionNum}-actions`);
-            actionsDiv.classList.add('show');
-            const actionBtn = actionsDiv.querySelector('.btn-primary');
-            actionBtn.textContent = '解説を隠す';
-
             // 解説を自動的に展開
             const explanationSection = document.getElementById(`q${questionNum}-explanation`);
             explanationSection.classList.add('show');
@@ -1136,57 +1031,6 @@
             setTimeout(() => {
                 explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);
-        }
-
-        // 解説の展開/折りたたみ
-        function toggleExplanation(questionNum) {
-            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
-            const actionBtn = document.querySelector(`#q${questionNum}-actions .btn-primary`);
-
-            if (explanationSection.classList.contains('show')) {
-                // 解説を隠す
-                explanationSection.classList.remove('show');
-                actionBtn.textContent = '解説を表示';
-            } else {
-                // 解説を表示
-                explanationSection.classList.add('show');
-                actionBtn.textContent = '解説を隠す';
-
-                // 解説セクションまでスクロール
-                setTimeout(() => {
-                    explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-            }
-        }
-
-        // 完了画面表示
-        function showCompletion() {
-            // スコア計算
-            let correctCount = 0;
-            const totalQuestions = 2;
-            const correctAnswers = { 1: 3, 2: 3 }; // 各問題の正解
-
-            for (let q = 1; q <= totalQuestions; q++) {
-                if (state.answers[q] === correctAnswers[q]) {
-                    correctCount++;
-                }
-            }
-
-            // スコア表示
-            document.getElementById('final-score').textContent = `${correctCount}/${totalQuestions}`;
-            document.getElementById('final-detail').textContent =
-                correctCount === totalQuestions ? '全問正解!' : `${correctCount}問正解`;
-
-            // 時間表示
-            let totalTime = 0;
-            for (let q = 1; q <= totalQuestions; q++) {
-                const time = state.times[q] || 0;
-                totalTime += time;
-                document.getElementById(`time-q${q}`).textContent = formatTime(time);
-            }
-            document.getElementById('time-total').innerHTML = `<strong>${formatTime(totalTime)}</strong>`;
-
-            showScreen('completion');
         }
 
         // 初期化
