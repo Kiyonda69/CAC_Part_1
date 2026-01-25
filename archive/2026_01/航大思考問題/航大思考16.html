@@ -1,0 +1,619 @@
+<!--
+================================================================================
+航大思考16.html - インタラクティブ版問題ファイル（セット16）
+================================================================================
+
+【問題内容】
+- 問1: 既存問題の移行 - 正解: (5)
+- 問2: 既存問題の移行 - 正解: (3)
+
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                5人の訓練生A、B、C、D、Eが、1番目から5番目の順にフライト訓練を受ける。以下の(ア)～(オ)の条件をすべて満たすとき、3番目に訓練を受ける人物として正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】訓練順序</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x100px
+                    - viewBox: 0 0 500 100
+                    - 余白: 上下左右20px
+                    -->
+                    <svg width="500" height="100" viewBox="0 0 500 100">
+                        <!-- 矢印の線 -->
+                        <line x1="50" y1="50" x2="450" y2="50" stroke="#333" stroke-width="2"/>
+                        <polygon points="450,45 465,50 450,55" fill="#333"/>
+
+                        <!-- 順番の丸 -->
+                        <circle cx="70" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">1</text>
+
+                        <circle cx="150" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="150" y="55" text-anchor="middle" class="svg-text" font-weight="bold">2</text>
+
+                        <circle cx="230" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="230" y="55" text-anchor="middle" class="svg-text" font-weight="bold">3</text>
+
+                        <circle cx="310" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="310" y="55" text-anchor="middle" class="svg-text" font-weight="bold">4</text>
+
+                        <circle cx="390" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="390" y="55" text-anchor="middle" class="svg-text" font-weight="bold">5</text>
+
+                        <!-- ラベル -->
+                        <text x="70" y="85" text-anchor="middle" class="svg-text" font-size="12">最初</text>
+                        <text x="390" y="85" text-anchor="middle" class="svg-text" font-size="12">最後</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 問題本文 -->
+            <div class="question-text">
+                (ア) AとEは隣り合って並ぶ<br>
+                (イ) CはDのすぐ後に訓練を受ける<br>
+                (ウ) Bは5番目に訓練を受ける<br>
+                (エ) AはCより前に訓練を受ける<br>
+                (オ) Eは1番目ではない
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>A
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>B
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>C
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>E
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>D
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <strong>問1（正解: (5)）</strong><br>
+            条件を整理して論理的に順序を決定する。<br><br>
+
+            <strong>【条件の整理】</strong><br>
+            ・(ウ)より: Bは5番目（確定）<br>
+            ・(イ)より: DとCは隣接し、D→Cの順<br>
+            ・(オ)より: Eは1番目ではない<br>
+            ・(ア)より: AとEは隣接<br><br>
+
+            <strong>【AとEの位置の決定】</strong><br>
+            ・AとEは隣接し、Eは1番目ではない<br>
+            ・Bが5番目なので、A-Eのペアは1-2、2-3、3-4のいずれか<br>
+            ・(エ)より AはCより前。(イ)よりDはCのすぐ前<br>
+            ・D-Cペアが存在し、AはCより前なので、AはDより前になる<br><br>
+
+            <strong>【配置の確定】</strong><br>
+            ・Eが1番目ではないので、A-Eのペアは「A→E」の順で1-2番目<br>
+            ・D-Cのペアが3-4番目（AがCより前という条件を満たす）<br>
+            ・Bが5番目<br><br>
+
+            <strong>【最終順序】</strong><br>
+            1番目: A → 2番目: E → 3番目: D → 4番目: C → 5番目: B<br><br>
+
+            したがって、3番目に訓練を受けるのは<strong>D</strong>である。<br>
+            正解: (5) D
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                航空貨物の積み込みにおいて、6つの荷物P、Q、R、S、T、Uを1番目から6番目の順に積み込む。以下の(ア)～(キ)の条件をすべて満たすとき、4番目に積み込まれる荷物として正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】積み込み順序</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 550x100px
+                    - viewBox: 0 0 550 100
+                    - 余白: 上下左右20px
+                    -->
+                    <svg width="550" height="100" viewBox="0 0 550 100">
+                        <!-- 矢印の線 -->
+                        <line x1="40" y1="50" x2="510" y2="50" stroke="#333" stroke-width="2"/>
+                        <polygon points="510,45 525,50 510,55" fill="#333"/>
+
+                        <!-- 順番の丸 -->
+                        <circle cx="60" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="60" y="55" text-anchor="middle" class="svg-text" font-weight="bold">1</text>
+
+                        <circle cx="135" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="135" y="55" text-anchor="middle" class="svg-text" font-weight="bold">2</text>
+
+                        <circle cx="210" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="210" y="55" text-anchor="middle" class="svg-text" font-weight="bold">3</text>
+
+                        <circle cx="285" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="285" y="55" text-anchor="middle" class="svg-text" font-weight="bold">4</text>
+
+                        <circle cx="360" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="360" y="55" text-anchor="middle" class="svg-text" font-weight="bold">5</text>
+
+                        <circle cx="435" cy="50" r="20" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="435" y="55" text-anchor="middle" class="svg-text" font-weight="bold">6</text>
+
+                        <!-- ラベル -->
+                        <text x="60" y="85" text-anchor="middle" class="svg-text" font-size="12">最初</text>
+                        <text x="435" y="85" text-anchor="middle" class="svg-text" font-size="12">最後</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 問題本文 -->
+            <div class="question-text">
+                (ア) PはQより前に積み込む<br>
+                (イ) RとSの間には、ちょうど2つの荷物がある<br>
+                (ウ) TはUの直後に積み込む<br>
+                (エ) Qは6番目に積み込む<br>
+                (オ) SはPより前に積み込む<br>
+                (カ) Uは1番目ではない<br>
+                (キ) RはTより後に積み込む
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>P
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>S
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>R
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>T
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>U
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <strong>問2（正解: (3)）</strong><br>
+            条件を整理して論理的に順序を決定する。<br><br>
+
+            <strong>【確定条件の整理】</strong><br>
+            ・(エ)より: Q = 6番目（確定）<br>
+            ・(ア)より: P &lt; Q なので、P は 1〜5番目のいずれか<br>
+            ・(オ)より: S &lt; P なので、S, P の順序が確定<br>
+            ・(ウ)より: T = U + 1（TはUの直後で隣接）<br>
+            ・(カ)より: U は 1番目ではない<br><br>
+
+            <strong>【U-Tペアの位置決定】</strong><br>
+            ・Uは1番目ではないので、U-Tペアは (2,3)、(3,4)、(4,5) のいずれか<br>
+            ・(キ)より: R &gt; T<br>
+            ・(イ)より: |R - S| = 3（間に2つの荷物）<br><br>
+
+            <strong>【場合分けによる検証】</strong><br>
+            ・Q = 6番目が確定<br>
+            ・S &lt; P &lt; 6 かつ R &gt; T を満たす配置を探す<br>
+            ・|R - S| = 3 より、(S, R) = (1,4) または (4,1) または (2,5) または (5,2) など<br>
+            ・S &lt; P かつ R &gt; T を考慮すると、S = 1番目、R = 4番目<br><br>
+
+            <strong>【配置の確定】</strong><br>
+            ・S = 1番目、R = 4番目（間に2つの荷物: 2,3番目）<br>
+            ・U-T ペアは R より前で、U は 1番目ではない → (U,T) = (2,3)<br>
+            ・P = 5番目（S &lt; P &lt; Q を満たす残りの位置）<br>
+            ・Q = 6番目<br><br>
+
+            <strong>【最終順序】</strong><br>
+            1: S → 2: U → 3: T → 4: R → 5: P → 6: Q<br><br>
+
+            したがって、4番目に積み込まれるのは<strong>R</strong>である。<br>
+            正解: (3) R
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+</main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考16/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

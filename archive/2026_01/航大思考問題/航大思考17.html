@@ -1,0 +1,553 @@
+<!--
+================================================================================
+航大思考17.html - インタラクティブ版問題ファイル（セット17）
+================================================================================
+
+【問題内容】
+- 問1: 既存問題の移行 - 正解: (4)
+- 問2: 既存問題の移行 - 正解: (5)
+
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                ある会社の5つの製品P、Q、R、S、Tの売上高について、以下の(ア)～(エ)のことがわかっている。このとき、確実に言えることとして正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【条件】</div>
+                <div class="figure-content" style="text-align: left;">
+                    <p style="margin: 10px 0;">(ア) Pの売上高はQより多い</p>
+                    <p style="margin: 10px 0;">(イ) Rの売上高はSより多い</p>
+                    <p style="margin: 10px 0;">(ウ) Qの売上高はTより多い</p>
+                    <p style="margin: 10px 0;">(エ) Tの売上高はSより多い</p>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">※ 5つの製品の売上高はすべて異なる</div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>Pは必ず売上高1位である
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>Rは必ずQより売上高が多い
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>Tは必ず売上高4位である
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>Sは必ず売上高最下位である
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>PとRの売上高順位は隣接している
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <strong>【条件の整理】</strong><br>
+            与えられた条件を不等号で表すと：<br>
+            ・(ア) P > Q<br>
+            ・(イ) R > S<br>
+            ・(ウ) Q > T<br>
+            ・(エ) T > S<br><br>
+
+            <strong>【推移律による関係の導出】</strong><br>
+            (ア)(ウ)より：P > Q > T<br>
+            (エ)より：T > S<br>
+            したがって：P > Q > T > S ...(1)<br><br>
+
+            (イ)より：R > S ...(2)<br><br>
+
+            <strong>【有効な順序パターンの列挙】</strong><br>
+            (1)(2)を満たす順序を列挙する：<br>
+            ・P > Q > R > T > S（Rが3位）<br>
+            ・P > Q > T > R > S（Rが4位）<br>
+            ・P > R > Q > T > S（Rが2位）<br>
+            ・R > P > Q > T > S（Rが1位）<br><br>
+
+            <strong>【選択肢の検証】</strong><br>
+            (1) Pは必ず売上高1位である → Rが1位の場合があるため不正解<br>
+            (2) Rは必ずQより売上高が多い → Rが3位や4位の場合があるため不正解<br>
+            (3) Tは必ず売上高4位である → Tが3位の場合もあるため不正解<br>
+            (4) Sは必ず売上高最下位である → 全パターンで5位のため正解<br>
+            (5) PとRの売上高順位は隣接している → 順位差が2や3の場合もあるため不正解<br><br>
+
+            正解：(4)
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある企業グループの6つの部門A、B、C、D、E、Fの業績評価順位について、以下の(ア)～(オ)のことがわかっている。このとき、確実に言えることとして正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【条件】</div>
+                <div class="figure-content" style="text-align: left;">
+                    <p style="margin: 10px 0;">(ア) Aの順位はDより上位である</p>
+                    <p style="margin: 10px 0;">(イ) Bの順位はEより2つ以上上位である</p>
+                    <p style="margin: 10px 0;">(ウ) Cの順位はAより下位である</p>
+                    <p style="margin: 10px 0;">(エ) DとFの順位差は1である（隣接している）</p>
+                    <p style="margin: 10px 0;">(オ) Eの順位はFより上位である</p>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">※ 6つの部門の順位はすべて異なる（1位から6位まで）</div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>Aは必ず1位である
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>Bは必ずAより上位である
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>Cは必ずDより上位である
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>Fは必ず最下位である
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>Dは必ずEより下位である
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <strong>【条件の整理】</strong><br>
+            順位を数値で表し、小さいほど上位とする（1位=1, 6位=6）：<br>
+            ・(ア) A < D（Aの順位 < Dの順位）<br>
+            ・(イ) B + 2 ≦ E（Bの順位より2つ以上下にEがいる）<br>
+            ・(ウ) C > A（Cの順位 > Aの順位）<br>
+            ・(エ) |D - F| = 1（DとFは隣接）<br>
+            ・(オ) E < F（Eの順位 < Fの順位）<br><br>
+
+            <strong>【有効な順序パターンの列挙】</strong><br>
+            条件を満たす順位配置を列挙すると以下の8パターン：<br>
+            ・A>B>C>E>D>F（A=1, B=2, C=3, E=4, D=5, F=6）<br>
+            ・A>B>C>E>F>D（A=1, B=2, C=3, E=4, F=5, D=6）<br>
+            ・B>A>C>E>D>F（B=1, A=2, C=3, E=4, D=5, F=6）<br>
+            ・B>A>C>E>F>D（B=1, A=2, C=3, E=4, F=5, D=6）<br>
+            ・B>A>E>C>D>F（B=1, A=2, E=3, C=4, D=5, F=6）<br>
+            ・B>A>E>C>F>D（B=1, A=2, E=3, C=4, F=5, D=6）<br>
+            ・B>A>E>D>F>C（B=1, A=2, E=3, D=4, F=5, C=6）<br>
+            ・B>A>E>F>D>C（B=1, A=2, E=3, F=4, D=5, C=6）<br><br>
+
+            <strong>【選択肢の検証】</strong><br>
+            (1) Aは必ず1位である → Bが1位の場合があるため不正解<br>
+            (2) Bは必ずAより上位である → Aが1位の場合があるため不正解<br>
+            (3) Cは必ずDより上位である → CがDより下位の場合があるため不正解<br>
+            (4) Fは必ず最下位である → Fが4位や5位の場合があるため不正解<br>
+            (5) Dは必ずEより下位である → 全パターンでD > E（D順位 > E順位）のため正解<br><br>
+
+            <strong>【補足】</strong><br>
+            条件(オ)より E < F、条件(エ)より |D - F| = 1。<br>
+            もしD < E（DがEより上位）なら、D < E < Fとなり、DとFは隣接しない。<br>
+            したがって、DとFが隣接するためにはD > E（DがEより下位）でなければならない。<br><br>
+
+            正解：(5)
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+</main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考17/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

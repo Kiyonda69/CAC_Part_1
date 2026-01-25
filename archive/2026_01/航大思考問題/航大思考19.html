@@ -1,0 +1,717 @@
+<!--
+================================================================================
+航大思考19.html - インタラクティブ版問題ファイル（セット19）
+================================================================================
+
+【問題内容】
+- 問1: 既存問題の移行 - 正解: (1)
+- 問2: 既存問題の移行 - 正解: (3)
+
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+
+        .figure-table th,
+        .figure-table td {
+            border: 1px solid #333;
+            padding: 6px 10px;
+            text-align: center;
+        }
+
+        .figure-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                ある飛行機が図1に示すグリッド上の地点C3を出発し、以下の飛行記録に従って飛行した。飛行後の位置として正しいものを1つ選び、解答用紙にマークせよ。なお、1マスの距離は10NM（ノーティカルマイル）とする。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x400px
+            - viewBox: 0 0 500 400
+            - 余白: 上下左右30px
+
+            座標系定義:
+            - グリッド原点: (80, 350)
+            - X軸: 右方向（東）, 1マス=70px
+            - Y軸: 上方向（北）, 1マス=70px
+            -->
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】飛行エリアのグリッド</div>
+                <div class="figure-content">
+                    <svg width="500" height="410" viewBox="0 -10 500 410">
+                        <!-- グリッド線（縦） -->
+                        <line x1="80" y1="350" x2="80" y2="10" stroke="#ccc" stroke-width="1"/>
+                        <line x1="150" y1="350" x2="150" y2="10" stroke="#ccc" stroke-width="1"/>
+                        <line x1="220" y1="350" x2="220" y2="10" stroke="#ccc" stroke-width="1"/>
+                        <line x1="290" y1="350" x2="290" y2="10" stroke="#ccc" stroke-width="1"/>
+                        <line x1="360" y1="350" x2="360" y2="10" stroke="#ccc" stroke-width="1"/>
+                        <line x1="430" y1="350" x2="430" y2="10" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- グリッド線（横） -->
+                        <line x1="80" y1="350" x2="430" y2="350" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="280" x2="430" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="210" x2="430" y2="210" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="140" x2="430" y2="140" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="70" x2="430" y2="70" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- 軸ラベル（列: A-E） -->
+                        <text x="80" y="380" text-anchor="middle" class="svg-text">A</text>
+                        <text x="150" y="380" text-anchor="middle" class="svg-text">B</text>
+                        <text x="220" y="380" text-anchor="middle" class="svg-text">C</text>
+                        <text x="290" y="380" text-anchor="middle" class="svg-text">D</text>
+                        <text x="360" y="380" text-anchor="middle" class="svg-text">E</text>
+
+                        <!-- 軸ラベル（行: 1-5） -->
+                        <text x="55" y="355" text-anchor="middle" class="svg-text">1</text>
+                        <text x="55" y="285" text-anchor="middle" class="svg-text">2</text>
+                        <text x="55" y="215" text-anchor="middle" class="svg-text">3</text>
+                        <text x="55" y="145" text-anchor="middle" class="svg-text">4</text>
+                        <text x="55" y="75" text-anchor="middle" class="svg-text">5</text>
+
+                        <!-- 方位表示 -->
+                        <text x="255" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N（北）</text>
+                        <polygon points="255,30 250,45 260,45" fill="#333"/>
+
+                        <!-- 出発点マーク（C3） -->
+                        <circle cx="220" cy="210" r="8" fill="none" stroke="#333" stroke-width="2"/>
+                        <text x="220" y="195" text-anchor="middle" class="svg-text" font-size="12">出発</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 飛行記録テーブル -->
+            <div class="figure-container">
+                <div class="figure-title">【飛行記録】</div>
+                <table class="figure-table">
+                    <tr>
+                        <th>順序</th>
+                        <th>ヘディング</th>
+                        <th>飛行距離</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>000度（北）</td>
+                        <td>20 NM</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>090度（東）</td>
+                        <td>10 NM</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>180度（南）</td>
+                        <td>30 NM</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>270度（西）</td>
+                        <td>20 NM</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>B2
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>A2
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>B3
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>C2
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>A3
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <strong>【解法】</strong><br>
+            各飛行の移動をグリッド上で追跡する。1マス = 10NM。<br><br>
+
+            <strong>【計算過程】</strong><br>
+            ・出発: C3<br>
+            ・飛行1: ヘディング000度（北）で20NM → 北へ2マス → C3 → C5<br>
+            ・飛行2: ヘディング090度（東）で10NM → 東へ1マス → C5 → D5<br>
+            ・飛行3: ヘディング180度（南）で30NM → 南へ3マス → D5 → D2<br>
+            ・飛行4: ヘディング270度（西）で20NM → 西へ2マス → D2 → B2<br><br>
+
+            <strong>【最終位置】</strong><br>
+            B2<br><br>
+
+            正解: (1) B2
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                あるヘリコプターが図2に示すグリッド上の地点C2を出発し、初期ヘディング270度（西向き）で以下の飛行記録に従って飛行した。飛行後の位置とヘディングの組み合わせとして正しいものを1つ選び、解答用紙にマークせよ。なお、1マスの距離は5NM、平行移動とはヘディング（機首方向）を変えずに横方向へ移動することである。(6点)
+            </div>
+
+            <!-- 問題文のタイトル部分 -->
+            
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x450px
+            - viewBox: 0 0 500 450
+            - 余白: 上下左右30px
+
+            座標系定義:
+            - グリッド原点: (80, 400)
+            - X軸: 右方向（東）, 1マス=60px
+            - Y軸: 上方向（北）, 1マス=60px
+            -->
+
+            <!-- 図表 -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】飛行エリアのグリッド</div>
+                <div class="figure-content">
+                    <svg width="500" height="460" viewBox="0 -10 500 460">
+                        <!-- グリッド線（縦） -->
+                        <line x1="80" y1="400" x2="80" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="140" y1="400" x2="140" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="200" y1="400" x2="200" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="260" y1="400" x2="260" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="320" y1="400" x2="320" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="380" y1="400" x2="380" y2="50" stroke="#ccc" stroke-width="1"/>
+                        <line x1="440" y1="400" x2="440" y2="50" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- グリッド線（横） -->
+                        <line x1="80" y1="400" x2="440" y2="400" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="340" x2="440" y2="340" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="280" x2="440" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="220" x2="440" y2="220" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="160" x2="440" y2="160" stroke="#ccc" stroke-width="1"/>
+                        <line x1="80" y1="100" x2="440" y2="100" stroke="#ccc" stroke-width="1"/>
+
+                        <!-- 軸ラベル（列: A-F） -->
+                        <text x="80" y="425" text-anchor="middle" class="svg-text">A</text>
+                        <text x="140" y="425" text-anchor="middle" class="svg-text">B</text>
+                        <text x="200" y="425" text-anchor="middle" class="svg-text">C</text>
+                        <text x="260" y="425" text-anchor="middle" class="svg-text">D</text>
+                        <text x="320" y="425" text-anchor="middle" class="svg-text">E</text>
+                        <text x="380" y="425" text-anchor="middle" class="svg-text">F</text>
+
+                        <!-- 軸ラベル（行: 1-6） -->
+                        <text x="55" y="405" text-anchor="middle" class="svg-text">1</text>
+                        <text x="55" y="345" text-anchor="middle" class="svg-text">2</text>
+                        <text x="55" y="285" text-anchor="middle" class="svg-text">3</text>
+                        <text x="55" y="225" text-anchor="middle" class="svg-text">4</text>
+                        <text x="55" y="165" text-anchor="middle" class="svg-text">5</text>
+                        <text x="55" y="105" text-anchor="middle" class="svg-text">6</text>
+
+                        <!-- 方位表示 -->
+                        <text x="260" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N（北）</text>
+                        <polygon points="260,30 255,45 265,45" fill="#333"/>
+
+                        <!-- 出発点マーク（C2）とヘリコプター向き -->
+                        <circle cx="200" cy="340" r="8" fill="none" stroke="#333" stroke-width="2"/>
+                        <!-- ヘリコプターの機首方向（西向き）を矢印で表示 -->
+                        <line x1="200" y1="340" x2="175" y2="340" stroke="#333" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <defs>
+                            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                            </marker>
+                        </defs>
+                        <text x="200" y="320" text-anchor="middle" class="svg-text" font-size="12">出発</text>
+                    </svg>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">※ 矢印は機首方向（ヘディング）を示す</div>
+                </div>
+            </div>
+
+            <!-- 飛行記録テーブル -->
+            <div class="figure-container">
+                <div class="figure-title">【飛行記録】</div>
+                <table class="figure-table">
+                    <tr>
+                        <th>順序</th>
+                        <th>操作内容</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>右へ平行移動 5 NM</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>左旋回 90度</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>前進 10 NM</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>左へ平行移動 10 NM</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>右旋回 90度</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- 選択肢 -->
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>D1、ヘディング180度
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>E1、ヘディング180度
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>E1、ヘディング270度
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>D1、ヘディング270度
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>E2、ヘディング270度
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <strong>【解法】</strong><br>
+            各操作を順番に追跡する。1マス = 5NM。平行移動ではヘディング（機首方向）は変化しない。<br><br>
+
+            <strong>【計算過程】</strong><br>
+            ・出発: C2、ヘディング270度（西向き）<br><br>
+
+            ・操作1「右へ平行移動5NM」:<br>
+            　ヘディング270度（西向き）の右方向は北（000度）<br>
+            　北へ1マス移動 → C2 → C3<br>
+            　ヘディング270度維持<br><br>
+
+            ・操作2「左旋回90度」:<br>
+            　ヘディング 270度 → 180度（南向き）に変化<br>
+            　位置は C3 のまま<br><br>
+
+            ・操作3「前進10NM」:<br>
+            　ヘディング180度（南）方向に2マス前進<br>
+            　C3 → C1<br><br>
+
+            ・操作4「左へ平行移動10NM」:<br>
+            　ヘディング180度（南向き）の左方向は東（090度）<br>
+            　東へ2マス移動 → C1 → E1<br>
+            　ヘディング180度維持<br><br>
+
+            ・操作5「右旋回90度」:<br>
+            　ヘディング 180度 → 270度（西向き）に変化<br>
+            　位置は E1 のまま<br><br>
+
+            <strong>【最終状態】</strong><br>
+            位置: E1、ヘディング: 270度<br><br>
+
+            正解: (3) E1、ヘディング270度
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+</main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考19/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

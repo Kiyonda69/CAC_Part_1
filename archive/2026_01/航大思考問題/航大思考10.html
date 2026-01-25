@@ -1,0 +1,575 @@
+<!--
+================================================================================
+航大思考10.html - インタラクティブ版問題ファイル（セット10）
+================================================================================
+
+【問題内容】
+- 問1: 一筆書き不可の図形判定 - 正解: (2)
+- 問2: 一筆書きの開始点と終了点 - 正解: (4)
+
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の図1に示す5つの図形のうち、一筆書きができないものを1つ選べ。ただし、一筆書きとは、ペンを紙から離さず、同じ線を2度通らずに全ての線を引くことをいう。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図1】5つの図形</div>
+                <div class="figure-content">
+                    <svg width="620" height="400" viewBox="0 0 620 400" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(60, 80)">
+                            <text x="30" y="-10" text-anchor="middle" class="svg-text" font-weight="bold">(1)</text>
+                            <polygon points="30,0 0,60 60,60" fill="none" stroke="#333" stroke-width="2"/>
+                            <circle cx="30" cy="0" r="4" fill="#333"/>
+                            <circle cx="0" cy="60" r="4" fill="#333"/>
+                            <circle cx="60" cy="60" r="4" fill="#333"/>
+                        </g>
+
+                        <g transform="translate(170, 80)">
+                            <text x="30" y="-10" text-anchor="middle" class="svg-text" font-weight="bold">(2)</text>
+                            <rect x="0" y="0" width="60" height="60" fill="none" stroke="#333" stroke-width="2"/>
+                            <line x1="0" y1="0" x2="60" y2="60" stroke="#333" stroke-width="2"/>
+                            <line x1="60" y1="0" x2="0" y2="60" stroke="#333" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <circle cx="60" cy="0" r="4" fill="#333"/>
+                            <circle cx="60" cy="60" r="4" fill="#333"/>
+                            <circle cx="0" cy="60" r="4" fill="#333"/>
+                        </g>
+
+                        <g transform="translate(280, 80)">
+                            <text x="30" y="-10" text-anchor="middle" class="svg-text" font-weight="bold">(3)</text>
+                            <polygon points="0,0 0,60 30,30" fill="none" stroke="#333" stroke-width="2"/>
+                            <polygon points="30,30 60,0 60,60" fill="none" stroke="#333" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <circle cx="0" cy="60" r="4" fill="#333"/>
+                            <circle cx="30" cy="30" r="4" fill="#333"/>
+                            <circle cx="60" cy="0" r="4" fill="#333"/>
+                            <circle cx="60" cy="60" r="4" fill="#333"/>
+                        </g>
+
+                        <g transform="translate(390, 80)">
+                            <text x="30" y="-10" text-anchor="middle" class="svg-text" font-weight="bold">(4)</text>
+                            <rect x="0" y="0" width="60" height="60" fill="none" stroke="#333" stroke-width="2"/>
+                            <line x1="0" y1="0" x2="60" y2="60" stroke="#333" stroke-width="2"/>
+                            <circle cx="0" cy="0" r="4" fill="#333"/>
+                            <circle cx="60" cy="0" r="4" fill="#333"/>
+                            <circle cx="60" cy="60" r="4" fill="#333"/>
+                            <circle cx="0" cy="60" r="4" fill="#333"/>
+                        </g>
+
+                        <g transform="translate(500, 80)">
+                            <text x="30" y="-10" text-anchor="middle" class="svg-text" font-weight="bold">(5)</text>
+                            <polygon points="30,5 58.5,26.9 47.6,59.3 12.4,59.3 1.5,26.9" fill="none" stroke="#333" stroke-width="2"/>
+                            <circle cx="30" cy="5" r="4" fill="#333"/>
+                            <circle cx="58.5" cy="26.9" r="4" fill="#333"/>
+                            <circle cx="47.6" cy="59.3" r="4" fill="#333"/>
+                            <circle cx="12.4" cy="59.3" r="4" fill="#333"/>
+                            <circle cx="1.5" cy="26.9" r="4" fill="#333"/>
+                        </g>
+
+                        <text x="310" y="200" text-anchor="middle" class="svg-text" font-size="13">※ 黒丸は頂点を表す。線は頂点間を結ぶ辺である。</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>正三角形
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>正方形に対角線2本を加えた図形
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>2つの三角形が1点で接する蝶ネクタイ型
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>正方形に対角線1本を加えた図形
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>正五角形
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【一筆書きの法則】</strong></p>
+                    <p>グラフ（図形）が一筆書き可能であるための必要十分条件は、奇数次数の頂点（奇点）が<strong>0個または2個</strong>であることである。</p>
+                    <p>・奇点が0個：任意の頂点から開始し、同じ頂点に戻って終了できる</p>
+                    <p>・奇点が2個：一方の奇点から開始し、他方の奇点で終了する</p>
+                    <p>・奇点が3個以上：一筆書き不可能</p>
+                    <br>
+                    <p><strong>【各図形の検証】</strong></p>
+                    <p>(1) 正三角形：各頂点の次数は全て2（偶数）→ 奇点0個 → <strong>一筆書き可能</strong></p>
+                    <p>(2) 正方形+対角線2本：各頂点の次数は全て3（奇数）→ 奇点4個 → <strong>一筆書き不可能</strong></p>
+                    <p>(3) 蝶ネクタイ型：外側4頂点の次数は2、中央頂点の次数は4 → 奇点0個 → <strong>一筆書き可能</strong></p>
+                    <p>(4) 正方形+対角線1本：対角線の両端の次数は3、他2頂点の次数は2 → 奇点2個 → <strong>一筆書き可能</strong></p>
+                    <p>(5) 正五角形：各頂点の次数は全て2（偶数）→ 奇点0個 → <strong>一筆書き可能</strong></p>
+                    <br>
+                    <p>したがって、一筆書きができないのは<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                図2に示す図形は一筆書きが可能である。この図形を一筆書きするとき、開始点と終了点の正しい組み合わせを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図2】複合図形</div>
+                <div class="figure-content">
+                    <svg width="400" height="320" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+                        <line x1="200" y1="40" x2="100" y2="120" stroke="#333" stroke-width="2.5"/>
+                        <line x1="100" y1="120" x2="200" y2="120" stroke="#333" stroke-width="2.5"/>
+                        <line x1="200" y1="120" x2="200" y2="40" stroke="#333" stroke-width="2.5"/>
+
+                        <line x1="200" y1="120" x2="100" y2="200" stroke="#333" stroke-width="2.5"/>
+                        <line x1="100" y1="200" x2="200" y2="200" stroke="#333" stroke-width="2.5"/>
+                        <line x1="200" y1="200" x2="200" y2="120" stroke="#333" stroke-width="2.5"/>
+
+                        <circle cx="200" cy="40" r="6" fill="#333"/>
+                        <circle cx="100" cy="120" r="6" fill="#333"/>
+                        <circle cx="200" cy="120" r="6" fill="#333"/>
+                        <circle cx="100" cy="200" r="6" fill="#333"/>
+                        <circle cx="200" cy="200" r="6" fill="#333"/>
+
+                        <text x="200" y="25" text-anchor="middle" class="svg-text" font-size="16" font-weight="bold">1</text>
+                        <text x="75" y="125" text-anchor="middle" class="svg-text" font-size="16" font-weight="bold">2</text>
+                        <text x="225" y="125" text-anchor="middle" class="svg-text" font-size="16" font-weight="bold">3</text>
+                        <text x="75" y="205" text-anchor="middle" class="svg-text" font-size="16" font-weight="bold">4</text>
+                        <text x="225" y="205" text-anchor="middle" class="svg-text" font-size="16" font-weight="bold">5</text>
+
+                        <text x="200" y="260" text-anchor="middle" class="svg-text" font-size="12">辺: 1-2, 2-3, 3-1, 3-4, 4-5, 5-3（計6本）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>開始点2、終了点4
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>開始点3、終了点2
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>開始点4、終了点3
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>開始点3、終了点3
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>開始点1、終了点5
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【各頂点の次数の確認】</strong></p>
+                    <p>・頂点1：辺1-2、辺3-1の2本が接続 → 次数2（偶数）</p>
+                    <p>・頂点2：辺1-2、辺2-3の2本が接続 → 次数2（偶数）</p>
+                    <p>・頂点3：辺2-3、辺3-1、辺3-4、辺5-3の4本が接続 → 次数4（偶数）</p>
+                    <p>・頂点4：辺3-4、辺4-5の2本が接続 → 次数2（偶数）</p>
+                    <p>・頂点5：辺4-5、辺5-3の2本が接続 → 次数2（偶数）</p>
+                    <br>
+                    <p><strong>【奇点の特定】</strong></p>
+                    <p>全ての頂点が偶数次数であるため、奇点は<strong>0個</strong>である。</p>
+                    <br>
+                    <p><strong>【一筆書きの法則の適用】</strong></p>
+                    <p>奇点が0個の場合、任意の頂点から開始し、同じ頂点で終了できる（閉路）。</p>
+                    <p>したがって、開始点と終了点は同じ頂点でなければならない。</p>
+                    <br>
+                    <p><strong>【選択肢の検証】</strong></p>
+                    <p>(1) 開始点2、終了点4：異なる頂点 → 誤り</p>
+                    <p>(2) 開始点3、終了点2：異なる頂点 → 誤り</p>
+                    <p>(3) 開始点4、終了点3：異なる頂点 → 誤り</p>
+                    <p>(4) 開始点3、終了点3：同じ頂点 → <strong>正解</strong></p>
+                    <p>(5) 開始点1、終了点5：異なる頂点 → 誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考10/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
