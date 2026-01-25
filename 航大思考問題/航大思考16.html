@@ -1,178 +1,281 @@
-<!DOCTYPE html>
+<!--
+================================================================================
+航大思考16.html - インタラクティブ版問題ファイル（セット16）
+================================================================================
 
+【問題内容】
+- 問1: 既存問題の移行 - 正解: (5)
+- 問2: 既存問題の移行 - 正解: (3)
+
+================================================================================
+-->
+
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
             font-size: 16px;
             line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0);
+            padding: 20px 20px 40px;
         }
 
-    .question-section {
-        background-color: white;
-        padding: 40px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.672);
-    }
-
-    .question-page-1 {
-        page-break-after: always;
-        min-height: 900px;
-    }
-
-    .question-page-2 {
-        min-height: 900px;
-    }
-
-    .question {
-        margin-bottom: 50px;
-        page-break-inside: avoid;
-    }
-
-    .question-number {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .question-text {
-        margin-bottom: 15px;
-        text-align: justify;
-    }
-
-    .options {
-        margin-left: 20px;
-        line-height: 2;
-    }
-
-    .option-table {
-        margin: 15px 0;
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    .option-table td, .option-table th {
-        padding: 8px 15px;
-        text-align: center;
-    }
-
-    .option-table th {
-        font-weight: bold;
-    }
-
-    .underline {
-        text-decoration: underline;
-    }
-
-    .blank {
-        display: inline-block;
-        min-width: 80px;
-        height: 20px;
-        border: 2px solid #000;
-        margin: 0 5px;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 20px;
-    }
-
-    /* 図表用スタイル */
-    .figure-container {
-        margin: 20px 0;
-        padding: 20px;
-        background-color: white;
-        border: 1px solid #dddddd;
-        text-align: center;
-    }
-
-    .figure-title {
-        font-weight: bold;
-        margin-bottom: 15px;
-        font-size: 15px;
-    }
-
-    .figure-content {
-        display: inline-block;
-        margin: 10px auto;
-    }
-
-    /* SVG図表用 */
-    svg {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .svg-text {
-        font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
-        font-size: 14px;
-    }
-
-    /* テーブル図表用 */
-    .figure-table {
-        margin: 0 auto;
-        border-collapse: collapse;
-        background-color: white;
-    }
-
-    .figure-table td {
-        border: 2px solid #333;
-        padding: 15px 20px;
-        min-width: 80px;
-        min-height: 60px;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .figure-table th {
-        border: 2px solid #333;
-        padding: 10px 15px;
-        background-color: #e8e8e8;
-        font-weight: bold;
-    }
-
-    /* 凡例用 */
-    .legend {
-        margin-top: 15px;
-        font-size: 14px;
-        text-align: left;
-        display: inline-block;
-    }
-
-    .legend-item {
-        margin: 5px 0;
-    }
-
-    /* 座標系・グリッド用 */
-    .grid-container {
-        display: inline-block;
-        margin: 10px auto;
-    }
-
-    @media print {
-        body {
+        .screen {
+            display: none;
             background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .question-section {
-            box-shadow: none;
-            page-break-after: always;
-        }
-    }
-</style>
 
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div class="question-section question-page-1">
-        <!-- ========== ここから問題セクション ========== -->
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
         <!-- ========== 問1 ========== -->
-        <div class="question">
+
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                5人の訓練生A、B、C、D、Eが、1番目から5番目の順にフライト訓練を受ける。以下の(ア)～(オ)の条件をすべて満たすとき、3番目に訓練を受ける人物として正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
             <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問1．5人の訓練生A、B、C、D、Eが、1番目から5番目の順にフライト訓練を受ける。以下の(ア)～(オ)の条件をすべて満たすとき、3番目に訓練を受ける人物として正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+            
 
             <!-- 図表 -->
             <div class="figure-container">
@@ -222,18 +325,29 @@
             </div>
 
             <!-- 選択肢 -->
-            <div class="options">
-                (1) A<br>
-                (2) B<br>
-                (3) C<br>
-                (4) E<br>
-                (5) D
-            </div>
-        </div>
 
-        <!-- 問1の解説 -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-            <strong>問1（正解: (5)）</strong><br>
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>A
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>B
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>C
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>E
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>D
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <strong>問1（正解: (5)）</strong><br>
             条件を整理して論理的に順序を決定する。<br><br>
 
             <strong>【条件の整理】</strong><br>
@@ -258,14 +372,29 @@
 
             したがって、3番目に訓練を受けるのは<strong>D</strong>である。<br>
             正解: (5) D
-        </div>
-    </div>
+                </div>
+            </div>
 
-    <div class="question-section question-page-2">
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
         <!-- ========== 問2 ========== -->
-        <div class="question">
+
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                航空貨物の積み込みにおいて、6つの荷物P、Q、R、S、T、Uを1番目から6番目の順に積み込む。以下の(ア)～(キ)の条件をすべて満たすとき、4番目に積み込まれる荷物として正しいものを１つ選び、解答用紙にマークせよ。(6点)
+            </div>
+
             <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問2．航空貨物の積み込みにおいて、6つの荷物P、Q、R、S、T、Uを1番目から6番目の順に積み込む。以下の(ア)～(キ)の条件をすべて満たすとき、4番目に積み込まれる荷物として正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+            
 
             <!-- 図表 -->
             <div class="figure-container">
@@ -320,18 +449,29 @@
             </div>
 
             <!-- 選択肢 -->
-            <div class="options">
-                (1) P<br>
-                (2) S<br>
-                (3) R<br>
-                (4) T<br>
-                (5) U
-            </div>
-        </div>
 
-        <!-- 問2の解説 -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-            <strong>問2（正解: (3)）</strong><br>
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>P
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>S
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>R
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>T
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>U
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <strong>問2（正解: (3)）</strong><br>
             条件を整理して論理的に順序を決定する。<br><br>
 
             <strong>【確定条件の整理】</strong><br>
@@ -363,7 +503,117 @@
 
             したがって、4番目に積み込まれるのは<strong>R</strong>である。<br>
             正解: (3) R
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
         </div>
-    </div>
+</main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考16/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
 </body>
 </html>
