@@ -1,180 +1,278 @@
-<!DOCTYPE html>
+<!--
+================================================================================
+航大思考9.html - インタラクティブ版問題ファイル（セット9）
+================================================================================
 
+【問題内容】
+- 問1: ヘディング計器とRBIの位置推定 - 正解: (5) オ
+- 問2: 2局RBIの位置推定 - 正解: (3) イ
+
+================================================================================
+-->
+
+<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
             font-size: 16px;
             line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0);
+            padding: 20px 20px 40px;
         }
 
-    .question-section {
-        background-color: white;
-        padding: 40px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.672);
-    }
-
-    .question-page-1 {
-        page-break-after: always;
-        min-height: 900px;
-    }
-
-    .question-page-2 {
-        min-height: 900px;
-    }
-
-    .question {
-        margin-bottom: 50px;
-        page-break-inside: avoid;
-    }
-
-    .question-number {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
-
-    .question-text {
-        margin-bottom: 15px;
-        text-align: justify;
-    }
-
-    .options {
-        margin-left: 20px;
-        line-height: 2;
-    }
-
-    .option-table {
-        margin: 15px 0;
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    .option-table td, .option-table th {
-        padding: 8px 15px;
-        text-align: center;
-    }
-
-    .option-table th {
-        font-weight: bold;
-    }
-
-    .underline {
-        text-decoration: underline;
-    }
-
-    .blank {
-        display: inline-block;
-        min-width: 80px;
-        height: 20px;
-        border: 2px solid #000;
-        margin: 0 5px;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 20px;
-    }
-
-    /* 図表用スタイル */
-    .figure-container {
-        margin: 20px 0;
-        padding: 20px;
-        background-color: white;
-        border: 1px solid #dddddd;
-        text-align: center;
-    }
-
-    .figure-title {
-        font-weight: bold;
-        margin-bottom: 15px;
-        font-size: 15px;
-    }
-
-    .figure-content {
-        display: inline-block;
-        margin: 10px auto;
-    }
-
-    /* SVG図表用 */
-    svg {
-        max-width: 100%;
-        height: auto;
-    }
-
-    .svg-text {
-        font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
-        font-size: 14px;
-    }
-
-    /* テーブル図表用 */
-    .figure-table {
-        margin: 0 auto;
-        border-collapse: collapse;
-        background-color: white;
-    }
-
-    .figure-table td {
-        border: 2px solid #333;
-        padding: 15px 20px;
-        min-width: 80px;
-        min-height: 60px;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    .figure-table th {
-        border: 2px solid #333;
-        padding: 10px 15px;
-        background-color: #e8e8e8;
-        font-weight: bold;
-    }
-
-    /* 凡例用 */
-    .legend {
-        margin-top: 15px;
-        font-size: 14px;
-        text-align: left;
-        display: inline-block;
-    }
-
-    .legend-item {
-        margin: 5px 0;
-    }
-
-    /* 座標系・グリッド用 */
-    .grid-container {
-        display: inline-block;
-        margin: 10px auto;
-    }
-
-    @media print {
-        body {
+        .screen {
+            display: none;
             background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .question-section {
-            box-shadow: none;
-            page-break-after: always;
-        }
-    }
-</style>
 
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .explanation-content {
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .hidden {
+            visibility: hidden;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .progress-dot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            background-color: #dee2e6;
+        }
+
+        .progress-dot.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #dc3545;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div class="question-section question-page-1">
-        <!-- ========== ここから問題セクション ========== -->
-        <!-- ========== 問1 ========== -->
-        <div class="question">
-            <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問1．ある航空機が図1の地図上のいずれかの位置にいる。パイロットの計器パネルには「ヘディング計器」と「相対方位指示器（RBI）」が表示されている。図2の計器表示から、自機の位置と向きとして正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
 
-            <!-- 計器の説明 -->
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                ある航空機が図1の地図上のいずれかの位置にいる。パイロットの計器パネルには「ヘディング計器」と「相対方位指示器（RBI）」が表示されている。図2の計器表示から、自機の位置と向きとして正しいものを1つ選べ。
+            </div>
+
             <div class="question-text">
                 <strong>【計器の読み方】</strong><br>
                 ・ヘディング計器：自機の機首が向いている方位を示す（北=0度、東=90度、南=180度、西=270度）<br>
@@ -185,19 +283,10 @@
                 　- 270度：無線局は左真横
             </div>
 
-            <!-- 図1：地図 -->
             <div class="figure-container">
                 <div class="figure-title">【図1】地図と候補位置</div>
                 <div class="figure-content">
-                    <!--
-                    図表仕様:
-                    - SVGサイズ: 500x400px
-                    - viewBox: 0 0 500 400
-                    - 無線局S: (300, 200)
-                    - 候補位置: ア(150,100), イ(450,100), ウ(450,300), エ(150,300), オ(120,200)
-                    -->
                     <svg width="500" height="400" viewBox="0 0 500 400">
-                        <!-- 背景グリッド（薄い線） -->
                         <defs>
                             <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
                                 <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ddd" stroke-width="0.5"/>
@@ -205,17 +294,14 @@
                         </defs>
                         <rect width="500" height="400" fill="url(#grid)"/>
 
-                        <!-- 方位表示 -->
                         <text x="250" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N</text>
                         <line x1="250" y1="30" x2="250" y2="50" stroke="#333" stroke-width="2"/>
                         <polygon points="250,30 245,40 255,40" fill="#333"/>
 
-                        <!-- 無線局S -->
                         <circle cx="300" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
                         <text x="300" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">S</text>
                         <text x="300" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局</text>
 
-                        <!-- 候補ア：(150, 100)、南東向き(135度) -->
                         <g transform="translate(150, 100)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="10" y2="10" stroke="#333" stroke-width="2"/>
@@ -223,7 +309,6 @@
                             <text x="-20" y="-10" class="svg-text" font-weight="bold">ア</text>
                         </g>
 
-                        <!-- 候補イ：(450, 100)、西向き(270度) -->
                         <g transform="translate(450, 100)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="-14" y2="0" stroke="#333" stroke-width="2"/>
@@ -231,7 +316,6 @@
                             <text x="10" y="-10" class="svg-text" font-weight="bold">イ</text>
                         </g>
 
-                        <!-- 候補ウ：(450, 300)、北向き(0度) -->
                         <g transform="translate(450, 300)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
@@ -239,7 +323,6 @@
                             <text x="10" y="5" class="svg-text" font-weight="bold">ウ</text>
                         </g>
 
-                        <!-- 候補エ：(150, 300)、東向き(90度) -->
                         <g transform="translate(150, 300)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="14" y2="0" stroke="#333" stroke-width="2"/>
@@ -247,7 +330,6 @@
                             <text x="-25" y="5" class="svg-text" font-weight="bold">エ</text>
                         </g>
 
-                        <!-- 候補オ：(120, 200)、78度向き（東北東寄り）【正解】 -->
                         <g transform="translate(120, 200)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <g transform="rotate(78)">
@@ -257,7 +339,6 @@
                             <text x="-25" y="5" class="svg-text" font-weight="bold">オ</text>
                         </g>
 
-                        <!-- 凡例 -->
                         <rect x="20" y="350" width="200" height="40" fill="white" stroke="#999" stroke-width="1"/>
                         <circle cx="40" cy="365" r="6" fill="#eee" stroke="#333" stroke-width="1"/>
                         <line x1="40" y1="365" x2="50" y2="365" stroke="#333" stroke-width="1.5"/>
@@ -267,27 +348,21 @@
                 </div>
             </div>
 
-            <!-- 図2：計器表示 -->
             <div class="figure-container">
                 <div class="figure-title">【図2】計器パネルの表示</div>
                 <div class="figure-content">
                     <svg width="400" height="180" viewBox="0 0 400 180">
-                        <!-- ヘディング計器（自機の機首方向が上になるよう表示、ヘディング78度） -->
                         <g transform="translate(100, 90)">
                             <circle cx="0" cy="0" r="60" fill="white" stroke="#333" stroke-width="2"/>
-                            <!-- 方位盤（ヘディング78度なので、78度が上に来るよう回転: rotate(-78)） -->
                             <g transform="rotate(-78)">
-                                <!-- N/E/S/W表示 -->
                                 <text x="0" y="-45" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">N</text>
                                 <text x="45" y="4" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">E</text>
                                 <text x="0" y="52" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">S</text>
                                 <text x="-45" y="4" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">W</text>
-                                <!-- 10度ごとの目盛り（長い線） -->
                                 <line x1="0" y1="-55" x2="0" y2="-48" stroke="#333" stroke-width="2"/>
                                 <line x1="55" y1="0" x2="48" y2="0" stroke="#333" stroke-width="2"/>
                                 <line x1="0" y1="55" x2="0" y2="48" stroke="#333" stroke-width="2"/>
                                 <line x1="-55" y1="0" x2="-48" y2="0" stroke="#333" stroke-width="2"/>
-                                <!-- 30度ごとの目盛り -->
                                 <g transform="rotate(30)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(60)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(120)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
@@ -296,7 +371,6 @@
                                 <g transform="rotate(240)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(300)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(330)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
-                                <!-- 10度ごとの細かい目盛り -->
                                 <g transform="rotate(10)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(20)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(40)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
@@ -322,9 +396,7 @@
                                 <g transform="rotate(340)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(350)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                             </g>
-                            <!-- 機首マーク（常に上を指す） -->
                             <polygon points="0,-58 -5,-65 5,-65" fill="#333"/>
-                            <!-- 飛行機シンボル（上から見た形） -->
                             <g>
                                 <line x1="0" y1="-12" x2="0" y2="12" stroke="#333" stroke-width="2.5"/>
                                 <line x1="-15" y1="0" x2="15" y2="0" stroke="#333" stroke-width="2"/>
@@ -334,15 +406,12 @@
                             <text x="0" y="80" text-anchor="middle" class="svg-text" font-weight="bold">ヘディング計器</text>
                         </g>
 
-                        <!-- RBI -->
                         <g transform="translate(300, 90)">
                             <circle cx="0" cy="0" r="60" fill="white" stroke="#333" stroke-width="2"/>
-                            <!-- 90度ごとの目盛り（長い線） -->
                             <line x1="0" y1="-55" x2="0" y2="-48" stroke="#333" stroke-width="2"/>
                             <line x1="55" y1="0" x2="48" y2="0" stroke="#333" stroke-width="2"/>
                             <line x1="0" y1="55" x2="0" y2="48" stroke="#333" stroke-width="2"/>
                             <line x1="-55" y1="0" x2="-48" y2="0" stroke="#333" stroke-width="2"/>
-                            <!-- 30度ごとの目盛り -->
                             <g transform="rotate(30)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(60)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(120)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
@@ -351,7 +420,6 @@
                             <g transform="rotate(240)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(300)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(330)"><line x1="0" y1="-55" x2="0" y2="-50" stroke="#333" stroke-width="1.5"/></g>
-                            <!-- 10度ごとの細かい目盛り -->
                             <g transform="rotate(10)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(20)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(40)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
@@ -376,14 +444,11 @@
                             <g transform="rotate(320)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(340)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(350)"><line x1="0" y1="-55" x2="0" y2="-52" stroke="#333" stroke-width="0.8"/></g>
-                            <!-- 機首マーク -->
                             <polygon points="0,-58 -5,-65 5,-65" fill="#333"/>
-                            <!-- 針（12度=ほぼ真正面だが少し右寄り）- 端から端へ -->
                             <g transform="rotate(12)">
                                 <line x1="0" y1="50" x2="0" y2="-50" stroke="#333" stroke-width="3"/>
                                 <polygon points="0,-50 -5,-40 5,-40" fill="#333"/>
                             </g>
-                            <!-- 飛行機シンボル（上から見た形） -->
                             <g>
                                 <line x1="0" y1="-12" x2="0" y2="12" stroke="#333" stroke-width="2.5"/>
                                 <line x1="-15" y1="0" x2="15" y2="0" stroke="#333" stroke-width="2"/>
@@ -396,44 +461,61 @@
                 </div>
             </div>
 
-            <!-- 選択肢 -->
-            <div class="options">
-                (1) ア<br>
-                (2) イ<br>
-                (3) ウ<br>
-                (4) エ<br>
-                (5) オ
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>ア
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>イ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>ウ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>エ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>オ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【計器表示の解釈】</strong></p>
+                    <p>・ヘディング計器：Eの少し手前（約78度）→ 自機は東北東方向を向いている</p>
+                    <p>・RBI：針が0度（上）から少し右寄り（約12度）→ 無線局Sはほぼ真正面だが少し右</p>
+                    <br>
+                    <p><strong>【各候補の検証】</strong></p>
+                    <p>・ア：南東向き（ヘディング約135度）→ ヘディングが一致しない</p>
+                    <p>・イ：西向き（ヘディング270度）→ ヘディングが一致しない</p>
+                    <p>・ウ：北向き（ヘディング0度）→ ヘディングが一致しない</p>
+                    <p>・エ：東向き（ヘディング90度）→ ヘディングが一致しない</p>
+                    <p>・オ：東北東向き（ヘディング約78度）で、無線局Sは真東方向（RBI約12度）→ 両方一致</p>
+                    <br>
+                    <p><strong>【結論】</strong></p>
+                    <p>ヘディング約78度かつRBI約12度を満たすのはオのみ。</p>
+                    <p>正解:(5) オ</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
             </div>
         </div>
 
-        <!-- ========== 問1の解説 ========== -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-            <strong>問1（正解:(5)）</strong><br><br>
-
-            <strong>【計器表示の解釈】</strong><br>
-            ・ヘディング計器：Eの少し手前（約78度）→ 自機は東北東方向を向いている<br>
-            ・RBI：針が0度（上）から少し右寄り（約12度）→ 無線局Sはほぼ真正面だが少し右<br><br>
-
-            <strong>【各候補の検証】</strong><br>
-            ・ア：南東向き（ヘディング約135度）→ ヘディングが一致しない<br>
-            ・イ：西向き（ヘディング270度）→ ヘディングが一致しない<br>
-            ・ウ：北向き（ヘディング0度）→ ヘディングが一致しない<br>
-            ・エ：東向き（ヘディング90度）→ ヘディングが一致しない<br>
-            ・オ：東北東向き（ヘディング約78度）で、無線局Sは真東方向（RBI約12度）→ 両方一致<br><br>
-
-            <strong>【結論】</strong><br>
-            ヘディング約78度かつRBI約12度を満たすのはオのみ。<br>
-            正解:(5) オ
-        </div>
-    </div>
-
-    <div class="question-section question-page-2">
         <!-- ========== 問2 ========== -->
-        <div class="question">
-            <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問2．ある航空機が図3の地図上のいずれかの位置にいる。パイロットの計器パネルには2つの無線局（PとQ）への相対方位指示器が表示されている。図4の計器表示から、自機の位置と向きとして正しいものを１つ選び、解答用紙にマークせよ。(6点)</div>
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
 
-            <!-- 計器の説明 -->
+            <div class="question-text">
+                ある航空機が図3の地図上のいずれかの位置にいる。パイロットの計器パネルには2つの無線局（PとQ）への相対方位指示器が表示されている。図4の計器表示から、自機の位置と向きとして正しいものを1つ選べ。
+            </div>
+
             <div class="question-text">
                 <strong>【計器の読み方】</strong><br>
                 ・ヘディング計器：自機の機首が向いている方位を示す（北=0度、東=90度、南=180度、西=270度）<br>
@@ -444,19 +526,10 @@
                 　- 270度：無線局は左真横
             </div>
 
-            <!-- 図3：地図 -->
             <div class="figure-container">
                 <div class="figure-title">【図3】地図と候補位置</div>
                 <div class="figure-content">
-                    <!--
-                    図表仕様:
-                    - SVGサイズ: 500x400px
-                    - viewBox: 0 0 500 400
-                    - 無線局P: (150, 200)、無線局Q: (450, 200)
-                    - 候補位置: ア(200,100), イ(300,100), ウ(400,100), エ(300,300), オ(300,100)※向き違い
-                    -->
                     <svg width="500" height="400" viewBox="0 0 500 400">
-                        <!-- 背景グリッド -->
                         <defs>
                             <pattern id="grid2" width="50" height="50" patternUnits="userSpaceOnUse">
                                 <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ddd" stroke-width="0.5"/>
@@ -464,22 +537,18 @@
                         </defs>
                         <rect width="500" height="400" fill="url(#grid2)"/>
 
-                        <!-- 方位表示 -->
                         <text x="250" y="25" text-anchor="middle" class="svg-text" font-weight="bold">N</text>
                         <line x1="250" y1="30" x2="250" y2="50" stroke="#333" stroke-width="2"/>
                         <polygon points="250,30 245,40 255,40" fill="#333"/>
 
-                        <!-- 無線局P -->
                         <circle cx="150" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
                         <text x="150" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">P</text>
                         <text x="150" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局P</text>
 
-                        <!-- 無線局Q -->
                         <circle cx="450" cy="200" r="12" fill="white" stroke="#333" stroke-width="2"/>
                         <text x="450" y="205" text-anchor="middle" class="svg-text" font-weight="bold" font-size="12">Q</text>
                         <text x="450" y="230" text-anchor="middle" class="svg-text" font-size="11">無線局Q</text>
 
-                        <!-- 候補ア：(200, 100)、北向き(0度) -->
                         <g transform="translate(200, 100)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
@@ -487,7 +556,6 @@
                             <text x="-20" y="-5" class="svg-text" font-weight="bold">ア</text>
                         </g>
 
-                        <!-- 候補イ：(300, 100)、355度（ほぼ北だが少し西寄り）【正解】 -->
                         <g transform="translate(300, 100)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <g transform="rotate(-5)">
@@ -497,7 +565,6 @@
                             <text x="15" y="-5" class="svg-text" font-weight="bold">イ</text>
                         </g>
 
-                        <!-- 候補ウ：(400, 100)、北向き(0度) -->
                         <g transform="translate(400, 100)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="0" y2="-14" stroke="#333" stroke-width="2"/>
@@ -505,7 +572,6 @@
                             <text x="15" y="-5" class="svg-text" font-weight="bold">ウ</text>
                         </g>
 
-                        <!-- 候補エ：(300, 300)、東向き(90度) -->
                         <g transform="translate(300, 300)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="14" y2="0" stroke="#333" stroke-width="2"/>
@@ -513,45 +579,31 @@
                             <text x="-25" y="5" class="svg-text" font-weight="bold">エ</text>
                         </g>
 
-                        <!-- 候補オ：(300, 100)、南向き(180度) -->
                         <g transform="translate(320, 130)">
                             <circle cx="0" cy="0" r="8" fill="#eee" stroke="#333" stroke-width="1.5"/>
                             <line x1="0" y1="0" x2="0" y2="14" stroke="#333" stroke-width="2"/>
                             <polygon points="0,14 -4,8 4,8" fill="#333"/>
                             <text x="15" y="5" class="svg-text" font-weight="bold">オ</text>
                         </g>
-
-                        <!-- 凡例 -->
-                        <rect x="20" y="350" width="200" height="40" fill="white" stroke="#999" stroke-width="1"/>
-                        <circle cx="40" cy="365" r="6" fill="#eee" stroke="#333" stroke-width="1"/>
-                        <line x1="40" y1="365" x2="50" y2="365" stroke="#333" stroke-width="1.5"/>
-                        <polygon points="50,365 46,362 46,368" fill="#333"/>
-                        <text x="60" y="369" class="svg-text" font-size="11">自機（矢印は機首方向）</text>
                     </svg>
                 </div>
             </div>
 
-            <!-- 図4：計器表示 -->
             <div class="figure-container">
                 <div class="figure-title">【図4】計器パネルの表示</div>
                 <div class="figure-content">
                     <svg width="500" height="180" viewBox="0 0 500 180">
-                        <!-- ヘディング計器（自機の機首方向が上になるよう表示、ヘディング355度） -->
                         <g transform="translate(80, 90)">
                             <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
-                            <!-- 方位盤（ヘディング355度なので、355度が上に来るよう回転: rotate(-355)=rotate(5)） -->
                             <g transform="rotate(5)">
-                                <!-- N/E/S/W表示 -->
                                 <text x="0" y="-38" text-anchor="middle" class="svg-text" font-size="11" font-weight="bold">N</text>
                                 <text x="38" y="4" text-anchor="middle" class="svg-text" font-size="11" font-weight="bold">E</text>
                                 <text x="0" y="45" text-anchor="middle" class="svg-text" font-size="11" font-weight="bold">S</text>
                                 <text x="-38" y="4" text-anchor="middle" class="svg-text" font-size="11" font-weight="bold">W</text>
-                                <!-- 90度ごとの目盛り（長い線） -->
                                 <line x1="0" y1="-50" x2="0" y2="-43" stroke="#333" stroke-width="2"/>
                                 <line x1="50" y1="0" x2="43" y2="0" stroke="#333" stroke-width="2"/>
                                 <line x1="0" y1="50" x2="0" y2="43" stroke="#333" stroke-width="2"/>
                                 <line x1="-50" y1="0" x2="-43" y2="0" stroke="#333" stroke-width="2"/>
-                                <!-- 30度ごとの目盛り -->
                                 <g transform="rotate(30)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(60)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(120)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
@@ -560,7 +612,6 @@
                                 <g transform="rotate(240)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(300)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                                 <g transform="rotate(330)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
-                                <!-- 10度ごとの細かい目盛り -->
                                 <g transform="rotate(10)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(20)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(40)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
@@ -586,9 +637,7 @@
                                 <g transform="rotate(340)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                                 <g transform="rotate(350)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             </g>
-                            <!-- 機首マーク（常に上を指す） -->
                             <polygon points="0,-53 -4,-60 4,-60" fill="#333"/>
-                            <!-- 飛行機シンボル -->
                             <g>
                                 <line x1="0" y1="-10" x2="0" y2="10" stroke="#333" stroke-width="2"/>
                                 <line x1="-12" y1="0" x2="12" y2="0" stroke="#333" stroke-width="1.5"/>
@@ -598,15 +647,12 @@
                             <text x="0" y="73" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">ヘディング計器</text>
                         </g>
 
-                        <!-- RBI(P) -->
                         <g transform="translate(250, 90)">
                             <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
-                            <!-- 90度ごとの目盛り（長い線） -->
                             <line x1="0" y1="-50" x2="0" y2="-43" stroke="#333" stroke-width="2"/>
                             <line x1="50" y1="0" x2="43" y2="0" stroke="#333" stroke-width="2"/>
                             <line x1="0" y1="50" x2="0" y2="43" stroke="#333" stroke-width="2"/>
                             <line x1="-50" y1="0" x2="-43" y2="0" stroke="#333" stroke-width="2"/>
-                            <!-- 30度ごとの目盛り -->
                             <g transform="rotate(30)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(60)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(120)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
@@ -615,7 +661,6 @@
                             <g transform="rotate(240)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(300)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(330)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
-                            <!-- 10度ごとの細かい目盛り -->
                             <g transform="rotate(10)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(20)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(40)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
@@ -641,12 +686,10 @@
                             <g transform="rotate(340)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(350)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <polygon points="0,-53 -4,-60 4,-60" fill="#333"/>
-                            <!-- 針（241度≈左後方、ヘディング355度調整後）- 端から端へ -->
                             <g transform="rotate(241)">
                                 <line x1="0" y1="45" x2="0" y2="-45" stroke="#333" stroke-width="3"/>
                                 <polygon points="0,-45 -4,-37 4,-37" fill="#333"/>
                             </g>
-                            <!-- 飛行機シンボル -->
                             <g>
                                 <line x1="0" y1="-10" x2="0" y2="10" stroke="#333" stroke-width="2"/>
                                 <line x1="-12" y1="0" x2="12" y2="0" stroke="#333" stroke-width="1.5"/>
@@ -656,15 +699,12 @@
                             <text x="0" y="73" text-anchor="middle" class="svg-text" font-size="12" font-weight="bold">RBI(P)</text>
                         </g>
 
-                        <!-- RBI(Q) -->
                         <g transform="translate(420, 90)">
                             <circle cx="0" cy="0" r="55" fill="white" stroke="#333" stroke-width="2"/>
-                            <!-- 90度ごとの目盛り（長い線） -->
                             <line x1="0" y1="-50" x2="0" y2="-43" stroke="#333" stroke-width="2"/>
                             <line x1="50" y1="0" x2="43" y2="0" stroke="#333" stroke-width="2"/>
                             <line x1="0" y1="50" x2="0" y2="43" stroke="#333" stroke-width="2"/>
                             <line x1="-50" y1="0" x2="-43" y2="0" stroke="#333" stroke-width="2"/>
-                            <!-- 30度ごとの目盛り -->
                             <g transform="rotate(30)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(60)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(120)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
@@ -673,7 +713,6 @@
                             <g transform="rotate(240)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(300)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
                             <g transform="rotate(330)"><line x1="0" y1="-50" x2="0" y2="-45" stroke="#333" stroke-width="1.5"/></g>
-                            <!-- 10度ごとの細かい目盛り -->
                             <g transform="rotate(10)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(20)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(40)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
@@ -699,12 +738,10 @@
                             <g transform="rotate(340)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <g transform="rotate(350)"><line x1="0" y1="-50" x2="0" y2="-47" stroke="#333" stroke-width="0.8"/></g>
                             <polygon points="0,-53 -4,-60 4,-60" fill="#333"/>
-                            <!-- 針（129度≈右後方、ヘディング355度調整後）- 端から端へ -->
                             <g transform="rotate(129)">
                                 <line x1="0" y1="45" x2="0" y2="-45" stroke="#333" stroke-width="3"/>
                                 <polygon points="0,-45 -4,-37 4,-37" fill="#333"/>
                             </g>
-                            <!-- 飛行機シンボル -->
                             <g>
                                 <line x1="0" y1="-10" x2="0" y2="10" stroke="#333" stroke-width="2"/>
                                 <line x1="-12" y1="0" x2="12" y2="0" stroke="#333" stroke-width="1.5"/>
@@ -717,38 +754,152 @@
                 </div>
             </div>
 
-            <!-- 選択肢 -->
-            <div class="options">
-                (1) ア<br>
-                (2) ウ<br>
-                (3) イ<br>
-                (4) エ<br>
-                (5) オ
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>ア
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>ウ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>イ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>エ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>オ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【計器表示の解釈】</strong></p>
+                    <p>ヘディング計器はほぼ北だが少し西寄り（355度）。</p>
+                    <p>RBI(P)は右前方に78度。</p>
+                    <p>RBI(Q)は左後方に282度（= -78度）。</p>
+                    <br>
+                    <p><strong>【候補位置の検証】</strong></p>
+                    <p>・ア: 北向きでP,Qへの相対方位が一致しない</p>
+                    <p>・ウ: 北向きでP,Qへの相対方位が一致しない</p>
+                    <p>・イ: 北から5度西寄りでPは右前方、Qは左後方 → 両方一致</p>
+                    <p>・エ: 東向きで一致しない</p>
+                    <p>・オ: 南向きで一致しない</p>
+                    <br>
+                    <p>したがって、条件を満たすのは<strong>イ</strong>である。</p>
+                    <p>正解:(3) イ</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
             </div>
         </div>
+    </main>
 
-        <!-- ========== 問2の解説 ========== -->
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-            <strong>問2（正解:(3)）</strong><br><br>
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
 
-            <strong>【計器表示の解釈】</strong><br>
-            ・ヘディング計器：Nの少し手前（Wに少し寄った位置、約355度）→ 自機はほぼ北だが少し西寄りを向いている<br>
-            ・RBI(P)：針が左後方（約241度）→ 無線局Pは左斜め後方<br>
-            ・RBI(Q)：針が右後方（約129度）→ 無線局Qは右斜め後方<br><br>
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
 
-            <strong>【ヘディングによる絞り込み】</strong><br>
-            ヘディング約355度（ほぼ北向き、少し西寄り）の候補：ア、イ、ウはいずれもほぼ北向きだが、イのみ少し西寄り<br>
-            →エ（東向き90度）とオ（南向き180度）は除外<br><br>
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
 
-            <strong>【RBIによる絞り込み】</strong><br>
-            ・ア：北向き（0度）だとすると、Pは左後方（RBI約212度）、Qは右後方（RBI約117度）→ 不一致<br>
-            ・イ：355度向きだと、Pは左後方（RBI約241度）、Qは右後方（RBI約129度）→ 一致<br>
-            ・ウ：北向き（0度）だとすると、Pは左後方（RBI約253度）、Qは右後方（RBI約158度）→ 不一致<br><br>
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
 
-            <strong>【結論】</strong><br>
-            ヘディング約355度、RBI(P)約241度、RBI(Q)約129度を全て満たすのはイのみ。<br>
-            正解:(3) イ
-        </div>
-    </div>
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_01/航大思考9/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
 </body>
 </html>
