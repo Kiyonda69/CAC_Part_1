@@ -176,22 +176,31 @@
             margin-right: 10px;
         }
 
-        /* 図形選択肢用 */
+        /* 図形選択肢用 - レスポンシブ対応 */
         .options-figure {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 15px;
+            gap: 2%;
             margin: 20px 0;
+            width: 100%;
         }
 
         .option-figure-button {
-            padding: 10px 15px;
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
             background-color: white;
             border: 3px solid #ddd;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
         }
 
         .option-figure-button:hover:not(.disabled) {
@@ -216,6 +225,14 @@
 
         .option-figure-button.disabled {
             cursor: default;
+        }
+
+        /* 小画面時の選択肢調整 */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
         }
 
         /* 結果表示 */
@@ -369,7 +386,7 @@
             font-weight: bold;
         }
 
-        /* プログレスバー */
+        /* プログレスバー - クリック可能 */
         .progress-bar {
             display: flex;
             justify-content: center;
@@ -378,22 +395,54 @@
         }
 
         .progress-dot {
-            width: 12px;
-            height: 12px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
         }
 
         .progress-dot.active {
             background-color: #2196F3;
+            color: white;
         }
 
         .progress-dot.completed {
             background-color: #4CAF50;
+            color: white;
         }
 
         .progress-dot.incorrect-dot {
             background-color: #f44336;
+            color: white;
+        }
+
+        /* ナビゲーションボタン */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
         }
     </style>
 </head>
@@ -406,10 +455,10 @@
 
     <!-- メインコンテンツ -->
     <main class="main-content">
-        <!-- プログレス表示 -->
+        <!-- プログレス表示 - クリックで問題間移動 -->
         <div class="progress-bar">
-            <div class="progress-dot" id="progress-1"></div>
-            <div class="progress-dot" id="progress-2"></div>
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
         </div>
 
         <!-- ========== 問1 問題画面 ========== -->
@@ -584,6 +633,12 @@
             <div class="action-buttons" id="q1-actions">
                 <button class="btn btn-primary" onclick="showScreen('q1-explanation')">解説を表示</button>
             </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-secondary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
         </div>
 
         <!-- ========== 問1 解説画面 ========== -->
@@ -620,8 +675,10 @@
                 <p>したがって、正解は<strong>(3)</strong>である。</p>
             </div>
 
-            <div class="action-buttons show">
-                <button class="btn btn-primary" onclick="startQuestion(2)">次の問題へ</button>
+            <!-- ナビゲーション -->
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1に戻る</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
             </div>
         </div>
 
@@ -868,6 +925,12 @@
             <div class="action-buttons" id="q2-actions">
                 <button class="btn btn-primary" onclick="showScreen('q2-explanation')">解説を表示</button>
             </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">次の問題</button>
+            </div>
         </div>
 
         <!-- ========== 問2 解説画面 ========== -->
@@ -905,7 +968,9 @@
                 <p>したがって、正解は<strong>(3)</strong>である。</p>
             </div>
 
-            <div class="action-buttons show">
+            <!-- ナビゲーション -->
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
                 <button class="btn btn-primary" onclick="showCompletion()">結果を見る</button>
             </div>
         </div>
@@ -991,22 +1056,39 @@
             window.scrollTo(0, 0);
         }
 
-        // 問題開始
-        function startQuestion(questionNum) {
+        // 問題間移動
+        function goToQuestion(questionNum) {
             state.currentQuestion = questionNum;
 
-            // プログレス更新
-            document.getElementById(`progress-${questionNum}`).classList.add('active');
-
-            // タイマーリセット・開始
-            document.getElementById('timer').classList.remove('stopped');
-            state.startTime = Date.now();
-            if (!state.timerInterval) {
-                state.timerInterval = setInterval(updateTimer, 100);
+            // 解答済みの場合は問題画面を表示
+            if (state.answers[questionNum] !== undefined) {
+                showScreen(`q${questionNum}-question`);
+            } else {
+                // 未解答の場合はタイマーを再開
+                document.getElementById('timer').classList.remove('stopped');
+                state.startTime = Date.now();
+                if (!state.timerInterval) {
+                    state.timerInterval = setInterval(updateTimer, 100);
+                }
+                state.isTimerRunning = true;
+                showScreen(`q${questionNum}-question`);
             }
-            state.isTimerRunning = true;
 
-            showScreen(`q${questionNum}-question`);
+            // プログレスのアクティブ状態を更新（未解答の場合のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // 問題開始（初回用）
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
         }
 
         // 解答選択
@@ -1059,6 +1141,9 @@
 
             // アクションボタン表示
             document.getElementById(`q${questionNum}-actions`).classList.add('show');
+
+            // ナビゲーションボタン表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
         }
 
         // 完了画面表示
