@@ -1,189 +1,432 @@
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
             font-size: 16px;
             line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* ヘッダー（タイマー表示） */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .header-title {
+            font-size: 14px;
+        }
+
+        .timer {
+            font-size: 18px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .timer.stopped {
+            color: #4CAF50;
+        }
+
+        /* メインコンテンツ */
+        .main-content {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0);
+            padding: 70px 20px 40px;
         }
 
-    .question-section {
-        background-color: white;
-        padding: 40px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.672);
-    }
+        /* 画面（問題/解説） */
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
 
-    .question-page-1 {
-        page-break-after: always;
-        min-height: 900px;
-    }
+        .screen.active {
+            display: block;
+        }
 
-    .question-page-2 {
-        min-height: 900px;
-    }
+        /* 問題番号とステータス */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
 
-    .question {
-        margin-bottom: 50px;
-        page-break-inside: avoid;
-    }
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
 
-    .question-number {
-        font-weight: bold;
-        margin-bottom: 10px;
-    }
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
 
-    .question-text {
-        margin-bottom: 15px;
-        text-align: justify;
-    }
+        /* 問題文 */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
 
-    .options {
-        margin-left: 20px;
-        line-height: 2;
-    }
+        /* 図表 */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
 
-    .option-table {
-        margin: 15px 0;
-        border-collapse: collapse;
-        width: 100%;
-    }
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
 
-    .option-table td, .option-table th {
-        padding: 8px 15px;
-        text-align: center;
-    }
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
 
-    .option-table th {
-        font-weight: bold;
-    }
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
 
-    .underline {
-        text-decoration: underline;
-    }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
 
-    .blank {
-        display: inline-block;
-        min-width: 80px;
-        height: 20px;
-        border: 2px solid #000;
-        margin: 0 5px;
-        text-align: center;
-        vertical-align: middle;
-        line-height: 20px;
-    }
+        /* 選択肢（インタラクティブ） */
+        .options-container {
+            margin: 20px 0;
+        }
 
-    /* 図表用スタイル */
-    .figure-container {
-        margin: 20px 0;
-        padding: 20px;
-        background-color: white;
-        border: 1px solid #dddddd;
-        text-align: center;
-    }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
 
-    .figure-title {
-        font-weight: bold;
-        margin-bottom: 15px;
-        font-size: 15px;
-    }
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
 
-    .figure-content {
-        display: inline-block;
-        margin: 10px auto;
-    }
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
 
-    /* SVG図表用 */
-    svg {
-        max-width: 100%;
-        height: auto;
-    }
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
 
-    .svg-text {
-        font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
-        font-size: 14px;
-    }
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
 
-    /* テーブル図表用 */
-    .figure-table {
-        margin: 0 auto;
-        border-collapse: collapse;
-        background-color: white;
-    }
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
 
-    .figure-table td {
-        border: 2px solid #333;
-        padding: 15px 20px;
-        min-width: 80px;
-        min-height: 60px;
-        text-align: center;
-        vertical-align: middle;
-    }
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
 
-    .figure-table th {
-        border: 2px solid #333;
-        padding: 10px 15px;
-        background-color: #e8e8e8;
-        font-weight: bold;
-    }
+        /* 図形選択肢用 */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
 
-    /* 凡例用 */
-    .legend {
-        margin-top: 15px;
-        font-size: 14px;
-        text-align: left;
-        display: inline-block;
-    }
+        .option-figure-button {
+            padding: 10px 15px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-    .legend-item {
-        margin: 5px 0;
-    }
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
 
-    /* 座標系・グリッド用 */
-    .grid-container {
-        display: inline-block;
-        margin: 10px auto;
-    }
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
 
-    @media print {
-        body {
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* 結果表示 */
+        .result-box {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-box.correct {
+            background-color: #e8f5e9;
+            border: 2px solid #4CAF50;
+            color: #2e7d32;
+        }
+
+        .result-box.incorrect {
+            background-color: #ffebee;
+            border: 2px solid #f44336;
+            color: #c62828;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-time {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* ボタン */
+        .action-buttons {
+            display: none;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .action-buttons.show {
+            display: flex;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* 解説セクション */
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* 完了画面 */
+        .completion-screen {
+            text-align: center;
+            padding: 50px 30px;
+        }
+
+        .completion-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2196F3;
+            margin: 20px 0;
+        }
+
+        .score-detail {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .time-summary {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .time-summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .time-summary-item:last-child {
+            border-bottom: none;
+        }
+
+        /* テーブル図表用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
             background-color: white;
         }
-        .question-section {
-            box-shadow: none;
-            page-break-after: always;
-        }
-    }
-</style>
 
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* プログレスバー */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+        }
+    </style>
 </head>
 <body>
-    <div class="question-section question-page-1">
-        <!-- ========== ここから問題セクション ========== -->
-        <!-- ========== 問1 ========== -->
-        <div class="question">
-            <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問1．下図のように、A、B、C、Dの順に図形が並んでいる。この規則に従うとき、?に入る図形として正しいものを1つ選び、解答用紙にマークせよ。(6点)</div>
+    <!-- ヘッダー -->
+    <header class="header">
+        <span class="header-title">航空大学校入学試験 総合Part I</span>
+        <span class="timer" id="timer">00:00</span>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+        <!-- プログレス表示 -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1"></div>
+            <div class="progress-dot" id="progress-2"></div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、A、B、C、Dの順に図形が並んでいる。この規則に従うとき、?に入る図形として正しいものを1つ選べ。
+            </div>
 
             <!-- 図表 -->
             <div class="figure-container">
                 <div class="figure-title">【図1】図形の系列</div>
                 <div class="figure-content">
-                    <!--
-                    座標系定義:
-                    - 各図形は100x100のボックス内に配置
-                    - 多角形の中心: (50, 50)、半径: 35
-                    - 内部の点: 中心付近に配置
-                    -->
                     <svg width="600" height="120" viewBox="0 0 600 120">
                         <!-- A: 三角形 + 1点 -->
                         <g transform="translate(10, 10)">
@@ -191,10 +434,7 @@
                             <polygon points="40,25 10,85 70,85" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="40" cy="65" r="4" fill="black"/>
                         </g>
-
-                        <!-- 矢印 -->
                         <text x="95" y="60" class="svg-text">→</text>
-
                         <!-- B: 四角形 + 3点 -->
                         <g transform="translate(110, 10)">
                             <text x="40" y="12" class="svg-text" text-anchor="middle">B</text>
@@ -203,10 +443,7 @@
                             <circle cx="50" cy="55" r="4" fill="black"/>
                             <circle cx="40" cy="70" r="4" fill="black"/>
                         </g>
-
-                        <!-- 矢印 -->
                         <text x="195" y="60" class="svg-text">→</text>
-
                         <!-- C: 五角形 + 5点 -->
                         <g transform="translate(210, 10)">
                             <text x="40" y="12" class="svg-text" text-anchor="middle">C</text>
@@ -217,10 +454,7 @@
                             <circle cx="40" cy="62" r="4" fill="black"/>
                             <circle cx="55" cy="62" r="4" fill="black"/>
                         </g>
-
-                        <!-- 矢印 -->
                         <text x="295" y="60" class="svg-text">→</text>
-
                         <!-- D: 六角形 + 7点 -->
                         <g transform="translate(310, 10)">
                             <text x="40" y="12" class="svg-text" text-anchor="middle">D</text>
@@ -233,10 +467,7 @@
                             <circle cx="32" cy="68" r="4" fill="black"/>
                             <circle cx="48" cy="68" r="4" fill="black"/>
                         </g>
-
-                        <!-- 矢印 -->
                         <text x="395" y="60" class="svg-text">→</text>
-
                         <!-- ?: 不明 -->
                         <g transform="translate(410, 10)">
                             <text x="40" y="55" class="svg-text" text-anchor="middle" font-size="40">?</text>
@@ -246,12 +477,12 @@
             </div>
 
             <!-- 選択肢 -->
-            <div class="figure-container" style="border: none; box-shadow: none;">
-                <div class="figure-content">
-                    <svg width="600" height="200" viewBox="0 0 600 200">
-                        <!-- 選択肢(1): 七角形 + 7点 ← 規則2違反 -->
-                        <g transform="translate(10, 10)">
-                            <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
+            <div class="options-figure" id="q1-options">
+                <!-- 選択肢(1): 七角形 + 7点 -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <g transform="translate(5, 10)">
                             <polygon points="40,20 65,28 75,52 62,77 18,77 5,52 15,28" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="30" cy="40" r="4" fill="black"/>
                             <circle cx="50" cy="40" r="4" fill="black"/>
@@ -261,10 +492,14 @@
                             <circle cx="32" cy="68" r="4" fill="black"/>
                             <circle cx="48" cy="68" r="4" fill="black"/>
                         </g>
+                    </svg>
+                </button>
 
-                        <!-- 選択肢(2): 六角形 + 9点 ← 規則1違反 -->
-                        <g transform="translate(110, 10)">
-                            <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                <!-- 選択肢(2): 六角形 + 9点 -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <g transform="translate(5, 10)">
                             <polygon points="40,20 70,35 70,65 40,80 10,65 10,35" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="25" cy="38" r="4" fill="black"/>
                             <circle cx="40" cy="38" r="4" fill="black"/>
@@ -276,10 +511,14 @@
                             <circle cx="40" cy="66" r="4" fill="black"/>
                             <circle cx="52" cy="66" r="4" fill="black"/>
                         </g>
+                    </svg>
+                </button>
 
-                        <!-- 選択肢(3): 七角形 + 9点 ← 正解 -->
-                        <g transform="translate(210, 10)">
-                            <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                <!-- 選択肢(3): 七角形 + 9点（正解） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <g transform="translate(5, 10)">
                             <polygon points="40,20 65,28 75,52 62,77 18,77 5,52 15,28" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="25" cy="38" r="4" fill="black"/>
                             <circle cx="40" cy="38" r="4" fill="black"/>
@@ -291,10 +530,14 @@
                             <circle cx="40" cy="66" r="4" fill="black"/>
                             <circle cx="52" cy="66" r="4" fill="black"/>
                         </g>
+                    </svg>
+                </button>
 
-                        <!-- 選択肢(4): 八角形 + 9点 ← 規則1違反 -->
-                        <g transform="translate(310, 10)">
-                            <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                <!-- 選択肢(4): 八角形 + 9点 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <g transform="translate(5, 10)">
                             <polygon points="40,20 58,24 70,40 70,60 58,76 40,80 22,76 10,60 10,40 22,24" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="25" cy="38" r="4" fill="black"/>
                             <circle cx="40" cy="38" r="4" fill="black"/>
@@ -306,10 +549,14 @@
                             <circle cx="40" cy="66" r="4" fill="black"/>
                             <circle cx="52" cy="66" r="4" fill="black"/>
                         </g>
+                    </svg>
+                </button>
 
-                        <!-- 選択肢(5): 七角形 + 11点 ← 規則2違反 -->
-                        <g transform="translate(410, 10)">
-                            <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                <!-- 選択肢(5): 七角形 + 11点 -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <g transform="translate(5, 10)">
                             <polygon points="40,20 65,28 75,52 62,77 18,77 5,52 15,28" fill="none" stroke="black" stroke-width="2"/>
                             <circle cx="25" cy="32" r="4" fill="black"/>
                             <circle cx="40" cy="32" r="4" fill="black"/>
@@ -324,94 +571,102 @@
                             <circle cx="40" cy="70" r="4" fill="black"/>
                         </g>
                     </svg>
-                </div>
+                </button>
             </div>
 
-            <!-- ========== 問1の解説 ========== -->
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-                <strong>問1(正解:(3))</strong><br>
-                図形の系列から2つの独立した規則を発見する必要がある。<br><br>
+            <!-- 結果表示 -->
+            <div class="result-box" id="q1-result">
+                <div class="result-title" id="q1-result-title"></div>
+                <div class="result-time" id="q1-result-time"></div>
+            </div>
 
-                <strong>【規則1の発見】外周の多角形</strong><br>
-                ・A: 三角形（3辺）<br>
-                ・B: 四角形（4辺）<br>
-                ・C: 五角形（5辺）<br>
-                ・D: 六角形（6辺）<br>
-                ・?: 七角形（7辺）← 辺の数が1ずつ増加<br><br>
-
-                <strong>【規則2の発見】内部の点の数</strong><br>
-                ・A: 1個<br>
-                ・B: 3個<br>
-                ・C: 5個<br>
-                ・D: 7個<br>
-                ・?: 9個 ← 点の数が2ずつ増加（奇数列）<br><br>
-
-                <strong>【選択肢の検討】</strong><br>
-                ・(1) 七角形 + 7点 → 規則2に違反<br>
-                ・(2) 六角形 + 9点 → 規則1に違反<br>
-                ・(3) 七角形 + 9点 → 両規則を満たす<br>
-                ・(4) 八角形 + 9点 → 規則1に違反<br>
-                ・(5) 七角形 + 11点 → 規則2に違反<br><br>
-
-                したがって、正解は<strong>(3)</strong>である。
+            <!-- アクションボタン -->
+            <div class="action-buttons" id="q1-actions">
+                <button class="btn btn-primary" onclick="showScreen('q1-explanation')">解説を表示</button>
             </div>
         </div>
 
-        <!-- ========== 問2 ========== -->
-        <div class="question">
-            <!-- 問題文のタイトル部分 -->
-            <div class="question-number">問2．下図において、2つの3x3グリッドに対して演算★を行うと、新たな3x3グリッドが得られる。例1と例2から演算★の規則を発見し、E★Fの結果として正しいものを1つ選び、解答用紙にマークせよ。(6点)</div>
+        <!-- ========== 問1 解説画面 ========== -->
+        <div class="screen" id="q1-explanation">
+            <div class="question-header">
+                <span class="question-number">問1 解説</span>
+                <span class="question-meta">正解: (3)</span>
+            </div>
 
-            <!-- 図表 -->
+            <div class="explanation-content">
+                <p>図形の系列から2つの独立した規則を発見する必要がある。</p>
+                <br>
+                <p><strong>【規則1の発見】外周の多角形</strong></p>
+                <p>・A: 三角形（3辺）</p>
+                <p>・B: 四角形（4辺）</p>
+                <p>・C: 五角形（5辺）</p>
+                <p>・D: 六角形（6辺）</p>
+                <p>・?: 七角形（7辺）← 辺の数が1ずつ増加</p>
+                <br>
+                <p><strong>【規則2の発見】内部の点の数</strong></p>
+                <p>・A: 1個</p>
+                <p>・B: 3個</p>
+                <p>・C: 5個</p>
+                <p>・D: 7個</p>
+                <p>・?: 9個 ← 点の数が2ずつ増加（奇数列）</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 七角形 + 7点 → 規則2に違反</p>
+                <p>・(2) 六角形 + 9点 → 規則1に違反</p>
+                <p>・(3) 七角形 + 9点 → 両規則を満たす</p>
+                <p>・(4) 八角形 + 9点 → 規則1に違反</p>
+                <p>・(5) 七角形 + 11点 → 規則2に違反</p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+
+            <div class="action-buttons show">
+                <button class="btn btn-primary" onclick="startQuestion(2)">次の問題へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下図において、2つの3x3グリッドに対して演算★を行うと、新たな3x3グリッドが得られる。例1と例2から演算★の規則を発見し、E★Fの結果として正しいものを1つ選べ。
+            </div>
+
+            <!-- 例1 -->
             <div class="figure-container">
                 <div class="figure-title">【例1】A★B の結果</div>
                 <div class="figure-content">
-                    <!--
-                    座標系定義:
-                    - 各セル: 30x30px
-                    - グリッド: 90x90px
-                    - 黒=塗りつぶし、白=空白
-                    -->
                     <svg width="400" height="120" viewBox="0 0 400 120">
-                        <!-- グリッドA -->
                         <g transform="translate(10, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">A</text>
-                            <!-- 行1: 黒白黒 -->
                             <rect x="0" y="15" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="30" y="15" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="15" width="30" height="30" fill="black" stroke="black"/>
-                            <!-- 行2: 白黒白 -->
                             <rect x="0" y="45" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="30" y="45" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="60" y="45" width="30" height="30" fill="white" stroke="black"/>
-                            <!-- 行3: 黒白黒 -->
                             <rect x="0" y="75" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="30" y="75" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="black" stroke="black"/>
                         </g>
-
                         <text x="120" y="60" class="svg-text" font-size="20">★</text>
-
-                        <!-- グリッドB -->
                         <g transform="translate(140, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">B</text>
-                            <!-- 行1: 白黒白 -->
                             <rect x="0" y="15" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="30" y="15" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="60" y="15" width="30" height="30" fill="white" stroke="black"/>
-                            <!-- 行2: 黒白黒 -->
                             <rect x="0" y="45" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="30" y="45" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="45" width="30" height="30" fill="black" stroke="black"/>
-                            <!-- 行3: 白黒白 -->
                             <rect x="0" y="75" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="30" y="75" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="white" stroke="black"/>
                         </g>
-
                         <text x="260" y="60" class="svg-text" font-size="20">=</text>
-
-                        <!-- 結果: 全部黒（AとBは全て異なる） -->
                         <g transform="translate(280, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">A★B</text>
                             <rect x="0" y="15" width="30" height="30" fill="black" stroke="black"/>
@@ -428,11 +683,11 @@
                 </div>
             </div>
 
+            <!-- 例2 -->
             <div class="figure-container">
                 <div class="figure-title">【例2】C★D の結果</div>
                 <div class="figure-content">
                     <svg width="400" height="120" viewBox="0 0 400 120">
-                        <!-- グリッドC: 黒黒白 / 白白黒 / 黒白白 -->
                         <g transform="translate(10, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">C</text>
                             <rect x="0" y="15" width="30" height="30" fill="black" stroke="black"/>
@@ -445,10 +700,7 @@
                             <rect x="30" y="75" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="white" stroke="black"/>
                         </g>
-
                         <text x="120" y="60" class="svg-text" font-size="20">★</text>
-
-                        <!-- グリッドD: 黒白黒 / 白黒白 / 白白黒 -->
                         <g transform="translate(140, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">D</text>
                             <rect x="0" y="15" width="30" height="30" fill="black" stroke="black"/>
@@ -461,10 +713,7 @@
                             <rect x="30" y="75" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="black" stroke="black"/>
                         </g>
-
                         <text x="260" y="60" class="svg-text" font-size="20">=</text>
-
-                        <!-- 結果C★D: 白黒黒 / 白黒黒 / 黒白黒 -->
                         <g transform="translate(280, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">C★D</text>
                             <rect x="0" y="15" width="30" height="30" fill="white" stroke="black"/>
@@ -481,11 +730,11 @@
                 </div>
             </div>
 
+            <!-- 問題 -->
             <div class="figure-container">
                 <div class="figure-title">【問題】E★F = ?</div>
                 <div class="figure-content">
                     <svg width="300" height="120" viewBox="0 0 300 120">
-                        <!-- グリッドE: 白黒黒 / 黒白白 / 白黒白 -->
                         <g transform="translate(10, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">E</text>
                             <rect x="0" y="15" width="30" height="30" fill="white" stroke="black"/>
@@ -498,10 +747,7 @@
                             <rect x="30" y="75" width="30" height="30" fill="black" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="white" stroke="black"/>
                         </g>
-
                         <text x="120" y="60" class="svg-text" font-size="20">★</text>
-
-                        <!-- グリッドF: 黒黒白 / 白白黒 / 白白白 -->
                         <g transform="translate(140, 5)">
                             <text x="45" y="12" class="svg-text" text-anchor="middle">F</text>
                             <rect x="0" y="15" width="30" height="30" fill="black" stroke="black"/>
@@ -514,119 +760,343 @@
                             <rect x="30" y="75" width="30" height="30" fill="white" stroke="black"/>
                             <rect x="60" y="75" width="30" height="30" fill="white" stroke="black"/>
                         </g>
-
                         <text x="260" y="60" class="svg-text" font-size="20">= ?</text>
                     </svg>
                 </div>
             </div>
 
             <!-- 選択肢 -->
-            <div class="figure-container" style="border: none; box-shadow: none;">
-                <div class="figure-content">
-                    <svg width="550" height="220" viewBox="0 0 550 220">
-                        <!-- 選択肢(1): AND演算結果 白黒白 / 白白白 / 白白白 -->
-                        <g transform="translate(10, 10)">
-                            <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
-                            <rect x="0" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="60" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="0" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="0" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="80" width="30" height="30" fill="white" stroke="black"/>
-                        </g>
-
-                        <!-- 選択肢(2): OR演算結果 黒黒黒 / 黒白黒 / 白黒白 -->
-                        <g transform="translate(120, 10)">
-                            <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
-                            <rect x="0" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="60" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="80" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="60" y="80" width="30" height="30" fill="white" stroke="black"/>
-                        </g>
-
-                        <!-- 選択肢(3): XOR正解 黒白黒 / 黒白黒 / 白黒白 -->
-                        <g transform="translate(230, 10)">
-                            <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
-                            <rect x="0" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="80" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="60" y="80" width="30" height="30" fill="white" stroke="black"/>
-                        </g>
-
-                        <!-- 選択肢(4): 計算ミス誘発 白白黒 / 黒白黒 / 白黒黒 -->
-                        <g transform="translate(340, 10)">
-                            <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
-                            <rect x="0" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="80" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="60" y="80" width="30" height="30" fill="black" stroke="black"/>
-                        </g>
-
-                        <!-- 選択肢(5): 左右反転 黒白黒 / 黒白黒 / 白黒白 の反転 -->
-                        <g transform="translate(450, 10)">
-                            <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
-                            <rect x="0" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="20" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="20" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="30" y="50" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="50" width="30" height="30" fill="black" stroke="black"/>
-                            <rect x="0" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="30" y="80" width="30" height="30" fill="white" stroke="black"/>
-                            <rect x="60" y="80" width="30" height="30" fill="black" stroke="black"/>
+            <div class="options-figure" id="q2-options">
+                <!-- (1) AND演算結果 -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <svg width="90" height="130" viewBox="0 0 90 130">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <g transform="translate(0, 20)">
+                            <rect x="0" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="60" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="0" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="0" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="60" width="30" height="30" fill="white" stroke="black"/>
                         </g>
                     </svg>
-                </div>
+                </button>
+
+                <!-- (2) OR演算結果 -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <svg width="90" height="130" viewBox="0 0 90 130">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <g transform="translate(0, 20)">
+                            <rect x="0" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="60" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="60" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="60" y="60" width="30" height="30" fill="white" stroke="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <!-- (3) XOR正解 -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <svg width="90" height="130" viewBox="0 0 90 130">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <g transform="translate(0, 20)">
+                            <rect x="0" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="60" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="60" y="60" width="30" height="30" fill="white" stroke="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <!-- (4) 計算ミス誘発 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <svg width="90" height="130" viewBox="0 0 90 130">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <g transform="translate(0, 20)">
+                            <rect x="0" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="60" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="60" y="60" width="30" height="30" fill="black" stroke="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <!-- (5) 一部異なる -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <svg width="90" height="130" viewBox="0 0 90 130">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <g transform="translate(0, 20)">
+                            <rect x="0" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="0" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="0" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="30" y="30" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="30" width="30" height="30" fill="black" stroke="black"/>
+                            <rect x="0" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="30" y="60" width="30" height="30" fill="white" stroke="black"/>
+                            <rect x="60" y="60" width="30" height="30" fill="black" stroke="black"/>
+                        </g>
+                    </svg>
+                </button>
             </div>
 
-            <!-- ========== 問2の解説 ========== -->
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ccc;">
-                <strong>問2(正解:(3))</strong><br>
-                2つの例から演算★の規則を帰納的に発見する必要がある。<br><br>
+            <!-- 結果表示 -->
+            <div class="result-box" id="q2-result">
+                <div class="result-title" id="q2-result-title"></div>
+                <div class="result-time" id="q2-result-time"></div>
+            </div>
 
-                <strong>【規則の発見】</strong><br>
-                例1を観察すると、AとBは全てのセルで色が異なり、結果は全て黒になっている。<br>
-                例2を観察すると、CとDで同じ色のセルは白、異なる色のセルは黒になっている。<br><br>
-
-                これらから、演算★の規則は以下の通り：<br>
-                ・同じ色（黒と黒、または白と白）→ 白<br>
-                ・異なる色（黒と白、または白と黒）→ 黒<br>
-                （排他的論理和：XOR演算）<br><br>
-
-                <strong>【E★Fの計算】</strong><br>
-                各セルについてXOR演算を適用する：<br>
-                ・1行目: (白,黒)→黒、(黒,黒)→白、(黒,白)→黒<br>
-                ・2行目: (黒,白)→黒、(白,白)→白、(白,黒)→黒<br>
-                ・3行目: (白,白)→白、(黒,白)→黒、(白,白)→白<br><br>
-
-                <strong>【選択肢の検討】</strong><br>
-                ・(1) AND演算の結果（両方黒のセルのみ黒）<br>
-                ・(2) OR演算の結果（どちらかが黒なら黒）<br>
-                ・(3) XOR演算の正しい結果<br>
-                ・(4) 計算ミスを誘う誤答<br>
-                ・(5) 一部のセルが異なる誤答<br><br>
-
-                したがって、正解は<strong>(3)</strong>である。
+            <!-- アクションボタン -->
+            <div class="action-buttons" id="q2-actions">
+                <button class="btn btn-primary" onclick="showScreen('q2-explanation')">解説を表示</button>
             </div>
         </div>
-    </div>
+
+        <!-- ========== 問2 解説画面 ========== -->
+        <div class="screen" id="q2-explanation">
+            <div class="question-header">
+                <span class="question-number">問2 解説</span>
+                <span class="question-meta">正解: (3)</span>
+            </div>
+
+            <div class="explanation-content">
+                <p>2つの例から演算★の規則を帰納的に発見する必要がある。</p>
+                <br>
+                <p><strong>【規則の発見】</strong></p>
+                <p>例1を観察すると、AとBは全てのセルで色が異なり、結果は全て黒になっている。</p>
+                <p>例2を観察すると、CとDで同じ色のセルは白、異なる色のセルは黒になっている。</p>
+                <br>
+                <p>これらから、演算★の規則は以下の通り：</p>
+                <p>・同じ色（黒と黒、または白と白）→ 白</p>
+                <p>・異なる色（黒と白、または白と黒）→ 黒</p>
+                <p>（排他的論理和：XOR演算）</p>
+                <br>
+                <p><strong>【E★Fの計算】</strong></p>
+                <p>各セルについてXOR演算を適用する：</p>
+                <p>・1行目: (白,黒)→黒、(黒,黒)→白、(黒,白)→黒</p>
+                <p>・2行目: (黒,白)→黒、(白,白)→白、(白,黒)→黒</p>
+                <p>・3行目: (白,白)→白、(黒,白)→黒、(白,白)→白</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) AND演算の結果（両方黒のセルのみ黒）</p>
+                <p>・(2) OR演算の結果（どちらかが黒なら黒）</p>
+                <p>・(3) XOR演算の正しい結果</p>
+                <p>・(4) 計算ミスを誘う誤答</p>
+                <p>・(5) 一部のセルが異なる誤答</p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+
+            <div class="action-buttons show">
+                <button class="btn btn-primary" onclick="showCompletion()">結果を見る</button>
+            </div>
+        </div>
+
+        <!-- ========== 完了画面 ========== -->
+        <div class="screen" id="completion">
+            <div class="completion-screen">
+                <div class="completion-title">全問終了</div>
+                <div class="score-display" id="final-score">0/2</div>
+                <div class="score-detail" id="final-detail">正解数 / 問題数</div>
+
+                <div class="time-summary">
+                    <div class="time-summary-item">
+                        <span>問1 解答時間</span>
+                        <span id="time-q1">--:--</span>
+                    </div>
+                    <div class="time-summary-item">
+                        <span>問2 解答時間</span>
+                        <span id="time-q2">--:--</span>
+                    </div>
+                    <div class="time-summary-item">
+                        <span><strong>合計時間</strong></span>
+                        <span id="time-total"><strong>--:--</strong></span>
+                    </div>
+                </div>
+
+                <div class="action-buttons show">
+                    <button class="btn btn-secondary" onclick="location.reload()">もう一度挑戦</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 状態管理
+        const state = {
+            currentQuestion: 1,
+            answers: {},
+            times: {},
+            startTime: null,
+            timerInterval: null,
+            isTimerRunning: false
+        };
+
+        // タイマー機能
+        function startTimer() {
+            state.startTime = Date.now();
+            state.isTimerRunning = true;
+            state.timerInterval = setInterval(updateTimer, 100);
+        }
+
+        function stopTimer() {
+            if (state.timerInterval) {
+                clearInterval(state.timerInterval);
+                state.timerInterval = null;
+            }
+            state.isTimerRunning = false;
+            document.getElementById('timer').classList.add('stopped');
+        }
+
+        function updateTimer() {
+            if (!state.startTime) return;
+            const elapsed = Date.now() - state.startTime;
+            document.getElementById('timer').textContent = formatTime(elapsed);
+        }
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function getElapsedTime() {
+            if (!state.startTime) return 0;
+            return Date.now() - state.startTime;
+        }
+
+        // 画面切り替え
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // 問題開始
+        function startQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+
+            // プログレス更新
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+
+            // タイマーリセット・開始
+            document.getElementById('timer').classList.remove('stopped');
+            state.startTime = Date.now();
+            if (!state.timerInterval) {
+                state.timerInterval = setInterval(updateTimer, 100);
+            }
+            state.isTimerRunning = true;
+
+            showScreen(`q${questionNum}-question`);
+        }
+
+        // 解答選択
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            // 既に解答済みの場合は無視
+            if (state.answers[questionNum] !== undefined) return;
+
+            // タイマー停止・時間記録
+            const elapsedTime = getElapsedTime();
+            state.times[questionNum] = elapsedTime;
+            stopTimer();
+
+            // 解答記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // 選択肢のスタイル更新
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            buttons.forEach(btn => {
+                btn.classList.add('disabled');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // 結果表示
+            const resultBox = document.getElementById(`q${questionNum}-result`);
+            const resultTitle = document.getElementById(`q${questionNum}-result-title`);
+            const resultTime = document.getElementById(`q${questionNum}-result-time`);
+
+            resultBox.classList.add('show');
+            resultBox.classList.add(isCorrect ? 'correct' : 'incorrect');
+            resultTitle.textContent = isCorrect ? '正解!' : '不正解';
+            resultTime.textContent = `解答時間: ${formatTime(elapsedTime)}`;
+
+            // プログレス更新
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // アクションボタン表示
+            document.getElementById(`q${questionNum}-actions`).classList.add('show');
+        }
+
+        // 完了画面表示
+        function showCompletion() {
+            // スコア計算
+            let correctCount = 0;
+            const totalQuestions = 2;
+            const correctAnswers = { 1: 3, 2: 3 }; // 各問題の正解
+
+            for (let q = 1; q <= totalQuestions; q++) {
+                if (state.answers[q] === correctAnswers[q]) {
+                    correctCount++;
+                }
+            }
+
+            // スコア表示
+            document.getElementById('final-score').textContent = `${correctCount}/${totalQuestions}`;
+            document.getElementById('final-detail').textContent =
+                correctCount === totalQuestions ? '全問正解!' : `${correctCount}問正解`;
+
+            // 時間表示
+            let totalTime = 0;
+            for (let q = 1; q <= totalQuestions; q++) {
+                const time = state.times[q] || 0;
+                totalTime += time;
+                document.getElementById(`time-q${q}`).textContent = formatTime(time);
+            }
+            document.getElementById('time-total').innerHTML = `<strong>${formatTime(totalTime)}</strong>`;
+
+            showScreen('completion');
+        }
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1から開始
+            document.getElementById('progress-1').classList.add('active');
+            startTimer();
+        });
+    </script>
 </body>
 </html>
