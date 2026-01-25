@@ -1,0 +1,499 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <!--
+                印刷用では問題番号と問題文を一体で記述
+                配点は末尾に括弧で記載
+                -->
+                <div class="question-number">問1．ここに問題文を記述します。（配点）</div>
+
+                <!-- 図表エリア -->
+                <!--
+                SVGを使用して図表を作成
+                - viewBox: 座標系の定義（x, y, 幅, 高さ）
+                - width/height: 実際の表示サイズ
+
+                【座標系の設計指針】
+                - 各図形は概ね80〜100pxのボックス内に収める
+                - transform="translate(x, y)" でグループを配置
+                - 多角形は polygon points で頂点座標を列挙
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】タイトル</div>
+                    <div class="figure-content">
+                        <!--
+                        SVGコメント例:
+                        座標系定義:
+                        - 各図形は100x100のボックス内に配置
+                        - 多角形の中心: (50, 50)、半径: 35
+                        - 内部の点: 中心付近に配置
+                        -->
+                        <svg width="600" height="120" viewBox="0 0 600 120">
+                            <!-- A: ラベルと図形 -->
+                            <g transform="translate(10, 10)">
+                                <!-- ラベルテキスト -->
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">A</text>
+                                <!-- 三角形の例 -->
+                                <polygon points="40,25 10,85 70,85" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 内部の点 -->
+                                <circle cx="40" cy="65" r="4" fill="black"/>
+                            </g>
+
+                            <!-- 矢印記号 -->
+                            <text x="95" y="60" class="svg-text">→</text>
+
+                            <!-- B: 四角形の例 -->
+                            <g transform="translate(110, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">B</text>
+                                <polygon points="10,25 70,25 70,85 10,85" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 続く図形... -->
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <!--
+                選択肢はSVGで描画し、figure-container内に配置
+                印刷用では枠線なしのシンプルな表示
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="200" viewBox="0 0 600 200">
+                            <!-- 選択肢(1) -->
+                            <g transform="translate(10, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <!-- 選択肢1の図形 -->
+                            </g>
+
+                            <!-- 選択肢(2) -->
+                            <g transform="translate(110, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <!-- 選択肢2の図形 -->
+                            </g>
+
+                            <!-- 選択肢(3) - 正解の場合はコメントで記載 -->
+                            <g transform="translate(210, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <!-- 選択肢3の図形（正解） -->
+                            </g>
+
+                            <!-- 選択肢(4) -->
+                            <g transform="translate(310, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <!-- 選択肢4の図形 -->
+                            </g>
+
+                            <!-- 選択肢(5) -->
+                            <g transform="translate(410, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <!-- 選択肢5の図形 -->
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(X))</strong><br>
+                ここに解説を記述します。<br><br>
+
+                <strong>【規則の発見】</strong><br>
+                ・ポイント1<br>
+                ・ポイント2<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 説明 → 不正解の理由<br>
+                ・(2) 説明 → 不正解の理由<br>
+                ・(3) 説明 → 正解の理由<br>
+                ・(4) 説明 → 不正解の理由<br>
+                ・(5) 説明 → 不正解の理由<br><br>
+
+                したがって、正解は<strong>(X)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ここに問題文を記述します。（配点）</div>
+
+                <!-- 図表と選択肢 -->
+                <!-- ... -->
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(X))</strong><br>
+                問2の解説をここに記述します。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
