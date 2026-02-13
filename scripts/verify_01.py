@@ -1,167 +1,155 @@
 #!/usr/bin/env python3
 """
-航大思考1.html の検証コード
-
-問1: パターン認識（図形と点の系列）
-問2: グリッド演算（XOR操作）
+航大思考1 検証コード
+問1: 数表の規則性（C=A+B, D=A×B+C）
+問2: 二重規則性の数表（cell(i,j) = i² × (2j-1)）
 """
 
-
 def verify_q1():
-    """
-    問1: 図形パターンの検証
-
-    規則1: 外周の多角形の辺が1ずつ増加（3→4→5→6→7）
-    規則2: 内部の点が2ずつ増加（1→3→5→7→9）
-    """
-    print("="*60)
-    print("問1: 図形パターンの検証")
-    print("="*60)
-
-    # 観察データ
-    data = [
-        ('A', 3, 1),   # 三角形, 1点
-        ('B', 4, 3),   # 四角形, 3点
-        ('C', 5, 5),   # 五角形, 5点
-        ('D', 6, 7),   # 六角形, 7点
+    """問1の検証: 表の規則性を確認"""
+    print("=" * 50)
+    print("問1: 数表の規則性")
+    print("=" * 50)
+    
+    # 表データ
+    table = [
+        # A, B, C, D
+        [1, 3, 4, 7],
+        [2, 5, 7, 17],
+        [3, 7, 10, None],  # ?を求める
     ]
-
-    # 規則の検証
-    print("\n【規則1: 多角形の辺の数】")
-    sides = [d[1] for d in data]
-    print(f"  {sides}")
-    print(f"  差分: {[sides[i+1] - sides[i] for i in range(len(sides)-1)]}")
-    next_sides = sides[-1] + 1
-    print(f"  → 次の値: {next_sides} (七角形)")
-
-    print("\n【規則2: 点の数】")
-    points = [d[2] for d in data]
-    print(f"  {points}")
-    print(f"  差分: {[points[i+1] - points[i] for i in range(len(points)-1)]}")
-    next_points = points[-1] + 2
-    print(f"  → 次の値: {next_points}点")
-
-    # 選択肢の検証
-    print("\n【選択肢の検証】")
-    options = [
-        (1, 7, 7),   # 七角形, 7点
-        (2, 6, 9),   # 六角形, 9点
-        (3, 7, 9),   # 七角形, 9点 ← 正解
-        (4, 8, 9),   # 八角形, 9点
-        (5, 7, 11),  # 七角形, 11点
-    ]
-
-    correct = None
-    for opt_num, s, p in options:
-        rule1_ok = (s == next_sides)
-        rule2_ok = (p == next_points)
-        status = "正解" if (rule1_ok and rule2_ok) else "不正解"
-
-        reason = []
-        if not rule1_ok:
-            reason.append(f"規則1違反(辺={s})")
-        if not rule2_ok:
-            reason.append(f"規則2違反(点={p})")
-
-        print(f"  ({opt_num}) {s}角形・{p}点 → {status} {', '.join(reason)}")
-
-        if rule1_ok and rule2_ok:
-            correct = opt_num
-
-    print(f"\n正解: ({correct})")
-    assert correct == 3, f"正解が(3)ではありません"
-    return correct
+    
+    # 規則1: C = A + B
+    print("\n【規則1】C = A + B の検証:")
+    for i, row in enumerate(table):
+        A, B, C, D = row
+        expected_C = A + B
+        if C is not None:
+            match = "OK" if C == expected_C else "NG"
+            print(f"  行{i+1}: {A} + {B} = {expected_C} (実際: {C}) [{match}]")
+            assert C == expected_C, f"行{i+1}でC = A + Bが成立しない"
+    
+    # 規則2: D = A × B + C
+    print("\n【規則2】D = A × B + C の検証:")
+    for i, row in enumerate(table):
+        A, B, C, D = row
+        expected_D = A * B + C
+        if D is not None:
+            match = "OK" if D == expected_D else "NG"
+            print(f"  行{i+1}: {A} × {B} + {C} = {expected_D} (実際: {D}) [{match}]")
+            assert D == expected_D, f"行{i+1}でD = A×B + Cが成立しない"
+    
+    # 答えの計算
+    A, B, C, _ = table[2]
+    answer = A * B + C
+    print(f"\n【答え】行3: D = {A} × {B} + {C} = {answer}")
+    
+    # 列方向の規則性も検証
+    print("\n【列方向の検証】")
+    col_A = [1, 2, 3]  # +1
+    col_B = [3, 5, 7]  # +2
+    col_C = [4, 7, 10]  # +3
+    col_D = [7, 17, answer]  # +10, +14
+    
+    print(f"  列A: {col_A} → 差分: {[col_A[i+1]-col_A[i] for i in range(len(col_A)-1)]}")
+    print(f"  列B: {col_B} → 差分: {[col_B[i+1]-col_B[i] for i in range(len(col_B)-1)]}")
+    print(f"  列C: {col_C} → 差分: {[col_C[i+1]-col_C[i] for i in range(len(col_C)-1)]}")
+    print(f"  列D: {col_D} → 差分: {[col_D[i+1]-col_D[i] for i in range(len(col_D)-1)]}")
+    
+    # 列Dの差分の差分が一定か確認
+    d_diff = [col_D[i+1]-col_D[i] for i in range(len(col_D)-1)]
+    dd_diff = [d_diff[i+1]-d_diff[i] for i in range(len(d_diff)-1)]
+    print(f"  列D差分の差分: {dd_diff} → {'一定' if len(set(dd_diff)) == 1 else '不定'}")
+    
+    # 唯一解の確認
+    print("\n【唯一解の確認】")
+    choices = [25, 27, 29, 31, 35]
+    valid = []
+    for c in choices:
+        # 行の規則で検証
+        if c == A * B + C:
+            valid.append(c)
+    assert len(valid) == 1, f"解が{len(valid)}個: {valid}"
+    print(f"  選択肢 {choices} のうち、規則を満たすのは {valid[0]} のみ")
+    
+    return answer
 
 
 def verify_q2():
-    """
-    問2: XOR演算の検証
-
-    演算★の規則:
-    - 同じ色（黒と黒、白と白）→ 白
-    - 異なる色（黒と白、白と黒）→ 黒
-    """
-    print("\n" + "="*60)
-    print("問2: XOR演算の検証")
-    print("="*60)
-
-    # 0=白, 1=黒
-    def xor_grids(g1, g2):
-        """XOR演算（異なる色→黒、同じ色→白）"""
-        return [[g1[i][j] ^ g2[i][j] for j in range(3)] for i in range(3)]
-
-    def print_grid(name, g):
-        print(f"\n{name}:")
-        for row in g:
-            print("  " + " ".join(['黒' if c else '白' for c in row]))
-
-    # 例1の検証: A★B
-    A = [
-        [1, 0, 1],
-        [0, 1, 0],
-        [1, 0, 1]
+    """問2の検証: 二重規則性の数表"""
+    print("\n" + "=" * 50)
+    print("問2: 二重規則性の数表")
+    print("=" * 50)
+    
+    # 表データ (Noneは空欄)
+    #        列1  列2   列3   列4   列5
+    table = [
+        [1,   3,    5,    7,    9],     # 行1
+        [4,   12,   20,   28,   36],    # 行2
+        [9,   None, 45,   63,   None],  # 行3 (A, B)
+        [16,  48,   None, 112,  144],   # 行4 (C)
     ]
-    B = [
-        [0, 1, 0],
-        [1, 0, 1],
-        [0, 1, 0]
-    ]
-    expected_AB = [
-        [1, 1, 1],
-        [1, 1, 1],
-        [1, 1, 1]
-    ]
-
-    result_AB = xor_grids(A, B)
-    print_grid("A", A)
-    print_grid("B", B)
-    print_grid("A★B (計算結果)", result_AB)
-    assert result_AB == expected_AB, "例1の検証失敗"
-    print("  → 例1: 検証OK")
-
-    # 問題: E★F
-    E = [
-        [0, 1, 1],
-        [1, 0, 0],
-        [0, 1, 0]
-    ]
-    F = [
-        [1, 1, 0],
-        [0, 0, 1],
-        [0, 0, 0]
-    ]
-
-    result_EF = xor_grids(E, F)
-    print_grid("E", E)
-    print_grid("F", F)
-    print_grid("E★F (正解)", result_EF)
-
-    # 選択肢の検証
-    print("\n【選択肢との照合】")
-    options = {
-        1: [[0, 1, 0], [0, 0, 0], [0, 0, 0]],  # AND
-        2: [[1, 1, 1], [1, 0, 1], [0, 1, 0]],  # OR
-        3: [[1, 0, 1], [1, 0, 1], [0, 1, 0]],  # XOR (正解)
-        4: [[0, 0, 1], [1, 0, 1], [0, 1, 1]],  # 計算ミス
-        5: [[1, 0, 1], [1, 0, 1], [1, 0, 0]],  # 一部異なる
-    }
-
-    correct = None
-    for opt_num, grid in options.items():
-        if grid == result_EF:
-            print(f"  ({opt_num}) → 一致 (正解)")
-            correct = opt_num
-        else:
-            print(f"  ({opt_num}) → 不一致")
-
-    print(f"\n正解: ({correct})")
-    assert correct == 3, f"正解が(3)ではありません"
-    return correct
+    
+    # 規則: cell(i,j) = i² × (2j-1)  (i=1,2,3,4; j=1,2,3,4,5)
+    print("\n【規則】cell(i,j) = i² × (2j-1) の検証:")
+    for i in range(4):
+        row_vals = []
+        for j in range(5):
+            expected = (i+1)**2 * (2*(j+1)-1)
+            actual = table[i][j]
+            row_vals.append(expected)
+            if actual is not None:
+                match = "OK" if actual == expected else "NG"
+                print(f"  cell({i+1},{j+1}): {(i+1)}² × {2*(j+1)-1} = {expected} (実際: {actual}) [{match}]")
+                assert actual == expected, f"cell({i+1},{j+1})が規則に合わない"
+            else:
+                print(f"  cell({i+1},{j+1}): {(i+1)}² × {2*(j+1)-1} = {expected} (空欄)")
+        print(f"  行{i+1}: {row_vals}")
+    
+    # 空欄の値を計算
+    A = 3**2 * 3  # cell(3,2) = 9 × 3 = 27
+    B = 3**2 * 9  # cell(3,5) = 9 × 9 = 81
+    C = 4**2 * 5  # cell(4,3) = 16 × 5 = 80
+    
+    print(f"\n【空欄の値】")
+    print(f"  A = cell(3,2) = 3² × 3 = {A}")
+    print(f"  B = cell(3,5) = 3² × 9 = {B}")
+    print(f"  C = cell(4,3) = 4² × 5 = {C}")
+    print(f"  A + B + C = {A} + {B} + {C} = {A + B + C}")
+    
+    answer = A + B + C
+    
+    # 行方向の検証
+    print("\n【行方向の規則性検証】")
+    for i in range(4):
+        row = [(i+1)**2 * (2*(j+1)-1) for j in range(5)]
+        factor = (i+1)**2
+        print(f"  行{i+1}: {row} → {factor} × (1,3,5,7,9)")
+    
+    # 列方向の検証
+    print("\n【列方向の規則性検証】")
+    for j in range(5):
+        col = [(i+1)**2 * (2*(j+1)-1) for i in range(4)]
+        factor = 2*(j+1)-1
+        print(f"  列{j+1}: {col} → (1,4,9,16) × {factor}")
+    
+    # 唯一解の確認
+    print("\n【唯一解の確認】")
+    choices = [178, 183, 188, 193, 198]
+    valid = [c for c in choices if c == answer]
+    assert len(valid) == 1, f"解が{len(valid)}個: {valid}"
+    print(f"  選択肢 {choices} のうち、正しいのは {valid[0]} のみ")
+    
+    return answer
 
 
-if __name__ == '__main__':
-    verify_q1()
-    verify_q2()
-    print("\n" + "="*60)
-    print("全ての検証が完了しました")
-    print("="*60)
+if __name__ == "__main__":
+    q1_answer = verify_q1()
+    q2_answer = verify_q2()
+    
+    print("\n" + "=" * 50)
+    print("検証結果サマリー")
+    print("=" * 50)
+    print(f"問1の答え: {q1_answer}")
+    print(f"問2の答え: {q2_answer}")
+    print("全検証パス!")
