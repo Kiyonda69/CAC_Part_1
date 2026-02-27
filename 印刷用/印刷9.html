@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .formula-box {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+            font-size: 15px;
+        }
+
+        .figure-container {
+            margin: 12px 0;
+            padding: 12px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 3px auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 7px 10px;
+            min-width: 55px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 6px 8px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #fffde7;
+        }
+
+        .hidden-cell {
+            color: #999;
+            font-size: 13px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    問題仕様:
+    - テーマ: ソフトウェア会社のプロジェクト工数管理データ
+    - 難易度: 標準（3ステップ）
+    - 正解: （ア）= 450万円 → 選択肢(2)
+    - 解法: 日当単価（3万円/人日）を発見し、Dδの直接費を求める
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．以下の表は、あるソフトウェア会社の4つのプロジェクトの工数管理データの一部である。日当単価（万円/人日）はすべてのプロジェクトで一定であるとき、表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・工数（人日）＝ チーム人数（名）× 作業日数（日）<br>
+                    ・直接費（万円）＝ 工数（人日）× 日当単価（万円/人日）<br>
+                    ・間接費（万円）＝ 直接費（万円）× 間接費率（%）÷ 100<br>
+                    ・総費用（万円）＝ 直接費（万円）＋ 間接費（万円）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【プロジェクト工数管理データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>PJ</th>
+                                <th>チーム人数<br>（名）</th>
+                                <th>作業日数<br>（日）</th>
+                                <th>工数<br>（人日）</th>
+                                <th>直接費<br>（万円）</th>
+                                <th>間接費<br>（万円）</th>
+                                <th>総費用<br>（万円）</th>
+                            </tr>
+                            <tr>
+                                <td>Aα</td>
+                                <td>5</td>
+                                <td>20</td>
+                                <td>100</td>
+                                <td>300</td>
+                                <td>60</td>
+                                <td>360</td>
+                            </tr>
+                            <tr>
+                                <td>Bβ</td>
+                                <td>8</td>
+                                <td>25</td>
+                                <td>200</td>
+                                <td>600</td>
+                                <td>120</td>
+                                <td>720</td>
+                            </tr>
+                            <tr>
+                                <td>Cγ</td>
+                                <td>6</td>
+                                <td>30</td>
+                                <td>180</td>
+                                <td>540</td>
+                                <td>108</td>
+                                <td>648</td>
+                            </tr>
+                            <tr>
+                                <td>Dδ</td>
+                                <td>10</td>
+                                <td>15</td>
+                                <td class="hidden-cell">─</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>90</td>
+                                <td class="hidden-cell">─</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 390万円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (2) 450万円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (3) 480万円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (4) 510万円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (5) 540万円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(2)）</strong><br><br>
+
+                <strong>【手順1：日当単価を求める】</strong><br>
+                「直接費 ＝ 工数 × 日当単価」より、既知の3プロジェクトで日当単価を逆算する。<br>
+                ・Aα：工数 ＝ 5 × 20 ＝ 100人日　日当単価 ＝ 300 ÷ 100 ＝ 3（万円/人日）<br>
+                ・Bβ：工数 ＝ 8 × 25 ＝ 200人日　日当単価 ＝ 600 ÷ 200 ＝ 3（万円/人日）<br>
+                ・Cγ：工数 ＝ 6 × 30 ＝ 180人日　日当単価 ＝ 540 ÷ 180 ＝ 3（万円/人日）<br>
+                → すべてのPJで日当単価 ＝ 3万円/人日（一定）<br><br>
+
+                <strong>【手順2：Dδの工数を求める】</strong><br>
+                ・Dδの工数 ＝ チーム人数 10名 × 作業日数 15日 ＝ 150人日<br><br>
+
+                <strong>【手順3：Dδの直接費（ア）を求める】</strong><br>
+                ・（ア）＝ 日当単価 3万円/人日 × 工数 150人日 ＝ 450（万円）<br><br>
+
+                <strong>【確認】</strong><br>
+                ・間接費率 ＝ 90 ÷ 450 ＝ 20%（Aα：60÷300、Bβ：120÷600、Cγ：108÷540 と一致）<br>
+                ・Dδの総費用 ＝ 450 ＋ 90 ＝ 540万円<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    問題仕様:
+    - テーマ: フランチャイズチェーンの月次収益データ
+    - 難易度: 高難度（3ステップ、2つの規則を発見）
+    - 正解: （ア）= 6,000円 → 選択肢(3)
+    - 解法: ロイヤリティ率（5%）と費用率（70%）を発見し、S4の売上→客単価を逆算
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．以下の表は、あるフランチャイズチェーンの4店舗の月次収益データの一部である。表中の数値には共通する規則性がある。この規則性を用いたとき、表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・月間売上（万円）＝ 月間客数（人）× 客単価（円）÷ 10,000<br>
+                    ・ロイヤリティ（万円）＝ 月間売上（万円）× ロイヤリティ率（%）÷ 100<br>
+                    ・営業利益（万円）＝ 月間売上（万円）－ ロイヤリティ（万円）－ 費用（万円）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【月次収益データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>店舗</th>
+                                <th>月間客数<br>（人）</th>
+                                <th>客単価<br>（円）</th>
+                                <th>月間売上<br>（万円）</th>
+                                <th>ロイヤリティ<br>（万円）</th>
+                                <th>費用<br>（万円）</th>
+                                <th>営業利益<br>（万円）</th>
+                            </tr>
+                            <tr>
+                                <td>S1</td>
+                                <td>500</td>
+                                <td>4,000</td>
+                                <td>200</td>
+                                <td>10</td>
+                                <td>140</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>S2</td>
+                                <td>800</td>
+                                <td>5,000</td>
+                                <td>400</td>
+                                <td>20</td>
+                                <td>280</td>
+                                <td>100</td>
+                            </tr>
+                            <tr>
+                                <td>S3</td>
+                                <td>600</td>
+                                <td>5,000</td>
+                                <td>300</td>
+                                <td>15</td>
+                                <td>210</td>
+                                <td>75</td>
+                            </tr>
+                            <tr>
+                                <td>S4</td>
+                                <td>1,000</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td class="hidden-cell">─</td>
+                                <td>30</td>
+                                <td>420</td>
+                                <td class="hidden-cell">─</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 4,000円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (2) 5,000円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (3) 6,000円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (4) 7,000円&nbsp;&nbsp;&nbsp;&nbsp;
+                    (5) 8,000円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(3)）</strong><br><br>
+
+                <strong>【手順1：ロイヤリティ率を発見する】</strong><br>
+                S1〜S3で「ロイヤリティ ÷ 月間売上」を計算する。<br>
+                ・S1：10 ÷ 200 ＝ 5%<br>
+                ・S2：20 ÷ 400 ＝ 5%<br>
+                ・S3：15 ÷ 300 ＝ 5%<br>
+                → ロイヤリティ率 ＝ 5%（全店舗一定）<br><br>
+
+                <strong>【手順2：S4の月間売上を逆算する】</strong><br>
+                S4のロイヤリティ ＝ 月間売上 × 5% ＝ 30万円 より：<br>
+                ・月間売上 ＝ 30 ÷ 5% ＝ 600（万円）<br>
+                （確認）費用率：S1＝140÷200＝70%、S2＝280÷400＝70%、S3＝210÷300＝70%<br>
+                　　　→ S4費用 ＝ 600 × 70% ＝ 420万円（表と一致）<br><br>
+
+                <strong>【手順3：客単価（ア）を求める】</strong><br>
+                月間売上 ＝ 月間客数 × 客単価 ÷ 10,000 より：<br>
+                ・（ア）＝ 月間売上 600 × 10,000 ÷ 月間客数 1,000 ＝ 6,000（円）<br><br>
+
+                <strong>【確認】</strong><br>
+                ・S4営業利益 ＝ 600 − 30 − 420 ＝ 150万円<br>
+                ・利益率 ＝ 150 ÷ 600 ＝ 25%（S1：50÷200、S2：100÷400、S3：75÷300 と一致）<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
