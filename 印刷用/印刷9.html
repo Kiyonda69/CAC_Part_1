@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .formula-box {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+            font-size: 14px;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 70px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 7px 10px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 15px;
+            background-color: #f5f5f5;
+        }
+
+        .hidden-cell {
+            color: #888;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下の表は、ある航空会社が運航する4路線（A〜D）の運賃データの一部である。表中の数値には共通する規則性があるとき、（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・往復割引価格（円）= 正規価格（円）× （1 − 往復割引率）<br>
+                    ・会員割引価格（円）= 往復割引価格（円）× （1 − 会員割引率）<br>
+                    ・燃油サーチャージ（円）= 飛行距離（km）× 燃油単価（円/km）
+                </div>
+
+                <!--
+                表仕様:
+                - 5列（路線・飛行距離・正規価格・往復割引・会員割引・燃油）
+                - 隠れた規則: 往復割引率=20%、会員割引率=20%（複合割引）、燃油単価=3円/km
+                - 路線Dの正規価格（ア）= 50,000円
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【路線別運賃データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>路線</th>
+                                <th>飛行距離<br>（km）</th>
+                                <th>正規価格<br>（円）</th>
+                                <th>往復割引価格<br>（円）</th>
+                                <th>会員割引価格<br>（円）</th>
+                                <th>燃油サーチャージ<br>（円）</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>1,000</td>
+                                <td>20,000</td>
+                                <td>16,000</td>
+                                <td>12,800</td>
+                                <td>3,000</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>1,500</td>
+                                <td>30,000</td>
+                                <td>24,000</td>
+                                <td>19,200</td>
+                                <td>4,500</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>2,000</td>
+                                <td>40,000</td>
+                                <td>32,000</td>
+                                <td>25,600</td>
+                                <td>6,000</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>2,500</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>40,000</td>
+                                <td>32,000</td>
+                                <td>7,500</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　38,000円<br>
+                    (2)　42,000円<br>
+                    (3)　45,000円<br>
+                    (4)　48,000円<br>
+                    (5)　50,000円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解:(5)）</strong><br><br>
+
+                <strong>【手順1: 往復割引率を発見する】</strong><br>
+                「往復割引価格 ÷ 正規価格」を各路線で計算する。<br>
+                ・路線A：16,000 ÷ 20,000 ＝ 0.80<br>
+                ・路線B：24,000 ÷ 30,000 ＝ 0.80<br>
+                ・路線C：32,000 ÷ 40,000 ＝ 0.80<br>
+                → 往復割引価格 ＝ 正規価格 × 0.80（往復割引率 = 20%）<br><br>
+
+                <strong>【手順2: 路線Dの正規価格（ア）を逆算する】</strong><br>
+                路線Dの往復割引価格は40,000円なので：<br>
+                ・（ア）＝ 40,000 ÷ 0.80 ＝ 50,000（円）<br><br>
+
+                <strong>【手順3: 他の列で整合性を確認する】</strong><br>
+                ・会員割引価格の確認：<br>
+                　「会員割引価格 ÷ 往復割引価格」を路線A〜Cで確認する。<br>
+                　各路線とも 0.80 で一定 → 路線D：40,000 × 0.80 ＝ 32,000円（表と一致）✓<br>
+                ・燃油サーチャージの確認：<br>
+                　「燃油サーチャージ ÷ 飛行距離」を確認 → 3.0円/km（一定）<br>
+                　路線D：2,500 × 3.0 ＝ 7,500円（表と一致）✓<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 38,000円：38,000 × 0.80 ＝ 30,400円 ≠ 40,000円 → 不正解<br>
+                ・(2) 42,000円：42,000 × 0.80 ＝ 33,600円 ≠ 40,000円 → 不正解<br>
+                ・(3) 45,000円：45,000 × 0.80 ＝ 36,000円 ≠ 40,000円 → 不正解<br>
+                ・(4) 48,000円：48,000 × 0.80 ＝ 38,400円 ≠ 40,000円 → 不正解<br>
+                ・(5) 50,000円：50,000 × 0.80 ＝ 40,000円 → 正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．下の表は、ある航空貨物会社が輸送した4品目（X〜W）の料金データの一部である。表中の数値には共通する規則性があるとき、（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・基本運賃（円）= 重量（kg）× 距離（km）× 基本単価<br>
+                    ・燃料附加料（円）= 基本運賃（円）× 燃料附加率<br>
+                    ・保険料（円）= 基本運賃（円）× 保険料率<br>
+                    ・合計（円）= 基本運賃 ＋ 燃料附加料 ＋ 保険料
+                </div>
+
+                <!--
+                表仕様:
+                - 隠れた規則: 基本単価=0.2円/(kg·km)、燃料附加率=40%、保険料率=10%
+                - 品物WのみЕ基本運賃・合計が非表示、距離（ア）を求める
+                - 正解: （ア）= 2,000km → 選択肢(3)
+                - 注目点: Y・Zは重量×距離が同値(300,000)なので基本運賃も同一
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【航空貨物輸送料金データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>品物</th>
+                                <th>重量<br>（kg）</th>
+                                <th>距離<br>（km）</th>
+                                <th>基本運賃<br>（円）</th>
+                                <th>燃料附加料<br>（円）</th>
+                                <th>保険料<br>（円）</th>
+                                <th>合計<br>（円）</th>
+                            </tr>
+                            <tr>
+                                <td>X</td>
+                                <td>100</td>
+                                <td>1,000</td>
+                                <td>20,000</td>
+                                <td>8,000</td>
+                                <td>2,000</td>
+                                <td>30,000</td>
+                            </tr>
+                            <tr>
+                                <td>Y</td>
+                                <td>200</td>
+                                <td>1,500</td>
+                                <td>60,000</td>
+                                <td>24,000</td>
+                                <td>6,000</td>
+                                <td>90,000</td>
+                            </tr>
+                            <tr>
+                                <td>Z</td>
+                                <td>150</td>
+                                <td>2,000</td>
+                                <td>60,000</td>
+                                <td>24,000</td>
+                                <td>6,000</td>
+                                <td>90,000</td>
+                            </tr>
+                            <tr>
+                                <td>W</td>
+                                <td>250</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td class="hidden-cell">─</td>
+                                <td>40,000</td>
+                                <td>10,000</td>
+                                <td class="hidden-cell">─</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　1,200km<br>
+                    (2)　1,600km<br>
+                    (3)　2,000km<br>
+                    (4)　2,400km<br>
+                    (5)　2,800km
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解:(3)）</strong><br><br>
+
+                <strong>【手順1: 燃料附加率を発見する】</strong><br>
+                「燃料附加料 ÷ 基本運賃」を品物X・Y・Zで計算する。<br>
+                ・品物X：8,000 ÷ 20,000 ＝ 0.40<br>
+                ・品物Y：24,000 ÷ 60,000 ＝ 0.40<br>
+                ・品物Z：24,000 ÷ 60,000 ＝ 0.40<br>
+                → 燃料附加料 ＝ 基本運賃 × 0.40（基本運賃の40%）<br><br>
+
+                <strong>【手順2: 品物Wの基本運賃を逆算する】</strong><br>
+                品物Wの燃料附加料は40,000円なので：<br>
+                ・基本運賃 ＝ 40,000 ÷ 0.40 ＝ 100,000（円）<br>
+                ・確認（保険料率）：「保険料 ÷ 基本運賃」は各品物とも 0.10 → 100,000 × 0.10 ＝ 10,000円（表と一致）✓<br><br>
+
+                <strong>【手順3: 基本単価を発見する】</strong><br>
+                「基本運賃 ÷（重量 × 距離）」を品物X・Y・Zで計算する。<br>
+                ・品物X：20,000 ÷（100 × 1,000）＝ 0.20<br>
+                ・品物Y：60,000 ÷（200 × 1,500）＝ 0.20（重量×距離 ＝ 300,000）<br>
+                ・品物Z：60,000 ÷（150 × 2,000）＝ 0.20（重量×距離 ＝ 300,000）<br>
+                → 基本運賃 ＝ 重量 × 距離 × 0.20<br>
+                ※ YとZは重量×距離の積が等しいため、基本運賃が同値になる。<br><br>
+
+                <strong>【手順4: 品物Wの距離（ア）を逆算する】</strong><br>
+                ・100,000 ＝ 250 × （ア） × 0.20<br>
+                ・（ア）＝ 100,000 ÷（250 × 0.20）＝ 100,000 ÷ 50 ＝ 2,000（km）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 1,200km：250 × 1,200 × 0.20 ＝ 60,000円 → 燃料附加料 ＝ 24,000円 ≠ 40,000円 → 不正解<br>
+                ・(2) 1,600km：250 × 1,600 × 0.20 ＝ 80,000円 → 燃料附加料 ＝ 32,000円 ≠ 40,000円 → 不正解<br>
+                ・(3) 2,000km：250 × 2,000 × 0.20 ＝ 100,000円 → 燃料附加料 ＝ 40,000円 → 正解<br>
+                ・(4) 2,400km：250 × 2,400 × 0.20 ＝ 120,000円 → 燃料附加料 ＝ 48,000円 ≠ 40,000円 → 不正解<br>
+                ・(5) 2,800km：250 × 2,800 × 0.20 ＝ 140,000円 → 燃料附加料 ＝ 56,000円 ≠ 40,000円 → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
