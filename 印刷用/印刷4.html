@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .formula-box {
+            margin: 10px 0;
+            padding: 8px 14px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+            font-size: 15px;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 11px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 6px 9px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．以下の表は、ある会社の部署別スマートフォン通信費データの一部である。表中の「通話料金」「データ料金」「合計」には、次の関係が成立する。表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・通話料金（円）= 通話時間（分）× 通話単価（円/分）<br>
+                    ・データ料金（円）= データ通信量（GB）× データ単価（円/GB）<br>
+                    ・合計（円）= 通話料金 + データ料金 + 基本料金
+                </div>
+
+                <!--
+                表仕様:
+                - 通話単価: 20円/分（営業部:6000/300=20 で確認可能）
+                - データ単価: 250円/GB（営業部:2500/10=250 で確認可能）
+                - 基本料金: 1,500円（一定）
+                - 企画部の空欄: データ通信量=15GB
+                  計算: データ料金=10250-5000-1500=3750, 3750/250=15
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【部署別通信費データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部署</th>
+                                <th>通話時間<br>（分）</th>
+                                <th>データ通信量<br>（GB）</th>
+                                <th>通話料金<br>（円）</th>
+                                <th>データ料金<br>（円）</th>
+                                <th>基本料金<br>（円）</th>
+                                <th>合計<br>（円）</th>
+                            </tr>
+                            <tr>
+                                <td>営業部</td>
+                                <td>300</td>
+                                <td>10</td>
+                                <td>6,000</td>
+                                <td>2,500</td>
+                                <td>1,500</td>
+                                <td>10,000</td>
+                            </tr>
+                            <tr>
+                                <td>総務部</td>
+                                <td>150</td>
+                                <td>5</td>
+                                <td>3,000</td>
+                                <td>1,250</td>
+                                <td>1,500</td>
+                                <td>5,750</td>
+                            </tr>
+                            <tr>
+                                <td>技術部</td>
+                                <td>200</td>
+                                <td>15</td>
+                                <td>4,000</td>
+                                <td>3,750</td>
+                                <td>1,500</td>
+                                <td>9,250</td>
+                            </tr>
+                            <tr>
+                                <td>企画部</td>
+                                <td>250</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>5,000</td>
+                                <td>---</td>
+                                <td>1,500</td>
+                                <td>10,250</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 15　　(2) 10　　(3) 12　　(4) 18　　(5) 20
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解: (1)）</strong><br><br>
+
+                <strong>【手順1: 通話単価・データ単価を求める】</strong><br>
+                営業部のデータから：<br>
+                ・通話単価 = 通話料金 ÷ 通話時間 = 6,000 ÷ 300 = 20（円/分）<br>
+                ・データ単価 = データ料金 ÷ データ通信量 = 2,500 ÷ 10 = 250（円/GB）<br><br>
+
+                <strong>【確認: 他部署でも同じ単価か】</strong><br>
+                ・総務部: 3,000 ÷ 150 = 20 ✓、1,250 ÷ 5 = 250 ✓<br>
+                ・技術部: 4,000 ÷ 200 = 20 ✓、3,750 ÷ 15 = 250 ✓<br><br>
+
+                <strong>【手順2: 企画部のデータ料金を求める】</strong><br>
+                合計 = 通話料金 + データ料金 + 基本料金 より：<br>
+                10,250 = 5,000 + データ料金 + 1,500<br>
+                データ料金 = 10,250 − 5,000 − 1,500 = 3,750（円）<br><br>
+
+                <strong>【手順3: データ通信量（ア）を求める】</strong><br>
+                データ通信量 = データ料金 ÷ データ単価 = 3,750 ÷ 250 = <strong>15</strong>（GB）<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．以下の表は、ある家庭の月別電力使用量と料金データの一部である。電力の「使用料金」は使用量に応じた段階料金制が適用されており、使用量が一定量を超えるごとに単価が変わる仕組みになっている。この規則に従うとき、表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・合計料金（円）= 基本料金（円）+ 使用料金（円）<br>
+                    ・使用料金は段階料金制（使用量帯ごとに単価が異なる）
+                </div>
+
+                <!--
+                段階料金（表から導出する）:
+                - 1月: 80kWh → 2,000円 → 25円/kWh（第1段階: 0-100kWh）
+                - 2月: 150kWh → 4,250円
+                  100×25=2,500, 残り=1,750, 1,750/50=35円/kWh（第2段階: 101-200kWh）
+                - 3月: 250kWh → 8,250円
+                  100×25+100×35=6,000, 残り=2,250, 2,250/50=45円/kWh（第3段階: 201kWh以上）
+                - 4月: 5,300円 → ?kWh
+                  5,300-2,500=2,800, 2,800/35=80, 100+80=180kWh（正解）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【月別電力使用量・料金データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>月</th>
+                                <th>基本料金<br>（円）</th>
+                                <th>使用量<br>（kWh）</th>
+                                <th>使用料金<br>（円）</th>
+                                <th>合計料金<br>（円）</th>
+                            </tr>
+                            <tr>
+                                <td>1月</td>
+                                <td>1,000</td>
+                                <td>80</td>
+                                <td>2,000</td>
+                                <td>3,000</td>
+                            </tr>
+                            <tr>
+                                <td>2月</td>
+                                <td>1,000</td>
+                                <td>150</td>
+                                <td>4,250</td>
+                                <td>5,250</td>
+                            </tr>
+                            <tr>
+                                <td>3月</td>
+                                <td>1,000</td>
+                                <td>250</td>
+                                <td>8,250</td>
+                                <td>9,250</td>
+                            </tr>
+                            <tr>
+                                <td>4月</td>
+                                <td>1,000</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>5,300</td>
+                                <td>6,300</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 180　　(2) 80　　(3) 150　　(4) 160　　(5) 200
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解: (1)）</strong><br><br>
+
+                <strong>【手順1: 各段階の単価を求める】</strong><br>
+                1月（80 kWh → 2,000円）から：<br>
+                ・2,000 ÷ 80 = 25（円/kWh）… 第1段階の単価<br><br>
+
+                2月（150 kWh → 4,250円）から：<br>
+                ・第1段階: 100 × 25 = 2,500円　残り: 4,250 − 2,500 = 1,750円<br>
+                ・1,750 ÷ 50 = 35（円/kWh）… 第2段階の単価（101〜200 kWh）<br><br>
+
+                3月（250 kWh → 8,250円）で確認：<br>
+                ・第1段階: 100 × 25 = 2,500　第2段階: 100 × 35 = 3,500<br>
+                ・残り: 8,250 − 2,500 − 3,500 = 2,250円<br>
+                ・2,250 ÷ 50 = 45（円/kWh）… 第3段階の単価（201 kWh以上）<br><br>
+
+                <strong>【段階料金まとめ】</strong><br>
+                ・0〜100 kWh: 25 円/kWh　・101〜200 kWh: 35 円/kWh　・201 kWh以上: 45 円/kWh<br><br>
+
+                <strong>【手順2: 4月の使用量（ア）を求める】</strong><br>
+                4月の使用料金 = 5,300円<br>
+                ・第1段階の上限: 100 × 25 = 2,500円 &lt; 5,300円 → 第2段階に突入<br>
+                ・第1段階分を引く: 5,300 − 2,500 = 2,800円（第2段階の料金）<br>
+                ・第2段階の使用量: 2,800 ÷ 35 = 80 kWh<br>
+                ・合計: 100 + 80 = <strong>180 kWh</strong>（第2段階内 ✓）<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
