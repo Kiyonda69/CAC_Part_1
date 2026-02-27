@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        問1: 展開図から立方体を判断する問題
+        正解: (1) 上=●, 正面=□, 右=△
+        対面ペア: (●↔+), (□↔▲), (■↔△)
+        -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下の展開図を折り畳んでできる立方体として、正しいものを(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <!-- 展開図 -->
+            <!--
+            展開図仕様:
+            - SVGサイズ: 250x310px
+            - viewBox: 0 0 250 310
+            - セルサイズ: 70x70px
+            - 十字型レイアウト:
+                [上:●] x=70, y=10, 中心(105,45)
+                [左:■] x=0, y=80, 中心(35,115)
+                [正面:□] x=70, y=80, 中心(105,115)
+                [右:△] x=140, y=80, 中心(175,115)
+                [下:+] x=70, y=150, 中心(105,185)
+                [背面:▲] x=70, y=220, 中心(105,255)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【展開図】</div>
+                <div class="figure-content">
+                    <svg width="250" height="310" viewBox="0 0 250 310">
+                        <!-- 上面 (●) -->
+                        <rect x="70" y="10" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="105" cy="45" r="10" fill="black"/>
+
+                        <!-- 左面 (■) -->
+                        <rect x="0" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <rect x="23" y="103" width="24" height="24" fill="black"/>
+
+                        <!-- 正面 (□) -->
+                        <rect x="70" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <rect x="93" y="103" width="24" height="24" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 右面 (△) -->
+                        <rect x="140" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <polygon points="175,103 163,127 187,127" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 下面 (+) -->
+                        <rect x="70" y="150" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <line x1="105" y1="173" x2="105" y2="197" stroke="black" stroke-width="3.5"/>
+                        <line x1="93" y1="185" x2="117" y2="185" stroke="black" stroke-width="3.5"/>
+
+                        <!-- 背面 (▲) -->
+                        <rect x="70" y="220" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                        <polygon points="105,243 93,267 117,267" fill="black"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 5つのアイソメトリック立方体 -->
+            <!--
+            立方体の面配置（正解(1)の場合）:
+            上面(●)・正面(□)・右面(△)が見える
+            アイソメトリック座標:
+              上面: points="50,35 90,55 50,75 10,55" fill="white"
+              正面: points="10,55 50,75 50,115 10,95" fill="#e0e0e0"
+              右面: points="50,75 90,55 90,95 50,115" fill="#b0b0b0"
+              各面の記号中心: 上=(50,55), 正面=(30,85), 右=(70,85)
+            -->
+            <div class="options-figure" id="q1-options">
+
+                <!-- (1) 正解: 上=●, 正面=□, 右=△ -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="14" font-size="13" text-anchor="middle" font-family="serif">(1)</text>
+                        <!-- 上面 (白) -->
+                        <polygon points="50,20 90,40 50,60 10,40" fill="white" stroke="black" stroke-width="1.5"/>
+                        <!-- 正面 (淡灰) -->
+                        <polygon points="10,40 50,60 50,100 10,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <!-- 右面 (中灰) -->
+                        <polygon points="50,60 90,40 90,80 50,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                        <!-- 上: ● at (50,40) -->
+                        <circle cx="50" cy="40" r="7" fill="black"/>
+                        <!-- 正面: □ at (30,70) -->
+                        <rect x="23" y="63" width="14" height="14" fill="none" stroke="black" stroke-width="2"/>
+                        <!-- 右: △ at (70,70) -->
+                        <polygon points="70,62 62,76 78,76" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- (2) 不正解: 上=●, 正面=■(左面), 右=△ -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="14" font-size="13" text-anchor="middle" font-family="serif">(2)</text>
+                        <polygon points="50,20 90,40 50,60 10,40" fill="white" stroke="black" stroke-width="1.5"/>
+                        <polygon points="10,40 50,60 50,100 10,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <polygon points="50,60 90,40 90,80 50,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                        <!-- 上: ● at (50,40) -->
+                        <circle cx="50" cy="40" r="7" fill="black"/>
+                        <!-- 正面: ■ at (30,70) -->
+                        <rect x="23" y="63" width="14" height="14" fill="black"/>
+                        <!-- 右: △ at (70,70) -->
+                        <polygon points="70,62 62,76 78,76" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- (3) 不正解: 上=+(下面=●の対面), 正面=□, 右=△ -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="14" font-size="13" text-anchor="middle" font-family="serif">(3)</text>
+                        <polygon points="50,20 90,40 50,60 10,40" fill="white" stroke="black" stroke-width="1.5"/>
+                        <polygon points="10,40 50,60 50,100 10,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <polygon points="50,60 90,40 90,80 50,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                        <!-- 上: + at (50,40) -->
+                        <line x1="50" y1="33" x2="50" y2="47" stroke="black" stroke-width="2.5"/>
+                        <line x1="43" y1="40" x2="57" y2="40" stroke="black" stroke-width="2.5"/>
+                        <!-- 正面: □ at (30,70) -->
+                        <rect x="23" y="63" width="14" height="14" fill="none" stroke="black" stroke-width="2"/>
+                        <!-- 右: △ at (70,70) -->
+                        <polygon points="70,62 62,76 78,76" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- (4) 不正解: 上=●, 正面=□, 右=▲(背面=□の対面) -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="14" font-size="13" text-anchor="middle" font-family="serif">(4)</text>
+                        <polygon points="50,20 90,40 50,60 10,40" fill="white" stroke="black" stroke-width="1.5"/>
+                        <polygon points="10,40 50,60 50,100 10,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <polygon points="50,60 90,40 90,80 50,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                        <!-- 上: ● at (50,40) -->
+                        <circle cx="50" cy="40" r="7" fill="black"/>
+                        <!-- 正面: □ at (30,70) -->
+                        <rect x="23" y="63" width="14" height="14" fill="none" stroke="black" stroke-width="2"/>
+                        <!-- 右: ▲ at (70,70) -->
+                        <polygon points="70,62 62,76 78,76" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- (5) 不正解: 上=●, 正面=▲(背面=□の対面), 右=△ -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="14" font-size="13" text-anchor="middle" font-family="serif">(5)</text>
+                        <polygon points="50,20 90,40 50,60 10,40" fill="white" stroke="black" stroke-width="1.5"/>
+                        <polygon points="10,40 50,60 50,100 10,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <polygon points="50,60 90,40 90,80 50,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                        <!-- 上: ● at (50,40) -->
+                        <circle cx="50" cy="40" r="7" fill="black"/>
+                        <!-- 正面: ▲ at (30,70) -->
+                        <polygon points="30,62 22,76 38,76" fill="black"/>
+                        <!-- 右: △ at (70,70) -->
+                        <polygon points="70,62 62,76 78,76" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p><strong>【展開図の折り畳みルール】</strong></p>
+                    <p>十字型展開図では、正面(□)を基準として折り畳みを考える。</p>
+                    <br>
+                    <p>・正面: □（空四角）</p>
+                    <p>・左面: ■（塗り四角）← 正面の左に位置</p>
+                    <p>・右面: △（空三角）← 正面の右に位置</p>
+                    <p>・上面: ●（塗り円）← 正面の上に位置</p>
+                    <p>・下面: +（プラス）← 正面の下に位置</p>
+                    <p>・背面: ▲（塗り三角）← 下面のさらに下、正面の反対</p>
+                    <br>
+                    <p><strong>【対面（反対面）のペア】</strong></p>
+                    <p>・上面(●)と下面(+)は対面 → 同時に見えない</p>
+                    <p>・正面(□)と背面(▲)は対面 → 同時に見えない</p>
+                    <p>・左面(■)と右面(△)は対面 → 同時に見えない</p>
+                    <br>
+                    <p><strong>【斜め右上から見たとき: 上面・正面・右面が見える】</strong></p>
+                    <p>上=●、正面=□、右=△ → 選択肢(1)が正解</p>
+                    <br>
+                    <p><strong>【各選択肢の検討】</strong></p>
+                    <p>・(1) 上=●、正面=□、右=△ → 正しい配置 → <strong>正解</strong></p>
+                    <p>・(2) 上=●、正面=■、右=△ → ■は左面。また■(左)と△(右)は対面であり同時に見えない → 不正解</p>
+                    <p>・(3) 上=+、正面=□、右=△ → +は下面(●の対面)であり上面に来ない → 不正解</p>
+                    <p>・(4) 上=●、正面=□、右=▲ → ▲は背面(□の対面)であり右面に来ない → 不正解</p>
+                    <p>・(5) 上=●、正面=▲、右=△ → ▲は背面(□の対面)であり正面に来ない → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <!--
+        問2: 立方体から展開図を判断する問題
+        目標立方体: 上=●, 下=○, 正面=■, 背面=□, 左=▲, 右=△
+        正解: (4) P=●, Q=▲, R=■, S=△, T=○, U=□
+        十字型折り畳みルール: P=上, Q=左, R=正面, S=右, T=下, U=背面
+        -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下の立方体の各面には、●・○・■・□・▲・△の記号が1面ずつ描かれている。また、向かい合う面（対面）の関係は、上面(●)と下面(○)、正面(■)と背面(□)、左面(▲)と右面(△)である。この立方体の展開図として正しいものを、(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <!-- 目標立方体 -->
+            <!--
+            目標立方体仕様:
+            - SVGサイズ: 165x170px
+            - viewBox: 0 0 165 170
+            - アイソメトリック表示（斜め右上から見た図）
+            - 上面中心: (75,55), 正面中心: (45,100), 右面中心: (105,100)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【立方体】</div>
+                <div class="figure-content">
+                    <svg width="165" height="170" viewBox="0 0 165 170">
+                        <!-- ラベル -->
+                        <text x="82" y="14" font-size="12" text-anchor="middle" font-family="serif" fill="#555">（斜め右上から見た図）</text>
+                        <!-- 上面 (白) -->
+                        <polygon points="75,25 135,55 75,85 15,55" fill="white" stroke="black" stroke-width="2"/>
+                        <!-- 正面 (淡灰) -->
+                        <polygon points="15,55 75,85 75,145 15,115" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                        <!-- 右面 (中灰) -->
+                        <polygon points="75,85 135,55 135,115 75,145" fill="#b0b0b0" stroke="black" stroke-width="2"/>
+
+                        <!-- 上: ● at (75,55) -->
+                        <circle cx="75" cy="55" r="10" fill="black"/>
+
+                        <!-- 正面: ■ at (45,100) -->
+                        <rect x="35" y="90" width="20" height="20" fill="black"/>
+
+                        <!-- 右: △ at (105,100) -->
+                        <polygon points="105,89 94,110 116,110" fill="none" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 5つの十字型展開図 -->
+            <!--
+            ミニ展開図の配置:
+            - SVGサイズ: 100x125px, viewBox="0 0 100 125"
+            - セルサイズ: 24x24px
+            - 十字型レイアウト:
+                [P(上)] x=38, y=18, 中心(50,30)
+                [Q(左)] x=14, y=42, 中心(26,54)
+                [R(正)] x=38, y=42, 中心(50,54)
+                [S(右)] x=62, y=42, 中心(74,54)
+                [T(下)] x=38, y=66, 中心(50,78)
+                [U(背)] x=38, y=90, 中心(50,102)
+            - 記号サイズ: 円r=5, 四角10x10, 三角12px幅
+            -->
+            <div class="options-figure" id="q2-options">
+
+                <!-- (1) 不正解: P=○, Q=▲, R=■, S=△, T=●, U=□ （上下が逆） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="12" font-size="12" text-anchor="middle" font-family="serif">(1)</text>
+                        <!-- セル枠 -->
+                        <rect x="38" y="18" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="14" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="62" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="66" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="90" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <!-- P=○ at (50,30) -->
+                        <circle cx="50" cy="30" r="5" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- Q=▲ at (26,54) -->
+                        <polygon points="26,48 20,60 32,60" fill="black"/>
+                        <!-- R=■ at (50,54) -->
+                        <rect x="45" y="49" width="10" height="10" fill="black"/>
+                        <!-- S=△ at (74,54) -->
+                        <polygon points="74,48 68,60 80,60" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- T=● at (50,78) -->
+                        <circle cx="50" cy="78" r="5" fill="black"/>
+                        <!-- U=□ at (50,102) -->
+                        <rect x="45" y="97" width="10" height="10" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- (2) 不正解: P=●, Q=△, R=■, S=▲, T=○, U=□ （左右が逆） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="12" font-size="12" text-anchor="middle" font-family="serif">(2)</text>
+                        <rect x="38" y="18" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="14" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="62" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="66" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="90" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <!-- P=● at (50,30) -->
+                        <circle cx="50" cy="30" r="5" fill="black"/>
+                        <!-- Q=△ at (26,54) -->
+                        <polygon points="26,48 20,60 32,60" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- R=■ at (50,54) -->
+                        <rect x="45" y="49" width="10" height="10" fill="black"/>
+                        <!-- S=▲ at (74,54) -->
+                        <polygon points="74,48 68,60 80,60" fill="black"/>
+                        <!-- T=○ at (50,78) -->
+                        <circle cx="50" cy="78" r="5" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- U=□ at (50,102) -->
+                        <rect x="45" y="97" width="10" height="10" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- (3) 不正解: P=●, Q=▲, R=□, S=△, T=○, U=■ （正面と背面が逆） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="12" font-size="12" text-anchor="middle" font-family="serif">(3)</text>
+                        <rect x="38" y="18" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="14" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="62" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="66" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="90" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <!-- P=● at (50,30) -->
+                        <circle cx="50" cy="30" r="5" fill="black"/>
+                        <!-- Q=▲ at (26,54) -->
+                        <polygon points="26,48 20,60 32,60" fill="black"/>
+                        <!-- R=□ at (50,54) -->
+                        <rect x="45" y="49" width="10" height="10" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- S=△ at (74,54) -->
+                        <polygon points="74,48 68,60 80,60" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- T=○ at (50,78) -->
+                        <circle cx="50" cy="78" r="5" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- U=■ at (50,102) -->
+                        <rect x="45" y="97" width="10" height="10" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- (4) 正解: P=●, Q=▲, R=■, S=△, T=○, U=□ -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="12" font-size="12" text-anchor="middle" font-family="serif">(4)</text>
+                        <rect x="38" y="18" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="14" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="62" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="66" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="90" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <!-- P=● at (50,30) -->
+                        <circle cx="50" cy="30" r="5" fill="black"/>
+                        <!-- Q=▲ at (26,54) -->
+                        <polygon points="26,48 20,60 32,60" fill="black"/>
+                        <!-- R=■ at (50,54) -->
+                        <rect x="45" y="49" width="10" height="10" fill="black"/>
+                        <!-- S=△ at (74,54) -->
+                        <polygon points="74,48 68,60 80,60" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- T=○ at (50,78) -->
+                        <circle cx="50" cy="78" r="5" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- U=□ at (50,102) -->
+                        <rect x="45" y="97" width="10" height="10" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- (5) 不正解: P=●, Q=▲, R=■, S=△, T=□, U=○ （下面と背面が逆） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <svg width="100" height="125" viewBox="0 0 100 125">
+                        <text x="50" y="12" font-size="12" text-anchor="middle" font-family="serif">(5)</text>
+                        <rect x="38" y="18" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="14" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="62" y="42" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="66" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="38" y="90" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <!-- P=● at (50,30) -->
+                        <circle cx="50" cy="30" r="5" fill="black"/>
+                        <!-- Q=▲ at (26,54) -->
+                        <polygon points="26,48 20,60 32,60" fill="black"/>
+                        <!-- R=■ at (50,54) -->
+                        <rect x="45" y="49" width="10" height="10" fill="black"/>
+                        <!-- S=△ at (74,54) -->
+                        <polygon points="74,48 68,60 80,60" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- T=□ at (50,78) -->
+                        <rect x="45" y="73" width="10" height="10" fill="none" stroke="black" stroke-width="1.5"/>
+                        <!-- U=○ at (50,102) -->
+                        <circle cx="50" cy="102" r="5" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【立方体の完全な面配置】</strong></p>
+                    <p>問題より: 上=●、下=○、正面=■、背面=□、左=▲、右=△</p>
+                    <br>
+                    <p><strong>【十字型展開図の折り畳みルール】</strong></p>
+                    <p>展開図の配置（[P上][Q左][R正面][S右][T下][U背面]）:</p>
+                    <p style="font-family: monospace; margin: 8px 0; padding: 8px; background: #f0f0f0; border-radius: 4px;">
+                        &nbsp;&nbsp;&nbsp;&nbsp;[P]<br>
+                        [Q][R][S]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;[T]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;[U]
+                    </p>
+                    <p>・R（中央）= 正面(■)　・Q（左）= 左面(▲)　・S（右）= 右面(△)</p>
+                    <p>・P（上）= 上面(●)　・T（下）= 下面(○)　・U（最下）= 背面(□)</p>
+                    <br>
+                    <p><strong>正解の展開図: P=●, Q=▲, R=■, S=△, T=○, U=□ → (4)</strong></p>
+                    <br>
+                    <p><strong>【各選択肢の検討】</strong></p>
+                    <p>・(1) P=○, T=● → 折ると上面=○、下面=●。目標は上面=●、下面=○で逆 → 不正解</p>
+                    <p>・(2) Q=△, S=▲ → 折ると左面=△、右面=▲。目標は左面=▲、右面=△で逆 → 不正解</p>
+                    <p>・(3) R=□, U=■ → 折ると正面=□、背面=■。目標は正面=■、背面=□で逆 → 不正解</p>
+                    <p>・(4) P=●, Q=▲, R=■, S=△, T=○, U=□ → 折ると上=●、左=▲、正面=■、右=△、下=○、背面=□ → <strong>正解</strong></p>
+                    <p>・(5) T=□, U=○ → 折ると下面=□、背面=○。目標は下面=○、背面=□で逆 → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_02/航大思考5/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                btn.classList.add('disabled');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
