@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下の展開図を折り畳んでできる立方体として、正しいものを(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!-- 展開図 -->
+                <!--
+                展開図仕様（印刷用）:
+                - SVGサイズ: 250x310px, viewBox: 0 0 250 310
+                - セルサイズ: 70x70px
+                - 上=●, 左=■, 正面=□, 右=△, 下=+, 背面=▲
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【展開図】</div>
+                    <div class="figure-content">
+                        <svg width="250" height="310" viewBox="0 0 250 310">
+                            <!-- 上面 (●) -->
+                            <rect x="70" y="10" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="105" cy="45" r="10" fill="black"/>
+
+                            <!-- 左面 (■) -->
+                            <rect x="0" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="23" y="103" width="24" height="24" fill="black"/>
+
+                            <!-- 正面 (□) -->
+                            <rect x="70" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="93" y="103" width="24" height="24" fill="none" stroke="black" stroke-width="2.5"/>
+
+                            <!-- 右面 (△) -->
+                            <rect x="140" y="80" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="175,103 163,127 187,127" fill="none" stroke="black" stroke-width="2.5"/>
+
+                            <!-- 下面 (+) -->
+                            <rect x="70" y="150" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="105" y1="173" x2="105" y2="197" stroke="black" stroke-width="3.5"/>
+                            <line x1="93" y1="185" x2="117" y2="185" stroke="black" stroke-width="3.5"/>
+
+                            <!-- 背面 (▲) -->
+                            <rect x="70" y="220" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="105,243 93,267 117,267" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: 5つのアイソメトリック立方体（1行横並び） -->
+                <!--
+                印刷用: 1つのSVGに5択を横並びで配置
+                - SVGサイズ: 600x120px, viewBox: 0 0 600 120
+                - 各立方体のグループ幅: 118px
+                - アイソメトリック座標(各グループ内): 上面(59,44), 正面(39,74), 右面(79,74)
+                - 正解(1): 上=●, 正面=□, 右=△
+                - (2): 上=●, 正面=■(左面), 右=△
+                - (3): 上=+(下面), 正面=□, 右=△
+                - (4): 上=●, 正面=□, 右=▲(背面)
+                - (5): 上=●, 正面=▲(背面), 右=△
+                -->
+                <div class="figure-container" style="border: none; padding: 5px;">
+                    <div class="figure-content">
+                        <svg width="600" height="125" viewBox="0 0 600 125">
+
+                            <!-- (1) 正解: 上=●, 正面=□, 右=△ -->
+                            <g transform="translate(0, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(1)</text>
+                                <polygon points="59,20 99,40 59,60 19,40" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="19,40 59,60 59,100 19,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="59,60 99,40 99,80 59,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                                <!-- 上: ● at (59,40) -->
+                                <circle cx="59" cy="40" r="6" fill="black"/>
+                                <!-- 正面: □ at (39,70) -->
+                                <rect x="33" y="64" width="12" height="12" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 右: △ at (79,70) -->
+                                <polygon points="79,63 72,75 86,75" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- (2) 不正解: 上=●, 正面=■, 右=△ -->
+                            <g transform="translate(120, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(2)</text>
+                                <polygon points="59,20 99,40 59,60 19,40" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="19,40 59,60 59,100 19,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="59,60 99,40 99,80 59,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                                <!-- 上: ● at (59,40) -->
+                                <circle cx="59" cy="40" r="6" fill="black"/>
+                                <!-- 正面: ■ at (39,70) -->
+                                <rect x="33" y="64" width="12" height="12" fill="black"/>
+                                <!-- 右: △ at (79,70) -->
+                                <polygon points="79,63 72,75 86,75" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- (3) 不正解: 上=+, 正面=□, 右=△ -->
+                            <g transform="translate(240, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(3)</text>
+                                <polygon points="59,20 99,40 59,60 19,40" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="19,40 59,60 59,100 19,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="59,60 99,40 99,80 59,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                                <!-- 上: + at (59,40) -->
+                                <line x1="59" y1="34" x2="59" y2="46" stroke="black" stroke-width="2.5"/>
+                                <line x1="53" y1="40" x2="65" y2="40" stroke="black" stroke-width="2.5"/>
+                                <!-- 正面: □ at (39,70) -->
+                                <rect x="33" y="64" width="12" height="12" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 右: △ at (79,70) -->
+                                <polygon points="79,63 72,75 86,75" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- (4) 不正解: 上=●, 正面=□, 右=▲ -->
+                            <g transform="translate(360, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(4)</text>
+                                <polygon points="59,20 99,40 59,60 19,40" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="19,40 59,60 59,100 19,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="59,60 99,40 99,80 59,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                                <!-- 上: ● at (59,40) -->
+                                <circle cx="59" cy="40" r="6" fill="black"/>
+                                <!-- 正面: □ at (39,70) -->
+                                <rect x="33" y="64" width="12" height="12" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 右: ▲ at (79,70) -->
+                                <polygon points="79,63 72,75 86,75" fill="black"/>
+                            </g>
+
+                            <!-- (5) 不正解: 上=●, 正面=▲, 右=△ -->
+                            <g transform="translate(480, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(5)</text>
+                                <polygon points="59,20 99,40 59,60 19,40" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="19,40 59,60 59,100 19,80" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="59,60 99,40 99,80 59,100" fill="#b0b0b0" stroke="black" stroke-width="1.5"/>
+                                <!-- 上: ● at (59,40) -->
+                                <circle cx="59" cy="40" r="6" fill="black"/>
+                                <!-- 正面: ▲ at (39,70) -->
+                                <polygon points="39,63 32,75 46,75" fill="black"/>
+                                <!-- 右: △ at (79,70) -->
+                                <polygon points="79,63 72,75 86,75" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br><br>
+
+                <strong>【展開図の折り畳みルール】</strong><br>
+                十字型展開図では、正面（□）を基準として折り畳みを考える。<br><br>
+
+                ・正面: □（空四角）<br>
+                ・左面: ■（塗り四角）← 正面の左に位置<br>
+                ・右面: △（空三角）← 正面の右に位置<br>
+                ・上面: ●（塗り円）← 正面の上に位置<br>
+                ・下面: +（プラス）← 正面の下に位置<br>
+                ・背面: ▲（塗り三角）← 下面のさらに下、正面の反対<br><br>
+
+                <strong>【対面（反対面）のペア】</strong><br>
+                ・上面(●) と 下面(+) は対面 → 同時に見えない<br>
+                ・正面(□) と 背面(▲) は対面 → 同時に見えない<br>
+                ・左面(■) と 右面(△) は対面 → 同時に見えない<br><br>
+
+                <strong>【斜め右上から見たとき: 上面・正面・右面が見える】</strong><br>
+                正しい見え方: 上=●、正面=□、右=△<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 上=●、正面=□、右=△ → 正しい配置 → <strong>正解</strong><br>
+                ・(2) 上=●、正面=■、右=△ → ■は左面。■(左)と△(右)は対面で同時に見えない → 不正解<br>
+                ・(3) 上=+、正面=□、右=△ → +は下面(●の対面)。上面に来ることはない → 不正解<br>
+                ・(4) 上=●、正面=□、右=▲ → ▲は背面(□の対面)。右面に来ることはない → 不正解<br>
+                ・(5) 上=●、正面=▲、右=△ → ▲は背面(□の対面)。正面に来ることはない → 不正解<br><br>
+
+                したがって、正解は<strong>（1）</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．下の立方体の各面には、●・○・■・□・▲・△の記号が1面ずつ描かれている。また、向かい合う面（対面）の関係は、上面(●)と下面(○)、正面(■)と背面(□)、左面(▲)と右面(△)である。この立方体の展開図として正しいものを、(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!-- 目標立方体 -->
+                <div class="figure-container">
+                    <div class="figure-title">【立方体（斜め右上から見た図）】</div>
+                    <div class="figure-content">
+                        <!--
+                        目標立方体: 上=●, 正面=■, 右=△
+                        アイソメトリック: 辺長60px
+                        上面中心(75,55), 正面中心(45,100), 右面中心(105,100)
+                        -->
+                        <svg width="165" height="155" viewBox="0 0 165 155">
+                            <!-- 上面 (白) -->
+                            <polygon points="75,15 135,45 75,75 15,45" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 正面 (淡灰) -->
+                            <polygon points="15,45 75,75 75,135 15,105" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                            <!-- 右面 (中灰) -->
+                            <polygon points="75,75 135,45 135,105 75,135" fill="#b0b0b0" stroke="black" stroke-width="2"/>
+
+                            <!-- 上: ● at (75,45) -->
+                            <circle cx="75" cy="45" r="10" fill="black"/>
+
+                            <!-- 正面: ■ at (45,90) -->
+                            <rect x="35" y="80" width="20" height="20" fill="black"/>
+
+                            <!-- 右: △ at (105,90) -->
+                            <polygon points="105,79 94,100 116,100" fill="none" stroke="black" stroke-width="2.5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: 5つのミニ展開図（1行横並び） -->
+                <!--
+                印刷用: 5つの十字型展開図を横並びで配置
+                - SVGサイズ: 600x120px, viewBox: 0 0 600 120
+                - 各グループ幅: 118px, 各セル: 22x22px
+                - 十字型内のローカル座標:
+                    P: rect x=48, y=18 → center(59,29)
+                    Q: rect x=26, y=40 → center(37,51)
+                    R: rect x=48, y=40 → center(59,51)
+                    S: rect x=70, y=40 → center(81,51)
+                    T: rect x=48, y=62 → center(59,73)
+                    U: rect x=48, y=84 → center(59,95)
+                - 記号サイズ: 円r=4.5, 四角9x9, 三角10px幅
+                -->
+                <div class="figure-container" style="border: none; padding: 5px;">
+                    <div class="figure-content">
+                        <svg width="600" height="120" viewBox="0 0 600 120">
+
+                            <!-- (1) 不正解: P=○, Q=▲, R=■, S=△, T=●, U=□ （上下逆） -->
+                            <g transform="translate(0, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(1)</text>
+                                <rect x="48" y="18" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="26" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="70" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="62" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="84" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- P=○ -->
+                                <circle cx="59" cy="29" r="4.5" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- Q=▲ -->
+                                <polygon points="37,45 31,57 43,57" fill="black"/>
+                                <!-- R=■ -->
+                                <rect x="54.5" y="46.5" width="9" height="9" fill="black"/>
+                                <!-- S=△ -->
+                                <polygon points="81,45 75,57 87,57" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- T=● -->
+                                <circle cx="59" cy="73" r="4.5" fill="black"/>
+                                <!-- U=□ -->
+                                <rect x="54.5" y="89.5" width="9" height="9" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (2) 不正解: P=●, Q=△, R=■, S=▲, T=○, U=□ （左右逆） -->
+                            <g transform="translate(120, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(2)</text>
+                                <rect x="48" y="18" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="26" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="70" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="62" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="84" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- P=● -->
+                                <circle cx="59" cy="29" r="4.5" fill="black"/>
+                                <!-- Q=△ -->
+                                <polygon points="37,45 31,57 43,57" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- R=■ -->
+                                <rect x="54.5" y="46.5" width="9" height="9" fill="black"/>
+                                <!-- S=▲ -->
+                                <polygon points="81,45 75,57 87,57" fill="black"/>
+                                <!-- T=○ -->
+                                <circle cx="59" cy="73" r="4.5" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- U=□ -->
+                                <rect x="54.5" y="89.5" width="9" height="9" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (3) 不正解: P=●, Q=▲, R=□, S=△, T=○, U=■ （前後逆） -->
+                            <g transform="translate(240, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(3)</text>
+                                <rect x="48" y="18" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="26" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="70" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="62" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="84" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- P=● -->
+                                <circle cx="59" cy="29" r="4.5" fill="black"/>
+                                <!-- Q=▲ -->
+                                <polygon points="37,45 31,57 43,57" fill="black"/>
+                                <!-- R=□ -->
+                                <rect x="54.5" y="46.5" width="9" height="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- S=△ -->
+                                <polygon points="81,45 75,57 87,57" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- T=○ -->
+                                <circle cx="59" cy="73" r="4.5" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- U=■ -->
+                                <rect x="54.5" y="89.5" width="9" height="9" fill="black"/>
+                            </g>
+
+                            <!-- (4) 正解: P=●, Q=▲, R=■, S=△, T=○, U=□ -->
+                            <g transform="translate(360, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(4)</text>
+                                <rect x="48" y="18" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="26" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="70" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="62" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="84" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- P=● -->
+                                <circle cx="59" cy="29" r="4.5" fill="black"/>
+                                <!-- Q=▲ -->
+                                <polygon points="37,45 31,57 43,57" fill="black"/>
+                                <!-- R=■ -->
+                                <rect x="54.5" y="46.5" width="9" height="9" fill="black"/>
+                                <!-- S=△ -->
+                                <polygon points="81,45 75,57 87,57" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- T=○ -->
+                                <circle cx="59" cy="73" r="4.5" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- U=□ -->
+                                <rect x="54.5" y="89.5" width="9" height="9" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (5) 不正解: P=●, Q=▲, R=■, S=△, T=□, U=○ （下面と背面逆） -->
+                            <g transform="translate(480, 5)">
+                                <text x="59" y="13" class="svg-text" text-anchor="middle" font-size="12">(5)</text>
+                                <rect x="48" y="18" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="26" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="70" y="40" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="62" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="84" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- P=● -->
+                                <circle cx="59" cy="29" r="4.5" fill="black"/>
+                                <!-- Q=▲ -->
+                                <polygon points="37,45 31,57 43,57" fill="black"/>
+                                <!-- R=■ -->
+                                <rect x="54.5" y="46.5" width="9" height="9" fill="black"/>
+                                <!-- S=△ -->
+                                <polygon points="81,45 75,57 87,57" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- T=□ -->
+                                <rect x="54.5" y="68.5" width="9" height="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <!-- U=○ -->
+                                <circle cx="59" cy="95" r="4.5" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【立方体の完全な面配置】</strong><br>
+                問題より: 上=●、下=○、正面=■、背面=□、左=▲、右=△<br><br>
+
+                <strong>【十字型展開図の折り畳みルール】</strong><br>
+                展開図の配置（P=上, Q=左, R=正面, S=右, T=下, U=背面）:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;[P]<br>
+                [Q][R][S]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;[T]<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;[U]<br><br>
+
+                R（中央）= 正面(■)、Q（左）= 左面(▲)、S（右）= 右面(△)<br>
+                P（上）= 上面(●)、T（下）= 下面(○)、U（最下）= 背面(□)<br><br>
+
+                <strong>正解の展開図: P=●, Q=▲, R=■, S=△, T=○, U=□ → (4)</strong><br><br>
+
+                <strong>【各選択肢の検討】</strong><br>
+                ・(1) P=○, T=● → 折ると上面=○、下面=●。目標は上面=●、下面=○で上下逆 → 不正解<br>
+                ・(2) Q=△, S=▲ → 折ると左面=△、右面=▲。目標は左面=▲、右面=△で左右逆 → 不正解<br>
+                ・(3) R=□, U=■ → 折ると正面=□、背面=■。目標は正面=■、背面=□で前後逆 → 不正解<br>
+                ・(4) P=●, Q=▲, R=■, S=△, T=○, U=□ → 折ると上=●, 左=▲, 正面=■, 右=△, 下=○, 背面=□ → <strong>正解</strong><br>
+                ・(5) T=□, U=○ → 折ると下面=□、背面=○。目標は下面=○、背面=□で逆 → 不正解<br><br>
+
+                したがって、正解は<strong>（4）</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
