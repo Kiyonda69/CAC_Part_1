@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .formula-box {
+            margin: 12px 0;
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 2;
+            border-radius: 4px;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 10px 14px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 15px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 10px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #fffde7;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 8px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                以下の表は、ある店舗の月次発注データの一部である。表中の「請求額」は「注文金額」に割引を適用した金額であり、次の関係が成立する。表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。
+            </div>
+
+            <div class="formula-box">
+                ・注文金額（円）＝ 単価（円）× 注文数（個）<br>
+                ・請求額（円）＝ 注文金額（円）×（1 − 割引率）
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【発注データ】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>商品</th>
+                            <th>単価（円）</th>
+                            <th>注文数（個）</th>
+                            <th>注文金額（円）</th>
+                            <th>割引率</th>
+                            <th>請求額（円）</th>
+                        </tr>
+                        <tr>
+                            <td>A</td>
+                            <td>120</td>
+                            <td>5</td>
+                            <td>600</td>
+                            <td>10%</td>
+                            <td>540</td>
+                        </tr>
+                        <tr>
+                            <td>B</td>
+                            <td>200</td>
+                            <td>3</td>
+                            <td>600</td>
+                            <td>15%</td>
+                            <td>510</td>
+                        </tr>
+                        <tr>
+                            <td>C</td>
+                            <td>150</td>
+                            <td>4</td>
+                            <td>600</td>
+                            <td>20%</td>
+                            <td>480</td>
+                        </tr>
+                        <tr>
+                            <td>D</td>
+                            <td class="blank-cell">（ア）</td>
+                            <td>6</td>
+                            <td>---</td>
+                            <td>25%</td>
+                            <td>450</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>75
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>100
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>80
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>90
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>120
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【手順1: 注文金額を求める】</strong></p>
+                    <p>「請求額 ＝ 注文金額 × (1 − 割引率)」を商品Dに適用する。</p>
+                    <p>・450 ＝ 注文金額 × (1 − 0.25) ＝ 注文金額 × 0.75</p>
+                    <p>・注文金額 ＝ 450 ÷ 0.75 ＝ 600（円）</p>
+                    <br>
+                    <p><strong>【手順2: 単価を求める】</strong></p>
+                    <p>「注文金額 ＝ 単価 × 注文数」より：</p>
+                    <p>・600 ＝ 単価 × 6 → 単価（ア）＝ 100（円）</p>
+                    <br>
+                    <p><strong>【補足】</strong></p>
+                    <p>A〜Cの注文金額がすべて600円のパターンに気づけば、Dも同様に600円と推測して素早く解ける。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                以下の表は、ある運送会社の輸送ルート別コストデータの一部である。表中の数値には共通するある規則性がある。この規則性を用いて表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。
+            </div>
+
+            <div class="formula-box">
+                ・運賃（円）＝ 基本料金（円）＋ 重量料金（円/kg）× 重量（kg）<br>
+                ・利益（円）＝ 運賃（円）− 実費（円）
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【輸送コストデータ】</div>
+                <div class="figure-content">
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th>ルート</th>
+                            <th>基本料金<br>（円）</th>
+                            <th>重量<br>（kg）</th>
+                            <th>重量料金<br>（円/kg）</th>
+                            <th>運賃<br>（円）</th>
+                            <th>実費<br>（円）</th>
+                            <th>利益<br>（円）</th>
+                        </tr>
+                        <tr>
+                            <td>P</td>
+                            <td>1,500</td>
+                            <td>30</td>
+                            <td>100</td>
+                            <td>4,500</td>
+                            <td>3,150</td>
+                            <td>1,350</td>
+                        </tr>
+                        <tr>
+                            <td>Q</td>
+                            <td>1,500</td>
+                            <td>60</td>
+                            <td>100</td>
+                            <td>7,500</td>
+                            <td>5,250</td>
+                            <td>2,250</td>
+                        </tr>
+                        <tr>
+                            <td>R</td>
+                            <td>2,000</td>
+                            <td>80</td>
+                            <td>100</td>
+                            <td>10,000</td>
+                            <td>7,000</td>
+                            <td>3,000</td>
+                        </tr>
+                        <tr>
+                            <td>S</td>
+                            <td>2,000</td>
+                            <td class="blank-cell">（ア）</td>
+                            <td>100</td>
+                            <td>---</td>
+                            <td>9,800</td>
+                            <td>---</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>80
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>90
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>100
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>110
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>120
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【手順1: 利益率の規則性を発見する】</strong></p>
+                    <p>利益率 ＝ 利益 ÷ 運賃 を各ルートで計算する。</p>
+                    <p>・P: 1,350 ÷ 4,500 ＝ 0.30（30%）</p>
+                    <p>・Q: 2,250 ÷ 7,500 ＝ 0.30（30%）</p>
+                    <p>・R: 3,000 ÷ 10,000 ＝ 0.30（30%）</p>
+                    <p>→ すべてのルートで利益率 ＝ 30%</p>
+                    <br>
+                    <p><strong>【手順2: ルートSの運賃を求める】</strong></p>
+                    <p>利益率 ＝ 30% より：利益 ＝ 運賃 × 0.30</p>
+                    <p>また：利益 ＝ 運賃 − 9,800</p>
+                    <p>等置して：運賃 × 0.30 ＝ 運賃 − 9,800</p>
+                    <p>→ 0.70 × 運賃 ＝ 9,800 → 運賃 ＝ 14,000（円）</p>
+                    <br>
+                    <p><strong>【手順3: 重量（ア）を求める】</strong></p>
+                    <p>運賃 ＝ 基本料金 ＋ 重量料金 × 重量 より：</p>
+                    <p>14,000 ＝ 2,000 ＋ 100 × （ア）</p>
+                    <p>→ 100 × （ア）＝ 12,000 → （ア）＝ 120（kg）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_02/航大思考3/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 直接ファイルを開いた場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                btn.classList.add('disabled');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

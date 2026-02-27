@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+            font-size: 15px;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 10px 16px;
+            min-width: 70px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 15px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .formula-box {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．以下の表は、ある店舗の月次発注データの一部である。表中の「請求額」は「注文金額」に割引を適用した金額であり、次の関係が成立する。表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・注文金額（円）＝ 単価（円）× 注文数（個）<br>
+                    ・請求額（円）＝ 注文金額（円）×（1 − 割引率）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【発注データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>商品</th>
+                                <th>単価（円）</th>
+                                <th>注文数（個）</th>
+                                <th>注文金額（円）</th>
+                                <th>割引率</th>
+                                <th>請求額（円）</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>120</td>
+                                <td>5</td>
+                                <td>600</td>
+                                <td>10%</td>
+                                <td>540</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>200</td>
+                                <td>3</td>
+                                <td>600</td>
+                                <td>15%</td>
+                                <td>510</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>150</td>
+                                <td>4</td>
+                                <td>600</td>
+                                <td>20%</td>
+                                <td>480</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>6</td>
+                                <td>---</td>
+                                <td>25%</td>
+                                <td>450</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　75<br>
+                    (2)　100<br>
+                    (3)　80<br>
+                    (4)　90<br>
+                    (5)　120
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(2)）</strong><br><br>
+
+                <strong>【手順1: 注文金額を求める】</strong><br>
+                「請求額 ＝ 注文金額 × (1 − 割引率)」の関係を商品Dに適用する。<br>
+                ・商品Dの請求額 ＝ 450円、割引率 ＝ 25%<br>
+                ・450 ＝ 注文金額 × (1 − 0.25) ＝ 注文金額 × 0.75<br>
+                ・注文金額 ＝ 450 ÷ 0.75 ＝ 600（円）<br><br>
+
+                <strong>【手順2: 単価を求める】</strong><br>
+                「注文金額 ＝ 単価 × 注文数」より：<br>
+                ・600 ＝ 単価 × 6<br>
+                ・単価（ア）＝ 600 ÷ 6 ＝ 100（円）<br><br>
+
+                <strong>【検算・補足】</strong><br>
+                A〜Cの注文金額もすべて600円であることを確認できる。<br>
+                ・A: 120 × 5 ＝ 600　B: 200 × 3 ＝ 600　C: 150 × 4 ＝ 600<br>
+                このパターンに気づけば、Dの注文金額も600円と推測でき、<br>
+                単価 ＝ 600 ÷ 6 ＝ 100 と素早く求めることもできる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 75：割引を無視して 450 ÷ 6 ＝ 75 とした誤り<br>
+                ・(2) 100：正解<br>
+                ・(3) 80：注文金額を誤計算した場合<br>
+                ・(4) 90：注文金額を誤計算した場合<br>
+                ・(5) 120：商品Aの単価と混同した誤り<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．以下の表は、ある運送会社の輸送ルート別コストデータの一部である。表中の数値には共通するある規則性がある。この規則性を用いて表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・運賃（円）＝ 基本料金（円）＋ 重量料金（円/kg）× 重量（kg）<br>
+                    ・利益（円）＝ 運賃（円）− 実費（円）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【輸送コストデータ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table" style="font-size: 14px;">
+                            <tr>
+                                <th>ルート</th>
+                                <th>基本料金<br>（円）</th>
+                                <th>重量<br>（kg）</th>
+                                <th>重量料金<br>（円/kg）</th>
+                                <th>運賃<br>（円）</th>
+                                <th>実費<br>（円）</th>
+                                <th>利益<br>（円）</th>
+                            </tr>
+                            <tr>
+                                <td>P</td>
+                                <td>1,500</td>
+                                <td>30</td>
+                                <td>100</td>
+                                <td>4,500</td>
+                                <td>3,150</td>
+                                <td>1,350</td>
+                            </tr>
+                            <tr>
+                                <td>Q</td>
+                                <td>1,500</td>
+                                <td>60</td>
+                                <td>100</td>
+                                <td>7,500</td>
+                                <td>5,250</td>
+                                <td>2,250</td>
+                            </tr>
+                            <tr>
+                                <td>R</td>
+                                <td>2,000</td>
+                                <td>80</td>
+                                <td>100</td>
+                                <td>10,000</td>
+                                <td>7,000</td>
+                                <td>3,000</td>
+                            </tr>
+                            <tr>
+                                <td>S</td>
+                                <td>2,000</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>100</td>
+                                <td>---</td>
+                                <td>9,800</td>
+                                <td>---</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　80<br>
+                    (2)　90<br>
+                    (3)　100<br>
+                    (4)　110<br>
+                    (5)　120
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(5)）</strong><br><br>
+
+                <strong>【手順1: 各ルートの利益率を計算し、規則性を発見する】</strong><br>
+                利益率 ＝ 利益 ÷ 運賃 を各ルートで計算する。<br>
+                ・ルートP: 1,350 ÷ 4,500 ＝ 0.30（30%）<br>
+                ・ルートQ: 2,250 ÷ 7,500 ＝ 0.30（30%）<br>
+                ・ルートR: 3,000 ÷ 10,000 ＝ 0.30（30%）<br>
+                → すべてのルートで利益率 ＝ 30% という規則性がある。<br><br>
+
+                <strong>【手順2: ルートSの運賃を求める】</strong><br>
+                ルートSも利益率 ＝ 30% が成立するとして：<br>
+                ・利益 ＝ 運賃 × 0.30<br>
+                ・利益 ＝ 運賃 − 実費 ＝ 運賃 − 9,800<br>
+                　これらを等置する：<br>
+                　運賃 × 0.30 ＝ 運賃 − 9,800<br>
+                　9,800 ＝ 運賃 × 0.70<br>
+                　運賃 ＝ 9,800 ÷ 0.70 ＝ 14,000（円）<br><br>
+
+                <strong>【手順3: 重量（ア）を求める】</strong><br>
+                「運賃 ＝ 基本料金 ＋ 重量料金 × 重量」より：<br>
+                ・14,000 ＝ 2,000 ＋ 100 × （ア）<br>
+                ・100 × （ア）＝ 12,000<br>
+                ・（ア）＝ 120（kg）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 80：ルートRの重量と混同した誤り<br>
+                ・(2) 90：運賃の計算過程で誤った場合<br>
+                ・(3) 100：運賃の計算過程で誤った場合<br>
+                ・(4) 110：運賃の計算過程で誤った場合<br>
+                ・(5) 120：正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
