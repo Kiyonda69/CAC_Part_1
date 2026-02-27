@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* データ表スタイル */
+        .data-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            border: 2px solid #333;
+            padding: 8px 14px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            border: 2px solid #333;
+            padding: 8px 14px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .data-table tr:last-child {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下表は、ある空港の1日の国内線4便の搭乗データをまとめたものである。各便について「搭乗者数＝座席数×搭乗率」が成り立ち、また103便の座席数は101便の座席数の1.5倍である。表中のア〜カに当てはまる数値を求め、カ（4便の合計搭乗者数）の値として正しいものを選べ。（6点）</div>
+
+                <!-- データ表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】国内線搭乗データ</div>
+                    <div class="figure-content">
+                        <!--
+                        表仕様:
+                        - 便名 / 座席数 / 搭乗率 / 搭乗者数 の4列
+                        - 4便 + 合計 の5行
+                        - 空欄: ア（101便搭乗者数）、イ（102便搭乗率）、ウ（103便座席数）、エ（104便搭乗者数）、オ（合計座席数）、カ（合計搭乗者数）
+                        -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>便名</th>
+                                    <th>座席数（席）</th>
+                                    <th>搭乗率</th>
+                                    <th>搭乗者数（人）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>101便</td>
+                                    <td>200</td>
+                                    <td>85%</td>
+                                    <td class="blank-cell">ア</td>
+                                </tr>
+                                <tr>
+                                    <td>102便</td>
+                                    <td>250</td>
+                                    <td class="blank-cell">イ</td>
+                                    <td>200</td>
+                                </tr>
+                                <tr>
+                                    <td>103便</td>
+                                    <td class="blank-cell">ウ</td>
+                                    <td>90%</td>
+                                    <td>270</td>
+                                </tr>
+                                <tr>
+                                    <td>104便</td>
+                                    <td>180</td>
+                                    <td>75%</td>
+                                    <td class="blank-cell">エ</td>
+                                </tr>
+                                <tr>
+                                    <td>合計</td>
+                                    <td class="blank-cell">オ</td>
+                                    <td>—</td>
+                                    <td class="blank-cell">カ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　775人<br>
+                    (2)　785人<br>
+                    (3)　795人<br>
+                    (4)　765人<br>
+                    (5)　755人
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(1)）</strong><br><br>
+
+                <strong>【各空欄の計算】</strong><br>
+                ・ア（101便の搭乗者数）＝ 200席 × 85% ＝ <strong>170人</strong><br>
+                ・イ（102便の搭乗率）＝ 200人 ÷ 250席 ＝ <strong>80%</strong><br>
+                ・ウ（103便の座席数）: 「103便の座席数は101便の1.5倍」という条件より<br>
+                　　200席 × 1.5 ＝ <strong>300席</strong>　（確認: 300 × 90% ＝ 270人 ✓）<br>
+                ・エ（104便の搭乗者数）＝ 180席 × 75% ＝ <strong>135人</strong><br>
+                ・オ（合計座席数）＝ 200 ＋ 250 ＋ 300 ＋ 180 ＝ <strong>930席</strong><br><br>
+
+                <strong>【カ（合計搭乗者数）の計算】</strong><br>
+                カ ＝ 170 ＋ 200 ＋ 270 ＋ 135 ＝ <strong>775人</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 775人 → ア（170）＋ 200 ＋ 270 ＋ エ（135）＝ 775人　→ <strong>正解</strong><br>
+                ・(2) 785人 → ウを300席と求めなかった場合の誤答<br>
+                ・(3) 795人 → 搭乗率を掛け忘れた場合の誤答<br>
+                ・(4) 765人 → エを130人と誤計算した場合の誤答<br>
+                ・(5) 755人 → アを160人と誤計算した場合の誤答<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．下表は、ある空港で扱った航空貨物4便の運賃データをまとめたものである。各便の運賃は「基本運賃（円/kg）×重量（kg）×（1＋割増率）」で計算される。表中のア〜カに当てはまる数値を求め、オ（4便の合計重量）の値として正しいものを選べ。（6点）</div>
+
+                <!-- データ表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】航空貨物運賃データ</div>
+                    <div class="figure-content">
+                        <!--
+                        表仕様:
+                        - 貨物便 / 重量(kg) / 基本運賃(円/kg) / 割増率 / 運賃(円) の5列
+                        - 第1〜4便 + 合計 の5行
+                        - 空欄: ア（第1便運賃）、イ（第2便重量）、ウ（第3便基本運賃）、エ（第4便割増率）、オ（合計重量）、カ（合計運賃）
+                        -->
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>貨物便</th>
+                                    <th>重量（kg）</th>
+                                    <th>基本運賃（円/kg）</th>
+                                    <th>割増率</th>
+                                    <th>運賃（円）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>第1便</td>
+                                    <td>500</td>
+                                    <td>100</td>
+                                    <td>0%</td>
+                                    <td class="blank-cell">ア</td>
+                                </tr>
+                                <tr>
+                                    <td>第2便</td>
+                                    <td class="blank-cell">イ</td>
+                                    <td>100</td>
+                                    <td>50%</td>
+                                    <td>36,000</td>
+                                </tr>
+                                <tr>
+                                    <td>第3便</td>
+                                    <td>400</td>
+                                    <td class="blank-cell">ウ</td>
+                                    <td>20%</td>
+                                    <td>57,600</td>
+                                </tr>
+                                <tr>
+                                    <td>第4便</td>
+                                    <td>300</td>
+                                    <td>100</td>
+                                    <td class="blank-cell">エ</td>
+                                    <td>45,000</td>
+                                </tr>
+                                <tr>
+                                    <td>合計</td>
+                                    <td class="blank-cell">オ</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td class="blank-cell">カ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　1,380 kg<br>
+                    (2)　1,410 kg<br>
+                    (3)　1,440 kg<br>
+                    (4)　1,470 kg<br>
+                    (5)　1,500 kg
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(3)）</strong><br><br>
+
+                <strong>【各空欄の計算】</strong><br>
+                ・ア（第1便の運賃）＝ 100円/kg × 500 kg × （1 ＋ 0%）＝ <strong>50,000円</strong><br>
+                ・イ（第2便の重量）: 36,000 ＝ 100 × イ × 1.5 より<br>
+                　　イ ＝ 36,000 ÷ 150 ＝ <strong>240 kg</strong><br>
+                ・ウ（第3便の基本運賃）: 57,600 ＝ ウ × 400 × 1.2 より<br>
+                　　ウ ＝ 57,600 ÷ 480 ＝ <strong>120円/kg</strong><br>
+                ・エ（第4便の割増率）: 45,000 ＝ 100 × 300 × （1 ＋ エ）より<br>
+                　　1 ＋ エ ＝ 45,000 ÷ 30,000 ＝ 1.5　→　エ ＝ <strong>50%</strong><br>
+                ・カ（合計運賃）＝ 50,000 ＋ 36,000 ＋ 57,600 ＋ 45,000 ＝ <strong>188,600円</strong><br><br>
+
+                <strong>【オ（合計重量）の計算】</strong><br>
+                オ ＝ 500 ＋ 240 ＋ 400 ＋ 300 ＝ <strong>1,440 kg</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 1,380 kg → イを200 kgと誤計算した場合の誤答<br>
+                ・(2) 1,410 kg → イを210 kgと誤計算した場合の誤答<br>
+                ・(3) 1,440 kg → イ＝240 kgと正しく求めた場合　→ <strong>正解</strong><br>
+                ・(4) 1,470 kg → イを270 kgと誤計算した場合の誤答<br>
+                ・(5) 1,500 kg → 割増率を考慮せずイを360 kgと誤計算した場合の誤答<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
