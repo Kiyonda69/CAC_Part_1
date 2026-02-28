@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .note-text { font-size: 13px; color: #555; margin-bottom: 14px; border-left: 3px solid #ccc; padding-left: 10px; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+
+        /* 図形選択肢スタイル */
+        .options-figure {
+            display: flex; flex-wrap: nowrap; justify-content: center;
+            gap: 10px; margin: 20px 0; width: 100%;
+        }
+        .option-figure-button {
+            flex: 0 1 calc(18%); min-width: 70px; max-width: 110px;
+            padding: 6px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot active" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下の3×3の図形行列において、各図形には一定の規則がある。「？」に当てはまる図形を(1)〜(5)の中から1つ選べ。
+        </div>
+        <p class="note-text">
+            各行・各列のパターンには、それぞれ独立した規則がある。横方向と縦方向の両方の規則を見つけ、「？」の図形を求めよ。
+        </p>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 330x310px
+        - viewBox: 0 0 330 310
+        - 3×3図形行列（4分割正方形の塗りつぶしパターン）
+
+        象限定義: 0=左上(TL), 1=右上(TR), 2=左下(BL), 3=右下(BR)
+        横方向規則: 90°時計回り回転 (TL→TR→BR→BL→TL)
+        縦方向規則: 時計回り順で象限を1つずつ追加
+
+        行列パターン:
+          (1,1)={TL}, (1,2)={TR}, (1,3)={BR}
+          (2,1)={TL,TR}, (2,2)={TR,BR}, (2,3)={BL,BR}
+          (3,1)={TL,TR,BR}, (3,2)={TR,BL,BR}, (3,3)=? → {TL,BL,BR}
+
+        正解: (2) = {TL,BL,BR} = 左上・左下・右下が塗りつぶし（右上が白）
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【図形行列】</div>
+            <div class="figure-content">
+                <svg width="330" height="310" viewBox="0 0 330 310">
+
+                    <!-- 列ヘッダー -->
+                    <text x="92" y="20" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">列&#9312;</text>
+                    <text x="182" y="20" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">列&#9313;</text>
+                    <text x="272" y="20" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">列&#9314;</text>
+
+                    <!-- 行ヘッダー -->
+                    <text x="26" y="78" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">行&#9312;</text>
+                    <text x="26" y="168" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">行&#9313;</text>
+                    <text x="26" y="258" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">行&#9314;</text>
+
+                    <!-- (1,1): {TL} = 左上のみ黒 -->
+                    <rect x="52" y="32" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="92" y="32" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="52" y="72" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="92" y="72" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="52" y="32" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="92" y1="32" x2="92" y2="112" stroke="black" stroke-width="1.5"/>
+                    <line x1="52" y1="72" x2="132" y2="72" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (1,2): {TR} = 右上のみ黒 -->
+                    <rect x="142" y="32" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="182" y="32" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="142" y="72" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="182" y="72" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="142" y="32" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="182" y1="32" x2="182" y2="112" stroke="black" stroke-width="1.5"/>
+                    <line x1="142" y1="72" x2="222" y2="72" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (1,3): {BR} = 右下のみ黒 -->
+                    <rect x="232" y="32" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="272" y="32" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="232" y="72" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="272" y="72" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="232" y="32" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="272" y1="32" x2="272" y2="112" stroke="black" stroke-width="1.5"/>
+                    <line x1="232" y1="72" x2="312" y2="72" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (2,1): {TL,TR} = 左上・右上が黒 -->
+                    <rect x="52" y="122" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="92" y="122" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="52" y="162" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="92" y="162" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="52" y="122" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="92" y1="122" x2="92" y2="202" stroke="black" stroke-width="1.5"/>
+                    <line x1="52" y1="162" x2="132" y2="162" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (2,2): {TR,BR} = 右上・右下が黒 -->
+                    <rect x="142" y="122" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="182" y="122" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="142" y="162" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="182" y="162" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="142" y="122" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="182" y1="122" x2="182" y2="202" stroke="black" stroke-width="1.5"/>
+                    <line x1="142" y1="162" x2="222" y2="162" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (2,3): {BL,BR} = 左下・右下が黒 -->
+                    <rect x="232" y="122" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="272" y="122" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="232" y="162" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="272" y="162" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="232" y="122" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="272" y1="122" x2="272" y2="202" stroke="black" stroke-width="1.5"/>
+                    <line x1="232" y1="162" x2="312" y2="162" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (3,1): {TL,TR,BR} = 左上・右上・右下が黒 -->
+                    <rect x="52" y="212" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="92" y="212" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="52" y="252" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="92" y="252" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="52" y="212" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="92" y1="212" x2="92" y2="292" stroke="black" stroke-width="1.5"/>
+                    <line x1="52" y1="252" x2="132" y2="252" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (3,2): {TR,BL,BR} = 右上・左下・右下が黒 -->
+                    <rect x="142" y="212" width="40" height="40" fill="white" stroke="none"/>
+                    <rect x="182" y="212" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="142" y="252" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="182" y="252" width="40" height="40" fill="black" stroke="none"/>
+                    <rect x="142" y="212" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="182" y1="212" x2="182" y2="292" stroke="black" stroke-width="1.5"/>
+                    <line x1="142" y1="252" x2="222" y2="252" stroke="black" stroke-width="1.5"/>
+
+                    <!-- (3,3): MISSING = "？" -->
+                    <rect x="232" y="212" width="80" height="80" fill="#eeeeee" stroke="black" stroke-width="2"/>
+                    <line x1="272" y1="212" x2="272" y2="292" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <line x1="232" y1="252" x2="312" y2="252" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="272" y="260" font-family="serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#333">？</text>
+
+                </svg>
+            </div>
+        </div>
+
+        <!-- 図形選択肢 (正解: (2)) -->
+        <div class="options-figure" id="q1-options">
+
+            <!-- (1): {TR,BL,BR} = 右上・左下・右下が黒 -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(1)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (2): {TL,BL,BR} = 左上・左下・右下が黒 ← 正解 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(2)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (3): {TL,TR,BL,BR} = 全て黒 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(3)</text>
+                    <rect x="10" y="18" width="60" height="60" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (4): {TL,TR,BL} = 左上・右上・左下が黒 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(4)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (5): {TL,TR,BR} = 左上・右上・右下が黒 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(5)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">問1（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【横方向の規則】</strong></p>
+                <p>左から右に進むと、塗りつぶされた区画のパターンが<strong>90°時計回りに回転</strong>する。</p>
+                <p>&emsp;回転の対応: 左上→右上→右下→左下→左上</p>
+                <br>
+                <p>確認例（行①）:</p>
+                <p>&emsp;列①: 左上のみ黒 → 列②: 右上のみ黒（90°時計回り）→ 列③: 右下のみ黒（さらに90°）</p>
+                <br>
+                <p><strong>【縦方向の規則】</strong></p>
+                <p>上から下に進むと、時計回り順で塗りつぶし区画が1つずつ増える。</p>
+                <p>&emsp;列③の確認: 行①:右下(1区画) → 行②:右下+左下(2区画) → 行③:右下+左下+左上(3区画)</p>
+                <br>
+                <p><strong>【答えの導出】</strong></p>
+                <p>列③ 行③の図形を横方向の規則から求める:</p>
+                <p>&emsp;列③行②のパターン {右上,左下,右下} を90°時計回りに回転:</p>
+                <p>&emsp;&emsp;右上→右下、左下→左上、右下→左下</p>
+                <p>&emsp;→ <strong>{左上, 左下, 右下}</strong> = 左上・左下・右下が黒、右上が白</p>
+                <br>
+                <p>縦方向の規則でも: 列③の時計回り追加順は 右下→左下→左上 → {右下,左下,左上} = {<strong>左上,左下,右下</strong>} ✓</p>
+                <br>
+                <p>よって正解は<strong>(2)</strong>（左上・左下・右下が黒）である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下の3行3列の表において、各行の左2つの図形から右の図形が生成される規則がある。その規則を発見し、「？」に当てはまる図形を(1)〜(5)の中から1つ選べ。
+        </div>
+        <p class="note-text">
+            行①と行②から規則を発見せよ。行①では2つの図形が重ならないため、行②も参考にして規則を特定すること。
+        </p>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 320x285px
+        - viewBox: 0 0 320 285
+        - 3行×3列の図形演算表（左2列が入力、右列が結果）
+
+        象限定義: 0=左上(TL), 1=右上(TR), 2=左下(BL), 3=右下(BR)
+        規則: 結果 = 図A ⊕ 図B（対称差：片方にのみ含まれる区画）
+
+        行列パターン:
+          行①: 図A={TL}, 図B={TR,BL}, 結果={TL,TR,BL}
+          行②: 図A={TL,TR}, 図B={TR,BR}, 結果={TL,BR}
+          行③: 図A={TL,TR,BL}, 図B={BL,BR}, 結果=? → {TL,TR,BR}
+
+        正解: (5) = {TL,TR,BR} = 左上・右上・右下が塗りつぶし（左下が白）
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【図形演算表】</div>
+            <div class="figure-content">
+                <svg width="320" height="285" viewBox="0 0 320 285">
+
+                    <!-- 列ヘッダー -->
+                    <text x="70" y="22" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">図A</text>
+                    <text x="165" y="22" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">図B</text>
+                    <text x="270" y="22" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">結果</text>
+
+                    <!-- 行ヘッダー -->
+                    <text x="16" y="71" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">&#9312;</text>
+                    <text x="16" y="156" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">&#9313;</text>
+                    <text x="16" y="241" font-family="serif" font-size="14" font-weight="bold" text-anchor="middle">&#9314;</text>
+
+                    <!-- 区切り線（図BとResultの間） -->
+                    <line x1="222" y1="25" x2="222" y2="275" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                    <!-- 行① 図A={TL} = 左上のみ黒 -->
+                    <rect x="35" y="30" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="70" y="30" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="35" y="65" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="70" y="65" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="35" y="30" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="70" y1="30" x2="70" y2="100" stroke="black" stroke-width="1.5"/>
+                    <line x1="35" y1="65" x2="105" y2="65" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行① 図B={TR,BL} = 右上・左下が黒 -->
+                    <rect x="130" y="30" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="165" y="30" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="130" y="65" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="165" y="65" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="130" y="30" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="165" y1="30" x2="165" y2="100" stroke="black" stroke-width="1.5"/>
+                    <line x1="130" y1="65" x2="200" y2="65" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行① 結果={TL,TR,BL} = 左上・右上・左下が黒 -->
+                    <rect x="235" y="30" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="270" y="30" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="235" y="65" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="270" y="65" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="235" y="30" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="270" y1="30" x2="270" y2="100" stroke="black" stroke-width="1.5"/>
+                    <line x1="235" y1="65" x2="305" y2="65" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行② 図A={TL,TR} = 左上・右上が黒 -->
+                    <rect x="35" y="115" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="70" y="115" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="35" y="150" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="70" y="150" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="35" y="115" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="70" y1="115" x2="70" y2="185" stroke="black" stroke-width="1.5"/>
+                    <line x1="35" y1="150" x2="105" y2="150" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行② 図B={TR,BR} = 右上・右下が黒 -->
+                    <rect x="130" y="115" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="165" y="115" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="130" y="150" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="165" y="150" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="130" y="115" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="165" y1="115" x2="165" y2="185" stroke="black" stroke-width="1.5"/>
+                    <line x1="130" y1="150" x2="200" y2="150" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行② 結果={TL,BR} = 左上・右下が黒 -->
+                    <rect x="235" y="115" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="270" y="115" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="235" y="150" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="270" y="150" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="235" y="115" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="270" y1="115" x2="270" y2="185" stroke="black" stroke-width="1.5"/>
+                    <line x1="235" y1="150" x2="305" y2="150" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行③ 図A={TL,TR,BL} = 左上・右上・左下が黒 -->
+                    <rect x="35" y="200" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="70" y="200" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="35" y="235" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="70" y="235" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="35" y="200" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="70" y1="200" x2="70" y2="270" stroke="black" stroke-width="1.5"/>
+                    <line x1="35" y1="235" x2="105" y2="235" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行③ 図B={BL,BR} = 左下・右下が黒 -->
+                    <rect x="130" y="200" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="165" y="200" width="35" height="35" fill="white" stroke="none"/>
+                    <rect x="130" y="235" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="165" y="235" width="35" height="35" fill="black" stroke="none"/>
+                    <rect x="130" y="200" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="165" y1="200" x2="165" y2="270" stroke="black" stroke-width="1.5"/>
+                    <line x1="130" y1="235" x2="200" y2="235" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 行③ 結果=MISSING = "？" -->
+                    <rect x="235" y="200" width="70" height="70" fill="#eeeeee" stroke="black" stroke-width="2"/>
+                    <line x1="270" y1="200" x2="270" y2="270" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <line x1="235" y1="235" x2="305" y2="235" stroke="#aaa" stroke-width="1.5" stroke-dasharray="4,3"/>
+                    <text x="270" y="243" font-family="serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">？</text>
+
+                </svg>
+            </div>
+        </div>
+
+        <!-- 図形選択肢 (正解: (5)) -->
+        <div class="options-figure" id="q2-options">
+
+            <!-- (1): {TL,TR,BL} = 左上・右上・左下が黒 -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(1)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (2): {TL,BR} = 左上・右下が黒 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(2)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (3): {TL,TR,BL,BR} = 全て黒 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(3)</text>
+                    <rect x="10" y="18" width="60" height="60" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (4): {BL,BR} = 左下・右下が黒 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(4)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+            <!-- (5): {TL,TR,BR} = 左上・右上・右下が黒 ← 正解 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                <svg width="80" height="90" viewBox="0 0 80 90">
+                    <text x="40" y="13" font-family="serif" font-size="13" text-anchor="middle">(5)</text>
+                    <rect x="10" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="40" y="18" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="48" width="30" height="30" fill="white" stroke="none"/>
+                    <rect x="40" y="48" width="30" height="30" fill="black" stroke="none"/>
+                    <rect x="10" y="18" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="18" x2="40" y2="78" stroke="black" stroke-width="1.5"/>
+                    <line x1="10" y1="48" x2="70" y2="48" stroke="black" stroke-width="1.5"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">問2（正解: (5)）</div>
+            <div class="explanation-content">
+                <p><strong>【規則の発見】</strong></p>
+                <p>各行の「結果」がどのように生成されるか調べる。</p>
+                <br>
+                <p>行①の観察: 図A={左上}、図B={右上,左下}、結果={左上,右上,左下}</p>
+                <p>&emsp;→ AとBに共通する区画がないため、結果=A∪B（和集合）に見える。</p>
+                <p>&emsp;→ ただし「和集合」か「対称差」か、この行だけでは判断できない。</p>
+                <br>
+                <p>行②で規則を特定: 図A={左上,右上}、図B={右上,右下}、結果={左上,右下}</p>
+                <p>&emsp;→ 和集合ならば {左上,右上,右下}（3区画）になるはずだが、実際は2区画。</p>
+                <p>&emsp;→ <strong>共通の「右上」が消えている</strong> → 規則は「対称差（⊕）」と確定。</p>
+                <br>
+                <p><strong>【対称差の定義】</strong></p>
+                <p>&emsp;A ⊕ B ＝ AとBの一方にのみ含まれる区画の集合</p>
+                <p>&emsp;（両方に含まれる区画は除外される）</p>
+                <br>
+                <p><strong>【行③への適用】</strong></p>
+                <p>&emsp;図A = {左上, 右上, 左下}、図B = {左下, 右下}</p>
+                <p>&emsp;A∩B（共通） = {左下}</p>
+                <p>&emsp;A∪B（合計） = {左上, 右上, 左下, 右下}</p>
+                <p>&emsp;A⊕B = A∪B − A∩B = {左上, 右上, 右下}</p>
+                <br>
+                <p>左上・右上・右下が黒で左下が白の図形は選択肢<strong>(5)</strong>に一致する。</p>
+                <br>
+                <p>よって正解は<strong>(5)</strong>（左上・右上・右下が黒）である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-primary hidden">次の問題</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    let answers = {};
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button');
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        const navButtons = document.getElementById(`q${questionNum}-nav`);
+
+        // 選択済みの場合は処理しない
+        if (optionsContainer.dataset.answered) return;
+        optionsContainer.dataset.answered = 'true';
+
+        const isCorrect = (selectedOption === correctOption);
+        answers[questionNum] = { selected: selectedOption, correct: correctOption, isCorrect };
+
+        // ボタンのスタイル更新
+        buttons.forEach(btn => {
+            const opt = parseInt(btn.dataset.option);
+            btn.classList.add('disabled');
+            if (opt === correctOption) {
+                btn.classList.add('correct');
+            } else if (opt === selectedOption && !isCorrect) {
+                btn.classList.add('incorrect');
+            }
+        });
+
+        // 解説を表示
+        explanationSection.classList.add('show');
+
+        // ナビボタン表示
+        if (navButtons) navButtons.style.display = 'flex';
+
+        // プログレスドットの更新
+        const dot = document.getElementById(`progress-${questionNum}`);
+        dot.classList.remove('active');
+        dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        // 親フレームに記録
+        try {
+            window.parent.recordAnswer(
+                `2026_02/航大思考15/問${questionNum}`,
+                selectedOption,
+                correctOption,
+                isCorrect
+            );
+        } catch(e) {}
+    }
+
+    function goToQuestion(num) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(`q${num}-question`).classList.add('active');
+
+        document.querySelectorAll('.progress-dot').forEach(d => {
+            if (!d.classList.contains('completed') && !d.classList.contains('incorrect-dot')) {
+                d.classList.remove('active');
+            }
+        });
+        const dot = document.getElementById(`progress-${num}`);
+        if (!dot.classList.contains('completed') && !dot.classList.contains('incorrect-dot')) {
+            dot.classList.add('active');
+        }
+    }
+</script>
+
+</body>
+</html>
