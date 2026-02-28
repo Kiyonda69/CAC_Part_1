@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .note-text { font-size: 13px; color: #555; margin-bottom: 14px; border-left: 3px solid #ccc; padding-left: 10px; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .options-figure {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 2%; margin: 20px 0; width: 100%;
+        }
+        .option-figure-button {
+            flex: 0 1 calc(18% - 2%); min-width: 80px; max-width: 110px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        .degree-table { margin: 10px auto; border-collapse: collapse; font-size: 14px; }
+        .degree-table th, .degree-table td { border: 1px solid #ccc; padding: 4px 10px; text-align: center; }
+        .degree-table th { background-color: #eee; }
+        .odd-row { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下の(1)〜(5)の図形の中で、一筆書きができるものを1つ選べ。
+        </div>
+        <p class="note-text">
+            一筆書きとは、紙からペンを離さず、かつ同じ辺を2度以上通ることなく、図形のすべての辺を描くことをいう。
+        </p>
+
+        <!--
+        図形選択肢
+        正解: (4) 日字型
+        Python検証済み: 奇数次数頂点が2個 → 一筆書き可能
+        -->
+        <div class="options-figure" id="q1-options">
+
+            <!-- (1) H字型: 奇数次数頂点6個 → 不可 -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                <!--
+                H字型
+                頂点: TL(18,24), TR(62,24), ML(18,60), MR(62,60), BL(18,96), BR(62,96)
+                辺: TL-ML, ML-BL, TR-MR, MR-BR, ML-MR
+                奇数次数: TL=1, ML=3, BL=1, TR=1, MR=3, BR=1 → 6個
+                -->
+                <svg width="80" height="108" viewBox="0 0 80 108">
+                    <text x="40" y="12" font-family="serif" font-size="13" text-anchor="middle">(1)</text>
+                    <line x1="18" y1="26" x2="18" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="18" y1="60" x2="18" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="62" y1="26" x2="62" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="62" y1="60" x2="62" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="18" y1="60" x2="62" y2="60" stroke="black" stroke-width="2"/>
+                    <circle cx="18" cy="26" r="4" fill="black"/>
+                    <circle cx="62" cy="26" r="4" fill="black"/>
+                    <circle cx="18" cy="60" r="4" fill="black"/>
+                    <circle cx="62" cy="60" r="4" fill="black"/>
+                    <circle cx="18" cy="94" r="4" fill="black"/>
+                    <circle cx="62" cy="94" r="4" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- (2) 田字型: 奇数次数頂点4個 → 不可 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                <!--
+                田字型 (3x3グリッド)
+                頂点: A(14,26) B(40,26) C(66,26) / D(14,60) E(40,60) F(66,60) / G(14,94) H(40,94) I(66,94)
+                奇数次数: B=3, D=3, F=3, H=3 → 4個
+                -->
+                <svg width="80" height="108" viewBox="0 0 80 108">
+                    <text x="40" y="12" font-family="serif" font-size="13" text-anchor="middle">(2)</text>
+                    <line x1="14" y1="26" x2="40" y2="26" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="26" x2="66" y2="26" stroke="black" stroke-width="2"/>
+                    <line x1="14" y1="60" x2="40" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="60" x2="66" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="14" y1="94" x2="40" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="94" x2="66" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="14" y1="26" x2="14" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="14" y1="60" x2="14" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="26" x2="40" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="60" x2="40" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="66" y1="26" x2="66" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="66" y1="60" x2="66" y2="94" stroke="black" stroke-width="2"/>
+                    <circle cx="14" cy="26" r="3" fill="black"/>
+                    <circle cx="40" cy="26" r="3" fill="black"/>
+                    <circle cx="66" cy="26" r="3" fill="black"/>
+                    <circle cx="14" cy="60" r="3" fill="black"/>
+                    <circle cx="40" cy="60" r="3" fill="black"/>
+                    <circle cx="66" cy="60" r="3" fill="black"/>
+                    <circle cx="14" cy="94" r="3" fill="black"/>
+                    <circle cx="40" cy="94" r="3" fill="black"/>
+                    <circle cx="66" cy="94" r="3" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- (3) 正方形+両対角線: 奇数次数頂点4個 → 不可 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                <!--
+                正方形+両対角線 (中心点あり)
+                頂点: TL(16,26) TR(64,26) BL(16,94) BR(64,94) CE(40,60)
+                辺: 4辺 + 4対角線分
+                奇数次数: TL=3, TR=3, BL=3, BR=3 → 4個
+                -->
+                <svg width="80" height="108" viewBox="0 0 80 108">
+                    <text x="40" y="12" font-family="serif" font-size="13" text-anchor="middle">(3)</text>
+                    <line x1="16" y1="26" x2="64" y2="26" stroke="black" stroke-width="2"/>
+                    <line x1="64" y1="26" x2="64" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="64" y1="94" x2="16" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="94" x2="16" y2="26" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="26" x2="40" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="60" x2="64" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="64" y1="26" x2="40" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="40" y1="60" x2="16" y2="94" stroke="black" stroke-width="2"/>
+                    <circle cx="16" cy="26" r="4" fill="black"/>
+                    <circle cx="64" cy="26" r="4" fill="black"/>
+                    <circle cx="16" cy="94" r="4" fill="black"/>
+                    <circle cx="64" cy="94" r="4" fill="black"/>
+                    <circle cx="40" cy="60" r="4" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- (4) 日字型: 奇数次数頂点2個 → 可能 ← 正解 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                <!--
+                日字型 (縦に2つ並んだ正方形)
+                頂点: A(16,26) B(64,26) C(16,60) D(64,60) E(16,94) F(64,94)
+                辺: A-B, A-C, B-D, C-D, C-E, D-F, E-F
+                奇数次数: C=3, D=3 → 2個 → 一筆書き可能
+                -->
+                <svg width="80" height="108" viewBox="0 0 80 108">
+                    <text x="40" y="12" font-family="serif" font-size="13" text-anchor="middle">(4)</text>
+                    <line x1="16" y1="26" x2="64" y2="26" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="26" x2="16" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="64" y1="26" x2="64" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="60" x2="64" y2="60" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="60" x2="16" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="64" y1="60" x2="64" y2="94" stroke="black" stroke-width="2"/>
+                    <line x1="16" y1="94" x2="64" y2="94" stroke="black" stroke-width="2"/>
+                    <circle cx="16" cy="26" r="4" fill="black"/>
+                    <circle cx="64" cy="26" r="4" fill="black"/>
+                    <circle cx="16" cy="60" r="4" fill="black"/>
+                    <circle cx="64" cy="60" r="4" fill="black"/>
+                    <circle cx="16" cy="94" r="4" fill="black"/>
+                    <circle cx="64" cy="94" r="4" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- (5) W5 (正五角形+中心): 奇数次数頂点6個 → 不可 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                <!--
+                W5: 正五角形 + 中心点とのスポーク
+                中心F(40,66), r=28
+                A(40,38) B(67,57) C(57,90) D(23,90) E(13,57)
+                奇数次数: A=3, B=3, C=3, D=3, E=3, F=5 → 6個
+                -->
+                <svg width="80" height="108" viewBox="0 0 80 108">
+                    <text x="40" y="12" font-family="serif" font-size="13" text-anchor="middle">(5)</text>
+                    <!-- Pentagon edges -->
+                    <line x1="40" y1="38" x2="67" y2="57" stroke="black" stroke-width="2"/>
+                    <line x1="67" y1="57" x2="57" y2="90" stroke="black" stroke-width="2"/>
+                    <line x1="57" y1="90" x2="23" y2="90" stroke="black" stroke-width="2"/>
+                    <line x1="23" y1="90" x2="13" y2="57" stroke="black" stroke-width="2"/>
+                    <line x1="13" y1="57" x2="40" y2="38" stroke="black" stroke-width="2"/>
+                    <!-- Spoke edges to center -->
+                    <line x1="40" y1="38" x2="40" y2="66" stroke="black" stroke-width="2"/>
+                    <line x1="67" y1="57" x2="40" y2="66" stroke="black" stroke-width="2"/>
+                    <line x1="57" y1="90" x2="40" y2="66" stroke="black" stroke-width="2"/>
+                    <line x1="23" y1="90" x2="40" y2="66" stroke="black" stroke-width="2"/>
+                    <line x1="13" y1="57" x2="40" y2="66" stroke="black" stroke-width="2"/>
+                    <!-- Nodes -->
+                    <circle cx="40" cy="38" r="4" fill="black"/>
+                    <circle cx="67" cy="57" r="4" fill="black"/>
+                    <circle cx="57" cy="90" r="4" fill="black"/>
+                    <circle cx="23" cy="90" r="4" fill="black"/>
+                    <circle cx="13" cy="57" r="4" fill="black"/>
+                    <circle cx="40" cy="66" r="4" fill="black"/>
+                </svg>
+            </button>
+
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p><strong>【一筆書きの判定定理】</strong></p>
+                <p>グラフを一筆書きできる（すべての辺を同じ辺を2度以上通らずに描ける）条件：</p>
+                <p>・奇数次数の頂点（奇数本の辺が集まる頂点）が <strong>0個または2個</strong> のとき</p>
+                <p>・4個以上のときは一筆書き不可能</p>
+                <br>
+                <p><strong>【各図形の分析】</strong></p>
+                <br>
+                <p><strong>(1) H字型</strong>：端点4個（次数1）と交差点2個（次数3）→ 奇数次数頂点 <strong>6個</strong> → 不可</p>
+                <p><strong>(2) 田字型</strong>：辺の中点4個（次数3）→ 奇数次数頂点 <strong>4個</strong> → 不可</p>
+                <p><strong>(3) 正方形＋両対角線</strong>：4つの角（次数3）、中心点（次数4）→ 奇数次数頂点 <strong>4個</strong> → 不可</p>
+                <p><strong>(4) 日字型</strong>：上下の4頂点（次数2）、中段の2頂点C・D（次数3）→ 奇数次数頂点 <strong>2個</strong> → <strong>一筆書き可能</strong></p>
+                <p>（頂点CまたはDを出発点・終点として一筆書きできる）</p>
+                <p><strong>(5) 正五角形＋中心</strong>：外周の5頂点（次数3）、中心点（次数5）→ 奇数次数頂点 <strong>6個</strong> → 不可</p>
+                <br>
+                <p>したがって、正解は<strong>(4)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下図は9つの頂点と20本の辺からなるグラフである。このグラフのすべての辺を、同じ辺を2度以上通ることなく描くとき、最低何本の連続した線（一筆）が必要か。
+        </div>
+        <p class="note-text">
+            「1本の連続した線」とは、紙からペンを離さずに描ける線のことをいう。すべての辺を最も少ない本数の線で描く方法を考えよ。
+        </p>
+
+        <!--
+        図: 3x3グリッド + 各セルの両対角線
+        頂点番号配置:
+          1---2---3
+          |×|×|
+          4---5---6
+          |×|×|
+          7---8---9
+        Python検証: 奇数次数頂点8個 → 最小筆数 = 4本
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【図】グラフ</div>
+            <div class="figure-content">
+                <!--
+                SVG仕様:
+                - サイズ: 380×340px, viewBox: 0 0 380 340
+                - 余白: 上下左右 25px以上
+                - 頂点間距離: 130px
+                - 頂点位置:
+                    1(65,50)  2(195,50)  3(325,50)
+                    4(65,180) 5(195,180) 6(325,180)
+                    7(65,310) 8(195,310) 9(325,310)
+                -->
+                <svg width="380" height="340" viewBox="0 0 380 340">
+                    <!-- グリッド辺 -->
+                    <line x1="65" y1="50" x2="195" y2="50" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="50" x2="325" y2="50" stroke="black" stroke-width="2"/>
+                    <line x1="65" y1="180" x2="195" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="180" x2="325" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="65" y1="310" x2="195" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="310" x2="325" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="65" y1="50" x2="65" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="65" y1="180" x2="65" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="50" x2="195" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="180" x2="195" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="325" y1="50" x2="325" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="325" y1="180" x2="325" y2="310" stroke="black" stroke-width="2"/>
+                    <!-- セル1の対角線 (頂点1-2-4-5): 1-5, 2-4 -->
+                    <line x1="65" y1="50" x2="195" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="50" x2="65" y2="180" stroke="black" stroke-width="2"/>
+                    <!-- セル2の対角線 (頂点2-3-5-6): 2-6, 3-5 -->
+                    <line x1="195" y1="50" x2="325" y2="180" stroke="black" stroke-width="2"/>
+                    <line x1="325" y1="50" x2="195" y2="180" stroke="black" stroke-width="2"/>
+                    <!-- セル3の対角線 (頂点4-5-7-8): 4-8, 5-7 -->
+                    <line x1="65" y1="180" x2="195" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="195" y1="180" x2="65" y2="310" stroke="black" stroke-width="2"/>
+                    <!-- セル4の対角線 (頂点5-6-8-9): 5-9, 6-8 -->
+                    <line x1="195" y1="180" x2="325" y2="310" stroke="black" stroke-width="2"/>
+                    <line x1="325" y1="180" x2="195" y2="310" stroke="black" stroke-width="2"/>
+                    <!-- 頂点ラベル（白丸+番号、辺の上に重ねる） -->
+                    <circle cx="65" cy="50" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="65" y="55" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">1</text>
+                    <circle cx="195" cy="50" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="195" y="55" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">2</text>
+                    <circle cx="325" cy="50" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="325" y="55" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">3</text>
+                    <circle cx="65" cy="180" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="65" y="185" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">4</text>
+                    <circle cx="195" cy="180" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="195" y="185" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">5</text>
+                    <circle cx="325" cy="180" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="325" y="185" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">6</text>
+                    <circle cx="65" cy="310" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="65" y="315" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">7</text>
+                    <circle cx="195" cy="310" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="195" y="315" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">8</text>
+                    <circle cx="325" cy="310" r="14" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="325" y="315" font-family="serif" font-size="14" text-anchor="middle" font-weight="bold">9</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢 (正解: (3) 4本) -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                <span class="option-label">(1)</span>2本
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                <span class="option-label">(2)</span>3本
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                <span class="option-label">(3)</span>4本
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                <span class="option-label">(4)</span>5本
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                <span class="option-label">(5)</span>6本
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p><strong>【最小筆数の定理】</strong></p>
+                <p>グラフのすべての辺を描くのに必要な最小の線の本数は、<strong>奇数次数頂点の個数 ÷ 2</strong> で求まる。</p>
+                <p>（奇数次数頂点が0個の場合は1本）</p>
+                <br>
+                <p><strong>【各頂点の次数（集まる辺の本数）】</strong></p>
+                <table class="degree-table">
+                    <tr><th>頂点</th><th>接続する辺</th><th>次数</th><th>偶奇</th></tr>
+                    <tr class="odd-row"><td>1</td><td>1-2, 1-4, 1-5（対角線）</td><td>3</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>2</td><td>1-2, 2-3, 2-5, 2-4（対角線）, 2-6（対角線）</td><td>5</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>3</td><td>2-3, 3-6, 3-5（対角線）</td><td>3</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>4</td><td>1-4, 4-5, 4-7, 2-4（対角線）, 4-8（対角線）</td><td>5</td><td>奇数</td></tr>
+                    <tr><td>5</td><td>2-5, 4-5, 5-6, 5-8, 1-5, 3-5, 5-7, 5-9（各対角線）</td><td>8</td><td>偶数</td></tr>
+                    <tr class="odd-row"><td>6</td><td>3-6, 5-6, 6-9, 2-6（対角線）, 6-8（対角線）</td><td>5</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>7</td><td>4-7, 7-8, 5-7（対角線）</td><td>3</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>8</td><td>7-8, 8-9, 5-8, 4-8（対角線）, 6-8（対角線）</td><td>5</td><td>奇数</td></tr>
+                    <tr class="odd-row"><td>9</td><td>8-9, 6-9, 5-9（対角線）</td><td>3</td><td>奇数</td></tr>
+                </table>
+                <br>
+                <p>奇数次数の頂点：頂点1, 2, 3, 4, 6, 7, 8, 9 の計 <strong>8個</strong></p>
+                <br>
+                <p>最小必要筆数 ＝ 奇数次数頂点数 ÷ 2 ＝ 8 ÷ 2 ＝ <strong>4本</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_02/航大思考13/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+            btn.classList.add('disabled');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
