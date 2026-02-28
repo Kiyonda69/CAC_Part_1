@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 15px 0;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 12px;
+            text-align: justify;
+            font-size: 15px;
+        }
+
+        .formula-box {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border: 1px solid #aaa;
+            background-color: #f9f9f9;
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+            font-size: 15px;
+        }
+
+        .figure-container {
+            margin: 12px 0;
+            padding: 12px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+            font-size: 13px;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 7px 10px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 6px 8px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #fffde7;
+        }
+
+        .hidden-cell {
+            color: #999;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    問題仕様:
+    - テーマ: 航空機部品の年間調達コスト管理データ
+    - 難易度: 標準（4ステップ）
+    - 正解: （ア）= 90万円 → 選択肢(4)
+    - 解法: 保管費用率（15%）を発見し、部品Dの保管費用を求める
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．以下の表は、ある航空機メーカーの部品調達コスト管理データの一部である。保管費用率（%）はすべての部品で一定であるとき、表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・年間調達量（個）＝ 年間発注回数（回）× 1回の発注数量（個）<br>
+                    ・調達費用（万円）＝ 年間調達量（個）× 単価（円）÷ 10,000<br>
+                    ・保管費用（万円）＝ 調達費用（万円）× 保管費用率（%）÷ 100<br>
+                    ・総コスト（万円）＝ 調達費用（万円）＋ 保管費用（万円）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【部品調達コスト管理データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部品</th>
+                                <th>年間発注回数<br>（回）</th>
+                                <th>1回の発注数量<br>（個）</th>
+                                <th>年間調達量<br>（個）</th>
+                                <th>単価<br>（円）</th>
+                                <th>調達費用<br>（万円）</th>
+                                <th>保管費用<br>（万円）</th>
+                                <th>総コスト<br>（万円）</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>12</td>
+                                <td>100</td>
+                                <td>1,200</td>
+                                <td>5,000</td>
+                                <td>600</td>
+                                <td>90</td>
+                                <td>690</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td>6</td>
+                                <td>200</td>
+                                <td>1,200</td>
+                                <td>8,000</td>
+                                <td>960</td>
+                                <td>144</td>
+                                <td>1,104</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>4</td>
+                                <td>300</td>
+                                <td>1,200</td>
+                                <td>6,000</td>
+                                <td>720</td>
+                                <td>108</td>
+                                <td>828</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>3</td>
+                                <td>500</td>
+                                <td class="hidden-cell">─</td>
+                                <td>4,000</td>
+                                <td class="hidden-cell">─</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td class="hidden-cell">─</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　72万円<br>
+                    (2)　80万円<br>
+                    (3)　84万円<br>
+                    (4)　90万円<br>
+                    (5)　105万円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解:(4)）</strong><br><br>
+
+                <strong>【手順1：保管費用率を発見する】</strong><br>
+                「保管費用 ÷ 調達費用」を各部品で計算し、一定率を探す。<br>
+                ・部品A：90 ÷ 600 ＝ 0.15 → 15%<br>
+                ・部品B：144 ÷ 960 ＝ 0.15 → 15%<br>
+                ・部品C：108 ÷ 720 ＝ 0.15 → 15%<br>
+                → 保管費用率 ＝ 15%（全部品で一定）<br><br>
+
+                <strong>【手順2：部品Dの年間調達量を求める】</strong><br>
+                ・年間調達量 ＝ 年間発注回数 3回 × 1回の発注数量 500個 ＝ 1,500個<br><br>
+
+                <strong>【手順3：部品Dの調達費用を求める】</strong><br>
+                ・調達費用 ＝ 年間調達量 1,500個 × 単価 4,000円 ÷ 10,000 ＝ 600（万円）<br><br>
+
+                <strong>【手順4：部品Dの保管費用（ア）を求める】</strong><br>
+                ・（ア）＝ 調達費用 600万円 × 保管費用率 15% ÷ 100 ＝ 90（万円）<br><br>
+
+                <strong>【確認】</strong><br>
+                ・部品Dの総コスト ＝ 600 ＋ 90 ＝ 690万円<br>
+                ・選択肢(1)72万円、(2)80万円、(3)84万円はいずれも調達費用600万円の15%に満たない。<br>
+                ・選択肢(5)105万円は600万円の17.5%に相当し、一定率の条件を満たさない。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    問題仕様:
+    - テーマ: パイロット訓練コスト管理データ
+    - 難易度: 高難度（5ステップ、3つの単価・率を発見）
+    - 正解: （ア）= 48万円 → 選択肢(2)
+    - 解法: 教官単価(5万/h)・機体使用単価(8万/h)・消耗品費率(15%)を発見し、P4の消耗品費を求める
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．以下の表は、ある航空会社のパイロット訓練コスト管理データの一部である。表中の数値には共通する規則性がある。この規則性を用いたとき、表中の（ア）に入る数値として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="formula-box">
+                    ・教官費（万円）＝ 飛行時間（時間）× 教官単価（万円/時間）<br>
+                    ・飛行機使用料（万円）＝ 飛行時間（時間）× 機体使用単価（万円/時間）<br>
+                    ・消耗品費（万円）＝ 飛行機使用料（万円）× 消耗品費率（%）÷ 100<br>
+                    ・訓練費合計（万円）＝ 教官費（万円）＋ 飛行機使用料（万円）＋ 消耗品費（万円）
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【パイロット訓練コスト管理データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>候補生</th>
+                                <th>飛行時間<br>（時間）</th>
+                                <th>教官費<br>（万円）</th>
+                                <th>飛行機使用料<br>（万円）</th>
+                                <th>消耗品費<br>（万円）</th>
+                                <th>訓練費合計<br>（万円）</th>
+                            </tr>
+                            <tr>
+                                <td>P1</td>
+                                <td>20</td>
+                                <td>100</td>
+                                <td>160</td>
+                                <td>24</td>
+                                <td>284</td>
+                            </tr>
+                            <tr>
+                                <td>P2</td>
+                                <td>30</td>
+                                <td>150</td>
+                                <td>240</td>
+                                <td>36</td>
+                                <td>426</td>
+                            </tr>
+                            <tr>
+                                <td>P3</td>
+                                <td>25</td>
+                                <td>125</td>
+                                <td>200</td>
+                                <td>30</td>
+                                <td>355</td>
+                            </tr>
+                            <tr>
+                                <td>P4</td>
+                                <td>40</td>
+                                <td class="hidden-cell">─</td>
+                                <td class="hidden-cell">─</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td class="hidden-cell">─</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　36万円<br>
+                    (2)　48万円<br>
+                    (3)　56万円<br>
+                    (4)　60万円<br>
+                    (5)　72万円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解:(2)）</strong><br><br>
+
+                <strong>【手順1：教官単価を発見する】</strong><br>
+                「教官費 ÷ 飛行時間」を各候補生で計算する。<br>
+                ・P1：100 ÷ 20 ＝ 5（万円/時間）<br>
+                ・P2：150 ÷ 30 ＝ 5（万円/時間）<br>
+                ・P3：125 ÷ 25 ＝ 5（万円/時間）<br>
+                → 教官単価 ＝ 5万円/時間（全候補生で一定）<br><br>
+
+                <strong>【手順2：機体使用単価を発見する】</strong><br>
+                「飛行機使用料 ÷ 飛行時間」を各候補生で計算する。<br>
+                ・P1：160 ÷ 20 ＝ 8（万円/時間）　・P2：240 ÷ 30 ＝ 8　・P3：200 ÷ 25 ＝ 8<br>
+                → 機体使用単価 ＝ 8万円/時間（全候補生で一定）<br><br>
+
+                <strong>【手順3：消耗品費率を発見する】</strong><br>
+                「消耗品費 ÷ 飛行機使用料」を各候補生で計算する。<br>
+                ・P1：24 ÷ 160 ＝ 0.15 → 15%　・P2：36 ÷ 240 ＝ 15%　・P3：30 ÷ 200 ＝ 15%<br>
+                → 消耗品費率 ＝ 15%（全候補生で一定）<br><br>
+
+                <strong>【手順4：P4の飛行機使用料を求める】</strong><br>
+                ・飛行機使用料 ＝ 飛行時間 40時間 × 機体使用単価 8万円/時間 ＝ 320（万円）<br><br>
+
+                <strong>【手順5：P4の消耗品費（ア）を求める】</strong><br>
+                ・（ア）＝ 飛行機使用料 320万円 × 消耗品費率 15% ÷ 100 ＝ 48（万円）<br><br>
+
+                <strong>【確認】</strong><br>
+                ・P4 教官費 ＝ 40 × 5 ＝ 200万円<br>
+                ・P4 訓練費合計 ＝ 200 ＋ 320 ＋ 48 ＝ 568万円<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
