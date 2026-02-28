@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 8px; }
+        .question-text { margin-bottom: 12px; text-align: justify; }
+        .note-text { font-size: 13px; color: #444; margin-bottom: 12px; border-left: 3px solid #ccc; padding-left: 8px; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .options { margin: 10px 0 0 20px; line-height: 2.4; }
+        .explanation { padding: 16px 0; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto;
+                min-height: auto; margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の表の空欄「？」に入る数として正しいものを(1)〜(5)の中から1つ選べ。（6点）</div>
+                <div class="note-text">
+                    表の各行および各列の数値には一定の規則がある。その規則を発見し、「？」の値を求めよ。
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 470x265px
+                - viewBox: 0 0 470 265
+                - 数列シフト表: a(n+1) = 2a(n) - 1 の数列をシフト
+
+                表構造（6列×6行）:
+                  ヘッダー列幅: 48px
+                  データ列幅: 82px × 5 = 410px
+                  合計幅: 48+410 = 458px（左マージン10px → 右端468px）
+                  行高さ: 40px × 6 = 240px（上マージン12px → 下端252px）
+
+                列左端 x座標: 10, 58, 140, 222, 304, 386
+                行上端 y座標: 12, 52, 92, 132, 172, 212
+                各セル中心 (列中心, 行中心):
+                  列: 34, 99, 181, 263, 345, 427
+                  行: 32, 72, 112, 152, 192, 232
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【数値規則表】</div>
+                    <div class="figure-content">
+                        <svg width="470" height="265" viewBox="0 0 470 265">
+
+                            <!-- 背景（全テーブル） -->
+                            <rect x="10" y="12" width="458" height="241" fill="white" stroke="#333" stroke-width="2"/>
+
+                            <!-- ヘッダー行の背景（グレー） -->
+                            <rect x="10" y="12" width="458" height="40" fill="#e0e0e0" stroke="none"/>
+
+                            <!-- ヘッダー列の背景（グレー） -->
+                            <rect x="10" y="12" width="48" height="241" fill="#e0e0e0" stroke="none"/>
+
+                            <!-- 問の答え「？」セルの背景（薄いグレー） -->
+                            <rect x="386" y="212" width="82" height="41" fill="#f0f0f0" stroke="none"/>
+
+                            <!-- 縦の境界線 -->
+                            <line x1="58"  y1="12"  x2="58"  y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="140" y1="12"  x2="140" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="222" y1="12"  x2="222" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="304" y1="12"  x2="304" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="386" y1="12"  x2="386" y2="253" stroke="#333" stroke-width="1.5"/>
+
+                            <!-- 横の境界線 -->
+                            <line x1="10"  y1="52"  x2="468" y2="52"  stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="92"  x2="468" y2="92"  stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="132" x2="468" y2="132" stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="172" x2="468" y2="172" stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="212" x2="468" y2="212" stroke="#333" stroke-width="1.5"/>
+
+                            <!-- ヘッダー行テキスト -->
+                            <text x="34"  y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold"></text>
+                            <text x="99"  y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">A列</text>
+                            <text x="181" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">B列</text>
+                            <text x="263" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">C列</text>
+                            <text x="345" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">D列</text>
+                            <text x="427" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">E列</text>
+
+                            <!-- ヘッダー列テキスト -->
+                            <text x="34" y="77"  font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9312;&#34892;</text>
+                            <text x="34" y="117" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9313;&#34892;</text>
+                            <text x="34" y="157" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9314;&#34892;</text>
+                            <text x="34" y="197" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9315;&#34892;</text>
+                            <text x="34" y="237" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9316;&#34892;</text>
+
+                            <!-- データセル: ①行 (2, 3, 5, 9, 17) -->
+                            <text x="99"  y="77" font-family="serif" font-size="16" text-anchor="middle">2</text>
+                            <text x="181" y="77" font-family="serif" font-size="16" text-anchor="middle">3</text>
+                            <text x="263" y="77" font-family="serif" font-size="16" text-anchor="middle">5</text>
+                            <text x="345" y="77" font-family="serif" font-size="16" text-anchor="middle">9</text>
+                            <text x="427" y="77" font-family="serif" font-size="16" text-anchor="middle">17</text>
+
+                            <!-- データセル: ②行 (3, 5, 9, 17, 33) -->
+                            <text x="99"  y="117" font-family="serif" font-size="16" text-anchor="middle">3</text>
+                            <text x="181" y="117" font-family="serif" font-size="16" text-anchor="middle">5</text>
+                            <text x="263" y="117" font-family="serif" font-size="16" text-anchor="middle">9</text>
+                            <text x="345" y="117" font-family="serif" font-size="16" text-anchor="middle">17</text>
+                            <text x="427" y="117" font-family="serif" font-size="16" text-anchor="middle">33</text>
+
+                            <!-- データセル: ③行 (5, 9, 17, 33, 65) -->
+                            <text x="99"  y="157" font-family="serif" font-size="16" text-anchor="middle">5</text>
+                            <text x="181" y="157" font-family="serif" font-size="16" text-anchor="middle">9</text>
+                            <text x="263" y="157" font-family="serif" font-size="16" text-anchor="middle">17</text>
+                            <text x="345" y="157" font-family="serif" font-size="16" text-anchor="middle">33</text>
+                            <text x="427" y="157" font-family="serif" font-size="16" text-anchor="middle">65</text>
+
+                            <!-- データセル: ④行 (9, 17, 33, 65, 129) -->
+                            <text x="99"  y="197" font-family="serif" font-size="16" text-anchor="middle">9</text>
+                            <text x="181" y="197" font-family="serif" font-size="16" text-anchor="middle">17</text>
+                            <text x="263" y="197" font-family="serif" font-size="16" text-anchor="middle">33</text>
+                            <text x="345" y="197" font-family="serif" font-size="16" text-anchor="middle">65</text>
+                            <text x="427" y="197" font-family="serif" font-size="16" text-anchor="middle">129</text>
+
+                            <!-- データセル: ⑤行 (17, 33, 65, 129, ？) -->
+                            <text x="99"  y="237" font-family="serif" font-size="16" text-anchor="middle">17</text>
+                            <text x="181" y="237" font-family="serif" font-size="16" text-anchor="middle">33</text>
+                            <text x="263" y="237" font-family="serif" font-size="16" text-anchor="middle">65</text>
+                            <text x="345" y="237" font-family="serif" font-size="16" text-anchor="middle">129</text>
+                            <text x="427" y="237" font-family="serif" font-size="18" text-anchor="middle" font-weight="bold">？</text>
+
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 253　　(2) 257　　(3) 261　　(4) 265　　(5) 269
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(2)）</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                各行の隣り合う数値の関係を調べると、次の規則が見つかる。<br>
+                &emsp;次の数 ＝ 前の数 × 2 − 1<br><br>
+
+                確認例（①行）：<br>
+                &emsp;2 → 3（＝2×2−1）→ 5（＝3×2−1）→ 9（＝5×2−1）→ 17（＝9×2−1）<br><br>
+
+                <strong>【表の構造】</strong><br>
+                この表全体は、1つの数列「2, 3, 5, 9, 17, 33, 65, 129, 257, …」から構成されており、各行はこの数列を1つずつ右にずらしたものである。<br><br>
+
+                &emsp;①行：数列の第1〜5項　（2, 3, 5, 9, 17）<br>
+                &emsp;②行：数列の第2〜6項　（3, 5, 9, 17, 33）<br>
+                &emsp;③行：数列の第3〜7項　（5, 9, 17, 33, 65）<br>
+                &emsp;④行：数列の第4〜8項　（9, 17, 33, 65, 129）<br>
+                &emsp;⑤行：数列の第5〜9項　（17, 33, 65, 129, <u>？</u>）<br><br>
+
+                <strong>【計算】</strong><br>
+                「？」は数列の第9項にあたる。<br>
+                &emsp;数列の第9項 ＝ 第8項 × 2 − 1 ＝ 129 × 2 − 1 ＝ 258 − 1 ＝ <strong>257</strong><br><br>
+
+                よって正解は <strong>(2) 257</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表の空欄「？」に入る数として正しいものを(1)〜(5)の中から1つ選べ。（6点）</div>
+                <div class="note-text">
+                    表の各行および各列の数値には一定の規則がある。その規則を発見し、「？」の値を求めよ。
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x265px
+                - viewBox: 0 0 500 265
+                - 階乗×平方表: a(i,j) = i! × j²
+
+                表構造（6列×6行）:
+                  ヘッダー列幅: 48px
+                  データ列幅: 86px × 5 = 430px
+                  合計幅: 48+430 = 478px（左マージン10px → 右端488px）
+                  行高さ: 40px × 6 = 240px（上マージン12px → 下端252px）
+
+                列左端 x座標: 10, 58, 144, 230, 316, 402
+                行上端 y座標: 12, 52, 92, 132, 172, 212
+                各セル中心 (列中心, 行中心):
+                  列: 34, 101, 187, 273, 359, 445
+                  行: 32, 72, 112, 152, 192, 232
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【数値規則表】</div>
+                    <div class="figure-content">
+                        <svg width="500" height="265" viewBox="0 0 500 265">
+
+                            <!-- 背景（全テーブル） -->
+                            <rect x="10" y="12" width="478" height="241" fill="white" stroke="#333" stroke-width="2"/>
+
+                            <!-- ヘッダー行の背景（グレー） -->
+                            <rect x="10" y="12" width="478" height="40" fill="#e0e0e0" stroke="none"/>
+
+                            <!-- ヘッダー列の背景（グレー） -->
+                            <rect x="10" y="12" width="48" height="241" fill="#e0e0e0" stroke="none"/>
+
+                            <!-- 問の答え「？」セルの背景（薄いグレー） -->
+                            <rect x="402" y="212" width="86" height="41" fill="#f0f0f0" stroke="none"/>
+
+                            <!-- 縦の境界線 -->
+                            <line x1="58"  y1="12"  x2="58"  y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="144" y1="12"  x2="144" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="230" y1="12"  x2="230" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="316" y1="12"  x2="316" y2="253" stroke="#333" stroke-width="1.5"/>
+                            <line x1="402" y1="12"  x2="402" y2="253" stroke="#333" stroke-width="1.5"/>
+
+                            <!-- 横の境界線 -->
+                            <line x1="10"  y1="52"  x2="488" y2="52"  stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="92"  x2="488" y2="92"  stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="132" x2="488" y2="132" stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="172" x2="488" y2="172" stroke="#333" stroke-width="1.5"/>
+                            <line x1="10"  y1="212" x2="488" y2="212" stroke="#333" stroke-width="1.5"/>
+
+                            <!-- ヘッダー行テキスト -->
+                            <text x="34"  y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold"></text>
+                            <text x="101" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">1列</text>
+                            <text x="187" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">2列</text>
+                            <text x="273" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">3列</text>
+                            <text x="359" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">4列</text>
+                            <text x="445" y="37" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">5列</text>
+
+                            <!-- ヘッダー列テキスト -->
+                            <text x="34" y="77"  font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9312;&#34892;</text>
+                            <text x="34" y="117" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9313;&#34892;</text>
+                            <text x="34" y="157" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9314;&#34892;</text>
+                            <text x="34" y="197" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9315;&#34892;</text>
+                            <text x="34" y="237" font-family="serif" font-size="15" text-anchor="middle" font-weight="bold">&#9316;&#34892;</text>
+
+                            <!-- データセル: ①行 (1, 4, 9, 16, 25) -->
+                            <text x="101" y="77" font-family="serif" font-size="16" text-anchor="middle">1</text>
+                            <text x="187" y="77" font-family="serif" font-size="16" text-anchor="middle">4</text>
+                            <text x="273" y="77" font-family="serif" font-size="16" text-anchor="middle">9</text>
+                            <text x="359" y="77" font-family="serif" font-size="16" text-anchor="middle">16</text>
+                            <text x="445" y="77" font-family="serif" font-size="16" text-anchor="middle">25</text>
+
+                            <!-- データセル: ②行 (2, 8, 18, 32, 50) -->
+                            <text x="101" y="117" font-family="serif" font-size="16" text-anchor="middle">2</text>
+                            <text x="187" y="117" font-family="serif" font-size="16" text-anchor="middle">8</text>
+                            <text x="273" y="117" font-family="serif" font-size="16" text-anchor="middle">18</text>
+                            <text x="359" y="117" font-family="serif" font-size="16" text-anchor="middle">32</text>
+                            <text x="445" y="117" font-family="serif" font-size="16" text-anchor="middle">50</text>
+
+                            <!-- データセル: ③行 (6, 24, 54, 96, 150) -->
+                            <text x="101" y="157" font-family="serif" font-size="16" text-anchor="middle">6</text>
+                            <text x="187" y="157" font-family="serif" font-size="16" text-anchor="middle">24</text>
+                            <text x="273" y="157" font-family="serif" font-size="16" text-anchor="middle">54</text>
+                            <text x="359" y="157" font-family="serif" font-size="16" text-anchor="middle">96</text>
+                            <text x="445" y="157" font-family="serif" font-size="16" text-anchor="middle">150</text>
+
+                            <!-- データセル: ④行 (24, 96, 216, 384, 600) -->
+                            <text x="101" y="197" font-family="serif" font-size="16" text-anchor="middle">24</text>
+                            <text x="187" y="197" font-family="serif" font-size="16" text-anchor="middle">96</text>
+                            <text x="273" y="197" font-family="serif" font-size="16" text-anchor="middle">216</text>
+                            <text x="359" y="197" font-family="serif" font-size="16" text-anchor="middle">384</text>
+                            <text x="445" y="197" font-family="serif" font-size="16" text-anchor="middle">600</text>
+
+                            <!-- データセル: ⑤行 (120, 480, 1080, 1920, ？) -->
+                            <text x="101" y="237" font-family="serif" font-size="15" text-anchor="middle">120</text>
+                            <text x="187" y="237" font-family="serif" font-size="15" text-anchor="middle">480</text>
+                            <text x="273" y="237" font-family="serif" font-size="15" text-anchor="middle">1080</text>
+                            <text x="359" y="237" font-family="serif" font-size="15" text-anchor="middle">1920</text>
+                            <text x="445" y="237" font-family="serif" font-size="18" text-anchor="middle" font-weight="bold">？</text>
+
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 2880　　(2) 3000　　(3) 2400　　(4) 3240　　(5) 3600
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(2)）</strong><br><br>
+
+                <strong>【規則の発見（ステップ1：列に注目）】</strong><br>
+                1列目のデータを縦に見ると：1, 2, 6, 24, 120<br>
+                これは <strong>階乗</strong>（factorial）の数列である。<br>
+                &emsp;1! ＝ 1、2! ＝ 2、3! ＝ 6、4! ＝ 24、5! ＝ 120<br><br>
+
+                <strong>【規則の発見（ステップ2：行に注目）】</strong><br>
+                各行の1列目を基準に、他の列との比を調べる。<br>
+                &emsp;①行（基準値1）：1, 4, 9, 16, 25 → 比は 1, 4, 9, 16, 25<br>
+                &emsp;②行（基準値2）：2, 8, 18, 32, 50 → 比は 1, 4, 9, 16, 25（2の倍数）<br>
+                &emsp;③行（基準値6）：6, 24, 54, 96, 150 → 比は 1, 4, 9, 16, 25（6の倍数）<br><br>
+
+                比 1, 4, 9, 16, 25 は <strong>列番号の2乗</strong>（1², 2², 3², 4², 5²）である。<br><br>
+
+                <strong>【式の確立】</strong><br>
+                &emsp;セルの値 ＝ （行番号の階乗）× （列番号の2乗）<br>
+                &emsp;すなわち a(行, 列) ＝ (行番号)! × (列番号)²<br><br>
+
+                <strong>【計算】</strong><br>
+                &emsp;⑤行5列 ＝ 5! × 5² ＝ 120 × 25 ＝ <strong>3000</strong><br><br>
+
+                よって正解は <strong>(2) 3000</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 画面幅に応じてページをスケーリング
+        function adjustScale() {
+            const sections = document.querySelectorAll('.question-section');
+            const maxWidth = Math.min(window.innerWidth - 40, 800);
+            const scale = maxWidth / 800;
+            sections.forEach(sec => {
+                if (scale < 1) {
+                    sec.style.transform = `scale(${scale})`;
+                    sec.style.marginBottom = `${20 + (scale - 1) * sec.offsetHeight}px`;
+                } else {
+                    sec.style.transform = 'scale(1)';
+                    sec.style.marginBottom = '20px';
+                }
+            });
+        }
+        window.addEventListener('resize', adjustScale);
+        adjustScale();
+    </script>
+</body>
+</html>
