@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 10px 18px;
+            min-width: 80px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 14px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .criteria-box {
+            border: 1px solid #666;
+            padding: 10px 20px;
+            margin: 12px 0;
+            display: inline-block;
+            text-align: left;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下のグラフは、ある年における国内5都市への年間訪問者数（万人）を示したものである。訪問者数が多い上位2都市の合計訪問者数は、訪問者数が少ない下位2都市の合計訪問者数の何倍に最も近いか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x265px
+                - viewBox: 0 0 500 265
+                - 余白: 上20px, 左70px, 右35px, 下35px
+                座標系定義:
+                - チャート領域: x=70〜465, y=20〜230
+                - Y軸スケール: 0〜1000 → 200px (0.2px/万人)
+                - 棒の幅: 56px, 中心間隔: 80px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】国内5都市の年間訪問者数</div>
+                    <div class="figure-content">
+                        <svg width="500" height="265" viewBox="0 0 500 265">
+                            <!-- Y軸 -->
+                            <line x1="70" y1="20" x2="70" y2="230" stroke="#333" stroke-width="2"/>
+                            <!-- X軸 -->
+                            <line x1="70" y1="230" x2="465" y2="230" stroke="#333" stroke-width="2"/>
+
+                            <!-- グリッドライン -->
+                            <line x1="70" y1="190" x2="465" y2="190" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+                            <line x1="70" y1="150" x2="465" y2="150" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+                            <line x1="70" y1="110" x2="465" y2="110" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+                            <line x1="70" y1="70" x2="465" y2="70" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+                            <line x1="70" y1="30" x2="465" y2="30" stroke="#ccc" stroke-width="1" stroke-dasharray="4,2"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="63" y="234" text-anchor="end" font-size="11" font-family="sans-serif">0</text>
+                            <text x="63" y="194" text-anchor="end" font-size="11" font-family="sans-serif">200</text>
+                            <text x="63" y="154" text-anchor="end" font-size="11" font-family="sans-serif">400</text>
+                            <text x="63" y="114" text-anchor="end" font-size="11" font-family="sans-serif">600</text>
+                            <text x="63" y="74" text-anchor="end" font-size="11" font-family="sans-serif">800</text>
+                            <text x="63" y="34" text-anchor="end" font-size="11" font-family="sans-serif">1000</text>
+
+                            <!-- Y軸単位 -->
+                            <text x="18" y="130" text-anchor="middle" font-size="12" font-family="sans-serif" transform="rotate(-90, 18, 130)">訪問者数（万人）</text>
+
+                            <!-- 棒: 札幌 850 → 高さ170px, y=60 -->
+                            <rect x="82" y="60" width="56" height="170" fill="#555"/>
+                            <text x="110" y="54" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif">850</text>
+                            <text x="110" y="248" text-anchor="middle" font-size="13" font-family="sans-serif">札幌</text>
+
+                            <!-- 棒: 仙台 420 → 高さ84px, y=146 -->
+                            <rect x="162" y="146" width="56" height="84" fill="#888"/>
+                            <text x="190" y="140" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif">420</text>
+                            <text x="190" y="248" text-anchor="middle" font-size="13" font-family="sans-serif">仙台</text>
+
+                            <!-- 棒: 名古屋 680 → 高さ136px, y=94 -->
+                            <rect x="242" y="94" width="56" height="136" fill="#555"/>
+                            <text x="270" y="88" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif">680</text>
+                            <text x="270" y="248" text-anchor="middle" font-size="13" font-family="sans-serif">名古屋</text>
+
+                            <!-- 棒: 広島 390 → 高さ78px, y=152 -->
+                            <rect x="322" y="152" width="56" height="78" fill="#888"/>
+                            <text x="350" y="146" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif">390</text>
+                            <text x="350" y="248" text-anchor="middle" font-size="13" font-family="sans-serif">広島</text>
+
+                            <!-- 棒: 福岡 760 → 高さ152px, y=78 -->
+                            <rect x="402" y="78" width="56" height="152" fill="#555"/>
+                            <text x="430" y="72" text-anchor="middle" font-size="11" font-weight="bold" font-family="sans-serif">760</text>
+                            <text x="430" y="248" text-anchor="middle" font-size="13" font-family="sans-serif">福岡</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 1.5倍&nbsp;&nbsp;&nbsp;
+                    (2) 2.5倍&nbsp;&nbsp;&nbsp;
+                    (3) 1.75倍&nbsp;&nbsp;&nbsp;
+                    (4) 2倍&nbsp;&nbsp;&nbsp;
+                    (5) 2.25倍
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(4)）</strong><br><br>
+
+                グラフから各都市の訪問者数を読み取る。<br><br>
+
+                <strong>【データの読み取り】</strong><br>
+                ・札幌：850万人<br>
+                ・仙台：420万人<br>
+                ・名古屋：680万人<br>
+                ・広島：390万人<br>
+                ・福岡：760万人<br><br>
+
+                <strong>【上位・下位の特定】</strong><br>
+                訪問者数を多い順に並べると：850 ＞ 760 ＞ 680 ＞ 420 ＞ 390<br>
+                ・上位2都市：札幌（850万人）+ 福岡（760万人）＝ <strong>1,610万人</strong><br>
+                ・下位2都市：広島（390万人）+ 仙台（420万人）＝ <strong>810万人</strong><br><br>
+
+                <strong>【比率の計算】</strong><br>
+                1,610 ÷ 810 ≒ 1.988<br><br>
+
+                <strong>【選択肢との比較】</strong><br>
+                ・(1) 1.5倍　　差：|1.988 − 1.5| ＝ 0.488<br>
+                ・(2) 2.5倍　　差：|1.988 − 2.5| ＝ 0.512<br>
+                ・(3) 1.75倍　差：|1.988 − 1.75| ＝ 0.238<br>
+                ・(4) 2倍　　　差：|1.988 − 2.0| ＝ 0.012 ← 最小<br>
+                ・(5) 2.25倍　差：|1.988 − 2.25| ＝ 0.262<br><br>
+
+                したがって、最も近い値は<strong>(4) 2倍</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表は、5機の航空機の前回整備からの記録を示したものである。右の整備基準のうち2項目以上を満たす機体の飛行時間の合計は何時間か。（6点）</div>
+
+                <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: 10px;">
+                    <div class="figure-container" style="flex: 1; margin: 0;">
+                        <div class="figure-title">【表1】整備記録</div>
+                        <div class="figure-content">
+                            <table class="figure-table" style="font-size: 14px;">
+                                <thead>
+                                    <tr>
+                                        <th>機体</th>
+                                        <th>経過日数<br>（日）</th>
+                                        <th>飛行時間<br>（h）</th>
+                                        <th>着陸回数<br>（回）</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>1号機</strong></td>
+                                        <td>85</td>
+                                        <td>520</td>
+                                        <td>330</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2号機</strong></td>
+                                        <td>95</td>
+                                        <td>480</td>
+                                        <td>370</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>3号機</strong></td>
+                                        <td>110</td>
+                                        <td>650</td>
+                                        <td>420</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>4号機</strong></td>
+                                        <td>65</td>
+                                        <td>390</td>
+                                        <td>260</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>5号機</strong></td>
+                                        <td>92</td>
+                                        <td>510</td>
+                                        <td>345</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div style="flex: 0 0 auto;">
+                        <div class="figure-container" style="margin: 0; text-align: left;">
+                            <div class="figure-title">【整備基準】</div>
+                            <div style="font-size: 14px; line-height: 2.2; padding: 0 5px;">
+                                ・経過日数：90日以上<br>
+                                ・飛行時間：500時間以上<br>
+                                ・着陸回数：350回以上
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options" style="margin-top: 20px;">
+                    (1) 1,640時間&nbsp;&nbsp;&nbsp;
+                    (2) 1,130時間&nbsp;&nbsp;&nbsp;
+                    (3) 1,160時間&nbsp;&nbsp;&nbsp;
+                    (4) 1,510時間&nbsp;&nbsp;&nbsp;
+                    (5) 2,160時間
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(1)）</strong><br><br>
+
+                各機体について整備基準の3項目（経過日数90日以上・飛行時間500時間以上・着陸回数350回以上）の達成状況を確認する。<br><br>
+
+                <strong>【各機体の判定】</strong><br>
+                ・1号機：経過日数85日（基準未満）、飛行時間520h（達成）、着陸330回（基準未満）→ <strong>1項目</strong><br>
+                ・2号機：経過日数95日（達成）、飛行時間480h（基準未満）、着陸370回（達成）→ <strong>2項目</strong><br>
+                ・3号機：経過日数110日（達成）、飛行時間650h（達成）、着陸420回（達成）→ <strong>3項目</strong><br>
+                ・4号機：経過日数65日（基準未満）、飛行時間390h（基準未満）、着陸260回（基準未満）→ <strong>0項目</strong><br>
+                ・5号機：経過日数92日（達成）、飛行時間510h（達成）、着陸345回（基準未満）→ <strong>2項目</strong><br><br>
+
+                <strong>【2項目以上を満たす機体の特定】</strong><br>
+                2号機（480h）、3号機（650h）、5号機（510h）の3機が該当する。<br><br>
+
+                <strong>【飛行時間の合計】</strong><br>
+                480 ＋ 650 ＋ 510 ＝ <strong>1,640時間</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 1,640時間 → 正解（2号機・3号機・5号機の合計）<br>
+                ・(2) 1,130時間 → 2号機・3号機のみ（5号機を2項目と見落とした場合）<br>
+                ・(3) 1,160時間 → 3号機・5号機のみ（2号機を2項目と見落とした場合）<br>
+                ・(4) 1,510時間 → 1号機・2号機・5号機の合計（1号機を誤って含めた場合）<br>
+                ・(5) 2,160時間 → 1号機・2号機・3号機・5号機の合計（基準未満の1号機を含めた場合）<br><br>
+
+                したがって、正解は<strong>(1) 1,640時間</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
