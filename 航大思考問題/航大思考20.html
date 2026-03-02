@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 8px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* テキスト選択肢 */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.85;
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ヒント表 */
+        .hint-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .hint-table th, .hint-table td {
+            border: 2px solid #333;
+            padding: 10px 20px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .hint-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .hint-table td.digits {
+            font-size: 18px;
+            letter-spacing: 10px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .rule-box {
+            border: 1px solid #bbb;
+            padding: 10px 15px;
+            margin: 12px 0;
+            background-color: #f8f8f8;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                5人の航空大学校受験者A、B、C、D、Eが、月曜日から金曜日の5日間に、それぞれ異なる1日ずつ体力測定を受ける。下図の条件が与えられているとき、Dが体力測定を受ける曜日として正しいものを選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x195px
+            - viewBox: 0 0 500 195
+            - 制約関係有向グラフ（矢印は「より早い曜日に受ける」を示す）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【条件関係図】矢印は「より早い曜日に受ける」を表す</div>
+                <div class="figure-content">
+                    <svg width="500" height="195" viewBox="0 0 500 195">
+                        <defs>
+                            <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                            </marker>
+                        </defs>
+
+                        <!-- B box -->
+                        <rect x="20" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="55" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">B</text>
+
+                        <!-- A box -->
+                        <rect x="145" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="180" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">A</text>
+
+                        <!-- C box -->
+                        <rect x="270" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="305" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">C</text>
+
+                        <!-- D box -->
+                        <rect x="395" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="430" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">D</text>
+
+                        <!-- E box（下段） -->
+                        <rect x="270" y="138" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                        <text x="305" y="162" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">E</text>
+
+                        <!-- B → A 矢印 -->
+                        <line x1="90" y1="74" x2="145" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="117" y="67" text-anchor="middle" font-size="12" font-family="serif">①</text>
+
+                        <!-- A → C 矢印 -->
+                        <line x1="215" y1="74" x2="270" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="242" y="67" text-anchor="middle" font-size="12" font-family="serif">②</text>
+
+                        <!-- C → D 矢印 -->
+                        <line x1="340" y1="74" x2="395" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="367" y="67" text-anchor="middle" font-size="12" font-family="serif">⑤</text>
+
+                        <!-- E → C 矢印（下から上） -->
+                        <line x1="305" y1="138" x2="305" y2="93" stroke="#333" stroke-width="2" marker-end="url(#arrow)"/>
+                        <text x="320" y="122" text-anchor="start" font-size="12" font-family="serif">③</text>
+
+                        <!-- 条件④の注記テキスト -->
+                        <text x="10" y="190" font-size="13" font-family="serif">④ BとEは連続した曜日に体力測定を受けない</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>月曜日
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>火曜日
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>水曜日
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>木曜日
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>金曜日
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5) 金曜日）</div>
+                <div class="explanation-content">
+                    <p><strong>【順序制約の整理】</strong></p>
+                    <p>条件①②から B &lt; A &lt; C、条件③から E &lt; C、条件⑤から C &lt; D という順序が得られる。</p>
+                    <br>
+                    <p><strong>【Dの曜日を確定】</strong></p>
+                    <p>B &lt; A &lt; C &lt; D の4段階の順序があるため、Dは少なくとも4番目以降。</p>
+                    <p>もし D=木曜日(4日目)なら B・A・C が1〜3日目に収まり、E &lt; C を満たす日がなくなる（矛盾）。</p>
+                    <p>よって <strong>D = 金曜日（5日目）</strong> が確定。</p>
+                    <br>
+                    <p><strong>【残りの配置を確定】</strong></p>
+                    <p>C &lt; D=金 かつ B &lt; A &lt; C の3段階があるため <strong>C = 木曜日</strong> が確定。</p>
+                    <p>B・A・Eは月〜水の3日に入り、B &lt; A の条件と④「BとEは連続しない」を照合すると：</p>
+                    <p>・(B=月, A=火, E=水)：|1-3|=2 → 連続しない ✓（唯一有効）</p>
+                    <p>・(B=月, A=水, E=火)：|1-2|=1 → 連続する → 条件④違反</p>
+                    <p>・(B=火, A=水, E=月)：|2-1|=1 → 連続する → 条件④違反</p>
+                    <br>
+                    <p>確定した配置：B=月、A=火、E=水、C=木、<strong>D=金</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5) 金曜日</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                3桁の暗証番号（各桁は1〜9の異なる数字）を当てるゲームを行った。各回の試行に対し、数字・位置ともに一致する桁数を「ヒット（H）」、数字は合っているが位置が異なる桁数を「ブロー（B）」として下表の結果が得られた。暗証番号として正しいものを選べ。
+            </div>
+
+            <div class="rule-box">
+                ヒット（H）：正しい桁に正しい数字がある個数　／　ブロー（B）：数字は正しいが桁の位置が異なる個数
+            </div>
+
+            <!--
+            図表仕様:
+            - テーブル形式: 4回の試行結果を表示
+            - 各行: 試行番号, 3桁の入力, H数, B数
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【試行結果表】</div>
+                <div class="figure-content">
+                    <table class="hint-table">
+                        <thead>
+                            <tr>
+                                <th>試行</th>
+                                <th>入力した数字</th>
+                                <th>ヒット（H）</th>
+                                <th>ブロー（B）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>第1回</td>
+                                <td class="digits">1 2 3</td>
+                                <td>1</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>第2回</td>
+                                <td class="digits">4 5 6</td>
+                                <td>1</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>第3回</td>
+                                <td class="digits">7 8 9</td>
+                                <td>0</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <td>第4回</td>
+                                <td class="digits">3 2 7</td>
+                                <td>2</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>2 4 7
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>2 7 4
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>4 2 7
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>4 7 2
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>7 4 2
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3) 4 2 7）</div>
+                <div class="explanation-content">
+                    <p><strong>【第4回（3 2 7、2H 0B）から場合を整理】</strong></p>
+                    <p>{3,2,7}のうち2つが正しい位置にあり、残り1つは暗証番号に含まれない。</p>
+                    <p>・場合(a) 1桁目=3 かつ 2桁目=2（7は含まれない）</p>
+                    <p>・場合(b) 1桁目=3 かつ 3桁目=7（2は含まれない）</p>
+                    <p>・場合(c) 2桁目=2 かつ 3桁目=7（3は含まれない）</p>
+                    <br>
+                    <p><strong>【第1回（1 2 3、1H 0B）で絞り込み】</strong></p>
+                    <p>場合(a)：1桁目=3のとき、試行の3桁目=3が番号に含まれブロー → 1H 1Bとなり矛盾。除外。</p>
+                    <p>場合(b)：1桁目=3のとき、試行の3桁目=3がブロー → 1H 1Bとなり矛盾。除外。</p>
+                    <p>場合(c)：2が2桁目で試行の2桁目=2がヒット、3は番号に含まれない。1H 0B ✓</p>
+                    <br>
+                    <p>場合(c)のみ残る：<strong>2桁目=2、3桁目=7、3は番号に含まれない。</strong></p>
+                    <br>
+                    <p><strong>【第2回（4 5 6、1H 0B）で1桁目を決定】</strong></p>
+                    <p>5・6は0ブローより番号に含まれない。1ヒットは4が1桁目に一致する場合のみ。</p>
+                    <p>→ <strong>1桁目=4</strong> が確定。</p>
+                    <br>
+                    <p><strong>【第3回（7 8 9、0H 1B）で確認】</strong></p>
+                    <p>7は3桁目（試行では1桁目に入力）→ ブロー ✓　8・9は含まれない。0H 1B ✓</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) 4 2 7</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            // 選択解除処理
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            // 新規解答処理
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // 親フレームへの解答記録
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考20/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 直接開いた場合は無視
+            }
+
+            // スタイル更新
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                btn.classList.add('disabled');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // プログレスドット更新
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // 解説表示
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

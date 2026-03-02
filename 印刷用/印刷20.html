@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2.2;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .hint-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 15px;
+        }
+
+        .hint-table th, .hint-table td {
+            border: 2px solid #333;
+            padding: 8px 18px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .hint-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .hint-table td.digits {
+            font-size: 17px;
+            letter-spacing: 8px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .rule-box {
+            border: 1px solid #aaa;
+            padding: 10px 15px;
+            margin: 10px 0;
+            background-color: #fafafa;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．5人の航空大学校受験者A、B、C、D、Eが、月曜日から金曜日の5日間に、それぞれ異なる1日ずつ体力測定を受ける。下図の条件が与えられているとき、Dが体力測定を受ける曜日として正しいものを選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x200px
+                - viewBox: 0 0 500 200
+                - 制約関係図（有向グラフ）
+                - 矢印の向き: 「早い曜日に受ける」の順序を示す
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【条件関係図】矢印は「より早い曜日に受ける」を表す</div>
+                    <div class="figure-content">
+                        <svg width="500" height="190" viewBox="0 0 500 190">
+                            <defs>
+                                <marker id="arr1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#333"/>
+                                </marker>
+                            </defs>
+
+                            <!-- 上段: B → A → C → D (横一列) -->
+                            <!-- B box -->
+                            <rect x="20" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="55" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">B</text>
+
+                            <!-- A box -->
+                            <rect x="145" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="180" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">A</text>
+
+                            <!-- C box -->
+                            <rect x="270" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="305" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">C</text>
+
+                            <!-- D box -->
+                            <rect x="395" y="55" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="430" y="79" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">D</text>
+
+                            <!-- 下段: E box -->
+                            <rect x="270" y="138" width="70" height="38" fill="white" stroke="#333" stroke-width="2"/>
+                            <text x="305" y="162" text-anchor="middle" font-size="20" font-weight="bold" font-family="serif">E</text>
+
+                            <!-- B → A 矢印 -->
+                            <line x1="90" y1="74" x2="145" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="117" y="68" text-anchor="middle" font-size="11" font-family="serif">①</text>
+
+                            <!-- A → C 矢印 -->
+                            <line x1="215" y1="74" x2="270" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="242" y="68" text-anchor="middle" font-size="11" font-family="serif">②</text>
+
+                            <!-- C → D 矢印 -->
+                            <line x1="340" y1="74" x2="395" y2="74" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="367" y="68" text-anchor="middle" font-size="11" font-family="serif">⑤</text>
+
+                            <!-- E → C 矢印（下から上） -->
+                            <line x1="305" y1="138" x2="305" y2="93" stroke="#333" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="318" y="120" text-anchor="start" font-size="11" font-family="serif">③</text>
+
+                            <!-- 条件④ の注記 -->
+                            <text x="10" y="186" font-size="13" font-family="serif">④ BとEは連続した曜日に体力測定を受けない</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 月曜日<br>
+                    (2) 火曜日<br>
+                    (3) 水曜日<br>
+                    (4) 木曜日<br>
+                    (5) 金曜日
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(5)）</strong><br><br>
+
+                <strong>【解法：順序制約の整理】</strong><br>
+                条件①②から B &lt; A &lt; C（日数の早い順）という不等式が成り立つ。<br>
+                条件③から E &lt; C、条件⑤から C &lt; D となる。<br>
+                したがって、次の順序関係が確立される：<br>
+                &nbsp;&nbsp;&nbsp;B &lt; A &lt; C &lt; D（4つの人物の順序が確定）<br>
+                &nbsp;&nbsp;&nbsp;E &lt; C（EはCより前）<br><br>
+
+                <strong>【Dの曜日を確定する】</strong><br>
+                B &lt; A &lt; C &lt; D の4段階の順序があるため、Dは少なくとも4番目以降。<br>
+                ・もし D = 木曜日（4日目）なら、C ≤ 3日目、A ≤ 2日目、B ≤ 1日目<br>
+                &nbsp;&nbsp;→ B=月(1)、A=火(2)、C=水(3)、D=木(4) と決まる。<br>
+                &nbsp;&nbsp;→ E &lt; C=水(3) なので E = 月 or 火。しかし月と火はB・Aが占有。<strong>矛盾。</strong><br>
+                ・よって <strong>D = 金曜日（5日目）</strong> が確定。<br><br>
+
+                <strong>【残りの曜日を確定する】</strong><br>
+                D=金曜日のとき、B・A・C・Eは月〜木の4日で決まる。<br>
+                C &lt; D=金、B &lt; A &lt; C なので C = 木曜日（4日目）が確定。<br>
+                （もし C = 水(3)なら B・A・E が1〜2日目に入れず矛盾）<br><br>
+
+                B・A・Eは月〜水（1〜3日）に入る。B &lt; A の条件から：<br>
+                &nbsp;&nbsp;・(B=月,A=火,E=水)：|B-E|=|1-3|=2 → 条件④「連続しない」を満たす ✓<br>
+                &nbsp;&nbsp;・(B=月,A=水,E=火)：|B-E|=|1-2|=1 → 条件④に違反 ✗<br>
+                &nbsp;&nbsp;・(B=火,A=水,E=月)：|B-E|=|2-1|=1 → 条件④に違反 ✗<br><br>
+
+                唯一の有効な配置：<strong>B=月、A=火、E=水、C=木、D=金</strong><br><br>
+
+                したがって、Dが体力測定を受ける曜日は <strong>(5) 金曜日</strong> である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．3桁の暗証番号（各桁は1〜9の異なる数字）を当てるゲームを行った。各回の試行に対し、数字・位置ともに一致する桁数を「ヒット（H）」、数字は合っているが位置が異なる桁数を「ブロー（B）」として下表の結果が得られた。暗証番号として正しいものを選べ。（6点）</div>
+
+                <div class="rule-box">
+                    ヒット（H）：正しい桁に正しい数字がある個数<br>
+                    ブロー（B）：数字は正しいが桁の位置が異なる個数
+                </div>
+
+                <!--
+                図表仕様:
+                - テーブル形式で4回の試行を表示
+                - 各行: 試行番号, 入力した3桁, H数, B数
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【試行結果表】</div>
+                    <div class="figure-content">
+                        <table class="hint-table">
+                            <thead>
+                                <tr>
+                                    <th>試行</th>
+                                    <th>入力した数字</th>
+                                    <th>ヒット（H）</th>
+                                    <th>ブロー（B）</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>第1回</td>
+                                    <td class="digits">1 2 3</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>第2回</td>
+                                    <td class="digits">4 5 6</td>
+                                    <td>1</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>第3回</td>
+                                    <td class="digits">7 8 9</td>
+                                    <td>0</td>
+                                    <td>1</td>
+                                </tr>
+                                <tr>
+                                    <td>第4回</td>
+                                    <td class="digits">3 2 7</td>
+                                    <td>2</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 2 4 7<br>
+                    (2) 2 7 4<br>
+                    (3) 4 2 7<br>
+                    (4) 4 7 2<br>
+                    (5) 7 4 2
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(3)）</strong><br><br>
+
+                <strong>【第4回（3 2 7、2H 0B）から開始】</strong><br>
+                2ヒット0ブローなので、{3,2,7}のうち2つが正しい位置にある。残り1つは暗証番号に含まれない。<br>
+                場合分け：<br>
+                &nbsp;&nbsp;(a) 3が1桁目 かつ 2が2桁目（→ 7は番号に含まれない）<br>
+                &nbsp;&nbsp;(b) 3が1桁目 かつ 7が3桁目（→ 2は番号に含まれない）<br>
+                &nbsp;&nbsp;(c) 2が2桁目 かつ 7が3桁目（→ 3は番号に含まれない）<br><br>
+
+                <strong>【第1回（1 2 3、1H 0B）で場合を絞る】</strong><br>
+                0ブローなので{1,2,3}のうち1つが正位置にあり、残りは番号に含まれない。<br>
+                ・場合(a)：1桁目=3で試行の1桁目=1(不一致)、2桁目=2でヒット。だが3が1桁目なので、試行の3桁目=3もブロー扱い → 1H 1Bとなり矛盾。<strong>除外。</strong><br>
+                ・場合(b)：1桁目=3。試行の3桁目=3がブロー(3は1桁目) → 0Bに矛盾。<strong>除外。</strong><br>
+                ・場合(c)：2が2桁目、7が3桁目。試行の2桁目=2 → 1H。3は番号に含まれないので試行の3桁目=3はブロー0。1H 0B ✓<br><br>
+
+                場合(c)のみ残る：<strong>2桁目=2、3桁目=7、3は番号に含まれない。</strong><br><br>
+
+                <strong>【第2回（4 5 6、1H 0B）で1桁目を決定】</strong><br>
+                5・6は番号に含まれない（0ブロー確定）。1ヒットは4が1桁目に一致する場合のみ。<br>
+                → <strong>1桁目=4</strong> が確定。<br><br>
+
+                <strong>【第3回（7 8 9、0H 1B）で確認】</strong><br>
+                7は3桁目（試行では1桁目）→ ブロー ✓。8・9は番号に含まれない。0H 1B ✓<br><br>
+
+                したがって、暗証番号は <strong>(3) 4 2 7</strong> である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
