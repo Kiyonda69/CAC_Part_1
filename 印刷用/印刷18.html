@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+            line-height: 1.9;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+            font-size: 14px;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 8px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* ===== 数値表テーブル ===== */
+        .num-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .num-table td, .num-table th {
+            border: 2px solid #333;
+            padding: 8px 14px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .num-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .num-table .blank-cell {
+            font-weight: bold;
+            font-size: 18px;
+            background-color: #f5f5f5;
+        }
+
+        /* ===== 選択肢 ===== */
+        .options-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .option-item {
+            font-size: 15px;
+            padding: 6px 18px;
+            border: 1px solid #555;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の表は、行番号と列番号の値を使った一定の計算規則によって各マスの数値が決まっている。表中の?に入る数として正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                規則: cell(r, c) = r^2 + c^2
+                行4列4の値 = 4^2 + 4^2 = 32
+                行4差分: 3, 5, 7, 9（奇数列）→ 7を見つけると32
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】数値表</div>
+                    <div class="figure-content">
+                        <table class="num-table">
+                            <tr>
+                                <th></th>
+                                <th>列 1</th>
+                                <th>列 2</th>
+                                <th>列 3</th>
+                                <th>列 4</th>
+                                <th>列 5</th>
+                            </tr>
+                            <tr>
+                                <th>行 1</th>
+                                <td>2</td>
+                                <td>5</td>
+                                <td>10</td>
+                                <td>17</td>
+                                <td>26</td>
+                            </tr>
+                            <tr>
+                                <th>行 2</th>
+                                <td>5</td>
+                                <td>8</td>
+                                <td>13</td>
+                                <td>20</td>
+                                <td>29</td>
+                            </tr>
+                            <tr>
+                                <th>行 3</th>
+                                <td>10</td>
+                                <td>13</td>
+                                <td>18</td>
+                                <td>25</td>
+                                <td>34</td>
+                            </tr>
+                            <tr>
+                                <th>行 4</th>
+                                <td>17</td>
+                                <td>20</td>
+                                <td>25</td>
+                                <td class="blank-cell">?</td>
+                                <td>41</td>
+                            </tr>
+                            <tr>
+                                <th>行 5</th>
+                                <td>26</td>
+                                <td>29</td>
+                                <td>34</td>
+                                <td>41</td>
+                                <td>50</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢（正解: 32 → 位置5） -->
+                <div class="options-row">
+                    <div class="option-item">(1)&ensp;26</div>
+                    <div class="option-item">(2)&ensp;29</div>
+                    <div class="option-item">(3)&ensp;35</div>
+                    <div class="option-item">(4)&ensp;38</div>
+                    <div class="option-item">(5)&ensp;32</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(5)）</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                各マスの値と行番号・列番号の関係を調べると、次のことに気づく。<br><br>
+
+                ・行1、列1のマス（行1・列1）：2 = 1<sup>2</sup> + 1<sup>2</sup><br>
+                ・行1、列2のマス（行1・列2）：5 = 1<sup>2</sup> + 2<sup>2</sup><br>
+                ・行2、列2のマス（行2・列2）：8 = 2<sup>2</sup> + 2<sup>2</sup><br>
+                ・行3、列3のマス（行3・列3）：18 = 3<sup>2</sup> + 3<sup>2</sup><br><br>
+
+                規則：<strong>cell(行, 列) = 行<sup>2</sup> + 列<sup>2</sup></strong><br><br>
+
+                <strong>【?の計算】</strong><br>
+                ?は行4・列4のマスなので：<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;? = 4<sup>2</sup> + 4<sup>2</sup> = 16 + 16 = <strong>32</strong><br><br>
+
+                <strong>【別解：差分パターン】</strong><br>
+                行4の値を横に並べると：17、20、25、?、41<br>
+                差分：3、5、?、9 → 差分が1つずつ2増える奇数列（3、5、<strong>7</strong>、9）<br>
+                よって：25 + 7 = <strong>32</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 26：行5・列1の値と同じ。規則上の誤り<br>
+                ・(2) 29：行5・列2の値と同じ。規則上の誤り<br>
+                ・(3) 35：行4の値が17、20、25、35、41だと差分2、5、10、6となり規則不一致<br>
+                ・(4) 38：差分が21となり奇数列・二乗和いずれにも不一致<br>
+                ・<strong>(5) 32：4<sup>2</sup>+4<sup>2</sup>=32 ← 正解</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表は、行番号と列番号の値を使った一定の計算規則によって各マスの数値が決まっている。この規則は問1とは異なる。表中の?に入る数として正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                規則: cell(r, c) = r * c * (r + c)
+                行4列4の値 = 4 * 4 * 8 = 128
+                行4差分: 28, 36, 44, 52（公差8の等差数列）
+                二次差分: 8（一定）→ 84+44=128
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】数値表</div>
+                    <div class="figure-content">
+                        <table class="num-table">
+                            <tr>
+                                <th></th>
+                                <th>列 1</th>
+                                <th>列 2</th>
+                                <th>列 3</th>
+                                <th>列 4</th>
+                                <th>列 5</th>
+                            </tr>
+                            <tr>
+                                <th>行 1</th>
+                                <td>2</td>
+                                <td>6</td>
+                                <td>12</td>
+                                <td>20</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <th>行 2</th>
+                                <td>6</td>
+                                <td>16</td>
+                                <td>30</td>
+                                <td>48</td>
+                                <td>70</td>
+                            </tr>
+                            <tr>
+                                <th>行 3</th>
+                                <td>12</td>
+                                <td>30</td>
+                                <td>54</td>
+                                <td>84</td>
+                                <td>120</td>
+                            </tr>
+                            <tr>
+                                <th>行 4</th>
+                                <td>20</td>
+                                <td>48</td>
+                                <td>84</td>
+                                <td class="blank-cell">?</td>
+                                <td>180</td>
+                            </tr>
+                            <tr>
+                                <th>行 5</th>
+                                <td>30</td>
+                                <td>70</td>
+                                <td>120</td>
+                                <td>180</td>
+                                <td>250</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢（正解: 128 → 位置4） -->
+                <div class="options-row">
+                    <div class="option-item">(1)&ensp;96</div>
+                    <div class="option-item">(2)&ensp;112</div>
+                    <div class="option-item">(3)&ensp;144</div>
+                    <div class="option-item">(4)&ensp;128</div>
+                    <div class="option-item">(5)&ensp;160</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(4)）</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                問1（行<sup>2</sup>+列<sup>2</sup>）とは異なる規則を探す。小さな値で調べる。<br><br>
+
+                ・(行1, 列1)：2 = 1×1×(1+1) = 1×1×2<br>
+                ・(行1, 列2)：6 = 1×2×(1+2) = 1×2×3<br>
+                ・(行2, 列3)：30 = 2×3×(2+3) = 2×3×5<br>
+                ・(行3, 列3)：54 = 3×3×(3+3) = 3×3×6<br><br>
+
+                規則：<strong>cell(行, 列) = 行 × 列 × (行 + 列)</strong><br><br>
+
+                <strong>【?の計算】</strong><br>
+                ?は行4・列4のマスなので：<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;? = 4 × 4 × (4 + 4) = 16 × 8 = <strong>128</strong><br><br>
+
+                <strong>【別解：差分パターン】</strong><br>
+                行4の値：20、48、84、?、180<br>
+                差分：28、36、?、(180−?)　→ 差分の差（二次差分）を確認する<br>
+                &nbsp;&nbsp;各行の二次差分 行1：2、行2：4、行3：6、行4：<strong>8</strong><br>
+                よって行4の差分列：28、36、<strong>44</strong>、52<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;? = 84 + 44 = <strong>128</strong>、確認：180 − 128 = 52 ✓<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 96：行4差分が28、36、12、84となり二次差分が一定にならない<br>
+                ・(2) 112：差分が28、36、28と等差不成立<br>
+                ・(3) 144：差分が28、36、60で二次差分24≠8<br>
+                ・<strong>(4) 128：4×4×8=128 ← 正解（差分44、二次差分8で一致）</strong><br>
+                ・(5) 160：差分が28、36、76で二次差分40≠8<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
