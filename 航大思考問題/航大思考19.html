@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* ===== 数値表テーブル ===== */
+        .num-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .num-table td, .num-table th {
+            border: 2px solid #333;
+            padding: 9px 16px;
+            text-align: center;
+            min-width: 52px;
+        }
+
+        .num-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .num-table .blank-cell {
+            font-weight: bold;
+            font-size: 20px;
+            background-color: #fffde7;
+            color: #333;
+        }
+
+        /* ===== 条件ボックス ===== */
+        .conditions-box {
+            margin: 20px 0;
+            padding: 20px 25px;
+            border: 2px solid #555;
+            border-radius: 4px;
+            background-color: #fafafa;
+            font-size: 15px;
+            line-height: 2.2;
+        }
+
+        .conditions-box .cond-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 6px;
+        }
+
+        .cond-item {
+            padding-left: 0.5em;
+        }
+
+        /* ===== テキスト選択肢 ===== */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 8px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <!--
+        規則: cell(r,c) = C(r+c-2, c-1) (二項係数 / パスカルの三角形型)
+        各マス = 真上のマス + 真左のマス (境界はすべて1)
+        行4・列4 = C(6,3) = (行3,列4) + (行4,列3) = 10 + 10 = 20
+        正解番号: 2（ランダム位置）
+        選択肢: (1)15 (2)20 (3)18 (4)24 (5)28
+        -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下の表は、各マスの数値が一定の規則によって決まっている。表中の「?」に入る数として正しいものを、次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】数値表</div>
+                <div class="figure-content">
+                    <table class="num-table">
+                        <tr>
+                            <th></th>
+                            <th>列 1</th>
+                            <th>列 2</th>
+                            <th>列 3</th>
+                            <th>列 4</th>
+                            <th>列 5</th>
+                        </tr>
+                        <tr>
+                            <th>行 1</th>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <th>行 2</th>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <th>行 3</th>
+                            <td>1</td>
+                            <td>3</td>
+                            <td>6</td>
+                            <td>10</td>
+                            <td>15</td>
+                        </tr>
+                        <tr>
+                            <th>行 4</th>
+                            <td>1</td>
+                            <td>4</td>
+                            <td>10</td>
+                            <td class="blank-cell">?</td>
+                            <td>35</td>
+                        </tr>
+                        <tr>
+                            <th>行 5</th>
+                            <td>1</td>
+                            <td>5</td>
+                            <td>15</td>
+                            <td>35</td>
+                            <td>70</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢（正解: 20 → 位置2） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>15
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>20
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>18
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>24
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>28
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【規則の発見】</strong></p>
+                    <p>まず行・列の先頭（列1と行1）はすべて1。内側のマスを調べると：</p>
+                    <p>・(行2, 列2) = 2 = (行1, 列2) + (行2, 列1) = 1 + 1</p>
+                    <p>・(行3, 列3) = 6 = (行2, 列3) + (行3, 列2) = 3 + 3</p>
+                    <p>・(行3, 列4) = 10 = (行2, 列4) + (行3, 列3) = 4 + 6</p>
+                    <br>
+                    <p>規則：<strong>各マスの値 = 真上のマス + 真左のマス</strong>（パスカルの三角形型）</p>
+                    <br>
+                    <p><strong>【?の計算】</strong></p>
+                    <p>? = (行3, 列4) + (行4, 列3) = 10 + 10 = <strong>20</strong></p>
+                    <p>確認：(行4, 列5) = (行3, 列5) + (行4, 列4) = 15 + 20 = 35 ✓</p>
+                    <br>
+                    <p><strong>【別解：差分パターン】</strong></p>
+                    <p>行4：1、4、10、?、35</p>
+                    <p>差分：3、6、(? − 10)、(35 − ?)</p>
+                    <p>差分が三角数（3、6、10、15）になる → ? − 10 = 10 → ? = <strong>20</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <!--
+        5つの作業A,B,C,D,Eの所要時間論理推論
+        唯一解: A=3, B=2, C=1, D=4, E=5
+        正解番号: 4（ランダム位置）
+        選択肢: (1)5時間 (2)2時間 (3)1時間 (4)4時間 (5)3時間
+        -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                A、B、C、D、Eの5つの作業があり、それぞれにかかる時間は1時間、2時間、3時間、4時間、5時間のいずれかで、すべて異なる。次の条件がすべて成り立つとき、作業Dにかかる時間として正しいものを、次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="conditions-box">
+                <div class="cond-title">【条件】</div>
+                <div class="cond-item">[ア]　作業Aの時間と作業Bの時間の合計は、作業Cの時間と作業Dの時間の合計に等しい。</div>
+                <div class="cond-item">[イ]　作業Bの時間は、作業Cの時間より1時間長い。</div>
+                <div class="cond-item">[ウ]　作業Aにかかる時間は、作業Eにかかる時間より短い。</div>
+                <div class="cond-item">[エ]　作業Dにかかる時間は、作業Bにかかる時間より長い。</div>
+                <div class="cond-item">[オ]　作業Eにかかる時間は1時間か5時間である。</div>
+            </div>
+
+            <!-- 選択肢（正解: 4時間 → 位置4） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>5時間
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>2時間
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>1時間
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>4時間
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>3時間
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【手順1：条件[イ]でBとCを絞る】</strong></p>
+                    <p>[イ] B = C + 1 より (B, C) の候補：(2,1)、(3,2)、(4,3)、(5,4)</p>
+                    <br>
+                    <p><strong>【手順2：各ケースを検証】</strong></p>
+                    <p><strong>◆ (B, C) = (2, 1)</strong>：残りは {A, D, E} = {3, 4, 5}</p>
+                    <p>[ア] A + 2 = 1 + D → D = A + 1</p>
+                    <p>→ (A, D) = (3, 4) → E = 5　検証：[ウ] 3 &lt; 5 ✓、[エ] 4 &gt; 2 ✓、[オ] E=5 ✓　<strong>← 成立</strong></p>
+                    <p>→ (A, D) = (4, 5) → E = 3　[オ] E=3 → 不成立</p>
+                    <br>
+                    <p><strong>◆ (B, C) = (3, 2)</strong>：残りは {A, D, E} = {1, 4, 5}</p>
+                    <p>[ア] A + 3 = 2 + D → D = A + 1</p>
+                    <p>→ (A, D) = (4, 5) → E = 1　[ウ] 4 &lt; 1 → 不成立</p>
+                    <br>
+                    <p><strong>◆ (B, C) = (4, 3) または (5, 4)</strong>：</p>
+                    <p>[エ] D &gt; B ≥ 4 → D ≥ 5。残りにD≥5を満たす割り当てが存在しない → 不成立</p>
+                    <br>
+                    <p><strong>【唯一の解】</strong></p>
+                    <p>A = 3時間、B = 2時間、C = 1時間、<strong>D = 4時間</strong>、E = 5時間</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect', 'disabled');
+                });
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考19/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                btn.classList.add('disabled');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
