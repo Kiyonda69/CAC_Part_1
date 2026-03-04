@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page { page-break-after: always; }
+
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 20px; page-break-inside: avoid; }
+
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+
+        .figure-container {
+            margin: 12px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .figure-title { font-weight: bold; margin-bottom: 8px; font-size: 13px; }
+
+        svg { max-width: 100%; height: auto; }
+
+        .tables-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .data-table {
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #555;
+            padding: 4px 8px;
+            text-align: center;
+        }
+        .data-table th {
+            background-color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        .answer-choices {
+            margin-top: 12px;
+            font-size: 15px;
+            text-align: center;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        @media print {
+            body { background-color: white; padding: 0; display: block; }
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                transform: none !important;
+                width: 100%; height: auto;
+                margin: 0; padding: 20px;
+                overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+
+            <div class="question-number">問1．図は、機体重量と外気温に応じた離陸滑走距離（海面高度・無風・標準大気）を示す性能図であり、表は標高補正係数を示す。下表の各航空便について補正後の必要離陸距離（＝性能図読み取り値 × 標高補正係数）を求め、滑走路長1,200ft・標高6,000ftの空港から離陸可能な便数として正しいものを1つ選べ。（6点）</div>
+
+            <div class="figure-container">
+                <div class="figure-title">【性能図】海面高度・無風・標準大気における離陸滑走距離</div>
+                <!--
+                図表仕様:
+                - SVGサイズ: 540×375px
+                - viewBox: 0 0 540 375
+                - チャート領域: x=75〜450（375px幅）、y=15〜320（305px高）
+                - X軸変換: x = 75 + 7.5×(T+20)（T=外気温°C）
+                - Y軸変換: y = 15 + 305×(2000−ft)/1600（ft=離陸距離ft）
+                各重量ラインの端点（T=−20〜30°C）:
+                  2,000 lbs: (75,270)(150,255)(225,240)(300,225)(375,209)(450,194)
+                  2,100 lbs: (75,248)(150,228)(225,209)(300,190)(375,171)(450,152)
+                  2,200 lbs: (75,221)(150,196)(225,171)(300,147)(375,122)(450,97)
+                  2,300 lbs: (75,190)(150,160)(225,129)(300,99)(375,68)(450,38)
+                -->
+                <svg width="540" height="375" viewBox="0 0 540 375">
+                    <!-- グリッド線（水平）ft=600,800,1000,1200,1400,1600,1800 -->
+                    <line x1="75" y1="282" x2="450" y2="282" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="244" x2="450" y2="244" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="206" x2="450" y2="206" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="168" x2="450" y2="168" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="129" x2="450" y2="129" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="91"  x2="450" y2="91"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="53"  x2="450" y2="53"  stroke="#ccc" stroke-width="0.7"/>
+
+                    <!-- グリッド線（垂直）T=−10,0,10,20 -->
+                    <line x1="150" y1="15" x2="150" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="225" y1="15" x2="225" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="300" y1="15" x2="300" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="375" y1="15" x2="375" y2="320" stroke="#ccc" stroke-width="0.7"/>
+
+                    <!-- チャート枠 -->
+                    <rect x="75" y="15" width="375" height="305" fill="none" stroke="#333" stroke-width="1.5"/>
+
+                    <!-- 2,000 lbs ライン（実線・太） -->
+                    <polyline points="75,270 150,255 225,240 300,225 375,209 450,194"
+                        fill="none" stroke="black" stroke-width="2.5"/>
+
+                    <!-- 2,100 lbs ライン（実線・中） -->
+                    <polyline points="75,248 150,228 225,209 300,190 375,171 450,152"
+                        fill="none" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 2,200 lbs ライン（破線） -->
+                    <polyline points="75,221 150,196 225,171 300,147 375,122 450,97"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+
+                    <!-- 2,300 lbs ライン（点線） -->
+                    <polyline points="75,190 150,160 225,129 300,99 375,68 450,38"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,5"/>
+
+                    <!-- Y軸 目盛りとラベル -->
+                    <line x1="72" y1="320" x2="75" y2="320" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="324" text-anchor="end" font-size="11" font-family="sans-serif">400</text>
+                    <line x1="72" y1="282" x2="75" y2="282" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="286" text-anchor="end" font-size="11" font-family="sans-serif">600</text>
+                    <line x1="72" y1="244" x2="75" y2="244" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="248" text-anchor="end" font-size="11" font-family="sans-serif">800</text>
+                    <line x1="72" y1="206" x2="75" y2="206" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="210" text-anchor="end" font-size="11" font-family="sans-serif">1,000</text>
+                    <line x1="72" y1="168" x2="75" y2="168" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="172" text-anchor="end" font-size="11" font-family="sans-serif">1,200</text>
+                    <line x1="72" y1="129" x2="75" y2="129" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="133" text-anchor="end" font-size="11" font-family="sans-serif">1,400</text>
+                    <line x1="72" y1="91" x2="75" y2="91" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="95" text-anchor="end" font-size="11" font-family="sans-serif">1,600</text>
+                    <line x1="72" y1="53" x2="75" y2="53" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="57" text-anchor="end" font-size="11" font-family="sans-serif">1,800</text>
+                    <line x1="72" y1="15" x2="75" y2="15" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="19" text-anchor="end" font-size="11" font-family="sans-serif">2,000</text>
+
+                    <!-- Y軸タイトル（回転） -->
+                    <text x="14" y="167" text-anchor="middle" font-size="11" font-family="sans-serif"
+                        transform="rotate(-90, 14, 167)">離陸滑走距離（ft）</text>
+
+                    <!-- X軸 目盛りとラベル -->
+                    <line x1="75"  y1="320" x2="75"  y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="75"  y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−20</text>
+                    <line x1="150" y1="320" x2="150" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−10</text>
+                    <line x1="225" y1="320" x2="225" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="225" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">0</text>
+                    <line x1="300" y1="320" x2="300" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">10</text>
+                    <line x1="375" y1="320" x2="375" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="375" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">20</text>
+                    <line x1="450" y1="320" x2="450" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">30</text>
+
+                    <!-- X軸タイトル -->
+                    <text x="262" y="352" text-anchor="middle" font-size="11" font-family="sans-serif">外気温（°C）</text>
+
+                    <!-- 重量ラベル（右端） -->
+                    <text x="457" y="198" font-size="10" font-family="sans-serif">2,000 lbs</text>
+                    <text x="457" y="156" font-size="10" font-family="sans-serif">2,100 lbs</text>
+                    <text x="457" y="101" font-size="10" font-family="sans-serif">2,200 lbs</text>
+                    <text x="457" y="42"  font-size="10" font-family="sans-serif">2,300 lbs</text>
+                </svg>
+
+                <!-- 補正係数表と便一覧を横並びで表示 -->
+                <div class="tables-row">
+                    <!-- 標高補正係数表 -->
+                    <table class="data-table">
+                        <tr><th colspan="2">【標高補正係数表】</th></tr>
+                        <tr><th>標高</th><th>補正係数</th></tr>
+                        <tr><td>海面高度</td><td>1.00</td></tr>
+                        <tr><td>2,000 ft</td><td>1.10</td></tr>
+                        <tr><td>4,000 ft</td><td>1.20</td></tr>
+                        <tr><td>6,000 ft</td><td>1.30</td></tr>
+                        <tr><td>8,000 ft</td><td>1.40</td></tr>
+                        <tr><td>10,000 ft</td><td>1.50</td></tr>
+                    </table>
+
+                    <!-- 航空便一覧 -->
+                    <table class="data-table">
+                        <tr><th colspan="3">【航空便一覧】</th></tr>
+                        <tr><th>便名</th><th>機体重量</th><th>外気温</th></tr>
+                        <tr><td>ALPHA</td><td>2,000 lbs</td><td>0°C</td></tr>
+                        <tr><td>BRAVO</td><td>2,100 lbs</td><td>20°C</td></tr>
+                        <tr><td>CHARLIE</td><td>2,000 lbs</td><td>20°C</td></tr>
+                        <tr><td>DELTA</td><td>2,000 lbs</td><td>−20°C</td></tr>
+                        <tr><td>ECHO</td><td>2,100 lbs</td><td>−10°C</td></tr>
+                        <tr><td>FOXTROT</td><td>2,300 lbs</td><td>0°C</td></tr>
+                        <tr><td>GOLF</td><td>2,100 lbs</td><td>−20°C</td></tr>
+                        <tr><td>HOTEL</td><td>2,100 lbs</td><td>0°C</td></tr>
+                        <tr><td>INDIA</td><td>2,200 lbs</td><td>0°C</td></tr>
+                        <tr><td>JULIETT</td><td>2,000 lbs</td><td>30°C</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="answer-choices">
+                （1）2便　　（2）3便　　（3）4便　　（4）5便　　（5）6便
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1（正解：(3)）</strong><br><br>
+
+            <strong>【解法の手順】</strong><br>
+            標高6,000ftの補正係数は1.30。<br>
+            必要離陸距離 ＝ 性能図読み取り値 × 1.30 を計算し、1,200ft以下なら離陸可能。<br><br>
+
+            <strong>【各便の判定】</strong><br>
+            ・ALPHA（2,000 lbs・0°C）：820ft × 1.30 ＝ 1,066ft　≦ 1,200ft　→　<strong>離陸可能</strong><br>
+            ・BRAVO（2,100 lbs・20°C）：1,180ft × 1.30 ＝ 1,534ft　＞ 1,200ft　→　離陸不可<br>
+            ・CHARLIE（2,000 lbs・20°C）：980ft × 1.30 ＝ 1,274ft　＞ 1,200ft　→　離陸不可<br>
+            ・DELTA（2,000 lbs・−20°C）：660ft × 1.30 ＝ 858ft　≦ 1,200ft　→　<strong>離陸可能</strong><br>
+            ・ECHO（2,100 lbs・−10°C）：880ft × 1.30 ＝ 1,144ft　≦ 1,200ft　→　<strong>離陸可能</strong><br>
+            ・FOXTROT（2,300 lbs・0°C）：1,400ft × 1.30 ＝ 1,820ft　＞ 1,200ft　→　離陸不可<br>
+            ・GOLF（2,100 lbs・−20°C）：780ft × 1.30 ＝ 1,014ft　≦ 1,200ft　→　<strong>離陸可能</strong><br>
+            ・HOTEL（2,100 lbs・0°C）：980ft × 1.30 ＝ 1,274ft　＞ 1,200ft　→　離陸不可<br>
+            ・INDIA（2,200 lbs・0°C）：1,180ft × 1.30 ＝ 1,534ft　＞ 1,200ft　→　離陸不可<br>
+            ・JULIETT（2,000 lbs・30°C）：1,060ft × 1.30 ＝ 1,378ft　＞ 1,200ft　→　離陸不可<br><br>
+
+            <strong>【まとめ】</strong><br>
+            離陸可能な便：ALPHA・DELTA・ECHO・GOLF の4便。<br><br>
+
+            したがって、正解は<strong>（3）4便</strong>である。<br><br>
+
+            <strong>【補足：読み取りのポイント】</strong><br>
+            ・気温が低いほど空気密度が高まり、揚力が増して離陸距離は短くなる。<br>
+            ・機体重量が重いほど、同じ気温でも離陸距離は長くなる。<br>
+            ・ECHOとALPHAは1,200ft以下に収まるが、HOTELは同じ2,100 lbsでも0°Cのため
+            1,274ftとなり離陸不可。温度の違いが判定に影響する点に注意。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+
+            <div class="question-number">問2．問1の性能図・標高補正係数表を引き続き用いる。さらに、風補正係数表を追加し、必要離陸距離＝性能図読み取り値 × 標高補正係数 × 風補正係数として計算せよ。下表の各航空便について必要離陸距離を求め、滑走路長1,400ft・標高4,000ftの空港から離陸可能な便数として正しいものを1つ選べ。（6点）</div>
+
+            <div class="figure-container">
+                <div class="figure-title">【性能図】海面高度・無風・標準大気における離陸滑走距離（問1と同じ）</div>
+                <!-- 同一のSVGグラフ -->
+                <svg width="540" height="375" viewBox="0 0 540 375">
+                    <line x1="75" y1="282" x2="450" y2="282" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="244" x2="450" y2="244" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="206" x2="450" y2="206" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="168" x2="450" y2="168" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="129" x2="450" y2="129" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="91"  x2="450" y2="91"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="53"  x2="450" y2="53"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="150" y1="15" x2="150" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="225" y1="15" x2="225" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="300" y1="15" x2="300" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="375" y1="15" x2="375" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <rect x="75" y="15" width="375" height="305" fill="none" stroke="#333" stroke-width="1.5"/>
+                    <polyline points="75,270 150,255 225,240 300,225 375,209 450,194"
+                        fill="none" stroke="black" stroke-width="2.5"/>
+                    <polyline points="75,248 150,228 225,209 300,190 375,171 450,152"
+                        fill="none" stroke="black" stroke-width="1.5"/>
+                    <polyline points="75,221 150,196 225,171 300,147 375,122 450,97"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                    <polyline points="75,190 150,160 225,129 300,99 375,68 450,38"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,5"/>
+                    <line x1="72" y1="320" x2="75" y2="320" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="324" text-anchor="end" font-size="11" font-family="sans-serif">400</text>
+                    <line x1="72" y1="282" x2="75" y2="282" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="286" text-anchor="end" font-size="11" font-family="sans-serif">600</text>
+                    <line x1="72" y1="244" x2="75" y2="244" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="248" text-anchor="end" font-size="11" font-family="sans-serif">800</text>
+                    <line x1="72" y1="206" x2="75" y2="206" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="210" text-anchor="end" font-size="11" font-family="sans-serif">1,000</text>
+                    <line x1="72" y1="168" x2="75" y2="168" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="172" text-anchor="end" font-size="11" font-family="sans-serif">1,200</text>
+                    <line x1="72" y1="129" x2="75" y2="129" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="133" text-anchor="end" font-size="11" font-family="sans-serif">1,400</text>
+                    <line x1="72" y1="91" x2="75" y2="91" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="95" text-anchor="end" font-size="11" font-family="sans-serif">1,600</text>
+                    <line x1="72" y1="53" x2="75" y2="53" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="57" text-anchor="end" font-size="11" font-family="sans-serif">1,800</text>
+                    <line x1="72" y1="15" x2="75" y2="15" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="19" text-anchor="end" font-size="11" font-family="sans-serif">2,000</text>
+                    <text x="14" y="167" text-anchor="middle" font-size="11" font-family="sans-serif"
+                        transform="rotate(-90, 14, 167)">離陸滑走距離（ft）</text>
+                    <line x1="75"  y1="320" x2="75"  y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="75"  y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−20</text>
+                    <line x1="150" y1="320" x2="150" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−10</text>
+                    <line x1="225" y1="320" x2="225" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="225" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">0</text>
+                    <line x1="300" y1="320" x2="300" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">10</text>
+                    <line x1="375" y1="320" x2="375" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="375" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">20</text>
+                    <line x1="450" y1="320" x2="450" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">30</text>
+                    <text x="262" y="352" text-anchor="middle" font-size="11" font-family="sans-serif">外気温（°C）</text>
+                    <text x="457" y="198" font-size="10" font-family="sans-serif">2,000 lbs</text>
+                    <text x="457" y="156" font-size="10" font-family="sans-serif">2,100 lbs</text>
+                    <text x="457" y="101" font-size="10" font-family="sans-serif">2,200 lbs</text>
+                    <text x="457" y="42"  font-size="10" font-family="sans-serif">2,300 lbs</text>
+                </svg>
+
+                <!-- 3つの表を横並び -->
+                <div class="tables-row">
+                    <!-- 標高補正係数表 -->
+                    <table class="data-table">
+                        <tr><th colspan="2">【標高補正係数表】</th></tr>
+                        <tr><th>標高</th><th>補正係数</th></tr>
+                        <tr><td>海面高度</td><td>1.00</td></tr>
+                        <tr><td>2,000 ft</td><td>1.10</td></tr>
+                        <tr><td>4,000 ft</td><td>1.20</td></tr>
+                        <tr><td>6,000 ft</td><td>1.30</td></tr>
+                        <tr><td>8,000 ft</td><td>1.40</td></tr>
+                        <tr><td>10,000 ft</td><td>1.50</td></tr>
+                    </table>
+
+                    <!-- 風補正係数表 -->
+                    <table class="data-table">
+                        <tr><th colspan="2">【風補正係数表】</th></tr>
+                        <tr><th>風の状態</th><th>補正係数</th></tr>
+                        <tr><td>向かい風20kt</td><td>0.75</td></tr>
+                        <tr><td>向かい風10kt</td><td>0.85</td></tr>
+                        <tr><td>無風</td><td>1.00</td></tr>
+                        <tr><td>追い風10kt</td><td>1.15</td></tr>
+                        <tr><td>追い風20kt</td><td>1.30</td></tr>
+                    </table>
+
+                    <!-- 航空便一覧（風あり） -->
+                    <table class="data-table">
+                        <tr><th colspan="4">【航空便一覧】</th></tr>
+                        <tr><th>便名</th><th>機体重量</th><th>外気温</th><th>風の状態</th></tr>
+                        <tr><td>ALPHA</td><td>2,000 lbs</td><td>0°C</td><td>無風</td></tr>
+                        <tr><td>BRAVO</td><td>2,200 lbs</td><td>10°C</td><td>無風</td></tr>
+                        <tr><td>CHARLIE</td><td>2,100 lbs</td><td>0°C</td><td>向かい風10kt</td></tr>
+                        <tr><td>DELTA</td><td>2,300 lbs</td><td>−20°C</td><td>追い風10kt</td></tr>
+                        <tr><td>ECHO</td><td>2,100 lbs</td><td>−20°C</td><td>向かい風10kt</td></tr>
+                        <tr><td>FOXTROT</td><td>2,000 lbs</td><td>30°C</td><td>追い風20kt</td></tr>
+                        <tr><td>GOLF</td><td>2,200 lbs</td><td>−20°C</td><td>向かい風20kt</td></tr>
+                        <tr><td>HOTEL</td><td>2,300 lbs</td><td>0°C</td><td>無風</td></tr>
+                        <tr><td>INDIA</td><td>2,000 lbs</td><td>20°C</td><td>向かい風10kt</td></tr>
+                        <tr><td>JULIETT</td><td>2,100 lbs</td><td>20°C</td><td>追い風10kt</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="answer-choices">
+                （1）2便　　（2）3便　　（3）4便　　（4）5便　　（5）6便
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2（正解：(4)）</strong><br><br>
+
+            <strong>【解法の手順】</strong><br>
+            標高4,000ftの補正係数は1.20。<br>
+            必要離陸距離 ＝ 性能図読み取り値 × 1.20 × 風補正係数 を計算し、1,400ft以下なら離陸可能。<br><br>
+
+            <strong>【各便の判定】</strong><br>
+            ・ALPHA（2,000 lbs・0°C・無風1.00）：820 × 1.20 × 1.00 ＝ 984ft　≦ 1,400ft　→　<strong>離陸可能</strong><br>
+            ・BRAVO（2,200 lbs・10°C・無風1.00）：1,310 × 1.20 × 1.00 ＝ 1,572ft　＞ 1,400ft　→　離陸不可<br>
+            ・CHARLIE（2,100 lbs・0°C・向かい風10kt 0.85）：980 × 1.20 × 0.85 ＝ 1,000ft　≦ 1,400ft　→　<strong>離陸可能</strong><br>
+            ・DELTA（2,300 lbs・−20°C・追い風10kt 1.15）：1,080 × 1.20 × 1.15 ＝ 1,491ft　＞ 1,400ft　→　離陸不可<br>
+            ・ECHO（2,100 lbs・−20°C・向かい風10kt 0.85）：780 × 1.20 × 0.85 ＝ 796ft　≦ 1,400ft　→　<strong>離陸可能</strong><br>
+            ・FOXTROT（2,000 lbs・30°C・追い風20kt 1.30）：1,060 × 1.20 × 1.30 ＝ 1,654ft　＞ 1,400ft　→　離陸不可<br>
+            ・GOLF（2,200 lbs・−20°C・向かい風20kt 0.75）：920 × 1.20 × 0.75 ＝ 828ft　≦ 1,400ft　→　<strong>離陸可能</strong><br>
+            ・HOTEL（2,300 lbs・0°C・無風1.00）：1,400 × 1.20 × 1.00 ＝ 1,680ft　＞ 1,400ft　→　離陸不可<br>
+            ・INDIA（2,000 lbs・20°C・向かい風10kt 0.85）：980 × 1.20 × 0.85 ＝ 1,000ft　≦ 1,400ft　→　<strong>離陸可能</strong><br>
+            ・JULIETT（2,100 lbs・20°C・追い風10kt 1.15）：1,180 × 1.20 × 1.15 ＝ 1,629ft　＞ 1,400ft　→　離陸不可<br><br>
+
+            <strong>【まとめ】</strong><br>
+            離陸可能な便：ALPHA・CHARLIE・ECHO・GOLF・INDIA の5便。<br><br>
+
+            したがって、正解は<strong>（4）5便</strong>である。<br><br>
+
+            <strong>【補足：風補正の考え方】</strong><br>
+            ・向かい風は相対速度を高め、対気速度を早く達成できるため離陸距離が短縮される。<br>
+            ・追い風は相対速度を下げ、同じ対気速度に達するためにより長い滑走が必要となる。<br>
+            ・DELTAは低温（−20°C）で基準距離は短いが、追い風で1.15倍され1,491ftと超過。<br>
+            ・GOLFは向かい風20kt（0.75倍）の恩恵で、重い2,200 lbsでも828ftと余裕がある。
+        </div>
+    </div>
+</div>
+
+<script>
+    function scalePages() {
+        const pages = document.querySelectorAll('.question-section');
+        const baseWidth = 800;
+        const viewportWidth = window.innerWidth;
+        const padding = 40;
+        const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+        pages.forEach(page => {
+            page.style.transform = `scale(${scale})`;
+            const originalHeight = page.offsetHeight / scale;
+            const scaledHeight = originalHeight * scale;
+            page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+        });
+    }
+    window.addEventListener('load', scalePages);
+    window.addEventListener('resize', scalePages);
+</script>
+</body>
+</html>
