@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 20px; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .figure-container { margin: 12px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .option-table { margin: 10px auto; border-collapse: collapse; font-size: 14px; }
+        .option-table td, .option-table th { padding: 6px 12px; text-align: center; border: 1px solid #555; }
+        .option-table th { background-color: #e8e8e8; font-weight: bold; }
+        .note { font-size: 13px; color: #555; margin: 6px 0; }
+        @media print {
+            body { background-color: white; padding: 0; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; transform: none !important; width: 100%; height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+
+            <!-- 問題文と右図を横並びに配置 -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
+                <div style="flex: 1;">
+                    <div class="question-number">問1．飛行機の進行方向を映し、ある方位面の断面を示す垂直線と、ある高度面の断面を示す水平線が表示されている計器がある。右図は飛行機が設定された方位と高度を適正に飛行している状態を示している。下の4つの表示の間A, B, Cで行われた操作として推測できる正しい組み合わせを1つ選べ。（6点）</div>
+                    <p class="note">※ 垂直線が中央→設定方位上、水平線が中央→設定高度上。各線は偏差に応じて中央からずれる。</p>
+                </div>
+                <!-- 右図: 正常な飛行状態 -->
+                <div style="text-align: center; flex-shrink: 0;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 3px;">（右図）正常な飛行状態</div>
+                    <!--
+                    参考図仕様: 80x80px 計器
+                    垂直線・水平線ともに中央 → 適正飛行
+                    -->
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                        <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                        <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                        <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                        <!-- V=C -->
+                        <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                        <!-- H=C -->
+                        <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 4つの表示 -->
+            <div class="figure-container">
+                <div class="figure-title">【4つの表示の変化】</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 460x120px  viewBox: 0 0 460 120
+                    - 各計器: 80x80px (circle r=34, cx=40, cy=40)
+                    - 計器配置: translate(10,20), (130,20), (250,20), (370,20)
+                    座標規則:
+                      V=L(左): x=24, y=10~70  V=C(中): x=40, y=6~74  V=R(右): x=56, y=10~70
+                      H=U(上): y=24, x=10~70  H=C(中): y=40, x=6~74  H=D(下): y=56, x=10~70
+                    問1表示列: D1=(V=R,H=C), D2=(V=C,H=U), D3=(V=L,H=C), D4=(V=C,H=D)
+                    -->
+                    <svg width="460" height="120" viewBox="0 0 460 120">
+                        <defs>
+                            <marker id="arr1" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                                <path d="M0,0 L0,7 L7,3.5 z" fill="#333"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 表示ラベル -->
+                        <text x="50" y="14" text-anchor="middle" font-size="11" font-family="serif">表示1</text>
+                        <text x="170" y="14" text-anchor="middle" font-size="11" font-family="serif">表示2</text>
+                        <text x="290" y="14" text-anchor="middle" font-size="11" font-family="serif">表示3</text>
+                        <text x="410" y="14" text-anchor="middle" font-size="11" font-family="serif">表示4</text>
+
+                        <!-- 操作ラベル -->
+                        <text x="110" y="112" text-anchor="middle" font-size="13" font-family="serif" font-style="italic">A</text>
+                        <text x="230" y="112" text-anchor="middle" font-size="13" font-family="serif" font-style="italic">B</text>
+                        <text x="350" y="112" text-anchor="middle" font-size="13" font-family="serif" font-style="italic">C</text>
+
+                        <!-- 矢印 A -->
+                        <line x1="95" y1="60" x2="122" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr1)"/>
+                        <!-- 矢印 B -->
+                        <line x1="215" y1="60" x2="242" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr1)"/>
+                        <!-- 矢印 C -->
+                        <line x1="335" y1="60" x2="362" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr1)"/>
+
+                        <!-- 表示1: V=R, H=C （方位左偏・高度正） -->
+                        <g transform="translate(10, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="56" y1="10" x2="56" y2="70" stroke="black" stroke-width="3"/>
+                            <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示2: V=C, H=U （方位正・高度低い） -->
+                        <g transform="translate(130, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="10" y1="24" x2="70" y2="24" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示3: V=L, H=C （方位右偏・高度正） -->
+                        <g transform="translate(250, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="24" y1="10" x2="24" y2="70" stroke="black" stroke-width="3"/>
+                            <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示4: V=C, H=D （方位正・高度高い） -->
+                        <g transform="translate(370, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="10" y1="56" x2="70" y2="56" stroke="black" stroke-width="3"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢表 -->
+            <div class="figure-container" style="border: none;">
+                <table class="option-table">
+                    <thead>
+                        <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>(1)</td><td>左旋回しながら上昇</td><td>左旋回しながら降下</td><td>右旋回しながら降下</td></tr>
+                        <tr><td>(2)</td><td>右旋回しながら上昇</td><td>右旋回しながら降下</td><td>左旋回しながら降下</td></tr>
+                        <tr><td>(3)</td><td>左旋回しながら降下</td><td>左旋回しながら上昇</td><td>右旋回しながら上昇</td></tr>
+                        <tr><td>(4)</td><td>右旋回しながら降下</td><td>右旋回しながら上昇</td><td>左旋回しながら上昇</td></tr>
+                        <tr><td>(5)</td><td>右旋回しながら降下</td><td>左旋回しながら上昇</td><td>右旋回しながら降下</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div><!-- /.question -->
+    </div><!-- /.page-content -->
+</div><!-- /.question-section -->
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1（正解：(4)）</strong><br><br>
+
+            <strong>【計器の読み方】</strong><br>
+            この計器は飛行機の進行方向から見た偏差を表示している。<br>
+            ・垂直線（方位偏差）：中央 = 設定方位上　左偏位 = 機体が設定方位より右にいる　右偏位 = 機体が設定方位より左にいる<br>
+            ・水平線（高度偏差）：中央 = 設定高度上　上偏位 = 機体が設定高度より低い　下偏位 = 機体が設定高度より高い<br><br>
+
+            <strong>【各操作の読み取り】</strong><br>
+            ・表示1 → 表示2（操作A）：<br>
+            　垂直線が右→中央（方位左偏が解消）、水平線が中央→上（設定高度より低くなった）<br>
+            　つまり、機体は右旋回して方位を修正しながら降下して設定高度を下回った。<br>
+            　→ A は「右旋回しながら降下」<br><br>
+            ・表示2 → 表示3（操作B）：<br>
+            　垂直線が中央→左（機体が設定方位より右にずれた）、水平線が上→中央（高度が正常に戻った）<br>
+            　つまり、機体は右旋回で方位を右にずらし、同時に上昇して高度を修正した。<br>
+            　→ B は「右旋回しながら上昇」<br><br>
+            ・表示3 → 表示4（操作C）：<br>
+            　垂直線が左→中央（方位右偏が解消）、水平線が中央→下（設定高度より高くなった）<br>
+            　つまり、機体は左旋回して方位を修正しながら上昇して設定高度を超えた。<br>
+            　→ C は「左旋回しながら上昇」<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) A=左旋回しながら上昇：表示1でV=右（機体が左偏）→左旋回ではV=右のまま（偏差が拡大）。不正解。<br>
+            ・(2) A=右旋回しながら上昇：Aの結果、H=中央→下（高くなる）となりD2のH=上（低い）と一致しない。不正解。<br>
+            ・(3) A=左旋回しながら降下：(1)と同様に方位偏差が解消しない。不正解。<br>
+            ・(4) A=右旋回しながら降下、B=右旋回しながら上昇、C=左旋回しながら上昇：全ステップで整合。<strong>正解。</strong><br>
+            ・(5) B=左旋回しながら上昇：表示2でV=中央→左旋回するとV=右となり、D3のV=左と一致しない。不正解。<br><br>
+
+            したがって、正解は<strong>(4)</strong>である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 8px;">
+                <div style="flex: 1;">
+                    <div class="question-number">問2．問1と同じ計器を使用している。右図は飛行機が設定された方位と高度を適正に飛行している状態を示している。下の5つの表示の間A, B, C, Dで行われた操作として推測できる正しい組み合わせを1つ選べ。（6点）</div>
+                </div>
+                <!-- 右図 -->
+                <div style="text-align: center; flex-shrink: 0;">
+                    <div style="font-size: 12px; font-weight: bold; margin-bottom: 3px;">（右図）正常な飛行状態</div>
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                        <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                        <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                        <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                        <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                        <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                        <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 5つの表示 -->
+            <div class="figure-container">
+                <div class="figure-title">【5つの表示の変化】</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 540x120px  viewBox: 0 0 540 120
+                    - 各計器: 80x80px
+                    - 計器配置: translate(10,20), (120,20), (230,20), (340,20), (450,20)
+                    問2表示列: D1=(V=R,H=C), D2=(V=C,H=D), D3=(V=L,H=C), D4=(V=C,H=U), D5=(V=C,H=C)
+                    -->
+                    <svg width="540" height="120" viewBox="0 0 540 120">
+                        <defs>
+                            <marker id="arr2" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+                                <path d="M0,0 L0,7 L7,3.5 z" fill="#333"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 表示ラベル -->
+                        <text x="50" y="14" text-anchor="middle" font-size="10" font-family="serif">表示1</text>
+                        <text x="160" y="14" text-anchor="middle" font-size="10" font-family="serif">表示2</text>
+                        <text x="270" y="14" text-anchor="middle" font-size="10" font-family="serif">表示3</text>
+                        <text x="380" y="14" text-anchor="middle" font-size="10" font-family="serif">表示4</text>
+                        <text x="490" y="14" text-anchor="middle" font-size="10" font-family="serif">表示5</text>
+
+                        <!-- 操作ラベル -->
+                        <text x="105" y="112" text-anchor="middle" font-size="12" font-family="serif" font-style="italic">A</text>
+                        <text x="215" y="112" text-anchor="middle" font-size="12" font-family="serif" font-style="italic">B</text>
+                        <text x="325" y="112" text-anchor="middle" font-size="12" font-family="serif" font-style="italic">C</text>
+                        <text x="435" y="112" text-anchor="middle" font-size="12" font-family="serif" font-style="italic">D</text>
+
+                        <!-- 矢印 -->
+                        <line x1="95" y1="60" x2="112" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr2)"/>
+                        <line x1="205" y1="60" x2="222" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr2)"/>
+                        <line x1="315" y1="60" x2="332" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr2)"/>
+                        <line x1="425" y1="60" x2="442" y2="60" stroke="#333" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+                        <!-- 表示1: V=R, H=C （方位左偏・高度正） -->
+                        <g transform="translate(10, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="56" y1="10" x2="56" y2="70" stroke="black" stroke-width="3"/>
+                            <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示2: V=C, H=D （方位正・高度高い） -->
+                        <g transform="translate(120, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="10" y1="56" x2="70" y2="56" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示3: V=L, H=C （方位右偏・高度正） -->
+                        <g transform="translate(230, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="24" y1="10" x2="24" y2="70" stroke="black" stroke-width="3"/>
+                            <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示4: V=C, H=U （方位正・高度低い） -->
+                        <g transform="translate(340, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="10" y1="24" x2="70" y2="24" stroke="black" stroke-width="3"/>
+                        </g>
+
+                        <!-- 表示5: V=C, H=C （方位正・高度正 = 適正飛行） -->
+                        <g transform="translate(450, 20)">
+                            <circle cx="40" cy="40" r="34" fill="white" stroke="#333" stroke-width="2"/>
+                            <line x1="7" y1="40" x2="73" y2="40" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <line x1="40" y1="7" x2="40" y2="73" stroke="#bbb" stroke-width="0.8" stroke-dasharray="3,3"/>
+                            <circle cx="40" cy="40" r="2.5" fill="#aaa"/>
+                            <line x1="40" y1="6" x2="40" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="6" y1="40" x2="74" y2="40" stroke="black" stroke-width="3"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢表 -->
+            <div class="figure-container" style="border: none;">
+                <table class="option-table">
+                    <thead>
+                        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>(1)</td><td>左旋回しながら降下</td><td>左旋回しながら上昇</td><td>右旋回しながら上昇</td><td>降下</td></tr>
+                        <tr><td>(2)</td><td>右旋回しながら上昇</td><td>右旋回しながら降下</td><td>左旋回しながら降下</td><td>上昇</td></tr>
+                        <tr><td>(3)</td><td>右旋回しながら降下</td><td>右旋回しながら上昇</td><td>左旋回しながら上昇</td><td>降下</td></tr>
+                        <tr><td>(4)</td><td>左旋回しながら上昇</td><td>左旋回しながら降下</td><td>右旋回しながら降下</td><td>上昇</td></tr>
+                        <tr><td>(5)</td><td>右旋回しながら上昇</td><td>左旋回しながら降下</td><td>右旋回しながら降下</td><td>降下</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div><!-- /.question -->
+    </div><!-- /.page-content -->
+</div><!-- /.question-section -->
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2（正解：(2)）</strong><br><br>
+
+            <strong>【各操作の読み取り】</strong><br>
+            ・表示1 → 表示2（操作A）：<br>
+            　垂直線が右→中央（方位左偏が解消）、水平線が中央→下（設定高度より高くなった）<br>
+            　機体は右旋回で方位を修正しながら上昇して設定高度を超えた。→ A は「右旋回しながら上昇」<br><br>
+            ・表示2 → 表示3（操作B）：<br>
+            　垂直線が中央→左（機体が設定方位より右にずれた）、水平線が下→中央（高度が正常に戻った）<br>
+            　機体は右旋回で方位を右にずらし、同時に降下して高度を修正した。→ B は「右旋回しながら降下」<br><br>
+            ・表示3 → 表示4（操作C）：<br>
+            　垂直線が左→中央（方位右偏が解消）、水平線が中央→上（設定高度より低くなった）<br>
+            　機体は左旋回で方位を修正しながら降下して設定高度を下回った。→ C は「左旋回しながら降下」<br><br>
+            ・表示4 → 表示5（操作D）：<br>
+            　垂直線が中央→中央（方位変化なし）、水平線が上→中央（高度が正常に戻った）<br>
+            　機体は旋回せず上昇して設定高度に戻った。→ D は「上昇」<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) A=左旋回しながら降下：表示1でV=右（機体が左偏）→左旋回ではV=右のまま（偏差が拡大）。不正解。<br>
+            ・(2) A=右旋回しながら上昇、B=右旋回しながら降下、C=左旋回しながら降下、D=上昇：全ステップで整合。<strong>正解。</strong><br>
+            ・(3) A=右旋回しながら降下：Aの結果、H=中央→上（低くなる）となりD2のH=下（高い）と一致しない。不正解。<br>
+            ・(4) A=左旋回しながら上昇：(1)と同様に方位偏差が解消しない。不正解。<br>
+            ・(5) B=左旋回しながら降下：表示2でV=中央→左旋回するとV=右となり、D3のV=左と一致しない。不正解。<br><br>
+
+            したがって、正解は<strong>(2)</strong>である。
+        </div>
+    </div>
+</div>
+
+<script>
+    function scalePages() {
+        const pages = document.querySelectorAll('.question-section');
+        const baseWidth = 800;
+        const scale = Math.min(1, (window.innerWidth - 40) / baseWidth);
+        pages.forEach(page => {
+            page.style.transform = `scale(${scale})`;
+            const originalHeight = page.offsetHeight / scale;
+            const scaledHeight = originalHeight * scale;
+            page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+        });
+    }
+    window.addEventListener('load', scalePages);
+    window.addEventListener('resize', scalePages);
+</script>
+</body>
+</html>
