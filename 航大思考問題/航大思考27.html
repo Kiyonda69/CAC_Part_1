@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+
+        .question-text { margin-bottom: 15px; text-align: justify; }
+
+        .figure-container {
+            margin: 15px 0; padding: 15px;
+            background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px;
+            text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+
+        svg { max-width: 100%; height: auto; }
+
+        .charts-row {
+            display: flex; gap: 15px; justify-content: center; margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .chart-block { flex: 1; min-width: 260px; }
+        .chart-block .figure-title { font-size: 13px; margin-bottom: 4px; }
+
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 20px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+
+        .explanation-section {
+            display: none; margin-top: 25px; padding: 20px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 15px; margin-bottom: 12px;
+            padding-bottom: 8px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .explanation-content p { margin-bottom: 4px; }
+
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下の資料は、A社・B社・C社の3社における2020年から2024年までの業績推移を示している。【資料1】は売上高（億円）の推移、【資料2】は営業利益率（%）の推移を表している。これらの資料に関する記述として正しいものを、(1)～(5)の中から1つ選べ。
+        </div>
+
+        <div class="figure-container">
+            <div class="charts-row">
+                <!-- 資料1: 売上高の推移（棒グラフ） -->
+                <div class="chart-block">
+                    <div class="figure-title">【資料1】売上高の推移（億円）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 480×265px
+                    - viewBox: 0 0 480 265
+                    - チャート領域: x=60〜455（395px幅）、y=15〜215（200px高）
+                    - Y軸変換: y = 215 - value × 0.8（スケール: 200/250）
+                    - 棒幅: 18px、グループ幅: 79px、グループ内間隔: 2px
+                    - 各年グループ開始x: 2020=60, 2021=139, 2022=218, 2023=297, 2024=376
+                    - 各会社バー位置: 開始+11, +31, +51
+                    -->
+                    <svg width="480" height="265" viewBox="0 0 480 265">
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="175" x2="455" y2="175" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="135" x2="455" y2="135" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="95"  x2="455" y2="95"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="55"  x2="455" y2="55"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="15"  x2="455" y2="15"  stroke="#ccc" stroke-width="0.7"/>
+                        <!-- チャート枠 -->
+                        <rect x="60" y="15" width="395" height="200" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <!-- A社バー（濃グレー #333）-->
+                        <rect x="71"  y="71"  width="18" height="144" fill="#333"/>
+                        <rect x="150" y="63"  width="18" height="152" fill="#333"/>
+                        <rect x="229" y="55"  width="18" height="160" fill="#333"/>
+                        <rect x="308" y="59"  width="18" height="156" fill="#333"/>
+                        <rect x="387" y="39"  width="18" height="176" fill="#333"/>
+                        <!-- B社バー（中グレー #888）-->
+                        <rect x="91"  y="119" width="18" height="96"  fill="#888"/>
+                        <rect x="170" y="111" width="18" height="104" fill="#888"/>
+                        <rect x="249" y="115" width="18" height="100" fill="#888"/>
+                        <rect x="328" y="103" width="18" height="112" fill="#888"/>
+                        <rect x="407" y="95"  width="18" height="120" fill="#888"/>
+                        <!-- C社バー（薄グレー #ccc、黒枠）-->
+                        <rect x="111" y="151" width="18" height="64"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="190" y="143" width="18" height="72"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="269" y="139" width="18" height="76"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="348" y="135" width="18" height="80"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="427" y="127" width="18" height="88"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <!-- Y軸ラベル -->
+                        <text x="55" y="219" text-anchor="end" font-size="10" font-family="sans-serif">0</text>
+                        <text x="55" y="179" text-anchor="end" font-size="10" font-family="sans-serif">50</text>
+                        <text x="55" y="139" text-anchor="end" font-size="10" font-family="sans-serif">100</text>
+                        <text x="55" y="99"  text-anchor="end" font-size="10" font-family="sans-serif">150</text>
+                        <text x="55" y="59"  text-anchor="end" font-size="10" font-family="sans-serif">200</text>
+                        <text x="55" y="19"  text-anchor="end" font-size="10" font-family="sans-serif">250</text>
+                        <!-- Y軸タイトル -->
+                        <text x="12" y="115" text-anchor="middle" font-size="10" font-family="sans-serif"
+                            transform="rotate(-90, 12, 115)">売上高（億円）</text>
+                        <!-- X軸目盛り -->
+                        <line x1="100" y1="215" x2="100" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="100" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2020</text>
+                        <line x1="179" y1="215" x2="179" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="179" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2021</text>
+                        <line x1="258" y1="215" x2="258" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="258" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2022</text>
+                        <line x1="337" y1="215" x2="337" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="337" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2023</text>
+                        <line x1="416" y1="215" x2="416" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="416" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2024</text>
+                        <text x="258" y="244" text-anchor="middle" font-size="10" font-family="sans-serif">（年）</text>
+                        <!-- 凡例 -->
+                        <rect x="100" y="252" width="12" height="10" fill="#333"/>
+                        <text x="115" y="262" font-size="11" font-family="sans-serif">A社</text>
+                        <rect x="175" y="252" width="12" height="10" fill="#888"/>
+                        <text x="190" y="262" font-size="11" font-family="sans-serif">B社</text>
+                        <rect x="250" y="252" width="12" height="10" fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <text x="265" y="262" font-size="11" font-family="sans-serif">C社</text>
+                    </svg>
+                </div>
+
+                <!-- 資料2: 営業利益率の推移（折れ線グラフ） -->
+                <div class="chart-block">
+                    <div class="figure-title">【資料2】営業利益率の推移（%）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 480×265px
+                    - viewBox: 0 0 480 265
+                    - チャート領域: x=60〜455（395px幅）、y=12〜172（160px高）
+                    - Y軸変換: y = 172 - rate × (160/12) ≈ 172 - rate × 13.33
+                    - Y軸範囲: 0〜12%
+                    - X軸の年位置: 2020=100, 2021=179, 2022=258, 2023=337, 2024=416
+                    - A社: 8,9,10,8,11% → y=65,52,39,65,25
+                    - B社: 10,9,8,10,11% → y=39,52,65,39,25
+                    - C社: 6,7,8,6,10% → y=92,79,65,92,39
+                    -->
+                    <svg width="480" height="265" viewBox="0 0 480 265">
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="172" x2="455" y2="172" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="145" x2="455" y2="145" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="119" x2="455" y2="119" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="92"  x2="455" y2="92"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="65"  x2="455" y2="65"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="39"  x2="455" y2="39"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="12"  x2="455" y2="12"  stroke="#ccc" stroke-width="0.7"/>
+                        <!-- チャート枠 -->
+                        <rect x="60" y="12" width="395" height="160" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <!-- A社 折れ線（実線、黒）-->
+                        <polyline points="100,65 179,52 258,39 337,65 416,25"
+                            fill="none" stroke="#000" stroke-width="2.5"/>
+                        <circle cx="100" cy="65" r="4" fill="#000"/>
+                        <circle cx="179" cy="52" r="4" fill="#000"/>
+                        <circle cx="258" cy="39" r="4" fill="#000"/>
+                        <circle cx="337" cy="65" r="4" fill="#000"/>
+                        <circle cx="416" cy="25" r="4" fill="#000"/>
+                        <!-- B社 折れ線（破線、濃グレー）-->
+                        <polyline points="100,39 179,52 258,65 337,39 416,25"
+                            fill="none" stroke="#555" stroke-width="2" stroke-dasharray="8,4"/>
+                        <rect x="96"  y="35"  width="8" height="8" fill="#555"/>
+                        <rect x="175" y="48"  width="8" height="8" fill="#555"/>
+                        <rect x="254" y="61"  width="8" height="8" fill="#555"/>
+                        <rect x="333" y="35"  width="8" height="8" fill="#555"/>
+                        <rect x="412" y="21"  width="8" height="8" fill="#555"/>
+                        <!-- C社 折れ線（点線、薄グレー）-->
+                        <polyline points="100,92 179,79 258,65 337,92 416,39"
+                            fill="none" stroke="#999" stroke-width="2" stroke-dasharray="3,5"/>
+                        <polygon points="100,88 104,96 96,96" fill="#999"/>
+                        <polygon points="179,75 183,83 175,83" fill="#999"/>
+                        <polygon points="258,61 262,69 254,69" fill="#999"/>
+                        <polygon points="337,88 341,96 333,96" fill="#999"/>
+                        <polygon points="416,35 420,43 412,43" fill="#999"/>
+                        <!-- Y軸ラベル -->
+                        <text x="55" y="176" text-anchor="end" font-size="10" font-family="sans-serif">0</text>
+                        <text x="55" y="149" text-anchor="end" font-size="10" font-family="sans-serif">2</text>
+                        <text x="55" y="123" text-anchor="end" font-size="10" font-family="sans-serif">4</text>
+                        <text x="55" y="96"  text-anchor="end" font-size="10" font-family="sans-serif">6</text>
+                        <text x="55" y="69"  text-anchor="end" font-size="10" font-family="sans-serif">8</text>
+                        <text x="55" y="43"  text-anchor="end" font-size="10" font-family="sans-serif">10</text>
+                        <text x="55" y="16"  text-anchor="end" font-size="10" font-family="sans-serif">12</text>
+                        <!-- Y軸タイトル -->
+                        <text x="12" y="92" text-anchor="middle" font-size="10" font-family="sans-serif"
+                            transform="rotate(-90, 12, 92)">営業利益率（%）</text>
+                        <!-- X軸目盛り -->
+                        <line x1="100" y1="172" x2="100" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="100" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2020</text>
+                        <line x1="179" y1="172" x2="179" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="179" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2021</text>
+                        <line x1="258" y1="172" x2="258" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="258" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2022</text>
+                        <line x1="337" y1="172" x2="337" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="337" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2023</text>
+                        <line x1="416" y1="172" x2="416" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="416" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2024</text>
+                        <text x="258" y="201" text-anchor="middle" font-size="10" font-family="sans-serif">（年）</text>
+                        <!-- 凡例 -->
+                        <line x1="85"  y1="217" x2="105" y2="217" stroke="#000" stroke-width="2.5"/>
+                        <circle cx="95" cy="217" r="4" fill="#000"/>
+                        <text x="110" y="222" font-size="11" font-family="sans-serif">A社</text>
+                        <line x1="165" y1="217" x2="185" y2="217" stroke="#555" stroke-width="2" stroke-dasharray="8,4"/>
+                        <rect x="171" y="213" width="8" height="8" fill="#555"/>
+                        <text x="190" y="222" font-size="11" font-family="sans-serif">B社</text>
+                        <line x1="245" y1="217" x2="265" y2="217" stroke="#999" stroke-width="2" stroke-dasharray="3,5"/>
+                        <polygon points="255,212 259,220 251,220" fill="#999"/>
+                        <text x="270" y="222" font-size="11" font-family="sans-serif">C社</text>
+                        <!-- データ値補助表 -->
+                        <text x="60"  y="240" font-size="9" font-family="sans-serif" fill="#555">2020:</text>
+                        <text x="90"  y="240" font-size="9" font-family="sans-serif" fill="#333">A社8%</text>
+                        <text x="150" y="240" font-size="9" font-family="sans-serif" fill="#555">B社10%</text>
+                        <text x="215" y="240" font-size="9" font-family="sans-serif" fill="#888">C社6%</text>
+                        <text x="60"  y="252" font-size="9" font-family="sans-serif" fill="#555">2022:</text>
+                        <text x="90"  y="252" font-size="9" font-family="sans-serif" fill="#333">A社10%</text>
+                        <text x="150" y="252" font-size="9" font-family="sans-serif" fill="#555">B社8%</text>
+                        <text x="215" y="252" font-size="9" font-family="sans-serif" fill="#888">C社8%</text>
+                        <text x="285" y="240" font-size="9" font-family="sans-serif" fill="#555">2024:</text>
+                        <text x="315" y="240" font-size="9" font-family="sans-serif" fill="#333">A社11%</text>
+                        <text x="375" y="240" font-size="9" font-family="sans-serif" fill="#555">B社11%</text>
+                        <text x="285" y="252" font-size="9" font-family="sans-serif" fill="#555">2023:</text>
+                        <text x="315" y="252" font-size="9" font-family="sans-serif" fill="#333">A社8%</text>
+                        <text x="375" y="252" font-size="9" font-family="sans-serif" fill="#555">B社10%</text>
+                        <text x="440" y="252" font-size="9" font-family="sans-serif" fill="#888">C社6%</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 選択肢（テキストボタン） -->
+        <!-- 正解は(2) -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">(1)</span>調査期間を通じて、A社の売上高は常にB社とC社の合計を上回っていた。
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">(2)</span>B社の売上高が前年より減少した年は、調査期間全体で2022年の1回だけである。
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">(3)</span>2024年の3社の売上高の合計は、500億円を超えている。
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">(4)</span>2022年の営業利益率が3社の中で最も高いのは、C社である。
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">(5)</span>C社の営業利益は、調査期間を通じて毎年増加した。
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【資料の読み取り】</strong></p>
+                <p>売上高（億円）：A社 180→190→200→195→220 / B社 120→130→125→140→150 / C社 80→90→95→100→110</p>
+                <p>営業利益率（%）：A社 8→9→10→8→11 / B社 10→9→8→10→11 / C社 6→7→8→6→10</p>
+                <br>
+                <p><strong>【各選択肢の検討】</strong></p>
+                <p><strong>(1) 誤り。</strong> B社+C社の合計は常にA社を上回っている。</p>
+                <p>　例：2020年はA社=180億、B社+C社=200億（A社が下回っている）。</p>
+                <br>
+                <p><strong>(2) 正しい。</strong> B社の売上高は120→130（増加）→125（<u>減少</u>）→140（増加）→150（増加）と推移する。</p>
+                <p>　前年比で減少した年は2022年のみであり、正しい記述である。</p>
+                <br>
+                <p><strong>(3) 誤り。</strong> 2024年の3社合計 = 220+150+110 = 480億円 ＜ 500億円。</p>
+                <br>
+                <p><strong>(4) 誤り。</strong> 2022年の営業利益率はA社=10%が最高（B社=8%、C社=8%）。</p>
+                <p>　C社ではなくA社が最も高い。</p>
+                <br>
+                <p><strong>(5) 誤り。</strong> C社の営業利益（＝売上高×営業利益率）は以下の通り。</p>
+                <p>　80×6%=4.8、90×7%=6.3、95×8%=7.6、100×6%=6.0（減少）、110×10%=11.0</p>
+                <p>　2023年に前年比で減少しており、毎年増加とは言えない。</p>
+                <br>
+                <p>したがって、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下の資料は、P社・Q社・R社の3社における2020年から2024年までの業績推移を示している。【資料1】は売上高（百万円）の推移、【資料2】は売上総利益率（%）の推移を表している。これらの資料に関する記述として正しいものを、(1)～(5)の中から1つ選べ。
+        </div>
+
+        <div class="figure-container">
+            <div class="charts-row">
+                <!-- 資料1: 売上高の推移（棒グラフ） -->
+                <div class="chart-block">
+                    <div class="figure-title">【資料1】売上高の推移（百万円）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 480×265px
+                    - viewBox: 0 0 480 265
+                    - チャート領域: x=60〜455、y=15〜215（200px高）
+                    - Y軸: 0〜600百万円、スケール=200/600≈0.333px/百万
+                    - Y軸変換: y = 215 - value × 0.333
+                    - P社: 500,520,550,530,580 → h=167,173,183,177,193; top y=48,42,32,38,22
+                    - Q社: 350,360,340,380,400 → h=117,120,113,127,133; top y=98,95,102,88,82
+                    - R社: 200,220,240,250,260 → h=67,73,80,83,87; top y=148,142,135,132,128
+                    -->
+                    <svg width="480" height="265" viewBox="0 0 480 265">
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="182" x2="455" y2="182" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="148" x2="455" y2="148" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="115" x2="455" y2="115" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="82"  x2="455" y2="82"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="48"  x2="455" y2="48"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="15"  x2="455" y2="15"  stroke="#ccc" stroke-width="0.7"/>
+                        <!-- チャート枠 -->
+                        <rect x="60" y="15" width="395" height="200" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <!-- P社バー（濃グレー #333）-->
+                        <rect x="71"  y="48"  width="18" height="167" fill="#333"/>
+                        <rect x="150" y="42"  width="18" height="173" fill="#333"/>
+                        <rect x="229" y="32"  width="18" height="183" fill="#333"/>
+                        <rect x="308" y="38"  width="18" height="177" fill="#333"/>
+                        <rect x="387" y="22"  width="18" height="193" fill="#333"/>
+                        <!-- Q社バー（中グレー #888）-->
+                        <rect x="91"  y="98"  width="18" height="117" fill="#888"/>
+                        <rect x="170" y="95"  width="18" height="120" fill="#888"/>
+                        <rect x="249" y="102" width="18" height="113" fill="#888"/>
+                        <rect x="328" y="88"  width="18" height="127" fill="#888"/>
+                        <rect x="407" y="82"  width="18" height="133" fill="#888"/>
+                        <!-- R社バー（薄グレー #ccc、黒枠）-->
+                        <rect x="111" y="148" width="18" height="67"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="190" y="142" width="18" height="73"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="269" y="135" width="18" height="80"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="348" y="132" width="18" height="83"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <rect x="427" y="128" width="18" height="87"  fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <!-- Y軸ラベル -->
+                        <text x="55" y="219" text-anchor="end" font-size="10" font-family="sans-serif">0</text>
+                        <text x="55" y="186" text-anchor="end" font-size="10" font-family="sans-serif">100</text>
+                        <text x="55" y="152" text-anchor="end" font-size="10" font-family="sans-serif">200</text>
+                        <text x="55" y="119" text-anchor="end" font-size="10" font-family="sans-serif">300</text>
+                        <text x="55" y="86"  text-anchor="end" font-size="10" font-family="sans-serif">400</text>
+                        <text x="55" y="52"  text-anchor="end" font-size="10" font-family="sans-serif">500</text>
+                        <text x="55" y="19"  text-anchor="end" font-size="10" font-family="sans-serif">600</text>
+                        <!-- Y軸タイトル -->
+                        <text x="12" y="115" text-anchor="middle" font-size="10" font-family="sans-serif"
+                            transform="rotate(-90, 12, 115)">売上高（百万円）</text>
+                        <!-- X軸目盛り -->
+                        <line x1="100" y1="215" x2="100" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="100" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2020</text>
+                        <line x1="179" y1="215" x2="179" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="179" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2021</text>
+                        <line x1="258" y1="215" x2="258" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="258" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2022</text>
+                        <line x1="337" y1="215" x2="337" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="337" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2023</text>
+                        <line x1="416" y1="215" x2="416" y2="218" stroke="#333" stroke-width="1"/>
+                        <text x="416" y="228" text-anchor="middle" font-size="10" font-family="sans-serif">2024</text>
+                        <text x="258" y="244" text-anchor="middle" font-size="10" font-family="sans-serif">（年）</text>
+                        <!-- 凡例 -->
+                        <rect x="100" y="252" width="12" height="10" fill="#333"/>
+                        <text x="115" y="262" font-size="11" font-family="sans-serif">P社</text>
+                        <rect x="175" y="252" width="12" height="10" fill="#888"/>
+                        <text x="190" y="262" font-size="11" font-family="sans-serif">Q社</text>
+                        <rect x="250" y="252" width="12" height="10" fill="#ccc" stroke="#555" stroke-width="0.8"/>
+                        <text x="265" y="262" font-size="11" font-family="sans-serif">R社</text>
+                    </svg>
+                </div>
+
+                <!-- 資料2: 売上総利益率の推移（折れ線グラフ） -->
+                <div class="chart-block">
+                    <div class="figure-title">【資料2】売上総利益率の推移（%）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 480×265px
+                    - viewBox: 0 0 480 265
+                    - チャート領域: x=60〜455、y=12〜172（160px高）
+                    - Y軸: 0〜40%、スケール=4px/%
+                    - Y軸変換: y = 172 - rate × 4
+                    - X軸の年位置: 2020=100, 2021=179, 2022=258, 2023=337, 2024=416
+                    - P社: 30,32,35,26,33 → y=52,44,32,68,40
+                    - Q社: 25,24,22,24,30 → y=72,76,84,76,52
+                    - R社: 20,22,24,20,25 → y=92,84,76,92,72
+                    -->
+                    <svg width="480" height="265" viewBox="0 0 480 265">
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="172" x2="455" y2="172" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="132" x2="455" y2="132" stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="92"  x2="455" y2="92"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="52"  x2="455" y2="52"  stroke="#ccc" stroke-width="0.7"/>
+                        <line x1="60" y1="12"  x2="455" y2="12"  stroke="#ccc" stroke-width="0.7"/>
+                        <!-- チャート枠 -->
+                        <rect x="60" y="12" width="395" height="160" fill="none" stroke="#333" stroke-width="1.5"/>
+                        <!-- P社 折れ線（実線、黒）-->
+                        <polyline points="100,52 179,44 258,32 337,68 416,40"
+                            fill="none" stroke="#000" stroke-width="2.5"/>
+                        <circle cx="100" cy="52" r="4" fill="#000"/>
+                        <circle cx="179" cy="44" r="4" fill="#000"/>
+                        <circle cx="258" cy="32" r="4" fill="#000"/>
+                        <circle cx="337" cy="68" r="4" fill="#000"/>
+                        <circle cx="416" cy="40" r="4" fill="#000"/>
+                        <!-- Q社 折れ線（破線）-->
+                        <polyline points="100,72 179,76 258,84 337,76 416,52"
+                            fill="none" stroke="#555" stroke-width="2" stroke-dasharray="8,4"/>
+                        <rect x="96"  y="68"  width="8" height="8" fill="#555"/>
+                        <rect x="175" y="72"  width="8" height="8" fill="#555"/>
+                        <rect x="254" y="80"  width="8" height="8" fill="#555"/>
+                        <rect x="333" y="72"  width="8" height="8" fill="#555"/>
+                        <rect x="412" y="48"  width="8" height="8" fill="#555"/>
+                        <!-- R社 折れ線（点線）-->
+                        <polyline points="100,92 179,84 258,76 337,92 416,72"
+                            fill="none" stroke="#999" stroke-width="2" stroke-dasharray="3,5"/>
+                        <polygon points="100,88 104,96 96,96" fill="#999"/>
+                        <polygon points="179,80 183,88 175,88" fill="#999"/>
+                        <polygon points="258,72 262,80 254,80" fill="#999"/>
+                        <polygon points="337,88 341,96 333,96" fill="#999"/>
+                        <polygon points="416,68 420,76 412,76" fill="#999"/>
+                        <!-- Y軸ラベル -->
+                        <text x="55" y="176" text-anchor="end" font-size="10" font-family="sans-serif">0</text>
+                        <text x="55" y="136" text-anchor="end" font-size="10" font-family="sans-serif">10</text>
+                        <text x="55" y="96"  text-anchor="end" font-size="10" font-family="sans-serif">20</text>
+                        <text x="55" y="56"  text-anchor="end" font-size="10" font-family="sans-serif">30</text>
+                        <text x="55" y="16"  text-anchor="end" font-size="10" font-family="sans-serif">40</text>
+                        <!-- Y軸タイトル -->
+                        <text x="12" y="92" text-anchor="middle" font-size="10" font-family="sans-serif"
+                            transform="rotate(-90, 12, 92)">売上総利益率（%）</text>
+                        <!-- X軸目盛り -->
+                        <line x1="100" y1="172" x2="100" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="100" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2020</text>
+                        <line x1="179" y1="172" x2="179" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="179" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2021</text>
+                        <line x1="258" y1="172" x2="258" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="258" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2022</text>
+                        <line x1="337" y1="172" x2="337" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="337" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2023</text>
+                        <line x1="416" y1="172" x2="416" y2="175" stroke="#333" stroke-width="1"/>
+                        <text x="416" y="185" text-anchor="middle" font-size="10" font-family="sans-serif">2024</text>
+                        <text x="258" y="201" text-anchor="middle" font-size="10" font-family="sans-serif">（年）</text>
+                        <!-- 凡例 -->
+                        <line x1="85"  y1="217" x2="105" y2="217" stroke="#000" stroke-width="2.5"/>
+                        <circle cx="95" cy="217" r="4" fill="#000"/>
+                        <text x="110" y="222" font-size="11" font-family="sans-serif">P社</text>
+                        <line x1="165" y1="217" x2="185" y2="217" stroke="#555" stroke-width="2" stroke-dasharray="8,4"/>
+                        <rect x="171" y="213" width="8" height="8" fill="#555"/>
+                        <text x="190" y="222" font-size="11" font-family="sans-serif">Q社</text>
+                        <line x1="245" y1="217" x2="265" y2="217" stroke="#999" stroke-width="2" stroke-dasharray="3,5"/>
+                        <polygon points="255,212 259,220 251,220" fill="#999"/>
+                        <text x="270" y="222" font-size="11" font-family="sans-serif">R社</text>
+                        <!-- データ値補助表 -->
+                        <text x="60"  y="240" font-size="9" font-family="sans-serif" fill="#555">2020:</text>
+                        <text x="90"  y="240" font-size="9" font-family="sans-serif" fill="#333">P社30%</text>
+                        <text x="155" y="240" font-size="9" font-family="sans-serif" fill="#555">Q社25%</text>
+                        <text x="220" y="240" font-size="9" font-family="sans-serif" fill="#888">R社20%</text>
+                        <text x="60"  y="252" font-size="9" font-family="sans-serif" fill="#555">2022:</text>
+                        <text x="90"  y="252" font-size="9" font-family="sans-serif" fill="#333">P社35%</text>
+                        <text x="155" y="252" font-size="9" font-family="sans-serif" fill="#555">Q社22%</text>
+                        <text x="220" y="252" font-size="9" font-family="sans-serif" fill="#888">R社24%</text>
+                        <text x="285" y="240" font-size="9" font-family="sans-serif" fill="#555">2023:</text>
+                        <text x="315" y="240" font-size="9" font-family="sans-serif" fill="#333">P社26%</text>
+                        <text x="380" y="240" font-size="9" font-family="sans-serif" fill="#555">Q社24%</text>
+                        <text x="285" y="252" font-size="9" font-family="sans-serif" fill="#555">2024:</text>
+                        <text x="315" y="252" font-size="9" font-family="sans-serif" fill="#333">P社33%</text>
+                        <text x="380" y="252" font-size="9" font-family="sans-serif" fill="#555">Q社30%</text>
+                        <text x="440" y="252" font-size="9" font-family="sans-serif" fill="#888">R社25%</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 選択肢（テキストボタン） -->
+        <!-- 正解は(4) -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                <span class="option-label">(1)</span>2022年において、Q社の売上高は前年より減少したが、売上総利益率は前年より上昇した。
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                <span class="option-label">(2)</span>調査期間において、P社の売上高が前年より減少した年は存在しない。
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                <span class="option-label">(3)</span>2024年の3社の売上総利益の合計は、400百万円を超えている。
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                <span class="option-label">(4)</span>R社の売上高は、調査期間を通じて毎年増加した。
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                <span class="option-label">(5)</span>2023年の3社の売上総利益率の平均は、2020年の3社の平均より高い。
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p><strong>【資料の読み取り】</strong></p>
+                <p>売上高（百万円）：P社 500→520→550→530→580 / Q社 350→360→340→380→400 / R社 200→220→240→250→260</p>
+                <p>売上総利益率（%）：P社 30→32→35→26→33 / Q社 25→24→22→24→30 / R社 20→22→24→20→25</p>
+                <br>
+                <p><strong>【各選択肢の検討】</strong></p>
+                <p><strong>(1) 誤り。</strong> Q社の売上高は2021年の360から2022年の340へ減少（正しい）。しかし売上総利益率は24%から22%へ低下しており、上昇していない。両条件ともに成立しないため誤り。</p>
+                <br>
+                <p><strong>(2) 誤り。</strong> P社の売上高は500→520→550→530（減少）→580と推移しており、2023年に前年比で減少している。「存在しない」は誤り。</p>
+                <br>
+                <p><strong>(3) 誤り。</strong> 2024年の売上総利益を計算する。</p>
+                <p>　P社：580×33% = 191.4百万円</p>
+                <p>　Q社：400×30% = 120.0百万円</p>
+                <p>　R社：260×25% = 65.0百万円</p>
+                <p>　合計：376.4百万円 ＜ 400百万円 → 400百万円を超えていない。</p>
+                <br>
+                <p><strong>(4) 正しい。</strong> R社の売上高：200→220→240→250→260と、毎年増加している。</p>
+                <br>
+                <p><strong>(5) 誤り。</strong></p>
+                <p>　2020年の平均：(30+25+20)÷3 = 25.0%</p>
+                <p>　2023年の平均：(26+24+20)÷3 ≈ 23.3%</p>
+                <p>　2023年の平均（23.3%）は2020年の平均（25.0%）より低い。</p>
+                <br>
+                <p>したがって、正解は<strong>(4)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考27/問${questionNum}`,
+                    selectedOption,
+                    correctOption,
+                    isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
