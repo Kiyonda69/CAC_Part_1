@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+
+        .question-text { margin-bottom: 15px; text-align: justify; }
+
+        .figure-container {
+            margin: 15px 0; padding: 15px;
+            background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px;
+            text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+
+        svg { max-width: 100%; height: auto; }
+
+        .tables-row {
+            display: flex; gap: 10px; justify-content: center; margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .data-table { border-collapse: collapse; font-size: 12px; }
+        .data-table th, .data-table td {
+            border: 1px solid #555; padding: 4px 8px; text-align: center;
+        }
+        .data-table th { background-color: #e0e0e0; font-weight: bold; }
+
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 20px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+
+        .explanation-section {
+            display: none; margin-top: 25px; padding: 20px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 15px; margin-bottom: 12px;
+            padding-bottom: 8px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .explanation-content p { margin-bottom: 4px; }
+
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            図は、機体重量と外気温に応じた離陸滑走距離（海面高度・無風・標準大気）を示す性能図であり、表は標高補正係数を示す。下表の各航空便について補正後の必要離陸距離（＝性能図読み取り値 × 標高補正係数）を求め、滑走路長1,200ft・標高6,000ftの空港から離陸可能な便数として正しいものを1つ選べ。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【性能図】海面高度・無風・標準大気における離陸滑走距離</div>
+            <div class="figure-content">
+                <!--
+                図表仕様:
+                - SVGサイズ: 540×375px
+                - viewBox: 0 0 540 375
+                - チャート領域: x=75〜450（375px幅）、y=15〜320（305px高）
+                - X軸変換: x = 75 + 7.5×(T+20)（T=外気温°C）
+                - Y軸変換: y = 15 + 305×(2000−ft)/1600（ft=離陸距離ft）
+                各重量ラインの端点（T=−20〜30°C）:
+                  2,000 lbs: (75,270)(150,255)(225,240)(300,225)(375,209)(450,194)
+                  2,100 lbs: (75,248)(150,228)(225,209)(300,190)(375,171)(450,152)
+                  2,200 lbs: (75,221)(150,196)(225,171)(300,147)(375,122)(450,97)
+                  2,300 lbs: (75,190)(150,160)(225,129)(300,99)(375,68)(450,38)
+                -->
+                <svg width="540" height="375" viewBox="0 0 540 375">
+                    <line x1="75" y1="282" x2="450" y2="282" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="244" x2="450" y2="244" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="206" x2="450" y2="206" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="168" x2="450" y2="168" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="129" x2="450" y2="129" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="91"  x2="450" y2="91"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="53"  x2="450" y2="53"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="150" y1="15" x2="150" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="225" y1="15" x2="225" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="300" y1="15" x2="300" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="375" y1="15" x2="375" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <rect x="75" y="15" width="375" height="305" fill="none" stroke="#333" stroke-width="1.5"/>
+                    <polyline points="75,270 150,255 225,240 300,225 375,209 450,194"
+                        fill="none" stroke="black" stroke-width="2.5"/>
+                    <polyline points="75,248 150,228 225,209 300,190 375,171 450,152"
+                        fill="none" stroke="black" stroke-width="1.5"/>
+                    <polyline points="75,221 150,196 225,171 300,147 375,122 450,97"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                    <polyline points="75,190 150,160 225,129 300,99 375,68 450,38"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,5"/>
+                    <line x1="72" y1="320" x2="75" y2="320" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="324" text-anchor="end" font-size="11" font-family="sans-serif">400</text>
+                    <line x1="72" y1="282" x2="75" y2="282" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="286" text-anchor="end" font-size="11" font-family="sans-serif">600</text>
+                    <line x1="72" y1="244" x2="75" y2="244" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="248" text-anchor="end" font-size="11" font-family="sans-serif">800</text>
+                    <line x1="72" y1="206" x2="75" y2="206" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="210" text-anchor="end" font-size="11" font-family="sans-serif">1,000</text>
+                    <line x1="72" y1="168" x2="75" y2="168" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="172" text-anchor="end" font-size="11" font-family="sans-serif">1,200</text>
+                    <line x1="72" y1="129" x2="75" y2="129" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="133" text-anchor="end" font-size="11" font-family="sans-serif">1,400</text>
+                    <line x1="72" y1="91" x2="75" y2="91" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="95" text-anchor="end" font-size="11" font-family="sans-serif">1,600</text>
+                    <line x1="72" y1="53" x2="75" y2="53" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="57" text-anchor="end" font-size="11" font-family="sans-serif">1,800</text>
+                    <line x1="72" y1="15" x2="75" y2="15" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="19" text-anchor="end" font-size="11" font-family="sans-serif">2,000</text>
+                    <text x="14" y="167" text-anchor="middle" font-size="11" font-family="sans-serif"
+                        transform="rotate(-90, 14, 167)">離陸滑走距離（ft）</text>
+                    <line x1="75"  y1="320" x2="75"  y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="75"  y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−20</text>
+                    <line x1="150" y1="320" x2="150" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−10</text>
+                    <line x1="225" y1="320" x2="225" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="225" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">0</text>
+                    <line x1="300" y1="320" x2="300" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">10</text>
+                    <line x1="375" y1="320" x2="375" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="375" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">20</text>
+                    <line x1="450" y1="320" x2="450" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">30</text>
+                    <text x="262" y="352" text-anchor="middle" font-size="11" font-family="sans-serif">外気温（°C）</text>
+                    <text x="457" y="198" font-size="10" font-family="sans-serif">2,000 lbs</text>
+                    <text x="457" y="156" font-size="10" font-family="sans-serif">2,100 lbs</text>
+                    <text x="457" y="101" font-size="10" font-family="sans-serif">2,200 lbs</text>
+                    <text x="457" y="42"  font-size="10" font-family="sans-serif">2,300 lbs</text>
+                </svg>
+            </div>
+
+            <div class="tables-row">
+                <table class="data-table">
+                    <tr><th colspan="2">【標高補正係数表】</th></tr>
+                    <tr><th>標高</th><th>補正係数</th></tr>
+                    <tr><td>海面高度</td><td>1.00</td></tr>
+                    <tr><td>2,000 ft</td><td>1.10</td></tr>
+                    <tr><td>4,000 ft</td><td>1.20</td></tr>
+                    <tr><td>6,000 ft</td><td>1.30</td></tr>
+                    <tr><td>8,000 ft</td><td>1.40</td></tr>
+                    <tr><td>10,000 ft</td><td>1.50</td></tr>
+                </table>
+
+                <table class="data-table">
+                    <tr><th colspan="3">【航空便一覧】</th></tr>
+                    <tr><th>便名</th><th>機体重量</th><th>外気温</th></tr>
+                    <tr><td>ALPHA</td><td>2,000 lbs</td><td>0°C</td></tr>
+                    <tr><td>BRAVO</td><td>2,100 lbs</td><td>20°C</td></tr>
+                    <tr><td>CHARLIE</td><td>2,000 lbs</td><td>20°C</td></tr>
+                    <tr><td>DELTA</td><td>2,000 lbs</td><td>−20°C</td></tr>
+                    <tr><td>ECHO</td><td>2,100 lbs</td><td>−10°C</td></tr>
+                    <tr><td>FOXTROT</td><td>2,300 lbs</td><td>0°C</td></tr>
+                    <tr><td>GOLF</td><td>2,100 lbs</td><td>−20°C</td></tr>
+                    <tr><td>HOTEL</td><td>2,100 lbs</td><td>0°C</td></tr>
+                    <tr><td>INDIA</td><td>2,200 lbs</td><td>0°C</td></tr>
+                    <tr><td>JULIETT</td><td>2,000 lbs</td><td>30°C</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 選択肢（テキストボタン） -->
+        <!-- 正解は(3)4便 -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                <span class="option-label">(1)</span>2便
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                <span class="option-label">(2)</span>3便
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                <span class="option-label">(3)</span>4便
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                <span class="option-label">(4)</span>5便
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                <span class="option-label">(5)</span>6便
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (3) 4便）</div>
+            <div class="explanation-content">
+                <p><strong>【解法の手順】</strong></p>
+                <p>標高6,000ftの補正係数は1.30。</p>
+                <p>必要離陸距離 ＝ 性能図読み取り値 × 1.30 を計算し、1,200ft以下なら離陸可能。</p>
+                <br>
+                <p><strong>【各便の判定】</strong></p>
+                <p>・ALPHA（2,000 lbs・0°C）：820 × 1.30 ＝ 1,066ft　≦ 1,200ft → <strong>離陸可能</strong></p>
+                <p>・BRAVO（2,100 lbs・20°C）：1,180 × 1.30 ＝ 1,534ft　＞ 1,200ft → 離陸不可</p>
+                <p>・CHARLIE（2,000 lbs・20°C）：980 × 1.30 ＝ 1,274ft　＞ 1,200ft → 離陸不可</p>
+                <p>・DELTA（2,000 lbs・−20°C）：660 × 1.30 ＝ 858ft　≦ 1,200ft → <strong>離陸可能</strong></p>
+                <p>・ECHO（2,100 lbs・−10°C）：880 × 1.30 ＝ 1,144ft　≦ 1,200ft → <strong>離陸可能</strong></p>
+                <p>・FOXTROT（2,300 lbs・0°C）：1,400 × 1.30 ＝ 1,820ft　＞ 1,200ft → 離陸不可</p>
+                <p>・GOLF（2,100 lbs・−20°C）：780 × 1.30 ＝ 1,014ft　≦ 1,200ft → <strong>離陸可能</strong></p>
+                <p>・HOTEL（2,100 lbs・0°C）：980 × 1.30 ＝ 1,274ft　＞ 1,200ft → 離陸不可</p>
+                <p>・INDIA（2,200 lbs・0°C）：1,180 × 1.30 ＝ 1,534ft　＞ 1,200ft → 離陸不可</p>
+                <p>・JULIETT（2,000 lbs・30°C）：1,060 × 1.30 ＝ 1,378ft　＞ 1,200ft → 離陸不可</p>
+                <br>
+                <p>離陸可能な便：ALPHA・DELTA・ECHO・GOLF の<strong>4便</strong>。</p>
+                <br>
+                <p>したがって、正解は<strong>(3) 4便</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            問1の性能図・標高補正係数表を引き続き用いる。さらに、風補正係数表を追加し、必要離陸距離＝性能図読み取り値 × 標高補正係数 × 風補正係数として計算せよ。下表の各航空便について必要離陸距離を求め、滑走路長1,400ft・標高4,000ftの空港から離陸可能な便数として正しいものを1つ選べ。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【性能図】海面高度・無風・標準大気における離陸滑走距離（問1と同じ）</div>
+            <div class="figure-content">
+                <svg width="540" height="375" viewBox="0 0 540 375">
+                    <line x1="75" y1="282" x2="450" y2="282" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="244" x2="450" y2="244" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="206" x2="450" y2="206" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="168" x2="450" y2="168" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="129" x2="450" y2="129" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="91"  x2="450" y2="91"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="75" y1="53"  x2="450" y2="53"  stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="150" y1="15" x2="150" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="225" y1="15" x2="225" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="300" y1="15" x2="300" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <line x1="375" y1="15" x2="375" y2="320" stroke="#ccc" stroke-width="0.7"/>
+                    <rect x="75" y="15" width="375" height="305" fill="none" stroke="#333" stroke-width="1.5"/>
+                    <polyline points="75,270 150,255 225,240 300,225 375,209 450,194"
+                        fill="none" stroke="black" stroke-width="2.5"/>
+                    <polyline points="75,248 150,228 225,209 300,190 375,171 450,152"
+                        fill="none" stroke="black" stroke-width="1.5"/>
+                    <polyline points="75,221 150,196 225,171 300,147 375,122 450,97"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                    <polyline points="75,190 150,160 225,129 300,99 375,68 450,38"
+                        fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,5"/>
+                    <line x1="72" y1="320" x2="75" y2="320" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="324" text-anchor="end" font-size="11" font-family="sans-serif">400</text>
+                    <line x1="72" y1="282" x2="75" y2="282" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="286" text-anchor="end" font-size="11" font-family="sans-serif">600</text>
+                    <line x1="72" y1="244" x2="75" y2="244" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="248" text-anchor="end" font-size="11" font-family="sans-serif">800</text>
+                    <line x1="72" y1="206" x2="75" y2="206" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="210" text-anchor="end" font-size="11" font-family="sans-serif">1,000</text>
+                    <line x1="72" y1="168" x2="75" y2="168" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="172" text-anchor="end" font-size="11" font-family="sans-serif">1,200</text>
+                    <line x1="72" y1="129" x2="75" y2="129" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="133" text-anchor="end" font-size="11" font-family="sans-serif">1,400</text>
+                    <line x1="72" y1="91" x2="75" y2="91" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="95" text-anchor="end" font-size="11" font-family="sans-serif">1,600</text>
+                    <line x1="72" y1="53" x2="75" y2="53" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="57" text-anchor="end" font-size="11" font-family="sans-serif">1,800</text>
+                    <line x1="72" y1="15" x2="75" y2="15" stroke="#333" stroke-width="1"/>
+                    <text x="69" y="19" text-anchor="end" font-size="11" font-family="sans-serif">2,000</text>
+                    <text x="14" y="167" text-anchor="middle" font-size="11" font-family="sans-serif"
+                        transform="rotate(-90, 14, 167)">離陸滑走距離（ft）</text>
+                    <line x1="75"  y1="320" x2="75"  y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="75"  y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−20</text>
+                    <line x1="150" y1="320" x2="150" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="150" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">−10</text>
+                    <line x1="225" y1="320" x2="225" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="225" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">0</text>
+                    <line x1="300" y1="320" x2="300" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="300" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">10</text>
+                    <line x1="375" y1="320" x2="375" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="375" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">20</text>
+                    <line x1="450" y1="320" x2="450" y2="323" stroke="#333" stroke-width="1"/>
+                    <text x="450" y="334" text-anchor="middle" font-size="11" font-family="sans-serif">30</text>
+                    <text x="262" y="352" text-anchor="middle" font-size="11" font-family="sans-serif">外気温（°C）</text>
+                    <text x="457" y="198" font-size="10" font-family="sans-serif">2,000 lbs</text>
+                    <text x="457" y="156" font-size="10" font-family="sans-serif">2,100 lbs</text>
+                    <text x="457" y="101" font-size="10" font-family="sans-serif">2,200 lbs</text>
+                    <text x="457" y="42"  font-size="10" font-family="sans-serif">2,300 lbs</text>
+                </svg>
+            </div>
+
+            <div class="tables-row">
+                <!-- 標高補正係数表 -->
+                <table class="data-table">
+                    <tr><th colspan="2">【標高補正係数表】</th></tr>
+                    <tr><th>標高</th><th>補正係数</th></tr>
+                    <tr><td>海面高度</td><td>1.00</td></tr>
+                    <tr><td>2,000 ft</td><td>1.10</td></tr>
+                    <tr><td>4,000 ft</td><td>1.20</td></tr>
+                    <tr><td>6,000 ft</td><td>1.30</td></tr>
+                    <tr><td>8,000 ft</td><td>1.40</td></tr>
+                    <tr><td>10,000 ft</td><td>1.50</td></tr>
+                </table>
+
+                <!-- 風補正係数表 -->
+                <table class="data-table">
+                    <tr><th colspan="2">【風補正係数表】</th></tr>
+                    <tr><th>風の状態</th><th>補正係数</th></tr>
+                    <tr><td>向かい風20kt</td><td>0.75</td></tr>
+                    <tr><td>向かい風10kt</td><td>0.85</td></tr>
+                    <tr><td>無風</td><td>1.00</td></tr>
+                    <tr><td>追い風10kt</td><td>1.15</td></tr>
+                    <tr><td>追い風20kt</td><td>1.30</td></tr>
+                </table>
+
+                <!-- 航空便一覧（風あり） -->
+                <table class="data-table">
+                    <tr><th colspan="4">【航空便一覧】</th></tr>
+                    <tr><th>便名</th><th>機体重量</th><th>外気温</th><th>風の状態</th></tr>
+                    <tr><td>ALPHA</td><td>2,000 lbs</td><td>0°C</td><td>無風</td></tr>
+                    <tr><td>BRAVO</td><td>2,200 lbs</td><td>10°C</td><td>無風</td></tr>
+                    <tr><td>CHARLIE</td><td>2,100 lbs</td><td>0°C</td><td>向かい風10kt</td></tr>
+                    <tr><td>DELTA</td><td>2,300 lbs</td><td>−20°C</td><td>追い風10kt</td></tr>
+                    <tr><td>ECHO</td><td>2,100 lbs</td><td>−20°C</td><td>向かい風10kt</td></tr>
+                    <tr><td>FOXTROT</td><td>2,000 lbs</td><td>30°C</td><td>追い風20kt</td></tr>
+                    <tr><td>GOLF</td><td>2,200 lbs</td><td>−20°C</td><td>向かい風20kt</td></tr>
+                    <tr><td>HOTEL</td><td>2,300 lbs</td><td>0°C</td><td>無風</td></tr>
+                    <tr><td>INDIA</td><td>2,000 lbs</td><td>20°C</td><td>向かい風10kt</td></tr>
+                    <tr><td>JULIETT</td><td>2,100 lbs</td><td>20°C</td><td>追い風10kt</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- 選択肢（テキストボタン） -->
+        <!-- 正解は(4)5便 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                <span class="option-label">(1)</span>2便
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                <span class="option-label">(2)</span>3便
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                <span class="option-label">(3)</span>4便
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                <span class="option-label">(4)</span>5便
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                <span class="option-label">(5)</span>6便
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (4) 5便）</div>
+            <div class="explanation-content">
+                <p><strong>【解法の手順】</strong></p>
+                <p>標高4,000ftの補正係数は1.20。</p>
+                <p>必要離陸距離 ＝ 性能図読み取り値 × 1.20 × 風補正係数 を計算し、1,400ft以下なら離陸可能。</p>
+                <br>
+                <p><strong>【各便の判定】</strong></p>
+                <p>・ALPHA（2,000 lbs・0°C・無風1.00）：820 × 1.20 × 1.00 ＝ 984ft　→　<strong>離陸可能</strong></p>
+                <p>・BRAVO（2,200 lbs・10°C・無風1.00）：1,310 × 1.20 × 1.00 ＝ 1,572ft　→　離陸不可</p>
+                <p>・CHARLIE（2,100 lbs・0°C・向かい風10kt 0.85）：980 × 1.20 × 0.85 ＝ 1,000ft　→　<strong>離陸可能</strong></p>
+                <p>・DELTA（2,300 lbs・−20°C・追い風10kt 1.15）：1,080 × 1.20 × 1.15 ＝ 1,491ft　→　離陸不可</p>
+                <p>・ECHO（2,100 lbs・−20°C・向かい風10kt 0.85）：780 × 1.20 × 0.85 ＝ 796ft　→　<strong>離陸可能</strong></p>
+                <p>・FOXTROT（2,000 lbs・30°C・追い風20kt 1.30）：1,060 × 1.20 × 1.30 ＝ 1,654ft　→　離陸不可</p>
+                <p>・GOLF（2,200 lbs・−20°C・向かい風20kt 0.75）：920 × 1.20 × 0.75 ＝ 828ft　→　<strong>離陸可能</strong></p>
+                <p>・HOTEL（2,300 lbs・0°C・無風1.00）：1,400 × 1.20 × 1.00 ＝ 1,680ft　→　離陸不可</p>
+                <p>・INDIA（2,000 lbs・20°C・向かい風10kt 0.85）：980 × 1.20 × 0.85 ＝ 1,000ft　→　<strong>離陸可能</strong></p>
+                <p>・JULIETT（2,100 lbs・20°C・追い風10kt 1.15）：1,180 × 1.20 × 1.15 ＝ 1,629ft　→　離陸不可</p>
+                <br>
+                <p>離陸可能な便：ALPHA・CHARLIE・ECHO・GOLF・INDIA の<strong>5便</strong>。</p>
+                <br>
+                <p>したがって、正解は<strong>(4) 5便</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考26/問${questionNum}`,
+                    selectedOption,
+                    correctOption,
+                    isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
