@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図のような数の三角形がある。各段において、両端の数は1であり、それ以外の各数は、すぐ上の左右2つの数の和を5で割った余りである。第12段のすべての数の合計はいくつか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x410px
+            - viewBox: 0 0 620 410
+            - パスカルの三角形 mod 5、第1段〜第10段
+            - 正解: 合計 = 8（選択肢(4)）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【数の三角形】</div>
+                <div class="figure-content">
+                    <svg width="620" height="410" viewBox="0 0 620 410">
+                        <text x="130" y="40" class="svg-text" text-anchor="end" font-size="13">第1段</text>
+                        <text x="340" y="40" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="76" class="svg-text" text-anchor="end" font-size="13">第2段</text>
+                        <text x="323" y="76" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="357" y="76" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="112" class="svg-text" text-anchor="end" font-size="13">第3段</text>
+                        <text x="306" y="112" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="340" y="112" class="svg-text" text-anchor="middle" font-size="15">2</text>
+                        <text x="374" y="112" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="148" class="svg-text" text-anchor="end" font-size="13">第4段</text>
+                        <text x="289" y="148" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="323" y="148" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="357" y="148" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="391" y="148" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="184" class="svg-text" text-anchor="end" font-size="13">第5段</text>
+                        <text x="272" y="184" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="306" y="184" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="340" y="184" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="374" y="184" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="408" y="184" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="220" class="svg-text" text-anchor="end" font-size="13">第6段</text>
+                        <text x="255" y="220" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="289" y="220" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="323" y="220" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="357" y="220" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="391" y="220" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="425" y="220" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="256" class="svg-text" text-anchor="end" font-size="13">第7段</text>
+                        <text x="238" y="256" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="272" y="256" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="306" y="256" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="340" y="256" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="374" y="256" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="408" y="256" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="442" y="256" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="292" class="svg-text" text-anchor="end" font-size="13">第8段</text>
+                        <text x="221" y="292" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="255" y="292" class="svg-text" text-anchor="middle" font-size="15">2</text>
+                        <text x="289" y="292" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="323" y="292" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="357" y="292" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="391" y="292" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="425" y="292" class="svg-text" text-anchor="middle" font-size="15">2</text>
+                        <text x="459" y="292" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="328" class="svg-text" text-anchor="end" font-size="13">第9段</text>
+                        <text x="204" y="328" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="238" y="328" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="272" y="328" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="306" y="328" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="340" y="328" class="svg-text" text-anchor="middle" font-size="15">0</text>
+                        <text x="374" y="328" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="408" y="328" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="442" y="328" class="svg-text" text-anchor="middle" font-size="15">3</text>
+                        <text x="476" y="328" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="130" y="364" class="svg-text" text-anchor="end" font-size="13">第10段</text>
+                        <text x="187" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="221" y="364" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="255" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="289" y="364" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="323" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="357" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="391" y="364" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="425" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="459" y="364" class="svg-text" text-anchor="middle" font-size="15">4</text>
+                        <text x="493" y="364" class="svg-text" text-anchor="middle" font-size="15">1</text>
+                        <text x="340" y="399" class="svg-text" text-anchor="middle" font-size="15">...</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢: 正解は(4)8 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>4
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>11
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>16
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>8
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>22
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>各数はすぐ上の左右2つの数の和を5で割った余りである。第10段まで示されているので、第11段、第12段を順に求める。</p>
+                    <br>
+                    <p><strong>【第11段の計算】</strong></p>
+                    <p>第10段: 1 4 1 4 1 1 4 1 4 1</p>
+                    <p>隣接する2数の和(mod 5)を計算:</p>
+                    <p>(1+4)=0, (4+1)=0, (1+4)=0, (4+1)=0, (1+1)=2, (1+4)=0, (4+1)=0, (1+4)=0, (4+1)=0</p>
+                    <p>第11段: 1 0 0 0 0 2 0 0 0 0 1（合計: 4）</p>
+                    <br>
+                    <p><strong>【第12段の計算】</strong></p>
+                    <p>第11段: 1 0 0 0 0 2 0 0 0 0 1</p>
+                    <p>隣接する2数の和(mod 5)を計算:</p>
+                    <p>(1+0)=1, (0+0)=0, (0+0)=0, (0+0)=0, (0+2)=2, (2+0)=2, (0+0)=0, (0+0)=0, (0+0)=0, (0+1)=1</p>
+                    <p>第12段: 1 1 0 0 0 2 2 0 0 0 1 1</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>1+1+0+0+0+2+2+0+0+0+1+1 = <strong>8</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                向かい合う面の数の和がすべて7である標準的なサイコロがある。下図のように、このサイコロを上面が1、正面（奥に向く面）が2の状態でスタート地点Sに置き、矢印に沿って隣のマスへ1マスずつ倒しながら転がしていく。ゴール地点Gに到着したとき、上面の数はいくつか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x300px
+            - viewBox: 0 0 500 300
+            - 左: 方眼紙上のサイコロ経路（4列5行）
+            - 右: サイコロの初期状態（展開図）
+            - 経路: S(0,0)→右→右→上→上→右→上→左→上→左→左→G(0,4)
+            - 10ステップ、最終上面 = 3
+            -->
+            <div class="figure-container">
+                <div class="figure-content">
+                    <svg width="500" height="300" viewBox="0 0 500 300">
+                        <!-- 方眼グリッド -->
+                        <line x1="60" y1="30" x2="60" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="110" y1="30" x2="110" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="160" y1="30" x2="160" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="210" y1="30" x2="210" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="260" y1="30" x2="260" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="30" x2="260" y2="30" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="80" x2="260" y2="80" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="130" x2="260" y2="130" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="180" x2="260" y2="180" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="230" x2="260" y2="230" stroke="#ccc" stroke-width="1"/>
+                        <line x1="60" y1="280" x2="260" y2="280" stroke="#ccc" stroke-width="1"/>
+                        <rect x="60" y="30" width="200" height="250" fill="none" stroke="#999" stroke-width="2"/>
+
+                        <!-- 矢印マーカー -->
+                        <defs>
+                            <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0, 8 3, 0 6" fill="#333"/>
+                            </marker>
+                        </defs>
+
+                        <!-- 経路 -->
+                        <line x1="93" y1="255" x2="127" y2="255" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="143" y1="255" x2="177" y2="255" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="185" y1="247" x2="185" y2="213" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="185" y1="197" x2="185" y2="163" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="193" y1="155" x2="227" y2="155" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="235" y1="147" x2="235" y2="113" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="227" y1="105" x2="193" y2="105" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="185" y1="97" x2="185" y2="63" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="177" y1="55" x2="143" y2="55" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+                        <line x1="127" y1="55" x2="93" y2="55" stroke="#333" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+                        <!-- 経路上の点 -->
+                        <circle cx="85" cy="255" r="5" fill="#333"/>
+                        <circle cx="135" cy="255" r="3" fill="#333"/>
+                        <circle cx="185" cy="255" r="3" fill="#333"/>
+                        <circle cx="185" cy="205" r="3" fill="#333"/>
+                        <circle cx="185" cy="155" r="3" fill="#333"/>
+                        <circle cx="235" cy="155" r="3" fill="#333"/>
+                        <circle cx="235" cy="105" r="3" fill="#333"/>
+                        <circle cx="185" cy="105" r="3" fill="#333"/>
+                        <circle cx="185" cy="55" r="3" fill="#333"/>
+                        <circle cx="135" cy="55" r="3" fill="#333"/>
+                        <circle cx="85" cy="55" r="5" fill="#333"/>
+
+                        <!-- S/Gラベル -->
+                        <text x="85" y="275" class="svg-text" text-anchor="middle" font-weight="bold" font-size="14">S</text>
+                        <text x="85" y="45" class="svg-text" text-anchor="middle" font-weight="bold" font-size="14">G</text>
+
+                        <!-- 方向表示 -->
+                        <text x="160" y="22" class="svg-text" text-anchor="middle" font-size="11">奥（正面が向く方向）</text>
+
+                        <!-- サイコロ展開図 -->
+                        <text x="362" y="70" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">初期状態</text>
+                        <rect x="345" y="80" width="35" height="35" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <text x="362" y="102" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">5</text>
+                        <rect x="310" y="115" width="35" height="35" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <text x="327" y="137" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">4</text>
+                        <rect x="345" y="115" width="35" height="35" fill="#ddd" stroke="black" stroke-width="1.5"/>
+                        <text x="362" y="137" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                        <rect x="380" y="115" width="35" height="35" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <text x="397" y="137" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                        <rect x="345" y="150" width="35" height="35" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <text x="362" y="172" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                        <rect x="345" y="185" width="35" height="35" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <text x="362" y="207" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">6</text>
+
+                        <!-- 面ラベル -->
+                        <text x="423" y="102" class="svg-text" font-size="11">背面</text>
+                        <text x="307" y="137" class="svg-text" text-anchor="end" font-size="11">左面</text>
+                        <text x="423" y="137" class="svg-text" font-size="11">上面</text>
+                        <text x="423" y="172" class="svg-text" font-size="11">正面</text>
+                        <text x="423" y="207" class="svg-text" font-size="11">底面</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢: 正解は(1)3 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>3
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>1
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>4
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>5
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>6
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>標準的なサイコロでは、1と6、2と5、3と4が対面である。</p>
+                    <br>
+                    <p><strong>【転がり方の規則】</strong></p>
+                    <p>・右に倒す: 上面→右面、左面→上面（正面・背面は不変）</p>
+                    <p>・左に倒す: 上面→左面、右面→上面（正面・背面は不変）</p>
+                    <p>・奥に倒す: 上面→正面、背面→上面（左面・右面は不変）</p>
+                    <br>
+                    <p><strong>【各ステップの追跡】</strong></p>
+                    <p>初期: 上=1, 正=2, 右=3</p>
+                    <p>Step 1（右へ）: 上=4, 正=2, 右=1</p>
+                    <p>Step 2（右へ）: 上=6, 正=2, 右=4</p>
+                    <p>Step 3（奥へ）: 上=5, 正=6, 右=4</p>
+                    <p>Step 4（奥へ）: 上=1, 正=5, 右=4</p>
+                    <p>Step 5（右へ）: 上=3, 正=5, 右=1</p>
+                    <p>Step 6（奥へ）: 上=2, 正=3, 右=1</p>
+                    <p>Step 7（左へ）: 上=1, 正=3, 右=5</p>
+                    <p>Step 8（奥へ）: 上=4, 正=1, 右=5</p>
+                    <p>Step 9（左へ）: 上=5, 正=1, 右=3</p>
+                    <p>Step10（左へ）: 上=<strong>3</strong>, 正=1, 右=2</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">(空欄)</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考23/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
