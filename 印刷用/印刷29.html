@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+            line-height: 1.9;
+            font-size: 14px;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+            font-size: 14px;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 8px auto;
+        }
+
+        /* ===== 数値表テーブル ===== */
+        .num-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .num-table td, .num-table th {
+            border: 2px solid #333;
+            padding: 8px 14px;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .num-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .num-table .blank-cell {
+            font-weight: bold;
+            font-size: 18px;
+            background-color: #f5f5f5;
+        }
+
+        /* ===== 条件ボックス ===== */
+        .conditions-box {
+            margin: 15px 0;
+            padding: 15px 20px;
+            border: 1px solid #555;
+            font-size: 14px;
+            line-height: 2;
+        }
+
+        .conditions-box .cond-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .cond-item {
+            padding-left: 1em;
+        }
+
+        /* ===== 選択肢 ===== */
+        .options-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .option-item {
+            font-size: 15px;
+            padding: 6px 18px;
+            border: 1px solid #555;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    問1仕様:
+    規則: 行nの公差 = n、各行の先頭値は差分が2ずつ増加（2,4,6,8）
+      行1: 1, 2, 3, 4, 5  (公差1, 先頭1)
+      行2: 3, 5, 7, 9, 11 (公差2, 先頭3)
+      行3: 7, 10,13,16,19 (公差3, 先頭7)
+      行4: 13,17,21,?,29  (公差4, 先頭13) → ? = 13 + 4×3 = 25
+      行5: 21,26,31,36,41 (公差5, 先頭21)
+    正解: 25 → 選択肢(2)
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の表は、各マスの数値が一定の規則によって決まっている。表中の「?」に入る数として正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】数値表</div>
+                    <div class="figure-content">
+                        <table class="num-table">
+                            <tr>
+                                <th></th>
+                                <th>列 1</th>
+                                <th>列 2</th>
+                                <th>列 3</th>
+                                <th>列 4</th>
+                                <th>列 5</th>
+                            </tr>
+                            <tr>
+                                <th>行 1</th>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <th>行 2</th>
+                                <td>3</td>
+                                <td>5</td>
+                                <td>7</td>
+                                <td>9</td>
+                                <td>11</td>
+                            </tr>
+                            <tr>
+                                <th>行 3</th>
+                                <td>7</td>
+                                <td>10</td>
+                                <td>13</td>
+                                <td>16</td>
+                                <td>19</td>
+                            </tr>
+                            <tr>
+                                <th>行 4</th>
+                                <td>13</td>
+                                <td>17</td>
+                                <td>21</td>
+                                <td class="blank-cell">?</td>
+                                <td>29</td>
+                            </tr>
+                            <tr>
+                                <th>行 5</th>
+                                <td>21</td>
+                                <td>26</td>
+                                <td>31</td>
+                                <td>36</td>
+                                <td>41</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢（正解: 25 → 位置2） -->
+                <div class="options-row">
+                    <div class="option-item">(1)&ensp;22</div>
+                    <div class="option-item">(2)&ensp;25</div>
+                    <div class="option-item">(3)&ensp;27</div>
+                    <div class="option-item">(4)&ensp;24</div>
+                    <div class="option-item">(5)&ensp;28</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：(2)）</strong><br><br>
+
+                <strong>【規則の発見・その1：各行が等差数列】</strong><br>
+                各行の隣り合う値の差（公差）を求める：<br>
+                &nbsp;&nbsp;行1の差：2−1＝1、3−2＝1、4−3＝1 → 公差 <strong>1</strong><br>
+                &nbsp;&nbsp;行2の差：5−3＝2、7−5＝2、9−7＝2 → 公差 <strong>2</strong><br>
+                &nbsp;&nbsp;行3の差：10−7＝3、13−10＝3、16−13＝3 → 公差 <strong>3</strong><br>
+                &nbsp;&nbsp;行4の差：17−13＝4、21−17＝4 → 公差 <strong>4</strong><br>
+                &nbsp;&nbsp;行5の差：26−21＝5、31−26＝5 → 公差 <strong>5</strong><br>
+                規則1：<strong>行nの公差はn</strong><br><br>
+
+                <strong>【規則の発見・その2：各行の先頭値】</strong><br>
+                先頭値：1、3、7、13、21<br>
+                先頭値の増分：3−1＝2、7−3＝4、13−7＝6、21−13＝8<br>
+                規則2：<strong>増分は2ずつ増加（2、4、6、8、…）</strong><br><br>
+
+                <strong>【?の計算】</strong><br>
+                行4の先頭値は13、公差は4<br>
+                列4は先頭から3つ後ろ：13 ＋ 4×3 ＝ 13 ＋ 12 ＝ <strong>25</strong><br><br>
+
+                <strong>【確認】</strong><br>
+                &nbsp;&nbsp;行4の列5：13 ＋ 4×4 ＝ 29 ✓<br>
+                &nbsp;&nbsp;行5の列4：21 ＋ 5×3 ＝ 36 ✓<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 22：行4の公差は4なので21の次は21+4=25 ≠ 22<br>
+                ・<strong>(2) 25：13 ＋ 4×3 ＝ 25 ← 正解</strong><br>
+                ・(3) 27：公差4に対し27−21＝6 ≠ 4<br>
+                ・(4) 24：24−21＝3 ≠ 4<br>
+                ・(5) 28：28−21＝7 ≠ 4<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    問2仕様:
+    A, B, C, D, Eの5ルートの配送時間: 10, 20, 30, 40, 50分（各異なる）
+    [ア] A + B = C + D
+    [イ] B = C - 20
+    [ウ] A < E
+    [エ] D > B
+    [オ] E = 20 or 50
+    唯一解: A=40, B=10, C=30, D=20, E=50
+    正解: C = 30分 → 選択肢(2)
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．A、B、C、D、Eの5つの配送ルートがあり、それぞれにかかる時間は10分、20分、30分、40分、50分のいずれかで、すべて異なる。次の条件がすべて成り立つとき、ルートCにかかる時間として正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="conditions-box">
+                    <div class="cond-title">【条件】</div>
+                    <div class="cond-item">[ア]　ルートAとルートBの時間の合計は、ルートCとルートDの時間の合計に等しい。</div>
+                    <div class="cond-item">[イ]　ルートBの時間は、ルートCの時間より20分短い。</div>
+                    <div class="cond-item">[ウ]　ルートAにかかる時間は、ルートEにかかる時間より短い。</div>
+                    <div class="cond-item">[エ]　ルートDにかかる時間は、ルートBにかかる時間より長い。</div>
+                    <div class="cond-item">[オ]　ルートEにかかる時間は20分か50分である。</div>
+                </div>
+
+                <!-- 選択肢（正解: 30分 → 位置2） -->
+                <div class="options-row">
+                    <div class="option-item">(1)&ensp;20分</div>
+                    <div class="option-item">(2)&ensp;30分</div>
+                    <div class="option-item">(3)&ensp;10分</div>
+                    <div class="option-item">(4)&ensp;40分</div>
+                    <div class="option-item">(5)&ensp;50分</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：(2)）</strong><br><br>
+
+                <strong>【条件の整理と絞り込み】</strong><br>
+                [イ] B ＝ C − 20 より、(B, C)の組み合わせは次の3通り：<br>
+                &nbsp;&nbsp;(B, C) = (10, 30)、(20, 40)、(30, 50)<br><br>
+
+                <strong>【各ケースの検証】</strong><br>
+                <strong>◆ (B, C) = (10, 30) のとき</strong><br>
+                &nbsp;&nbsp;残りの {A, D, E} は {20, 40, 50} から割り当て<br>
+                &nbsp;&nbsp;[ア] A ＋ 10 ＝ 30 ＋ D　→　A ＝ D ＋ 20<br>
+                &nbsp;&nbsp;D＝20, A＝40, E＝50：[ウ] 40 &lt; 50 ✓、[エ] 20 &gt; 10 ✓、[オ] E＝50 ✓ → <strong>条件すべて成立</strong><br>
+                &nbsp;&nbsp;D＝40, A＝60：60は範囲外 → 不成立<br><br>
+
+                <strong>◆ (B, C) = (20, 40) のとき</strong><br>
+                &nbsp;&nbsp;残りの {A, D, E} は {10, 30, 50} から割り当て<br>
+                &nbsp;&nbsp;[ア] A ＋ 20 ＝ 40 ＋ D　→　A ＝ D ＋ 20<br>
+                &nbsp;&nbsp;D＝10, A＝30, E＝50：[エ] 10 &gt; 20 → 不成立<br>
+                &nbsp;&nbsp;D＝30, A＝50, E＝10：[オ] E＝10 → 不成立<br><br>
+
+                <strong>◆ (B, C) = (30, 50) のとき</strong><br>
+                &nbsp;&nbsp;残りの {A, D, E} は {10, 20, 40} から割り当て<br>
+                &nbsp;&nbsp;[ア] A ＋ 30 ＝ 50 ＋ D　→　A ＝ D ＋ 20<br>
+                &nbsp;&nbsp;D＝20, A＝40, E＝10：[ウ] 40 &lt; 10 → 不成立<br>
+                &nbsp;&nbsp;D＝10, A＝30 → 30は既にBが使用 → 不成立<br><br>
+
+                <strong>【唯一解】</strong><br>
+                A＝40分、B＝10分、C＝<strong>30分</strong>、D＝20分、E＝50分<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 20分：[イ]よりC=20ならB=0 → 範囲外<br>
+                ・<strong>(2) 30分：唯一の正解</strong><br>
+                ・(3) 10分：[イ]よりC=10ならB=−10 → 範囲外<br>
+                ・(4) 40分：C=40のとき[ア],[エ]を同時に満たす割り当て不可<br>
+                ・(5) 50分：C=50のとき[ア]を満たす割り当て不可<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
