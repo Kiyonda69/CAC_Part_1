@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            平面上にある目標地点Xの位置を特定するために、以下の2種類の測量装置を使用する。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 600x180px
+        - viewBox: 0 0 600 180
+        - 左側: 装置A（距離計）の概念図
+        - 右側: 装置B（方位計）の概念図
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【装置の特性】</div>
+            <div class="figure-content">
+                <svg width="600" height="180" viewBox="0 0 600 180">
+                    <!-- 装置A: 距離計 -->
+                    <text x="150" y="20" text-anchor="middle" font-size="14" font-family="serif" font-weight="bold">装置A（距離計）</text>
+                    <text x="150" y="38" text-anchor="middle" font-size="12" font-family="serif">既知地点からXまでの距離を測定</text>
+                    <circle cx="150" cy="105" r="4" fill="black"/>
+                    <text x="150" y="145" text-anchor="middle" font-size="12" font-family="serif">装置の位置</text>
+                    <circle cx="150" cy="105" r="50" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <circle cx="185" cy="65" r="3" fill="black"/>
+                    <text x="195" y="62" font-size="12" font-family="serif">X</text>
+                    <line x1="150" y1="105" x2="185" y2="65" stroke="black" stroke-width="1" stroke-dasharray="3,2"/>
+                    <text x="175" y="94" font-size="11" font-family="serif" font-style="italic">d</text>
+                    <text x="150" y="170" text-anchor="middle" font-size="11" font-family="serif">→ Xは半径dの円周上のどこか</text>
+
+                    <!-- 装置B: 方位計 -->
+                    <text x="450" y="20" text-anchor="middle" font-size="14" font-family="serif" font-weight="bold">装置B（方位計）</text>
+                    <text x="450" y="38" text-anchor="middle" font-size="12" font-family="serif">既知地点からXへの方位角を測定</text>
+                    <circle cx="400" cy="120" r="4" fill="black"/>
+                    <text x="400" y="145" text-anchor="middle" font-size="12" font-family="serif">装置の位置</text>
+                    <line x1="400" y1="120" x2="530" y2="60" stroke="black" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <polygon points="530,60 520,65 523,57" fill="black"/>
+                    <circle cx="480" cy="83" r="3" fill="black"/>
+                    <text x="490" y="80" font-size="12" font-family="serif">X</text>
+                    <path d="M 420,120 A 20,20 0 0,0 413,106" fill="none" stroke="black" stroke-width="1"/>
+                    <text x="428" y="108" font-size="11" font-family="serif" font-style="italic">θ</text>
+                    <line x1="400" y1="120" x2="440" y2="120" stroke="#999" stroke-width="0.8"/>
+                    <text x="450" y="170" text-anchor="middle" font-size="11" font-family="serif">→ Xは方位角θの半直線上のどこか</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="question-text">
+            各装置は既知の地点に設置でき、複数台を異なる地点に設置することも可能である。Xは装置の設置地点とは異なる位置にあるものとする。Xの位置の特定について正しい記述を1つ選べ。
+        </div>
+
+        <!-- 選択肢: 正解は(2) -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">(1)</span>装置Aを1台だけ使用すれば、Xの位置を一意に特定できる。
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">(2)</span>装置Aと装置Bを同じ地点に1台ずつ設置すれば、Xの位置を常に一意に特定できる。
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">(3)</span>装置Aを異なる2地点に設置すれば、Xの位置を常に一意に特定できる。
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">(4)</span>装置Bを異なる2地点に設置すれば、Xの位置を常に一意に特定できる。
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">(5)</span>装置Aと装置Bを異なる地点に1台ずつ設置すれば、Xの位置を常に一意に特定できる。
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【各装置の測定結果の幾何学的意味】</strong></p>
+                <p>・装置A（距離計）：Xまでの距離dを測定 → Xは装置を中心とする半径dの<strong>円周上</strong>にある</p>
+                <p>・装置B（方位計）：Xへの方位角θを測定 → Xは装置から方位角θ方向の<strong>半直線上</strong>にある</p>
+                <br>
+                <p><strong>【各選択肢の検討】</strong></p>
+                <p>・(1) 装置A 1台：Xは半径dの円周上にある → 無限個の候補点が存在 → 一意に特定<strong>できない</strong></p>
+                <br>
+                <p>・(2) 装置A+B 同一地点：円の中心から出る半直線は、その円と<strong>常に1点のみ</strong>で交わる。距離dと方位角θから X = (d cos θ, d sin θ) と一意に定まる → <strong>正しい</strong></p>
+                <br>
+                <p>・(3) 装置A 2台（異なる位置）：2つの円は<strong>2点で交差</strong>する場合がある。例えば2台を6m離して設置し、各距離が5mのとき、2つの候補点が生じる → 常に一意とは<strong>限らない</strong></p>
+                <br>
+                <p>・(4) 装置B 2台（異なる位置）：Xが2装置を結ぶ直線上にある場合、2本の半直線が<strong>同一直線上に重なり</strong>、一意に特定<strong>できない</strong></p>
+                <br>
+                <p>・(5) 装置A+B 異なる地点：半直線が円と<strong>2点で交わる</strong>場合がある。例えば装置Bの半直線が装置Aの円を貫通するとき、2候補が生じる → 常に一意とは<strong>限らない</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下図のように、4×4のマス目が描かれた正方形の紙を2回折り畳んだ後、2か所に穴を開けた。紙を広げたとき、穴の位置の配置として正しいものを1つ選べ。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 620x220px
+        - viewBox: 0 0 620 220
+        - 折り畳み手順を左から右に表示
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【折り畳み手順】</div>
+            <div class="figure-content">
+                <svg width="620" height="220" viewBox="0 0 620 220">
+                    <!-- ステップ1: 元の4x4正方形 -->
+                    <text x="70" y="18" text-anchor="middle" font-size="12" font-family="serif">元の紙（4×4マス）</text>
+                    <g transform="translate(20, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#999" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#999" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#999" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#999" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="black" stroke-width="1.2" stroke-dasharray="6,3"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#999" stroke-width="0.5"/>
+                        <text x="108" y="54" font-size="10" font-family="serif">折り線1</text>
+                    </g>
+
+                    <!-- 矢印1 -->
+                    <g transform="translate(140, 70)">
+                        <line x1="0" y1="0" x2="25" y2="0" stroke="#333" stroke-width="1.5"/>
+                        <polygon points="25,0 20,-4 20,4" fill="#333"/>
+                        <text x="12" y="-8" text-anchor="middle" font-size="10" font-family="serif">折り1</text>
+                        <text x="12" y="16" text-anchor="middle" font-size="9" font-family="serif">上→下</text>
+                    </g>
+
+                    <!-- ステップ2: 折り1の後 -->
+                    <text x="235" y="18" text-anchor="middle" font-size="12" font-family="serif">折り1の後</text>
+                    <g transform="translate(185, 50)">
+                        <rect x="0" y="0" width="100" height="50" fill="#eee" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="50" stroke="#999" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="50" stroke="black" stroke-width="1.2" stroke-dasharray="6,3"/>
+                        <line x1="75" y1="0" x2="75" y2="50" stroke="#999" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#999" stroke-width="0.5"/>
+                        <text x="108" y="28" font-size="10" font-family="serif">折り線2</text>
+                        <text x="50" y="68" text-anchor="middle" font-size="9" font-family="serif">（2枚重ね）</text>
+                    </g>
+
+                    <!-- 矢印2 -->
+                    <g transform="translate(305, 70)">
+                        <line x1="0" y1="0" x2="25" y2="0" stroke="#333" stroke-width="1.5"/>
+                        <polygon points="25,0 20,-4 20,4" fill="#333"/>
+                        <text x="12" y="-8" text-anchor="middle" font-size="10" font-family="serif">折り2</text>
+                        <text x="12" y="16" text-anchor="middle" font-size="9" font-family="serif">右→左</text>
+                    </g>
+
+                    <!-- ステップ3: 折り2の後 -->
+                    <text x="390" y="18" text-anchor="middle" font-size="12" font-family="serif">折り2の後</text>
+                    <g transform="translate(365, 50)">
+                        <rect x="0" y="0" width="50" height="50" fill="#ddd" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="50" stroke="#999" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="50" y2="25" stroke="#999" stroke-width="0.5"/>
+                        <text x="25" y="68" text-anchor="middle" font-size="9" font-family="serif">（4枚重ね）</text>
+                    </g>
+
+                    <!-- 矢印3 -->
+                    <g transform="translate(430, 70)">
+                        <line x1="0" y1="0" x2="25" y2="0" stroke="#333" stroke-width="1.5"/>
+                        <polygon points="25,0 20,-4 20,4" fill="#333"/>
+                        <text x="12" y="-8" text-anchor="middle" font-size="10" font-family="serif">穴開け</text>
+                    </g>
+
+                    <!-- ステップ4: 穴を開けた状態 -->
+                    <text x="530" y="18" text-anchor="middle" font-size="12" font-family="serif">穴の位置</text>
+                    <g transform="translate(505, 50)">
+                        <rect x="0" y="0" width="50" height="50" fill="#ddd" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="50" stroke="#999" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="50" y2="25" stroke="#999" stroke-width="0.5"/>
+                        <circle cx="12" cy="12" r="5" fill="black"/>
+                        <text x="12" y="15" text-anchor="middle" font-size="8" fill="white" font-family="serif">A</text>
+                        <circle cx="38" cy="38" r="5" fill="black"/>
+                        <text x="38" y="41" text-anchor="middle" font-size="8" fill="white" font-family="serif">B</text>
+                    </g>
+
+                    <!-- 折り方の補足図 -->
+                    <text x="310" y="155" text-anchor="middle" font-size="11" font-family="serif" font-weight="bold">折り方の詳細</text>
+                    <g transform="translate(100, 165)">
+                        <rect x="0" y="0" width="40" height="40" fill="white" stroke="black" stroke-width="1"/>
+                        <line x1="0" y1="20" x2="40" y2="20" stroke="black" stroke-width="1" stroke-dasharray="4,2"/>
+                        <path d="M 48,8 C 58,8 58,32 48,32" fill="none" stroke="#333" stroke-width="1"/>
+                        <polygon points="48,32 52,28 44,28" fill="#333"/>
+                        <text x="20" y="54" text-anchor="middle" font-size="9" font-family="serif">折り1: 上半分を下に</text>
+                    </g>
+                    <g transform="translate(340, 165)">
+                        <rect x="0" y="0" width="40" height="20" fill="white" stroke="black" stroke-width="1"/>
+                        <line x1="20" y1="0" x2="20" y2="20" stroke="black" stroke-width="1" stroke-dasharray="4,2"/>
+                        <path d="M 32,28 C 32,38 8,38 8,28" fill="none" stroke="#333" stroke-width="1"/>
+                        <polygon points="8,28 12,32 4,32" fill="#333"/>
+                        <text x="20" y="50" text-anchor="middle" font-size="9" font-family="serif">折り2: 右半分を左に</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢: 図形選択肢 正解は(1) -->
+        <div class="options-figure" id="q2-options">
+            <!-- 選択肢(1): 正解 .XX. / X..X / X..X / .XX. -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <svg width="100" height="120" viewBox="0 0 100 120">
+                    <text x="50" y="14" text-anchor="middle" font-size="13" font-family="serif">(1)</text>
+                    <rect x="10" y="20" width="80" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                    <line x1="30" y1="20" x2="30" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="50" y1="20" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="70" y1="20" x2="70" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="40" x2="90" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="60" x2="90" y2="60" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="80" x2="90" y2="80" stroke="#ccc" stroke-width="0.5"/>
+                    <!-- Row1: .XX. -->
+                    <circle cx="40" cy="30" r="6" fill="black"/>
+                    <circle cx="60" cy="30" r="6" fill="black"/>
+                    <!-- Row2: X..X -->
+                    <circle cx="20" cy="50" r="6" fill="black"/>
+                    <circle cx="80" cy="50" r="6" fill="black"/>
+                    <!-- Row3: X..X -->
+                    <circle cx="20" cy="70" r="6" fill="black"/>
+                    <circle cx="80" cy="70" r="6" fill="black"/>
+                    <!-- Row4: .XX. -->
+                    <circle cx="40" cy="90" r="6" fill="black"/>
+                    <circle cx="60" cy="90" r="6" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- 選択肢(2): 誤答1 X..X / .XX. / .XX. / X..X -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <svg width="100" height="120" viewBox="0 0 100 120">
+                    <text x="50" y="14" text-anchor="middle" font-size="13" font-family="serif">(2)</text>
+                    <rect x="10" y="20" width="80" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                    <line x1="30" y1="20" x2="30" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="50" y1="20" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="70" y1="20" x2="70" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="40" x2="90" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="60" x2="90" y2="60" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="80" x2="90" y2="80" stroke="#ccc" stroke-width="0.5"/>
+                    <!-- Row1: X..X -->
+                    <circle cx="20" cy="30" r="6" fill="black"/>
+                    <circle cx="80" cy="30" r="6" fill="black"/>
+                    <!-- Row2: .XX. -->
+                    <circle cx="40" cy="50" r="6" fill="black"/>
+                    <circle cx="60" cy="50" r="6" fill="black"/>
+                    <!-- Row3: .XX. -->
+                    <circle cx="40" cy="70" r="6" fill="black"/>
+                    <circle cx="60" cy="70" r="6" fill="black"/>
+                    <!-- Row4: X..X -->
+                    <circle cx="20" cy="90" r="6" fill="black"/>
+                    <circle cx="80" cy="90" r="6" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- 選択肢(3): 誤答2 .XX. / .XX. / .XX. / .XX. (中央2列) -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <svg width="100" height="120" viewBox="0 0 100 120">
+                    <text x="50" y="14" text-anchor="middle" font-size="13" font-family="serif">(3)</text>
+                    <rect x="10" y="20" width="80" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                    <line x1="30" y1="20" x2="30" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="50" y1="20" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="70" y1="20" x2="70" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="40" x2="90" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="60" x2="90" y2="60" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="80" x2="90" y2="80" stroke="#ccc" stroke-width="0.5"/>
+                    <!-- All rows: .XX. -->
+                    <circle cx="40" cy="30" r="6" fill="black"/>
+                    <circle cx="60" cy="30" r="6" fill="black"/>
+                    <circle cx="40" cy="50" r="6" fill="black"/>
+                    <circle cx="60" cy="50" r="6" fill="black"/>
+                    <circle cx="40" cy="70" r="6" fill="black"/>
+                    <circle cx="60" cy="70" r="6" fill="black"/>
+                    <circle cx="40" cy="90" r="6" fill="black"/>
+                    <circle cx="60" cy="90" r="6" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- 選択肢(4): 誤答3 X..X / X..X / X..X / X..X (外側2列) -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <svg width="100" height="120" viewBox="0 0 100 120">
+                    <text x="50" y="14" text-anchor="middle" font-size="13" font-family="serif">(4)</text>
+                    <rect x="10" y="20" width="80" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                    <line x1="30" y1="20" x2="30" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="50" y1="20" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="70" y1="20" x2="70" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="40" x2="90" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="60" x2="90" y2="60" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="80" x2="90" y2="80" stroke="#ccc" stroke-width="0.5"/>
+                    <!-- All rows: X..X -->
+                    <circle cx="20" cy="30" r="6" fill="black"/>
+                    <circle cx="80" cy="30" r="6" fill="black"/>
+                    <circle cx="20" cy="50" r="6" fill="black"/>
+                    <circle cx="80" cy="50" r="6" fill="black"/>
+                    <circle cx="20" cy="70" r="6" fill="black"/>
+                    <circle cx="80" cy="70" r="6" fill="black"/>
+                    <circle cx="20" cy="90" r="6" fill="black"/>
+                    <circle cx="80" cy="90" r="6" fill="black"/>
+                </svg>
+            </button>
+
+            <!-- 選択肢(5): 誤答4 XXXX / .... / .... / XXXX (上下2行) -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <svg width="100" height="120" viewBox="0 0 100 120">
+                    <text x="50" y="14" text-anchor="middle" font-size="13" font-family="serif">(5)</text>
+                    <rect x="10" y="20" width="80" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                    <line x1="30" y1="20" x2="30" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="50" y1="20" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="70" y1="20" x2="70" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="40" x2="90" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="60" x2="90" y2="60" stroke="#ccc" stroke-width="0.5"/>
+                    <line x1="10" y1="80" x2="90" y2="80" stroke="#ccc" stroke-width="0.5"/>
+                    <!-- Row1: XXXX -->
+                    <circle cx="20" cy="30" r="6" fill="black"/>
+                    <circle cx="40" cy="30" r="6" fill="black"/>
+                    <circle cx="60" cy="30" r="6" fill="black"/>
+                    <circle cx="80" cy="30" r="6" fill="black"/>
+                    <!-- Row4: XXXX -->
+                    <circle cx="20" cy="90" r="6" fill="black"/>
+                    <circle cx="40" cy="90" r="6" fill="black"/>
+                    <circle cx="60" cy="90" r="6" fill="black"/>
+                    <circle cx="80" cy="90" r="6" fill="black"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p><strong>【折り畳みの対称性】</strong></p>
+                <p>・折り1（上半分を下に）：上下方向の対称性が生まれる（行1と行4、行2と行3が対応）</p>
+                <p>・折り2（右半分を左に）：左右方向の対称性が生まれる（列1と列4、列2と列3が対応）</p>
+                <br>
+                <p><strong>【穴の展開】</strong></p>
+                <p>折り畳んだ状態で見える範囲は、元の紙の<strong>左下1/4</strong>（列1-2、行3-4）に相当する。</p>
+                <br>
+                <p>・穴A（左上 = 列1, 行3の位置）：</p>
+                <p>　左右対称 → (列4, 行3) にも穴</p>
+                <p>　上下対称 → (列1, 行2) と (列4, 行2) にも穴</p>
+                <p>　→ 計4つの穴：(1,2), (1,3), (4,2), (4,3)</p>
+                <br>
+                <p>・穴B（右下 = 列2, 行4の位置）：</p>
+                <p>　左右対称 → (列3, 行4) にも穴</p>
+                <p>　上下対称 → (列2, 行1) と (列3, 行1) にも穴</p>
+                <p>　→ 計4つの穴：(2,1), (2,4), (3,1), (3,4)</p>
+                <br>
+                <p><strong>【展開後のパターン】</strong></p>
+                <p>行1: ○●●○　行2: ●○○●　行3: ●○○●　行4: ○●●○</p>
+                <p>上下・左右ともに対称な「枠」型のパターンとなる。</p>
+                <br>
+                <p><strong>【誤答の分析】</strong></p>
+                <p>・(2) 正解の反転パターン。穴と空白の位置が逆転している</p>
+                <p>・(3) 中央2列のみに穴。左右の折り返しの対応関係を誤っている</p>
+                <p>・(4) 外側2列のみに穴。穴AとBの位置対応を取り違えている</p>
+                <p>・(5) 上下2行のみに穴。折り1のみ展開し、折り2の左右対称を無視している</p>
+                <br>
+                <p>したがって、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                if (state.answers[parseInt(dot.textContent)] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect', 'disabled'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const dot = document.getElementById(`progress-${questionNum}`);
+            dot.classList.remove('completed', 'incorrect-dot');
+            dot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考25/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            btn.classList.add('disabled');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const dot = document.getElementById(`progress-${questionNum}`);
+        dot.classList.remove('active');
+        dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        document.getElementById(`q${questionNum}-explanation`).classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            document.getElementById(`q${questionNum}-explanation`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
