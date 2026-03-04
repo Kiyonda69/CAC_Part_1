@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+
+        .question-text { margin-bottom: 15px; text-align: justify; }
+
+        .figure-container {
+            margin: 15px 0; padding: 15px;
+            background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; text-align: center; }
+
+        /* 経営指標テーブル */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin: 0 auto;
+        }
+        .data-table th {
+            background-color: #e0e0e0;
+            border: 1px solid #999;
+            padding: 6px 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .data-table td {
+            border: 1px solid #bbb;
+            padding: 5px 10px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .data-table td.company-cell {
+            font-weight: bold;
+            background-color: #f0f0f0;
+            min-width: 70px;
+        }
+        .data-table td.metric-cell {
+            text-align: left;
+            background-color: #fafafa;
+            min-width: 130px;
+            font-size: 12px;
+        }
+        .data-table tr:hover td { background-color: #f5f8ff; }
+        .data-table tr.company-first td.company-cell {
+            border-top: 2px solid #666;
+        }
+        .data-table tr.company-first td {
+            border-top: 2px solid #999;
+        }
+
+        /* 記述一覧 */
+        .statements-box {
+            margin: 15px 0;
+            padding: 12px 15px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 2.0;
+        }
+        .statements-box .stmt { margin-bottom: 4px; }
+        .stmt-label { font-weight: bold; }
+
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 20px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+
+        .explanation-section {
+            display: none; margin-top: 25px; padding: 20px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 15px; margin-bottom: 12px;
+            padding-bottom: 8px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; font-size: 14px; }
+        .explanation-content p { margin-bottom: 4px; }
+
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下の表は、アジア太平洋地域における4つの航空会社の2021年から2023年までの主要経営指標を示している。この表に関する記述ア〜オについて、正しいものの組み合わせとして最も適切なものを、(1)〜(5)の中から1つ選べ。
+        </div>
+
+        <!--
+        問1 データ:
+        P航空: 旅客数 280/320/350、営業収入 1,200/1,450/1,600、営業利益率 5.0/8.0/10.0、座席利用率 70/78/82
+        Q航空: 旅客数 210/180/230、営業収入 900/820/980、営業利益率 4.0/2.0/6.0、座席利用率 72/65/79
+        R航空: 旅客数 150/130/140、営業収入 650/700/620、営業利益率 3.0/5.0/2.0、座席利用率 68/74/70
+        S航空: 旅客数 80/90/100、営業収入 380/420/460、営業利益率 1.0/3.0/5.0、座席利用率 55/62/68
+        正解の組み合わせ: ア(正)、イ(誤)、ウ(正)、エ(誤)、オ(正) → ア・ウ・オ = (3)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【表】アジア太平洋地域 主要航空会社 経営指標</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>航空会社</th>
+                        <th>指標</th>
+                        <th>2021年</th>
+                        <th>2022年</th>
+                        <th>2023年</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- P航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">P航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>280</td><td>320</td><td>350</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>1,200</td><td>1,450</td><td>1,600</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>5.0</td><td>8.0</td><td>10.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>70</td><td>78</td><td>82</td>
+                    </tr>
+                    <!-- Q航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">Q航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>210</td><td>180</td><td>230</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>900</td><td>820</td><td>980</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>4.0</td><td>2.0</td><td>6.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>72</td><td>65</td><td>79</td>
+                    </tr>
+                    <!-- R航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">R航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>150</td><td>130</td><td>140</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>650</td><td>700</td><td>620</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>3.0</td><td>5.0</td><td>2.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>68</td><td>74</td><td>70</td>
+                    </tr>
+                    <!-- S航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">S航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>80</td><td>90</td><td>100</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>380</td><td>420</td><td>460</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>1.0</td><td>3.0</td><td>5.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>55</td><td>62</td><td>68</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 記述ア〜オ -->
+        <div class="statements-box">
+            <div class="stmt"><span class="stmt-label">ア：</span>2022年において、旅客数が前年より減少した航空会社はQ航空とR航空の2社である。</div>
+            <div class="stmt"><span class="stmt-label">イ：</span>3年間を通じて、P航空の座席利用率は全4社の中で常に最も高かった。</div>
+            <div class="stmt"><span class="stmt-label">ウ：</span>2023年において、全4社の中で営業利益（営業収入×営業利益率）が最も大きい航空会社はP航空である。</div>
+            <div class="stmt"><span class="stmt-label">エ：</span>調査期間中に、R航空の営業収入が前年を下回った年は存在しない。</div>
+            <div class="stmt"><span class="stmt-label">オ：</span>2023年において、座席利用率が75%を超えた航空会社は2社である。</div>
+        </div>
+
+        <!-- 選択肢 正解は(3) ア・ウ・オ -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                <span class="option-label">(1)</span>ア・イ・ウ
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                <span class="option-label">(2)</span>ア・イ・オ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                <span class="option-label">(3)</span>ア・ウ・オ
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                <span class="option-label">(4)</span>イ・エ・オ
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                <span class="option-label">(5)</span>ウ・エ・オ
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p><strong>【表の読み取り】</strong></p>
+                <p>旅客数（万人）：P航空 280→320→350 / Q航空 210→180→230 / R航空 150→130→140 / S航空 80→90→100</p>
+                <p>営業収入（億円）：P航空 1,200→1,450→1,600 / Q航空 900→820→980 / R航空 650→700→620 / S航空 380→420→460</p>
+                <p>営業利益率（%）：P航空 5.0→8.0→10.0 / Q航空 4.0→2.0→6.0 / R航空 3.0→5.0→2.0 / S航空 1.0→3.0→5.0</p>
+                <p>座席利用率（%）：P航空 70→78→82 / Q航空 72→65→79 / R航空 68→74→70 / S航空 55→62→68</p>
+                <br>
+                <p><strong>【各記述の検討】</strong></p>
+                <p><strong>ア（正しい）：</strong>2022年の旅客数を前年比で確認する。</p>
+                <p>　Q航空：210万→180万（減少）、R航空：150万→130万（減少）</p>
+                <p>　P航空：280万→320万（増加）、S航空：80万→90万（増加）</p>
+                <p>　減少した会社はQ航空とR航空の2社であり、正しい。</p>
+                <br>
+                <p><strong>イ（誤り）：</strong>2021年の座席利用率はP航空=70%、Q航空=72%。</p>
+                <p>　Q航空（72%）がP航空（70%）を上回っており、P航空が常に最高とは言えない。</p>
+                <br>
+                <p><strong>ウ（正しい）：</strong>2023年の営業利益（営業収入×営業利益率）を計算する。</p>
+                <p>　P航空：1,600億×10.0% = <u>160億円</u>（最大）</p>
+                <p>　Q航空：980億×6.0% = 58.8億円 / R航空：620億×2.0% = 12.4億円 / S航空：460億×5.0% = 23億円</p>
+                <p>　P航空の160億円が最も大きく、正しい。</p>
+                <br>
+                <p><strong>エ（誤り）：</strong>R航空の営業収入は 650→700→620（億円）と推移する。</p>
+                <p>　2023年（620億円）は2022年（700億円）を下回っており、記述は誤り。</p>
+                <br>
+                <p><strong>オ（正しい）：</strong>2023年の座席利用率を確認する。</p>
+                <p>　P航空82%、Q航空79%（いずれも75%超）、R航空70%、S航空68%（いずれも75%以下）</p>
+                <p>　75%を超えた航空会社はP航空とQ航空の2社であり、正しい。</p>
+                <br>
+                <p>したがって、正しいものはア・ウ・オであり、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下の表は、アジア太平洋地域における5つの航空会社の2021年から2023年までの主要経営指標を示している。この表に関する記述ア〜オについて、正しいものの組み合わせとして最も適切なものを、(1)〜(5)の中から1つ選べ。
+        </div>
+
+        <!--
+        問2 データ:
+        A航空: 旅客数 520/580/620、営業収入 2,400/2,800/3,000、営業利益率 6.0/9.0/11.0、座席利用率 72/80/84
+        B航空: 旅客数 380/350/410、営業収入 1,800/1,650/1,950、営業利益率 4.0/2.0/7.0、座席利用率 68/62/75
+        C航空: 旅客数 250/270/280、営業収入 1,100/1,200/1,250、営業利益率 3.0/4.0/5.0、座席利用率 65/70/74
+        D航空: 旅客数 160/180/200、営業収入 750/850/950、営業利益率 2.0/4.0/6.0、座席利用率 60/66/72
+        E航空: 旅客数 90/110/100、営業収入 420/480/450、営業利益率 -1.0/1.0/3.0、座席利用率 50/58/62
+        正解の組み合わせ: ア(正)、イ(誤)、ウ(正)、エ(正)、オ(誤) → ア・ウ・エ = (1)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【表】アジア太平洋地域 主要航空会社 経営指標</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>航空会社</th>
+                        <th>指標</th>
+                        <th>2021年</th>
+                        <th>2022年</th>
+                        <th>2023年</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- A航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">A航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>520</td><td>580</td><td>620</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>2,400</td><td>2,800</td><td>3,000</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>6.0</td><td>9.0</td><td>11.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>72</td><td>80</td><td>84</td>
+                    </tr>
+                    <!-- B航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">B航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>380</td><td>350</td><td>410</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>1,800</td><td>1,650</td><td>1,950</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>4.0</td><td>2.0</td><td>7.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>68</td><td>62</td><td>75</td>
+                    </tr>
+                    <!-- C航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">C航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>250</td><td>270</td><td>280</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>1,100</td><td>1,200</td><td>1,250</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>3.0</td><td>4.0</td><td>5.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>65</td><td>70</td><td>74</td>
+                    </tr>
+                    <!-- D航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">D航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>160</td><td>180</td><td>200</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>750</td><td>850</td><td>950</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>2.0</td><td>4.0</td><td>6.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>60</td><td>66</td><td>72</td>
+                    </tr>
+                    <!-- E航空 -->
+                    <tr class="company-first">
+                        <td class="company-cell" rowspan="4">E航空</td>
+                        <td class="metric-cell">旅客数（万人）</td>
+                        <td>90</td><td>110</td><td>100</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業収入（億円）</td>
+                        <td>420</td><td>480</td><td>450</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">営業利益率（%）</td>
+                        <td>&#8722;1.0</td><td>1.0</td><td>3.0</td>
+                    </tr>
+                    <tr>
+                        <td class="metric-cell">座席利用率（%）</td>
+                        <td>50</td><td>58</td><td>62</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 記述ア〜オ -->
+        <div class="statements-box">
+            <div class="stmt"><span class="stmt-label">ア：</span>2022年から2023年にかけて、旅客数が前年より減少した航空会社はE航空のみである。</div>
+            <div class="stmt"><span class="stmt-label">イ：</span>2023年における全5社の営業利益（営業収入×営業利益率）の合計は600億円を超える。</div>
+            <div class="stmt"><span class="stmt-label">ウ：</span>3年間を通じて、B航空の旅客数はC航空の旅客数を常に上回っていた。</div>
+            <div class="stmt"><span class="stmt-label">エ：</span>2023年において、座席利用率が最も高い航空会社と最も低い航空会社の差は20ポイント以上である。</div>
+            <div class="stmt"><span class="stmt-label">オ：</span>調査期間を通じて、E航空の営業利益率は一度も0%を上回らなかった。</div>
+        </div>
+
+        <!-- 選択肢 正解は(1) ア・ウ・エ -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <span class="option-label">(1)</span>ア・ウ・エ
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <span class="option-label">(2)</span>ア・ウ・オ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <span class="option-label">(3)</span>ア・イ・エ
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <span class="option-label">(4)</span>イ・ウ・エ
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <span class="option-label">(5)</span>ウ・エ・オ
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p><strong>【表の読み取り】</strong></p>
+                <p>旅客数（万人）：A航空 520→580→620 / B航空 380→350→410 / C航空 250→270→280 / D航空 160→180→200 / E航空 90→110→100</p>
+                <p>営業収入（億円）：A航空 2,400→2,800→3,000 / B航空 1,800→1,650→1,950 / C航空 1,100→1,200→1,250 / D航空 750→850→950 / E航空 420→480→450</p>
+                <p>営業利益率（%）：A航空 6.0→9.0→11.0 / B航空 4.0→2.0→7.0 / C航空 3.0→4.0→5.0 / D航空 2.0→4.0→6.0 / E航空 &#8722;1.0→1.0→3.0</p>
+                <p>座席利用率（%）：A航空 72→80→84 / B航空 68→62→75 / C航空 65→70→74 / D航空 60→66→72 / E航空 50→58→62</p>
+                <br>
+                <p><strong>【各記述の検討】</strong></p>
+                <p><strong>ア（正しい）：</strong>2022年→2023年の旅客数を確認する。</p>
+                <p>　E航空：110万→100万（減少）</p>
+                <p>　A航空：580万→620万（増加）、B航空：350万→410万（増加）、C航空：270万→280万（増加）、D航空：180万→200万（増加）</p>
+                <p>　前年比減少はE航空のみであり、正しい。</p>
+                <br>
+                <p><strong>イ（誤り）：</strong>2023年の全5社の営業利益を計算する。</p>
+                <p>　A航空：3,000×11.0% = 330.0億円</p>
+                <p>　B航空：1,950×7.0% = 136.5億円</p>
+                <p>　C航空：1,250×5.0% = 62.5億円</p>
+                <p>　D航空：950×6.0% = 57.0億円</p>
+                <p>　E航空：450×3.0% = 13.5億円</p>
+                <p>　合計：330.0+136.5+62.5+57.0+13.5 = <u>599.5億円</u> ＜ 600億円</p>
+                <p>　600億円を超えないため、誤り。（0.5億円だけ届かない点に注意）</p>
+                <br>
+                <p><strong>ウ（正しい）：</strong>B航空とC航空の旅客数を年ごとに比較する。</p>
+                <p>　2021年：B航空380万 ＞ C航空250万 ○</p>
+                <p>　2022年：B航空350万 ＞ C航空270万 ○</p>
+                <p>　2023年：B航空410万 ＞ C航空280万 ○</p>
+                <p>　3年間を通じてB航空の旅客数はC航空を常に上回っており、正しい。</p>
+                <br>
+                <p><strong>エ（正しい）：</strong>2023年の座席利用率の最高・最低を確認する。</p>
+                <p>　最高：A航空 84% / 最低：E航空 62%</p>
+                <p>　差：84 &#8722; 62 = <u>22ポイント</u> ≥ 20ポイント → 正しい。</p>
+                <br>
+                <p><strong>オ（誤り）：</strong>E航空の営業利益率を確認する。</p>
+                <p>　2021年：&#8722;1.0%（赤字）、2022年：1.0%（黒字）、2023年：3.0%（黒字）</p>
+                <p>　2022年・2023年には0%を上回っており、記述は誤り。</p>
+                <br>
+                <p>したがって、正しいものはア・ウ・エであり、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考28/問${questionNum}`,
+                    selectedOption,
+                    correctOption,
+                    isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
