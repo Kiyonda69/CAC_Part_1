@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .report-table { margin: 8px auto; border-collapse: collapse; font-size: 14px; width: 100%; max-width: 640px; }
+        .report-table td, .report-table th { border: 1px solid #666; padding: 6px 12px; text-align: left; }
+        .report-table th { background-color: #e8e8e8; font-weight: bold; text-align: center; }
+        .statements-box { margin: 14px 0; padding: 12px 16px; background-color: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; font-size: 15px; line-height: 2.2; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            ある管制空域において、5機の航空機A機〜E機がレーダーに映っている。各機体は4方角（北・東・南・西）と3距離圏（第1圏・第2圏・第3圏）の交点に1機ずつ存在する。各パイロットから管制官への報告を下表に示す。ただしB機のみ通信不良のため報告が不明（？）である。次のア〜ウについて、正しいものの組み合わせを選べ。
+        </div>
+
+        <!--
+        レーダー図仕様:
+        - SVGサイズ: 400x400px, viewBox: 20 30 440 430
+        - 中心: (240, 245)
+        - 第1圏 r=65, 第2圏 r=130, 第3圏 r=190
+
+        機体位置 (問1):
+        - A: 北・第2圏 → (240, 115)
+        - B: 東・第1圏 → (305, 245)
+        - C: 南・第3圏 → (240, 435)
+        - D: 西・第1圏 → (175, 245)
+        - E: 南・第1圏 → (240, 310)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【レーダー図】</div>
+            <div class="figure-content">
+                <svg width="400" height="400" viewBox="20 30 440 430">
+                    <circle cx="240" cy="245" r="65" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                    <circle cx="240" cy="245" r="130" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                    <circle cx="240" cy="245" r="190" fill="none" stroke="#666" stroke-width="1.5"/>
+                    <line x1="240" y1="50" x2="240" y2="440" stroke="#aaa" stroke-width="1"/>
+                    <line x1="45" y1="245" x2="435" y2="245" stroke="#aaa" stroke-width="1"/>
+                    <text x="240" y="45" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">北</text>
+                    <text x="240" y="458" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">南</text>
+                    <text x="443" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="start" fill="#333">東</text>
+                    <text x="37" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="end" fill="#333">西</text>
+                    <text x="255" y="186" font-family="serif" font-size="10" fill="#888">第1圏</text>
+                    <text x="255" y="121" font-family="serif" font-size="10" fill="#888">第2圏</text>
+                    <text x="255" y="63" font-family="serif" font-size="10" fill="#888">第3圏</text>
+                    <circle cx="240" cy="245" r="5" fill="#333"/>
+                    <text x="252" y="242" font-family="serif" font-size="10" fill="#555">中心</text>
+                    <!-- A機: 北・第2圏 -->
+                    <circle cx="240" cy="115" r="8" fill="#222"/>
+                    <text x="256" y="120" font-family="serif" font-size="15" font-weight="bold" fill="#000">A</text>
+                    <!-- B機: 東・第1圏 -->
+                    <circle cx="305" cy="245" r="8" fill="#222"/>
+                    <text x="316" y="240" font-family="serif" font-size="15" font-weight="bold" fill="#000">B</text>
+                    <!-- C機: 南・第3圏 -->
+                    <circle cx="240" cy="435" r="8" fill="#222"/>
+                    <text x="256" y="441" font-family="serif" font-size="15" font-weight="bold" fill="#000">C</text>
+                    <!-- D機: 西・第1圏 -->
+                    <circle cx="175" cy="245" r="8" fill="#222"/>
+                    <text x="148" y="240" font-family="serif" font-size="15" font-weight="bold" fill="#000">D</text>
+                    <!-- E機: 南・第1圏 -->
+                    <circle cx="240" cy="310" r="8" fill="#222"/>
+                    <text x="256" y="316" font-family="serif" font-size="15" font-weight="bold" fill="#000">E</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 報告表 -->
+        <table class="report-table">
+            <tr><th>機体</th><th>報告内容</th></tr>
+            <tr><td style="text-align:center;">A機</td><td>「私は北方向の第2圏にいる。」</td></tr>
+            <tr><td style="text-align:center;">B機</td><td style="text-align:center; font-weight:bold;">？（通信不良）</td></tr>
+            <tr><td style="text-align:center;">C機</td><td>「私は南方向の第3圏にいる。」</td></tr>
+            <tr><td style="text-align:center;">D機</td><td>「私は西方向の第1圏にいる。第1圏には私を含めて3機がいる。」</td></tr>
+            <tr><td style="text-align:center;">E機</td><td>「私は南方向の第1圏にいる。」</td></tr>
+        </table>
+
+        <!-- 命題 -->
+        <div class="statements-box">
+            ア．B機の報告がなくても、5機全ての位置が確定する。<br>
+            イ．B機の報告がない場合、B機の位置として2通りが考えられる。<br>
+            ウ．B機の報告がない場合、B機以外の4機の位置は全て確定する。
+        </div>
+
+        <!-- 選択肢 -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                <span class="option-label">(1)</span>アのみ正しい
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                <span class="option-label">(2)</span>イのみ正しい
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                <span class="option-label">(3)</span>ウのみ正しい
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                <span class="option-label">(4)</span>ア、イが正しい
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                <span class="option-label">(5)</span>イ、ウが正しい
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (5)　イ、ウが正しい）</div>
+            <div class="explanation-content">
+                <p><strong>【各機体の位置を確定する】</strong></p>
+                <p>各パイロットの報告（B機除く）から位置を特定する。</p>
+                <p>・A機：「北方向の第2圏」→ A機＝（北、第2圏）と確定。</p>
+                <p>・C機：「南方向の第3圏」→ C機＝（南、第3圏）と確定。</p>
+                <p>・E機：「南方向の第1圏」→ E機＝（南、第1圏）と確定。</p>
+                <p>・D機：「西方向の第1圏、第1圏は計3機」→ D機＝（西、第1圏）と確定。</p>
+                <p>　　第1圏の3機はD機（西）・E機（南）・B機（不明）→ B機は第1圏に存在。</p>
+                <br>
+                <p><strong>【B機の候補を絞り込む】</strong></p>
+                <p>B機は第1圏にいるが、方角が不明。</p>
+                <p>・西・第1圏 → D機が占有（不可）</p>
+                <p>・南・第1圏 → E機が占有（不可）</p>
+                <p>・北・第1圏 → 空き → 候補①</p>
+                <p>・東・第1圏 → 空き → 候補②</p>
+                <p>よってB機の候補は<strong>（北・第1圏）または（東・第1圏）の2通り</strong>。</p>
+                <br>
+                <p><strong>【各命題の検討】</strong></p>
+                <p>ア．B機報告なしで全位置確定するか？ → B機が2通りあり確定しない。<strong>ア：誤り。</strong></p>
+                <p>イ．B機の位置として2通りが考えられるか？ → 北・第1圏 と 東・第1圏 の2通り。<strong>イ：正しい。</strong></p>
+                <p>ウ．B機以外の4機は全て確定するか？ → A・C・D・E機は報告から一意に確定。<strong>ウ：正しい。</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(5)　イ、ウが正しい</strong>。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            問1と同じ条件（4方角×3距離圏、各交点に1機ずつ）で、5機A機〜E機が存在する。各パイロットの報告を下表に示す。B機のみ通信不良のため報告が不明（？）である。次のア〜ウについて、正しいものの組み合わせを選べ。
+        </div>
+
+        <!--
+        機体位置 (問2):
+        - A: 北・第3圏 → (240, 55)
+        - B: 東・第2圏 → (370, 245)
+        - C: 南・第1圏 → (240, 310)
+        - D: 西・第3圏 → (50, 245)
+        - E: 北・第1圏 → (240, 180)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【レーダー図】</div>
+            <div class="figure-content">
+                <svg width="420" height="400" viewBox="15 30 460 430">
+                    <circle cx="240" cy="245" r="65" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                    <circle cx="240" cy="245" r="130" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                    <circle cx="240" cy="245" r="190" fill="none" stroke="#666" stroke-width="1.5"/>
+                    <line x1="240" y1="50" x2="240" y2="440" stroke="#aaa" stroke-width="1"/>
+                    <line x1="45" y1="245" x2="435" y2="245" stroke="#aaa" stroke-width="1"/>
+                    <text x="240" y="45" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">北</text>
+                    <text x="240" y="458" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">南</text>
+                    <text x="443" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="start" fill="#333">東</text>
+                    <text x="37" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="end" fill="#333">西</text>
+                    <text x="255" y="186" font-family="serif" font-size="10" fill="#888">第1圏</text>
+                    <text x="255" y="121" font-family="serif" font-size="10" fill="#888">第2圏</text>
+                    <text x="255" y="63" font-family="serif" font-size="10" fill="#888">第3圏</text>
+                    <circle cx="240" cy="245" r="5" fill="#333"/>
+                    <text x="252" y="242" font-family="serif" font-size="10" fill="#555">中心</text>
+                    <!-- A機: 北・第3圏 -->
+                    <circle cx="240" cy="55" r="8" fill="#222"/>
+                    <text x="256" y="60" font-family="serif" font-size="15" font-weight="bold" fill="#000">A</text>
+                    <!-- B機: 東・第2圏 -->
+                    <circle cx="370" cy="245" r="8" fill="#222"/>
+                    <text x="381" y="240" font-family="serif" font-size="15" font-weight="bold" fill="#000">B</text>
+                    <!-- C機: 南・第1圏 -->
+                    <circle cx="240" cy="310" r="8" fill="#222"/>
+                    <text x="256" y="316" font-family="serif" font-size="15" font-weight="bold" fill="#000">C</text>
+                    <!-- D機: 西・第3圏 -->
+                    <circle cx="50" cy="245" r="8" fill="#222"/>
+                    <text x="18" y="240" font-family="serif" font-size="15" font-weight="bold" fill="#000">D</text>
+                    <!-- E機: 北・第1圏 -->
+                    <circle cx="240" cy="180" r="8" fill="#222"/>
+                    <text x="256" y="186" font-family="serif" font-size="15" font-weight="bold" fill="#000">E</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 報告表 -->
+        <table class="report-table">
+            <tr><th>機体</th><th>報告内容</th></tr>
+            <tr><td style="text-align:center;">A機</td><td>「私は北方向の第3圏にいる。第3圏には私を含めて2機がいる。」</td></tr>
+            <tr><td style="text-align:center;">B機</td><td style="text-align:center; font-weight:bold;">？（通信不良）</td></tr>
+            <tr><td style="text-align:center;">C機</td><td>「私は南方向の第1圏にいる。第1圏には私を含めて2機がいる。」</td></tr>
+            <tr><td style="text-align:center;">D機</td><td>「私は西方向の第3圏にいる。」</td></tr>
+            <tr><td style="text-align:center;">E機</td><td>「私は北方向の第1圏にいる。北方向には私を含めて2機がいる。」</td></tr>
+        </table>
+
+        <!-- 命題 -->
+        <div class="statements-box">
+            ア．B機の報告がない場合、B機の位置として2通りが考えられる。<br>
+            イ．B機の報告がない場合、B機の位置として3通りが考えられる。<br>
+            ウ．B機が「私は第2圏にいる」とのみ報告した場合、B機の位置が確定する。
+        </div>
+
+        <!-- 選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                <span class="option-label">(1)</span>アのみ正しい
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                <span class="option-label">(2)</span>イのみ正しい
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                <span class="option-label">(3)</span>ウのみ正しい
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                <span class="option-label">(4)</span>ア、イが正しい
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                <span class="option-label">(5)</span>イ、ウが正しい
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (2)　イのみ正しい）</div>
+            <div class="explanation-content">
+                <p><strong>【各機体の位置を確定する】</strong></p>
+                <p>・D機：「西方向の第3圏」→ D機＝（西、第3圏）と確定。</p>
+                <p>・E機：「北方向の第1圏、北方向は計2機」→ E機＝（北、第1圏）と確定。北方向にもう1機存在する。</p>
+                <p>・A機：「北方向の第3圏、第3圏は計2機」→ A機＝（北、第3圏）と確定。Eの「もう1機」はA機。</p>
+                <p>　　第3圏の2機はA機（北）・D機（西）と確定。</p>
+                <p>・C機：「南方向の第1圏、第1圏は計2機」→ C機＝（南、第1圏）と確定。</p>
+                <p>　　第1圏の2機はC機（南）・E機（北）と確定。</p>
+                <br>
+                <p><strong>【B機の候補を絞り込む】</strong></p>
+                <p>・第3圏は2機（A機・D機）→ B機は第3圏に入れない。</p>
+                <p>・第1圏は2機（C機・E機）→ B機は第1圏に入れない。</p>
+                <p>　よってB機は<strong>第2圏</strong>に存在する。</p>
+                <p>・北方向は2機（A機・E機）→ B機は北方向に入れない。</p>
+                <p>　よってB機の方角は 東・南・西 のいずれかで、<strong>3通り</strong>が候補。</p>
+                <br>
+                <p><strong>【各命題の検討】</strong></p>
+                <p>ア．B機の位置として2通りが考えられるか？ → 候補は3通りのため誤り。<strong>ア：誤り。</strong></p>
+                <p>イ．B機の位置として3通りが考えられるか？ → 東・第2圏、南・第2圏、西・第2圏 の3通り。<strong>イ：正しい。</strong></p>
+                <p>ウ．「第2圏にいる」の報告でB機が確定するか？ → 方角（東・南・西）が3通り残るため確定しない。<strong>ウ：誤り。</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(2)　イのみ正しい</strong>。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect', 'disabled'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考30/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            btn.classList.add('disabled');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
