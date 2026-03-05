@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .explanation { padding: 20px 0; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options { margin-left: 20px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図のように、黒と白の7つのマスからなる行が、ある規則にしたがって上から下のように変化している。図の規則と矛盾なく変化しているものは次のうちどれか。正しいものを1つ選び、解答用紙にマークせよ。ただし、選択肢では矢印を省略している。（6点）</div>
+
+                <!--
+                図1: 例題パターン（規則を示す）
+                規則: next[i] = row[i] XOR row[(i+1) % 7]
+                行1: BBWBWWB → 行2: WBBBWBW → 行3: BWWBBBW → 行4: BWBWWBB
+                セルサイズ: 24×24px, 7セル幅 = 168px
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="230" height="200" viewBox="0 0 230 200">
+                            <!-- 行1: B B W B W W B = 1 1 0 1 0 0 1 -->
+                            <g transform="translate(30, 5)">
+                                <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                            </g>
+                            <!-- 矢印 -->
+                            <text x="114" y="47" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                            <!-- 行2: W B B B W B W = 0 1 1 1 0 1 0 -->
+                            <g transform="translate(30, 50)">
+                                <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+                            <!-- 矢印 -->
+                            <text x="114" y="92" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                            <!-- 行3: B W W B B B W = 1 0 0 1 1 1 0 -->
+                            <g transform="translate(30, 95)">
+                                <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+                            <!-- 矢印 -->
+                            <text x="114" y="137" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                            <!-- 行4: B W B W W B B = 1 0 1 0 0 1 1 -->
+                            <g transform="translate(30, 140)">
+                                <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="72" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢: 5つのパターン（各4行×7セル）
+                正解: (3) XOR右隣規則に従う
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="640" height="260" viewBox="0 0 640 260">
+                            <!-- 選択肢(1): XOR左隣（不正解） -->
+                            <!-- 行: BWBWWBB / WBBBWBW / WBWWBBB / BBBWBWW -->
+                            <g transform="translate(10, 0)">
+                                <text x="84" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                                <g transform="translate(0, 20)">
+                                    <!-- 行1: 1 0 1 0 0 1 1 -->
+                                    <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行2: 0 1 1 1 0 1 0 -->
+                                    <rect x="0" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行3: 0 1 0 0 1 1 1 -->
+                                    <rect x="0" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行4: 1 1 1 0 1 0 0 -->
+                                    <rect x="0" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(2): AND右隣（不正解） -->
+                            <!-- 行: BBWBBWB / BWWBWWB / WWWWWWB / WWWWWWW -->
+                            <g transform="translate(200, 0)">
+                                <text x="84" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                                <g transform="translate(0, 20)">
+                                    <!-- 行1: 1 1 0 1 1 0 1 -->
+                                    <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行2: 1 0 0 1 0 0 1 -->
+                                    <rect x="0" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行3: 0 0 0 0 0 0 1 -->
+                                    <rect x="0" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行4: 0 0 0 0 0 0 0 -->
+                                    <rect x="0" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(3): 正解（XOR右隣） -->
+                            <!-- 行: WBWBBWB / BBBWBBB / WWBBWWW / WBWBWWW -->
+                            <g transform="translate(390, 0)">
+                                <text x="84" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                                <g transform="translate(0, 20)">
+                                    <!-- 行1: 0 1 0 1 1 0 1 -->
+                                    <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行2: 1 1 1 0 1 1 1 -->
+                                    <rect x="0" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行3: 0 0 1 1 0 0 0 -->
+                                    <rect x="0" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行4: 0 1 0 1 0 0 0 -->
+                                    <rect x="0" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(4): XOR右隣+反転（不正解） -->
+                            <!-- 行: BWWBWBW / WBWWWWW / WWBBBBB / BWBBBBW -->
+                            <g transform="translate(70, 140)">
+                                <text x="84" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                                <g transform="translate(0, 20)">
+                                    <!-- 行1: 1 0 0 1 0 1 0 -->
+                                    <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行2: 0 1 0 0 0 0 0 -->
+                                    <rect x="0" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行3: 0 0 1 1 1 1 1 -->
+                                    <rect x="0" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 行4: 1 0 1 1 1 1 0 -->
+                                    <rect x="0" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(5): 1ビットエラー（不正解） -->
+                            <!-- 行: WWBBWBW / WBWBBBW / BBBBWBW / WWWBBBB -->
+                            <g transform="translate(330, 140)">
+                                <text x="84" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                                <g transform="translate(0, 20)">
+                                    <!-- 行1: 0 0 1 1 0 1 0 -->
+                                    <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行2: 0 1 0 1 1 1 0 -->
+                                    <rect x="0" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="28" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="28" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行3: 1 1 1 1 0 1 0 (1ビットエラー: 正しくは 1 1 1 0 0 1 0) -->
+                                    <rect x="0" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- 行4: 0 0 0 1 1 1 1 -->
+                                    <rect x="0" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="24" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="48" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="72" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="96" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="120" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="144" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                例題の4行を観察すると、各行の次の行は以下の規則で生成されている:<br>
+                「各マスの色は、そのマスと右隣のマス（最右端は最左端と比較）の色が<strong>異なれば黒、同じなら白</strong>」<br>
+                これはXOR（排他的論理和）演算に相当する。<br><br>
+
+                具体的に確認する:<br>
+                ・行1「B B W B W W B」の1番目(B)と2番目(B)は同色 → 次行1番目はW<br>
+                ・行1の2番目(B)と3番目(W)は異色 → 次行2番目はB<br>
+                ・行1の7番目(B)と1番目(B)は同色 → 次行7番目はW（端は循環）<br>
+                → 行2「W B B B W B W」と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                各選択肢の行1→行2にこの規則を適用して確認する:<br><br>
+                ・(1) 行1「BWBWWBB」→ 規則適用:「BBBBBBW」→ 行2「WBBBWBW」と不一致 → 不正解<br>
+                ・(2) 行1「BBWBBWB」→ 規則適用:「WBBBBBB」→ 行2「BWWBWWB」と不一致 → 不正解<br>
+                ・(3) 行1「WBWBBWB」→ 規則適用:「BBBWBBB」→ 行2「BBBWBBB」と一致。行2→行3, 行3→行4も一致 → <strong>正解</strong><br>
+                ・(4) 行1「BWWBWBW」→ 規則適用:「BWBBBBW」→ 行2「WBWWWWW」と不一致 → 不正解<br>
+                ・(5) 行1→行2は一致するが、行2→行3で不一致（4番目のマスが異なる） → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．1辺の長さが2の立方体ABCD-EFGHがある（ABCDが上面、EFGHが底面で、A-E, B-F, C-G, D-Hがそれぞれ対応する頂点である）。辺ABの中点をP、辺FGの中点をQ、辺DHの中点をRとする。三角形PQRの面積として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                立方体の図
+                座標系: A=(0,0,2), B=(2,0,2), C=(2,2,2), D=(0,2,2)
+                        E=(0,0,0), F=(2,0,0), G=(2,2,0), H=(0,2,0)
+                中点: P=(1,0,2), Q=(2,1,0), R=(0,2,1)
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="340" height="320" viewBox="0 0 340 320">
+                            <!-- 立方体の描画 -->
+                            <!-- 背面の辺（破線） -->
+                            <line x1="90" y1="250" x2="90" y2="100" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="90" y1="250" x2="250" y2="250" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="90" y1="100" x2="170" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                            <!-- 前面の辺（実線） -->
+                            <line x1="250" y1="250" x2="250" y2="100" stroke="black" stroke-width="1.5"/>
+                            <line x1="250" y1="100" x2="90" y2="100" stroke="black" stroke-width="1.5"/>
+                            <line x1="250" y1="100" x2="330" y2="40" stroke="black" stroke-width="1.5"/>
+                            <line x1="90" y1="100" x2="170" y2="40" stroke="black" stroke-width="1.5"/>
+                            <line x1="250" y1="250" x2="330" y2="190" stroke="black" stroke-width="1.5"/>
+                            <line x1="330" y1="40" x2="330" y2="190" stroke="black" stroke-width="1.5"/>
+                            <line x1="170" y1="40" x2="330" y2="40" stroke="black" stroke-width="1.5"/>
+                            <line x1="330" y1="190" x2="170" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="170" y1="190" x2="90" y2="250" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="170" y1="190" x2="170" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                            <!-- 頂点ラベル -->
+                            <!-- 上面 ABCD: A=左奥上, B=左前上, C=右前上, D=右奥上 -->
+                            <text x="155" y="35" class="svg-text" font-weight="bold">D</text>
+                            <text x="75" y="97" class="svg-text" font-weight="bold">A</text>
+                            <text x="253" y="97" class="svg-text" font-weight="bold">B</text>
+                            <text x="333" y="37" class="svg-text" font-weight="bold">C</text>
+                            <!-- 底面 EFGH -->
+                            <text x="155" y="205" class="svg-text" font-weight="bold">H</text>
+                            <text x="75" y="268" class="svg-text" font-weight="bold">E</text>
+                            <text x="253" y="268" class="svg-text" font-weight="bold">F</text>
+                            <text x="333" y="205" class="svg-text" font-weight="bold">G</text>
+
+                            <!-- 中点P（AB中点）: A=(90,100), B=(250,100) → P=(170,100) -->
+                            <circle cx="170" cy="100" r="4" fill="black"/>
+                            <text x="170" y="90" class="svg-text" text-anchor="middle" font-weight="bold">P</text>
+
+                            <!-- 中点Q（FG中点）: F=(250,250)→G=(330,190) → Q=(290,220) -->
+                            <circle cx="290" cy="220" r="4" fill="black"/>
+                            <text x="303" y="225" class="svg-text" font-weight="bold">Q</text>
+
+                            <!-- 中点R（DH中点）: D=(170,40)→H=(170,190) → R=(170,115)... -->
+                            <!-- D=(170,40), H=(170,190): 中点=(170,115) -->
+                            <!-- DH: D is上面奥左→H is底面奥左 -->
+                            <!-- 修正: D=(170,40), H=(170,190) → midpoint=(170,115) -->
+                            <circle cx="170" cy="115" r="4" fill="black"/>
+                            <text x="148" y="120" class="svg-text" font-weight="bold">R</text>
+
+                            <!-- 三角形PQR（破線） -->
+                            <line x1="170" y1="100" x2="290" y2="220" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="290" y1="220" x2="170" y2="115" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="170" y1="115" x2="170" y2="100" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　3√3/2<br>
+                    (2)　3<br>
+                    (3)　2√3<br>
+                    (4)　√6<br>
+                    (5)　3√2
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【座標の設定】</strong><br>
+                立方体の頂点に座標を設定する。<br>
+                上面: A=(0,0,2), B=(2,0,2), C=(2,2,2), D=(0,2,2)<br>
+                底面: E=(0,0,0), F=(2,0,0), G=(2,2,0), H=(0,2,0)<br><br>
+
+                <strong>【中点の座標】</strong><br>
+                ・P（ABの中点）= (1, 0, 2)<br>
+                ・Q（FGの中点）= (2, 1, 0)<br>
+                ・R（DHの中点）= (0, 2, 1)<br><br>
+
+                <strong>【辺の長さの計算】</strong><br>
+                ・PQ = √{(2-1)² + (1-0)² + (0-2)²} = √(1+1+4) = √6<br>
+                ・QR = √{(0-2)² + (2-1)² + (1-0)²} = √(4+1+1) = √6<br>
+                ・RP = √{(1-0)² + (0-2)² + (2-1)²} = √(1+4+1) = √6<br><br>
+
+                3辺がすべて√6で等しいため、三角形PQRは<strong>正三角形</strong>である。<br><br>
+
+                <strong>【面積の計算】</strong><br>
+                1辺√6の正三角形の面積 = (√3/4) × (√6)² = (√3/4) × 6 = <strong>3√3/2</strong><br><br>
+
+                <strong>【別解：外積による計算】</strong><br>
+                ベクトル PQ = (1, 1, -2), PR = (-1, 2, -1)<br>
+                PQ × PR = (1×(-1)-(-2)×2, (-2)×(-1)-1×(-1), 1×2-1×(-1)) = (3, 3, 3)<br>
+                面積 = |PQ × PR| / 2 = √(9+9+9) / 2 = 3√3/2<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
