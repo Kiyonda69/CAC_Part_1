@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            正方形のタイルからなるいくつかのピースを組み合わせると、下の図のような形になった。この形にもう1つのピースを加えて、穴の無い長方形を完成させたい。加えるべきピースはどれか。正しいものを(1)～(5)から1つ選べ。ただし、ピースは回転させてよいが、裏返してはならない。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 420x200px
+        - viewBox: 0 0 420 200
+        - 5列×4行グリッド、セルサイズ40px
+        - 15セル塗り（白、黒枠）、5セル空き（灰色、破線枠）
+        - 空きセル: F型ペントミノ形状
+        -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="420" height="200" viewBox="0 0 420 200">
+                    <!-- 目標長方形の破線アウトライン -->
+                    <rect x="110" y="15" width="200" height="160" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="5,5"/>
+
+                    <!-- 空きセル（F型ペントミノの隙間） -->
+                    <rect x="190" y="15" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                    <rect x="230" y="15" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                    <rect x="150" y="55" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                    <rect x="190" y="55" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                    <rect x="190" y="95" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                    <!-- 塗りセル 行0 -->
+                    <rect x="110" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="150" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="270" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                    <!-- 行1 -->
+                    <rect x="110" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="230" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="270" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                    <!-- 行2 -->
+                    <rect x="110" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="150" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="230" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="270" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                    <!-- 行3 -->
+                    <rect x="110" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="150" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="190" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="230" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="270" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢（図形ボタン） -->
+        <div class="options-figure" id="q1-options">
+            <!-- (1) T型ペントミノ: XXX/.X./.X. -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                    <rect x="3" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="59" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+
+            <!-- (2) F'型（Fの鏡像）: XX./.XX/.X. -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                    <rect x="3" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="59" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+
+            <!-- (3) P型: XX/XX/X. -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                    <rect x="17" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="45" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="45" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="17" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+
+            <!-- (4) F型（正解）: .X./.XX/XX. -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                    <rect x="31" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="59" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="3" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+
+            <!-- (5) W型: X../XX./.XX -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                    <rect x="3" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="3" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="31" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="59" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p><strong>【目標の特定】</strong></p>
+                <p>図の形は5列×4行の範囲に収まっており、15マス分のタイルがある。5×4=20マスの長方形を完成させるには、5マス分のピース（ペントミノ）を加えればよい。</p>
+                <br>
+                <p><strong>【空きの形の分析】</strong></p>
+                <p>空いている5マスの位置を確認すると、F型ペントミノの形状である。</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>(1) T型：十字型であり、空きの形と一致しない</p>
+                <p>(2) F'型（Fの鏡像）：Fに似ているが左右反転。裏返し禁止なので不可</p>
+                <p>(3) P型：2×2ブロック＋1マスの形状で不一致</p>
+                <p>(4) F型：180度回転すると空きの形と完全に一致する</p>
+                <p>(5) W型：階段状の形状で不一致</p>
+                <br>
+                <p>したがって、正解は<strong>(4)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            一辺の長さがaの正四面体ABCDにおいて、辺ABの中点をM、辺CDの中点をNとする。線分MNについて、次の記述ア～エのうち正しいものをすべて含む組み合わせはどれか。正しいものを(1)～(5)から1つ選べ。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 440x280px
+        - viewBox: 0 0 440 280
+        - 正四面体ABCD の2D投影
+        - A=(90,250), B=(350,250), C=(360,80), D=(120,40)
+        -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="440" height="280" viewBox="0 0 440 280">
+                    <!-- 辺（実線） -->
+                    <line x1="90" y1="250" x2="350" y2="250" stroke="black" stroke-width="2"/>
+                    <line x1="90" y1="250" x2="360" y2="80" stroke="black" stroke-width="2"/>
+                    <line x1="90" y1="250" x2="120" y2="40" stroke="black" stroke-width="2"/>
+                    <line x1="350" y1="250" x2="360" y2="80" stroke="black" stroke-width="2"/>
+                    <line x1="350" y1="250" x2="120" y2="40" stroke="black" stroke-width="2"/>
+                    <!-- CD辺（背面、破線） -->
+                    <line x1="360" y1="80" x2="120" y2="40" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+
+                    <!-- MN線分（太い破線） -->
+                    <line x1="220" y1="250" x2="240" y2="60" stroke="black" stroke-width="2.5" stroke-dasharray="6,4"/>
+
+                    <!-- 頂点ラベル -->
+                    <text x="75" y="268" class="svg-text" font-size="16" font-weight="bold">A</text>
+                    <text x="360" y="268" class="svg-text" font-size="16" font-weight="bold">B</text>
+                    <text x="370" y="78" class="svg-text" font-size="16" font-weight="bold">C</text>
+                    <text x="100" y="35" class="svg-text" font-size="16" font-weight="bold">D</text>
+
+                    <!-- 中点マーカー -->
+                    <circle cx="220" cy="250" r="4" fill="black"/>
+                    <circle cx="240" cy="60" r="4" fill="black"/>
+
+                    <!-- 中点ラベル -->
+                    <text x="215" y="275" class="svg-text" font-size="15" font-weight="bold">M</text>
+                    <text x="248" y="55" class="svg-text" font-size="15" font-weight="bold">N</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="question-text" style="margin-top: 0;">
+            ア　MNの長さは a&radic;2 / 2 である<br>
+            イ　MNは辺ABと辺CDの両方に垂直である<br>
+            ウ　線分MNの中点は正四面体ABCDの重心と一致する<br>
+            エ　線分MNは面ABCと面ABDのなす二面角の二等分面上にある
+        </div>
+
+        <!-- テキスト選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                <span class="option-label">(1)</span>アとイのみ
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                <span class="option-label">(2)</span>ア、イ、ウのみ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                <span class="option-label">(3)</span>ア、イ、エのみ
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                <span class="option-label">(4)</span>ア、ウ、エのみ
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                <span class="option-label">(5)</span>ア、イ、ウ、エのすべて
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p>正四面体の辺の長さをaとし、座標を設定する。</p>
+                <p>A=(0,0,0)、B=(a,0,0)、C=(a/2, a&radic;3/2, 0)、D=(a/2, a&radic;3/6, a&radic;(2/3))</p>
+                <p>M = (a/2, 0, 0)、N = (a/2, a&radic;3/3, a&radic;(2/3)/2)</p>
+                <br>
+                <p><strong>【ア の検証】</strong></p>
+                <p>MN&sup2; = (a&radic;3/3)&sup2; + (a&radic;(2/3)/2)&sup2; = a&sup2;/3 + a&sup2;/6 = a&sup2;/2</p>
+                <p>MN = a&radic;2/2 → <strong>正しい</strong></p>
+                <br>
+                <p><strong>【イ の検証】</strong></p>
+                <p>MNベクトルとABベクトルの内積 = 0 → MN&perp;AB</p>
+                <p>MNベクトルとCDベクトルの内積 = 0 → MN&perp;CD</p>
+                <p>→ <strong>正しい</strong></p>
+                <br>
+                <p><strong>【ウ の検証】</strong></p>
+                <p>重心G = (A+B+C+D)/4 = (a/2, a&radic;3/6, a&radic;(2/3)/4)</p>
+                <p>MN中点 = (a/2, a&radic;3/6, a&radic;(2/3)/4) = G</p>
+                <p>→ <strong>正しい</strong></p>
+                <br>
+                <p><strong>【エ の検証】</strong></p>
+                <p>面ABCと面ABDの外向き法線から二面角の二等分面を求めると、点Nからこの面までの距離は0でない。</p>
+                <p>MNはABの垂直二等分面上にあるが、二面角の二等分面上にはない → <strong>誤り</strong></p>
+                <br>
+                <p>正しいのはア、イ、ウの3つ。したがって、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考37/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
