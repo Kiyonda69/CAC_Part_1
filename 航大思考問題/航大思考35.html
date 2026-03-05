@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            図のように、黒と白の7つのマスからなる行が、ある規則にしたがって上から下のように変化している。図の規則と矛盾なく変化しているものは次のうちどれか。正しいものを1つ選べ。ただし、選択肢では矢印を省略している。
+        </div>
+
+        <!--
+        例題パターン（規則を示す）
+        規則: next[i] = row[i] XOR row[(i+1) % 7]
+        行1: BBWBWWB → 行2: WBBBWBW → 行3: BWWBBBW → 行4: BWBWWBB
+        -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="230" height="200" viewBox="0 0 230 200">
+                    <!-- 行1: B B W B W W B -->
+                    <g transform="translate(30, 5)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                    <text x="114" y="47" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行2: W B B B W B W -->
+                    <g transform="translate(30, 50)">
+                        <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                    <text x="114" y="92" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行3: B W W B B B W -->
+                    <g transform="translate(30, 95)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                    <text x="114" y="137" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行4: B W B W W B B -->
+                    <g transform="translate(30, 140)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢（図形） -->
+        <div class="options-figure" id="q1-options">
+            <!-- (1) XOR左隣（不正解）: BWBWWBB / WBBBWBW / WBWWBBB / BBBWBWW -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                <svg width="168" height="130" viewBox="0 0 168 130">
+                    <text x="84" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                    <g transform="translate(0, 18)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (2) AND右隣（不正解）: BBWBBWB / BWWBWWB / WWWWWWB / WWWWWWW -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                <svg width="168" height="130" viewBox="0 0 168 130">
+                    <text x="84" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                    <g transform="translate(0, 18)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (3) ★正解（XOR右隣）: WBWBBWB / BBBWBBB / WWBBWWW / WBWBWWW -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                <svg width="168" height="130" viewBox="0 0 168 130">
+                    <text x="84" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                    <g transform="translate(0, 18)">
+                        <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (4) XOR右隣+反転（不正解）: BWWBWBW / WBWWWWW / WWBBBBB / BWBBBBW -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                <svg width="168" height="130" viewBox="0 0 168 130">
+                    <text x="84" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                    <g transform="translate(0, 18)">
+                        <rect x="0" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (5) 1ビットエラー（不正解）: WWBBWBW / WBWBBBW / BBBBWBW / WWWBBBB -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                <svg width="168" height="130" viewBox="0 0 168 130">
+                    <text x="84" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                    <g transform="translate(0, 18)">
+                        <rect x="0" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="0" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="0" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="26" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="26" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="52" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="52" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="24" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="48" y="78" width="24" height="24" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="72" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="96" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="120" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="144" y="78" width="24" height="24" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p><strong>【規則の発見】</strong></p>
+                <p>例題の4行を観察すると、各行の次の行は以下の規則で生成されている:</p>
+                <p>「各マスの色は、そのマスと右隣のマス（最右端は最左端と比較）の色が<strong>異なれば黒、同じなら白</strong>」</p>
+                <p>これはXOR（排他的論理和）演算に相当する。</p>
+                <br>
+                <p>具体的に確認すると:</p>
+                <p>・行1の1番目(B)と2番目(B)は同色 → 次行1番目はW</p>
+                <p>・行1の2番目(B)と3番目(W)は異色 → 次行2番目はB</p>
+                <p>・行1の7番目(B)と1番目(B)は同色 → 次行7番目はW（端は循環）</p>
+                <p>→ 行2「WBBBWBW」と一致する。</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 行1→行2: 規則を適用すると「BBBBBBW」→ 行2「WBBBWBW」と不一致</p>
+                <p>・(2) 行1→行2: 規則を適用すると「WBBBBBB」→ 行2「BWWBWWB」と不一致</p>
+                <p>・(3) 行1→行2, 行2→行3, 行3→行4 すべて規則に一致 → <strong>正解</strong></p>
+                <p>・(4) 行1→行2: 規則を適用すると「BWBBBBW」→ 行2「WBWWWWW」と不一致</p>
+                <p>・(5) 行1→行2は一致するが、行2→行3で4番目のマスが不一致</p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            1辺の長さが2の立方体ABCD-EFGHがある（ABCDが上面、EFGHが底面で、A-E, B-F, C-G, D-Hがそれぞれ対応する頂点である）。辺ABの中点をP、辺FGの中点をQ、辺DHの中点をRとする。三角形PQRの面積として正しいものを(1)～(5)の中から1つ選べ。
+        </div>
+
+        <!-- 立方体の図 -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="340" height="320" viewBox="0 0 340 320">
+                    <!-- 背面の辺（破線） -->
+                    <line x1="90" y1="250" x2="90" y2="100" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="90" y1="250" x2="250" y2="250" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="90" y1="100" x2="170" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <!-- 前面の辺（実線） -->
+                    <line x1="250" y1="250" x2="250" y2="100" stroke="black" stroke-width="1.5"/>
+                    <line x1="250" y1="100" x2="90" y2="100" stroke="black" stroke-width="1.5"/>
+                    <line x1="250" y1="100" x2="330" y2="40" stroke="black" stroke-width="1.5"/>
+                    <line x1="90" y1="100" x2="170" y2="40" stroke="black" stroke-width="1.5"/>
+                    <line x1="250" y1="250" x2="330" y2="190" stroke="black" stroke-width="1.5"/>
+                    <line x1="330" y1="40" x2="330" y2="190" stroke="black" stroke-width="1.5"/>
+                    <line x1="170" y1="40" x2="330" y2="40" stroke="black" stroke-width="1.5"/>
+                    <line x1="330" y1="190" x2="170" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="170" y1="190" x2="90" y2="250" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="170" y1="190" x2="170" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <!-- 頂点ラベル -->
+                    <text x="155" y="35" class="svg-text" font-weight="bold">D</text>
+                    <text x="75" y="97" class="svg-text" font-weight="bold">A</text>
+                    <text x="253" y="97" class="svg-text" font-weight="bold">B</text>
+                    <text x="333" y="37" class="svg-text" font-weight="bold">C</text>
+                    <text x="155" y="205" class="svg-text" font-weight="bold">H</text>
+                    <text x="75" y="268" class="svg-text" font-weight="bold">E</text>
+                    <text x="253" y="268" class="svg-text" font-weight="bold">F</text>
+                    <text x="333" y="205" class="svg-text" font-weight="bold">G</text>
+                    <!-- 中点P（AB中点） -->
+                    <circle cx="170" cy="100" r="4" fill="black"/>
+                    <text x="170" y="90" class="svg-text" text-anchor="middle" font-weight="bold">P</text>
+                    <!-- 中点Q（FG中点） -->
+                    <circle cx="290" cy="220" r="4" fill="black"/>
+                    <text x="303" y="225" class="svg-text" font-weight="bold">Q</text>
+                    <!-- 中点R（DH中点） -->
+                    <circle cx="170" cy="115" r="4" fill="black"/>
+                    <text x="148" y="120" class="svg-text" font-weight="bold">R</text>
+                    <!-- 三角形PQR -->
+                    <line x1="170" y1="100" x2="290" y2="220" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                    <line x1="290" y1="220" x2="170" y2="115" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                    <line x1="170" y1="115" x2="170" y2="100" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- テキスト選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <span class="option-label">(1)</span>3√3/2
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <span class="option-label">(2)</span>3
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <span class="option-label">(3)</span>2√3
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <span class="option-label">(4)</span>√6
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <span class="option-label">(5)</span>3√2
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p><strong>【座標の設定】</strong></p>
+                <p>立方体の頂点に座標を設定する。</p>
+                <p>上面: A=(0,0,2), B=(2,0,2), C=(2,2,2), D=(0,2,2)</p>
+                <p>底面: E=(0,0,0), F=(2,0,0), G=(2,2,0), H=(0,2,0)</p>
+                <br>
+                <p><strong>【中点の座標】</strong></p>
+                <p>・P（ABの中点）= (1, 0, 2)</p>
+                <p>・Q（FGの中点）= (2, 1, 0)</p>
+                <p>・R（DHの中点）= (0, 2, 1)</p>
+                <br>
+                <p><strong>【辺の長さの計算】</strong></p>
+                <p>・PQ = √{(2-1)² + (1-0)² + (0-2)²} = √(1+1+4) = √6</p>
+                <p>・QR = √{(0-2)² + (2-1)² + (1-0)²} = √(4+1+1) = √6</p>
+                <p>・RP = √{(1-0)² + (0-2)² + (2-1)²} = √(1+4+1) = √6</p>
+                <br>
+                <p>3辺がすべて√6で等しいため、三角形PQRは<strong>正三角形</strong>である。</p>
+                <br>
+                <p><strong>【面積の計算】</strong></p>
+                <p>1辺√6の正三角形の面積 = (√3/4) × (√6)² = (√3/4) × 6 = <strong>3√3/2</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考35/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
