@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下の【図1】は、3×3×3の格子に積み木（単位立方体）を配置したときの各段（底面・中段・上段）を上から見た配置図である。黒いマスに積み木が置かれていることを表す。この積み木を正面（手前）から見た投影図が【図2】のとおりであるとき、右側面（右方向）から見た投影図として正しいものを(1)～(5)の中から1つ選べ。
+        </div>
+
+        <!--
+        図1: 各段の配置図
+        z=0: 全面(9ブロック)
+        z=1: (0,0),(1,0),(2,0),(0,1),(1,1) の5ブロック
+        z=2: (0,0) のみ
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【図1】各段の配置（上から見た図）</div>
+            <div class="figure-content">
+                <svg width="620" height="160" viewBox="0 0 620 160">
+                    <!-- 底面 (z=0): 全面 -->
+                    <g transform="translate(20, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">底面（z=0）</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                            <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                            <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                        </g>
+                    </g>
+
+                    <!-- 中段 (z=1) -->
+                    <g transform="translate(220, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">中段（z=1）</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                            <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                            <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                        </g>
+                    </g>
+
+                    <!-- 上段 (z=2) -->
+                    <g transform="translate(420, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">上段（z=2）</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                            <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                            <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 図2: 正面図 -->
+        <div class="figure-container">
+            <div class="figure-title">【図2】正面から見た投影図</div>
+            <div class="figure-content">
+                <svg width="160" height="130" viewBox="0 0 160 130">
+                    <g transform="translate(30, 5)">
+                        <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                        <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢（図形） -->
+        <div class="options-figure" id="q1-options">
+            <!-- (1) z=2:■■□, z=1:■■□, z=0:■■■ -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                    <g transform="translate(3, 18)">
+                        <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (2) z=2:■□□, z=1:■■■, z=0:■■■ -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                    <g transform="translate(3, 18)">
+                        <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (3) z=2:■□□, z=1:■□□, z=0:■■■ -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                    <g transform="translate(3, 18)">
+                        <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (4) ★正解: z=2:■□□, z=1:■■□, z=0:■■■ -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                    <g transform="translate(3, 18)">
+                        <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- (5) z=2:□□□, z=1:■■□, z=0:■■■ -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                <svg width="90" height="110" viewBox="0 0 90 110">
+                    <text x="45" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                    <g transform="translate(3, 18)">
+                        <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p><strong>【投影図の求め方】</strong></p>
+                <p>右側面から見た投影図は、右方向（x軸の正方向）から積み木を見たときの影にあたる。座標系はy軸（手前→奥）が横方向、z軸（下→上）が縦方向となる。各(y, z)のマスについて、x=0, 1, 2のいずれかに積み木があれば黒く塗る。</p>
+                <br>
+                <p><strong>【各マスの判定】</strong></p>
+                <p>・z=0（底面）: 全面に積み木があるため、y=0,1,2すべてのマスが黒 → ■■■</p>
+                <p>・z=1（中段）: y=0には(0,0,1),(1,0,1),(2,0,1)があり黒。y=1には(0,1,1),(1,1,1)があり黒。y=2には積み木がなく白。→ ■■□</p>
+                <p>・z=2（上段）: y=0には(0,0,2)があり黒。y=1,2には積み木がなく白。→ ■□□</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) z=2が「■■□」→ y=1に上段の積み木は存在しないため不正解</p>
+                <p>・(2) z=1が「■■■」→ y=2に中段の積み木は存在しないため不正解</p>
+                <p>・(3) z=1が「■□□」→ y=1に(0,1,1)と(1,1,1)が存在するため不正解</p>
+                <p>・(5) z=2が「□□□」→ y=0に(0,0,2)が存在するため不正解</p>
+                <br>
+                <p>したがって、正解は<strong>(4)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            3×3×3の格子に積み木（単位立方体）を配置する。下の【図3】に示す3つの投影図（正面図・右側面図・上面図）のすべてに一致するような配置を考える。このとき、使用する積み木の最小個数として正しいものを(1)～(5)の中から1つ選べ。
+        </div>
+
+        <!--
+        図3: 三面図
+        正面図 F[x][z]: z=2:□■□, z=1:■■■, z=0:■■■
+        右側面図 R[y][z]: z=2:□■□, z=1:■■□, z=0:■■■
+        上面図 T[x][y]: y=2:■■□, y=1:■■■, y=0:■■■
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【図3】3つの投影図</div>
+            <div class="figure-content">
+                <svg width="600" height="190" viewBox="0 0 600 190">
+                    <!-- 正面図 -->
+                    <g transform="translate(30, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">正面図</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                            <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                        </g>
+                    </g>
+
+                    <!-- 右側面図 -->
+                    <g transform="translate(220, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">右側面図</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">y→</text>
+                            <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                        </g>
+                    </g>
+
+                    <!-- 上面図 -->
+                    <g transform="translate(410, 10)">
+                        <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">上面図</text>
+                        <g transform="translate(0, 22)">
+                            <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                            <text x="-8" y="8" font-size="10" class="svg-text">y↑</text>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- テキスト選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                <span class="option-label">(1)</span>7個
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                <span class="option-label">(2)</span>8個
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                <span class="option-label">(3)</span>9個
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                <span class="option-label">(4)</span>10個
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                <span class="option-label">(5)</span>11個
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【基本的な考え方】</strong></p>
+                <p>投影図は、ある方向から見たときに「積み木が存在する」マスを黒で表す。3つの投影図すべてに一致するには、各投影図の黒いマスに対して少なくとも1つの積み木が寄与する必要がある。最小個数を求めるには、1つの積み木ができるだけ多くの投影条件を同時に満たすように配置する。</p>
+                <br>
+                <p><strong>【制約の整理】</strong></p>
+                <p>配置可能なセル(x,y,z)は、正面図のF[x][z]=1、右側面図のR[y][z]=1、上面図のT[x][y]=1をすべて満たすセルのみ。これを満たすセルは全部で15個（最大配置）。</p>
+                <br>
+                <p><strong>【最小配置の導出】</strong></p>
+                <p>z=2の層: 正面図でx=1のみ、右側面図でy=1のみ → (1,1,2)の1セルが必須。</p>
+                <p>z=1の層: 正面図のx=0,1,2各列と右側面図のy=0,1各列をカバーする必要がある。(0,0,1)でx=0とy=0を、(1,1,1)でx=1とy=1を、(2,0,1)でx=2をカバーし、最小3個。</p>
+                <p>z=0の層: 上面図のy=2列（(0,2)と(1,2)が黒）と右側面図のy=2をカバーする必要がある。(0,2,0)と(1,2,0)でT[0][2]、T[1][2]、R[2][0]をカバー。残りの制約に(0,0,0)と(2,1,0)を追加し、z=0層は4個。</p>
+                <br>
+                <p>合計: 4個(z=0) + 3個(z=1) + 1個(z=2) = <strong>8個</strong></p>
+                <br>
+                <p><strong>【検証】</strong></p>
+                <p>配置: (0,0,0), (0,2,0), (1,2,0), (2,1,0), (0,0,1), (1,1,1), (2,0,1), (1,1,2) の8個で3つの投影図すべてに一致することが確認できる。7個以下では必ずいずれかの投影図で黒マスが不足する。</p>
+                <br>
+                <p>したがって、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考34/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>

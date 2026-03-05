@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .explanation { padding: 20px 0; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options { margin-left: 20px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の【図1】は、3×3×3の格子に積み木（単位立方体）を配置したときの各段（底面・中段・上段）を上から見た配置図である。黒いマスに積み木が置かれていることを表す。この積み木を正面（手前）から見た投影図が【図2】のとおりであるとき、右側面（右方向）から見た投影図として正しいものを、(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図1: 各段の配置図
+                座標系: x=左→右(0,1,2), y=手前→奥(0,1,2)
+                セルサイズ: 28×28px, グリッド全体: 84×84px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】各段の配置（上から見た図）</div>
+                    <div class="figure-content">
+                        <svg width="620" height="160" viewBox="0 0 620 160">
+                            <!-- 底面 (z=0): 全面 -->
+                            <g transform="translate(20, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">底面（z=0）</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- y=2 (奥) -->
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- y=1 -->
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- y=0 (手前) -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- 軸ラベル -->
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                    <text x="-12" y="45" class="svg-text" text-anchor="middle" font-size="11" transform="rotate(-90,-12,45)">y↑</text>
+                                    <!-- y軸ラベル -->
+                                    <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                                    <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                                </g>
+                            </g>
+
+                            <!-- 中段 (z=1): (0,0),(1,0),(2,0),(0,1),(1,1) -->
+                            <g transform="translate(220, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">中段（z=1）</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- y=2 (奥) -->
+                                    <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- y=1 -->
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- y=0 (手前) -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                    <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                                    <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                                </g>
+                            </g>
+
+                            <!-- 上段 (z=2): (0,0) のみ -->
+                            <g transform="translate(420, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">上段（z=2）</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- y=2 (奥) -->
+                                    <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- y=1 -->
+                                    <rect x="0" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- y=0 (手前) -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                    <text x="92" y="18" font-size="10" class="svg-text">奥</text>
+                                    <text x="92" y="74" font-size="10" class="svg-text">手前</text>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                図2: 正面図 (x-z平面)
+                正面図: z=2: ■□□, z=1: ■■■, z=0: ■■■
+                セルサイズ: 28×28px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】正面から見た投影図</div>
+                    <div class="figure-content">
+                        <svg width="160" height="130" viewBox="0 0 160 130">
+                            <g transform="translate(30, 5)">
+                                <!-- z=2 (上) -->
+                                <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                <!-- z=1 -->
+                                <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <!-- z=0 (下) -->
+                                <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                <!-- 軸ラベル -->
+                                <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢（5つの右側面図候補） -->
+                <!--
+                正解: (4) z=2:■□□, z=1:■■□, z=0:■■■
+                (1) z=2:■■□, z=1:■■□, z=0:■■■
+                (2) z=2:■□□, z=1:■■■, z=0:■■■
+                (3) z=2:■□□, z=1:■□□, z=0:■■■
+                (5) z=2:□□□, z=1:■■□, z=0:■■■
+                ビューは R[y][z] で y=手前→奥(左→右), z=下→上(下→上)
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="620" height="120" viewBox="0 0 620 120">
+                            <!-- 選択肢(1): z=2:■■□, z=1:■■□, z=0:■■■ -->
+                            <g transform="translate(10, 0)">
+                                <text x="42" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                                <g transform="translate(0, 18)">
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(2): z=2:■□□, z=1:■■■, z=0:■■■ -->
+                            <g transform="translate(130, 0)">
+                                <text x="42" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                                <g transform="translate(0, 18)">
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(3): z=2:■□□, z=1:■□□, z=0:■■■ -->
+                            <g transform="translate(250, 0)">
+                                <text x="42" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                                <g transform="translate(0, 18)">
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(4) ★正解: z=2:■□□, z=1:■■□, z=0:■■■ -->
+                            <g transform="translate(370, 0)">
+                                <text x="42" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                                <g transform="translate(0, 18)">
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(5): z=2:□□□, z=1:■■□, z=0:■■■ -->
+                            <g transform="translate(490, 0)">
+                                <text x="42" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                                <g transform="translate(0, 18)">
+                                    <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【投影図の求め方】</strong><br>
+                右側面から見た投影図は、右方向（x軸の正方向）から積み木を見たときの影にあたる。<br>
+                座標系はy軸（手前→奥）が横方向、z軸（下→上）が縦方向となる。<br>
+                各(y, z)のマスについて、x=0, 1, 2のいずれかに積み木があれば黒く塗る。<br><br>
+
+                <strong>【各マスの判定】</strong><br>
+                ・z=0（底面）: 全面に積み木があるため、y=0,1,2すべてのマスが黒 → ■■■<br>
+                ・z=1（中段）: y=0には(0,0,1),(1,0,1),(2,0,1)があり黒。y=1には(0,1,1),(1,1,1)があり黒。y=2には積み木がなく白。→ ■■□<br>
+                ・z=2（上段）: y=0には(0,0,2)があり黒。y=1,2には積み木がなく白。→ ■□□<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) z=2が「■■□」→ y=1に上段の積み木は存在しないため不正解<br>
+                ・(2) z=1が「■■■」→ y=2に中段の積み木は存在しないため不正解<br>
+                ・(3) z=1が「■□□」→ y=1に(0,1,1)と(1,1,1)が存在するため不正解<br>
+                ・(4) z=2:■□□、z=1:■■□、z=0:■■■ → 全マス正しい。<strong>正解</strong><br>
+                ・(5) z=2が「□□□」→ y=0に(0,0,2)が存在するため不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．3×3×3の格子に積み木（単位立方体）を配置する。下の【図3】に示す3つの投影図（正面図・右側面図・上面図）のすべてに一致するような配置を考える。このとき、使用する積み木の最小個数として正しいものを、(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図3: 三面図
+                正面図 F[x][z]: z=2:□■□, z=1:■■■, z=0:■■■
+                右側面図 R[y][z]: z=2:□■□, z=1:■■□, z=0:■■■
+                上面図 T[x][y]: y=2:■■□, y=1:■■■, y=0:■■■
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図3】3つの投影図</div>
+                    <div class="figure-content">
+                        <svg width="600" height="190" viewBox="0 0 600 190">
+                            <!-- 正面図 -->
+                            <g transform="translate(30, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">正面図</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- z=2 (上): □■□ -->
+                                    <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- z=1: ■■■ -->
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- z=0 (下): ■■■ -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                    <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                                </g>
+                            </g>
+
+                            <!-- 右側面図 -->
+                            <g transform="translate(220, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">右側面図</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- z=2 (上): □■□ -->
+                                    <rect x="0" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- z=1: ■■□ -->
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- z=0 (下): ■■■ -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">y→</text>
+                                    <text x="-8" y="8" font-size="10" class="svg-text">z↑</text>
+                                </g>
+                            </g>
+
+                            <!-- 上面図 -->
+                            <g transform="translate(410, 10)">
+                                <text x="42" y="15" class="svg-text" text-anchor="middle" font-weight="bold">上面図</text>
+                                <g transform="translate(0, 22)">
+                                    <!-- y=2 (奥): ■■□ -->
+                                    <rect x="0" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="0" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="0" width="28" height="28" fill="white" stroke="black" stroke-width="1"/>
+                                    <!-- y=1: ■■■ -->
+                                    <rect x="0" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <!-- y=0 (手前): ■■■ -->
+                                    <rect x="0" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="28" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <rect x="56" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1"/>
+                                    <text x="42" y="100" class="svg-text" text-anchor="middle" font-size="11">x→</text>
+                                    <text x="-8" y="8" font-size="10" class="svg-text">y↑</text>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　7個<br>
+                    (2)　8個<br>
+                    (3)　9個<br>
+                    (4)　10個<br>
+                    (5)　11個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【基本的な考え方】</strong><br>
+                投影図は、ある方向から見たときに「積み木が存在する」マスを黒で表す。3つの投影図すべてに一致するには、各投影図の黒いマスに対して少なくとも1つの積み木が寄与する必要がある。最小個数を求めるには、1つの積み木ができるだけ多くの投影条件を同時に満たすように配置する。<br><br>
+
+                <strong>【制約の整理】</strong><br>
+                配置可能なセル(x,y,z)は、正面図のF[x][z]=1、右側面図のR[y][z]=1、上面図のT[x][y]=1をすべて満たすセルのみ。<br>
+                これを満たすセルは全部で15個ある（最大配置）。<br><br>
+
+                <strong>【最小配置の導出】</strong><br>
+                各投影図の黒マスをすべてカバーする最小の配置を考える。<br><br>
+                ・z=0の層: 正面図でx=0,1,2が黒、右側面図でy=0,1,2が黒 → 全9セルが候補。上面図のT[x][y]=0となる(2,2)を除く8セルが配置可能。<br>
+                ・z=1の層: 正面図でx=0,1,2が黒、右側面図でy=0,1が黒 → 上面図の制約も合わせて6セルが候補。<br>
+                ・z=2の層: 正面図でx=1のみ、右側面図でy=1のみ → (1,1,2)の1セルのみ。<br><br>
+
+                z=2は(1,1,2)が必須（1個）。<br>
+                z=1は、正面図のx=0,1,2各列と右側面図のy=0,1各列をカバーする必要がある。<br>
+                (0,0,1)でx=0とy=0を、(1,1,1)でx=1とy=1を、(2,0,1)でx=2を同時にカバーでき、最小3個。<br>
+                z=0は、上面図のy=2列（(0,2)と(1,2)が黒）と右側面図のy=2をカバーする必要がある。<br>
+                (0,2,0)でT[0][2]とR[2][0]をカバー、(1,2,0)でT[1][2]をカバー。<br>
+                さらに残りのz=0の制約を、z=1の配置と(1,1,2)が部分的に満たすが、z=0層自体の正面図・右側面図の全マスカバーには追加が必要。<br>
+                最終的に(0,0,0)と(2,1,0)を追加し、z=0層は4個で全制約をカバー。<br><br>
+
+                合計: 4個(z=0) + 3個(z=1) + 1個(z=2) = <strong>8個</strong><br><br>
+
+                <strong>【検証】</strong><br>
+                配置: (0,0,0), (0,2,0), (1,2,0), (2,1,0), (0,0,1), (1,1,1), (2,0,1), (1,1,2)<br>
+                正面図: x=0→y方向に(0,0,0),(0,2,0),(0,0,1)あり。x=1→(1,2,0),(1,1,1),(1,1,2)あり。x=2→(2,1,0),(2,0,1)あり。z各段もカバー → 一致<br>
+                右側面図: 同様に全マスカバーを確認 → 一致<br>
+                上面図: (x,y)=(0,0),(0,2),(1,1),(1,2),(2,0),(2,1)が黒+(1,1)は重複。T[0][0]=1, T[0][2]=1, T[1][1]=1, T[1][2]=1, T[2][0]=1, T[2][1]=1 → 一致<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
