@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .explanation { padding: 20px 0; }
+
+        /* 機械仕様テーブル */
+        .spec-table-wrapper {
+            margin: 18px 0;
+            border: 2px solid #555;
+        }
+        .spec-table-title {
+            background-color: #555;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 12px;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .spec-table th {
+            background-color: #e0e0e0;
+            border: 1px solid #888;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        .spec-table td {
+            border: 1px solid #888;
+            padding: 7px 10px;
+            text-align: center;
+            background-color: white;
+        }
+        .spec-table tr:nth-child(even) td { background-color: #fafafa; }
+        .spec-table .machine-col { font-weight: bold; }
+
+        /* 制約条件ボックス */
+        .constraint-box {
+            border: 2px dashed #777;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14px;
+        }
+        .constraint-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .constraint-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .constraint-box ul li::before {
+            content: "・";
+        }
+        .constraint-box ul li {
+            line-height: 1.6;
+        }
+
+        /* 選択肢 */
+        .choices {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 15px;
+        }
+        .choice-item { white-space: nowrap; }
+
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto;
+                min-height: auto; margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下表は、ある工場の生産機械P、Q、Rの仕様データである。240分の稼働時間で生産できる製品の最大数として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!-- 機械仕様テーブル -->
+                <div class="spec-table-wrapper">
+                    <div class="spec-table-title">機械仕様データ</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>機械</th>
+                                <th>処理能力<br>（個/分）</th>
+                                <th>連続稼働時間<br>（分）</th>
+                                <th>クールタイム<br>（分）</th>
+                                <th>1サイクルの<br>生産量（個）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="machine-col">機械P</td>
+                                <td>12</td>
+                                <td>30</td>
+                                <td>10</td>
+                                <td>360</td>
+                            </tr>
+                            <tr>
+                                <td class="machine-col">機械Q</td>
+                                <td>10</td>
+                                <td>40</td>
+                                <td>20</td>
+                                <td>400</td>
+                            </tr>
+                            <tr>
+                                <td class="machine-col">機械R</td>
+                                <td>16</td>
+                                <td>25</td>
+                                <td>15</td>
+                                <td>400</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 制約条件 -->
+                <div class="constraint-box">
+                    <div class="constraint-title">制約条件</div>
+                    <ul>
+                        <li>各機械は連続稼働時間を終えるまで途中で停止することはできない</li>
+                        <li>稼働後は必ず指定されたクールタイムを取る必要がある</li>
+                        <li>同時に稼働できるのは<strong>最大2台まで</strong>（クールタイムも稼働中とみなす）</li>
+                        <li>240分の制限時間内に完了するサイクルのみ生産量としてカウント</li>
+                        <li>全ての機械を使用する必要はない</li>
+                    </ul>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="choices">
+                    <span class="choice-item">（1）3,200個</span>
+                    <span class="choice-item">（2）4,560個</span>
+                    <span class="choice-item">（3）4,000個</span>
+                    <span class="choice-item">（4）3,760個</span>
+                    <span class="choice-item">（5）4,800個</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解：（2））</strong><br><br>
+
+                <strong>【各機械の1サイクル時間と生産量を確認する】</strong><br>
+                ・機械P：連続30分＋クール10分＝1サイクル40分、360個/サイクル<br>
+                ・機械Q：連続40分＋クール20分＝1サイクル60分、400個/サイクル<br>
+                ・機械R：連続25分＋クール15分＝1サイクル40分、400個/サイクル<br><br>
+
+                <strong>【240分間のサイクル数を計算する】</strong><br>
+                ・機械P：240÷40＝6サイクル → 6×360＝<strong>2,160個</strong><br>
+                ・機械Q：240÷60＝4サイクル → 4×400＝<strong>1,600個</strong><br>
+                ・機械R：240÷40＝6サイクル → 6×400＝<strong>2,400個</strong><br><br>
+
+                <strong>【2台同時稼働の組み合わせを検討する】</strong><br>
+                機械PとRはともに40分サイクルで240分をちょうど埋め尽くす。<br>
+                よって2台を同時稼働させた場合の最大を求める：<br>
+                ・P＋Q：2,160＋1,600＝<strong>3,760個</strong>　→ 選択肢（4）<br>
+                ・P＋R：2,160＋2,400＝<strong>4,560個</strong>　→ 選択肢（2）（最大）<br>
+                ・Q＋R：1,600＋2,400＝<strong>4,000個</strong>　→ 選択肢（3）<br><br>
+
+                <strong>【3台使用の検討】</strong><br>
+                PとRはともに240分を隙間なく稼働するため、同時稼働すれば常に2台が占有される。
+                Qが割り込む余地はなく、PとRを切り替えても4,160個止まりで4,560個に届かない。<br><br>
+
+                よって最大生産量はP＋Rの組み合わせによる<strong>4,560個</strong>であり、正解は<strong>（2）</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下表は、ある工場の生産機械W、X、Y、Zの仕様データである。300分の稼働時間で生産できる製品の最大数として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!-- 機械仕様テーブル -->
+                <div class="spec-table-wrapper">
+                    <div class="spec-table-title">機械仕様データ</div>
+                    <table class="spec-table">
+                        <thead>
+                            <tr>
+                                <th>機械</th>
+                                <th>処理能力<br>（個/分）</th>
+                                <th>連続稼働時間<br>（分）</th>
+                                <th>クールタイム<br>（分）</th>
+                                <th>1サイクルの<br>生産量（個）</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="machine-col">機械W</td>
+                                <td>15</td>
+                                <td>40</td>
+                                <td>20</td>
+                                <td>600</td>
+                            </tr>
+                            <tr>
+                                <td class="machine-col">機械X</td>
+                                <td>12</td>
+                                <td>40</td>
+                                <td>10</td>
+                                <td>480</td>
+                            </tr>
+                            <tr>
+                                <td class="machine-col">機械Y</td>
+                                <td>20</td>
+                                <td>20</td>
+                                <td>10</td>
+                                <td>400</td>
+                            </tr>
+                            <tr>
+                                <td class="machine-col">機械Z</td>
+                                <td>18</td>
+                                <td>30</td>
+                                <td>20</td>
+                                <td>540</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 制約条件 -->
+                <div class="constraint-box">
+                    <div class="constraint-title">制約条件</div>
+                    <ul>
+                        <li>各機械は連続稼働時間を終えるまで途中で停止することはできない</li>
+                        <li>稼働後は必ず指定されたクールタイムを取る必要がある</li>
+                        <li>同時に稼働できるのは<strong>最大2台まで</strong>（クールタイムも稼働中とみなす）</li>
+                        <li>300分の制限時間内に完了するサイクルのみ生産量としてカウント</li>
+                        <li>全ての機械を使用する必要はない</li>
+                    </ul>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="choices">
+                    <span class="choice-item">（1）5,880個</span>
+                    <span class="choice-item">（2）6,880個</span>
+                    <span class="choice-item">（3）7,240個</span>
+                    <span class="choice-item">（4）7,000個</span>
+                    <span class="choice-item">（5）7,560個</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解：（3））</strong><br><br>
+
+                <strong>【各機械の1サイクル時間と生産量を確認する】</strong><br>
+                ・機械W：連続40分＋クール20分＝1サイクル60分、600個/サイクル<br>
+                ・機械X：連続40分＋クール10分＝1サイクル50分、480個/サイクル<br>
+                ・機械Y：連続20分＋クール10分＝1サイクル30分、400個/サイクル<br>
+                ・機械Z：連続30分＋クール20分＝1サイクル50分、540個/サイクル<br><br>
+
+                <strong>【300分間のサイクル数を計算する】</strong><br>
+                ・機械W：300÷60＝5サイクル → 5×600＝<strong>3,000個</strong><br>
+                ・機械X：300÷50＝6サイクル → 6×480＝<strong>2,880個</strong><br>
+                ・機械Y：300÷30＝10サイクル → 10×400＝<strong>4,000個</strong><br>
+                ・機械Z：300÷50＝6サイクル → 6×540＝<strong>3,240個</strong><br><br>
+
+                <strong>【2台同時稼働の全組み合わせを検討する】</strong><br>
+                全4機械はいずれも300分をちょうど埋め尽くすサイクル構成のため、<br>
+                同時稼働した2台は常に300分間フル稼働する：<br>
+                ・W＋X：3,000＋2,880＝5,880個　→ 選択肢（1）<br>
+                ・W＋Y：3,000＋4,000＝7,000個　→ 選択肢（4）（注意：落とし穴）<br>
+                ・W＋Z：3,000＋3,240＝6,240個<br>
+                ・X＋Y：2,880＋4,000＝6,880個　→ 選択肢（2）<br>
+                ・X＋Z：2,880＋3,240＝6,120個<br>
+                ・<strong>Y＋Z：4,000＋3,240＝7,240個</strong>　→ 選択肢（3）（最大）<br><br>
+
+                <strong>【3台使用の検討】</strong><br>
+                全機械が300分を隙間なく稼働するため、2台稼働中は3台目を追加不可。<br>
+                切替え戦略でも最大7,240個を超えることはできない。<br>
+                W＋Yを7,000個と見て最大と誤判断しやすいが、Y＋Zの7,240個が真の最大。<br><br>
+
+                よって最大生産量はY＋Zの組み合わせによる<strong>7,240個</strong>であり、正解は<strong>（3）</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; }
+        svg { max-width: 100%; height: auto; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+
+        /* 機械仕様テーブル */
+        .spec-table-wrapper {
+            margin: 12px 0;
+            border: 2px solid #555;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .spec-table-title {
+            background-color: #555;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            padding: 5px 12px;
+        }
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .spec-table th {
+            background-color: #e0e0e0;
+            border: 1px solid #aaa;
+            padding: 8px 10px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.4;
+        }
+        .spec-table td {
+            border: 1px solid #aaa;
+            padding: 7px 10px;
+            text-align: center;
+        }
+        .spec-table .machine-col { font-weight: bold; background-color: #f5f5f5; }
+
+        /* 制約条件ボックス */
+        .constraint-box {
+            border: 2px dashed #888;
+            padding: 12px 16px;
+            margin: 14px 0;
+            font-size: 14px;
+            border-radius: 4px;
+        }
+        .constraint-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .constraint-box ul {
+            list-style: none;
+            padding: 0;
+        }
+        .constraint-box ul li::before { content: "・"; }
+        .constraint-box ul li { line-height: 1.7; }
+
+        @media (max-width: 600px) {
+            .spec-table { font-size: 12px; }
+            .spec-table th, .spec-table td { padding: 5px 6px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下表は、ある工場の生産機械P、Q、Rの仕様データである。240分の稼働時間で生産できる製品の最大数として正しいものを1つ選べ。
+        </div>
+
+        <!-- 機械仕様テーブル -->
+        <div class="spec-table-wrapper">
+            <div class="spec-table-title">機械仕様データ</div>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>機械</th>
+                        <th>処理能力<br>（個/分）</th>
+                        <th>連続稼働時間<br>（分）</th>
+                        <th>クールタイム<br>（分）</th>
+                        <th>1サイクルの<br>生産量（個）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="machine-col">機械P</td>
+                        <td>12</td>
+                        <td>30</td>
+                        <td>10</td>
+                        <td>360</td>
+                    </tr>
+                    <tr>
+                        <td class="machine-col">機械Q</td>
+                        <td>10</td>
+                        <td>40</td>
+                        <td>20</td>
+                        <td>400</td>
+                    </tr>
+                    <tr>
+                        <td class="machine-col">機械R</td>
+                        <td>16</td>
+                        <td>25</td>
+                        <td>15</td>
+                        <td>400</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 制約条件 -->
+        <div class="constraint-box">
+            <div class="constraint-title">制約条件</div>
+            <ul>
+                <li>各機械は連続稼働時間を終えるまで途中で停止することはできない</li>
+                <li>稼働後は必ず指定されたクールタイムを取る必要がある</li>
+                <li>同時に稼働できるのは<strong>最大2台まで</strong>（クールタイムも稼働中とみなす）</li>
+                <li>240分の制限時間内に完了するサイクルのみ生産量としてカウント</li>
+                <li>全ての機械を使用する必要はない</li>
+            </ul>
+        </div>
+
+        <!-- 選択肢 -->
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">（1）</span>3,200個
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">（2）</span>4,560個
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">（3）</span>4,000個
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">（4）</span>3,760個
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">（5）</span>4,800個
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: （2））</div>
+            <div class="explanation-content">
+                <p><strong>【各機械の1サイクル時間と生産量を確認する】</strong></p>
+                <p>・機械P：30＋10＝40分/サイクル、12×30＝360個/サイクル</p>
+                <p>・機械Q：40＋20＝60分/サイクル、10×40＝400個/サイクル</p>
+                <p>・機械R：25＋15＝40分/サイクル、16×25＝400個/サイクル</p>
+                <br>
+                <p><strong>【240分間のサイクル数と生産量】</strong></p>
+                <p>・機械P：240÷40＝6サイクル → 6×360＝2,160個</p>
+                <p>・機械Q：240÷60＝4サイクル → 4×400＝1,600個</p>
+                <p>・機械R：240÷40＝6サイクル → 6×400＝2,400個</p>
+                <br>
+                <p><strong>【2台同時稼働の最大を求める】</strong></p>
+                <p>・P＋Q：2,160＋1,600＝3,760個　→（4）</p>
+                <p>・P＋R：2,160＋2,400＝<strong>4,560個</strong>　→（2）← 最大</p>
+                <p>・Q＋R：1,600＋2,400＝4,000個　→（3）</p>
+                <br>
+                <p>PとRはともに40分サイクルで240分を隙間なく占有するため、Qを割り込ませても生産量は増加しない。</p>
+                <br>
+                <p>よって正解は<strong>（2）4,560個</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            下表は、ある工場の生産機械W、X、Y、Zの仕様データである。300分の稼働時間で生産できる製品の最大数として正しいものを1つ選べ。
+        </div>
+
+        <!-- 機械仕様テーブル -->
+        <div class="spec-table-wrapper">
+            <div class="spec-table-title">機械仕様データ</div>
+            <table class="spec-table">
+                <thead>
+                    <tr>
+                        <th>機械</th>
+                        <th>処理能力<br>（個/分）</th>
+                        <th>連続稼働時間<br>（分）</th>
+                        <th>クールタイム<br>（分）</th>
+                        <th>1サイクルの<br>生産量（個）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="machine-col">機械W</td>
+                        <td>15</td>
+                        <td>40</td>
+                        <td>20</td>
+                        <td>600</td>
+                    </tr>
+                    <tr>
+                        <td class="machine-col">機械X</td>
+                        <td>12</td>
+                        <td>40</td>
+                        <td>10</td>
+                        <td>480</td>
+                    </tr>
+                    <tr>
+                        <td class="machine-col">機械Y</td>
+                        <td>20</td>
+                        <td>20</td>
+                        <td>10</td>
+                        <td>400</td>
+                    </tr>
+                    <tr>
+                        <td class="machine-col">機械Z</td>
+                        <td>18</td>
+                        <td>30</td>
+                        <td>20</td>
+                        <td>540</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 制約条件 -->
+        <div class="constraint-box">
+            <div class="constraint-title">制約条件</div>
+            <ul>
+                <li>各機械は連続稼働時間を終えるまで途中で停止することはできない</li>
+                <li>稼働後は必ず指定されたクールタイムを取る必要がある</li>
+                <li>同時に稼働できるのは<strong>最大2台まで</strong>（クールタイムも稼働中とみなす）</li>
+                <li>300分の制限時間内に完了するサイクルのみ生産量としてカウント</li>
+                <li>全ての機械を使用する必要はない</li>
+            </ul>
+        </div>
+
+        <!-- 選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                <span class="option-label">（1）</span>5,880個
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                <span class="option-label">（2）</span>6,880個
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                <span class="option-label">（3）</span>7,240個
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                <span class="option-label">（4）</span>7,000個
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                <span class="option-label">（5）</span>7,560個
+            </button>
+        </div>
+
+        <!-- 解説 -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: （3））</div>
+            <div class="explanation-content">
+                <p><strong>【各機械の1サイクル時間と生産量を確認する】</strong></p>
+                <p>・機械W：40＋20＝60分/サイクル、15×40＝600個/サイクル</p>
+                <p>・機械X：40＋10＝50分/サイクル、12×40＝480個/サイクル</p>
+                <p>・機械Y：20＋10＝30分/サイクル、20×20＝400個/サイクル</p>
+                <p>・機械Z：30＋20＝50分/サイクル、18×30＝540個/サイクル</p>
+                <br>
+                <p><strong>【300分間のサイクル数と生産量】</strong></p>
+                <p>・機械W：300÷60＝5サイクル → 5×600＝3,000個</p>
+                <p>・機械X：300÷50＝6サイクル → 6×480＝2,880個</p>
+                <p>・機械Y：300÷30＝10サイクル → 10×400＝4,000個</p>
+                <p>・機械Z：300÷50＝6サイクル → 6×540＝3,240個</p>
+                <br>
+                <p><strong>【2台同時稼働の全組み合わせを比較する】</strong></p>
+                <p>・W＋X：3,000＋2,880＝5,880個　→（1）</p>
+                <p>・W＋Y：3,000＋4,000＝7,000個　→（4）（落とし穴：最大ではない）</p>
+                <p>・W＋Z：3,000＋3,240＝6,240個</p>
+                <p>・X＋Y：2,880＋4,000＝6,880個　→（2）</p>
+                <p>・X＋Z：2,880＋3,240＝6,120個</p>
+                <p>・Y＋Z：4,000＋3,240＝<strong>7,240個</strong>　→（3）← 最大</p>
+                <br>
+                <p>全4機械がいずれも300分をちょうど埋め尽くすため、3台目を割り込ませる余地はない。処理能力の高いYと単位時間あたりの生産効率が優秀なZの組み合わせが最大となる。W＋Yの7,000個と混同しないよう注意。</p>
+                <br>
+                <p>よって正解は<strong>（3）7,240個</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考33/問${questionNum}`,
+                    selectedOption,
+                    correctOption,
+                    isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            btn.classList.add('disabled');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
