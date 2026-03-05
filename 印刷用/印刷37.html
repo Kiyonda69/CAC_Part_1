@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .option-table { margin: 15px 0; border-collapse: collapse; width: 100%; }
+        .option-table td, .option-table th { padding: 8px 15px; text-align: center; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．正方形のタイルからなるいくつかのピースを組み合わせると、下の図のような形になった。この形にもう1つのピースを加えて、穴の無い長方形を完成させたい。加えるべきピースはどれか。正しいものを1つ選び、解答用紙にマークせよ。ただし、ピースは回転させてよいが、裏返してはならない。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 420x200px
+                - viewBox: 0 0 420 200
+                - 5列×4行のグリッド、セルサイズ40px
+                - 塗り: 15セル（白、黒枠）、空き: 5セル（灰色、破線枠）
+                - 空きセルはF型ペントミノの形状
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="420" height="200" viewBox="0 0 420 200">
+                            <!-- 目標長方形の破線アウトライン -->
+                            <rect x="110" y="15" width="200" height="160" fill="none" stroke="#bbb" stroke-width="1" stroke-dasharray="5,5"/>
+
+                            <!-- 空きセル（F型ペントミノの隙間）灰色で表示 -->
+                            <rect x="190" y="15" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <rect x="230" y="15" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <rect x="150" y="55" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <rect x="190" y="55" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <rect x="190" y="95" width="40" height="40" fill="#e8e8e8" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+
+                            <!-- 塗りセル（既存ピース）行0 -->
+                            <rect x="110" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="150" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="270" y="15" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 行1 -->
+                            <rect x="110" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="230" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="270" y="55" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 行2 -->
+                            <rect x="110" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="150" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="230" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="270" y="95" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 行3 -->
+                            <rect x="110" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="150" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="190" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="230" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="270" y="135" width="40" height="40" fill="white" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!--
+                        選択肢仕様:
+                        - 5つのペントミノを横並び
+                        - セルサイズ: 28px
+                        - 各オプション幅: 約120px
+                        -->
+                        <svg width="620" height="120" viewBox="0 0 620 120">
+                            <!-- (1) T型ペントミノ: XXX/.X./.X. -->
+                            <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                            <rect x="13" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="41" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="69" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="41" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="41" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- (2) F'型（Fの鏡像）: XX./.XX/.X. -->
+                            <text x="175" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                            <rect x="133" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="161" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="161" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="189" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="161" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- (3) P型: XX/XX/X. -->
+                            <text x="290" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                            <rect x="262" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="290" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="262" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="290" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="262" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- (4) F型（正解）: .X./.XX/XX. -->
+                            <text x="413" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                            <rect x="399" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="399" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="427" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="371" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="399" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- (5) W型: X../XX./.XX -->
+                            <text x="535" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                            <rect x="493" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="493" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="521" y="50" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="521" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="549" y="78" width="28" height="28" fill="white" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【目標の特定】</strong><br>
+                図の形は5列×4行の範囲に収まっており、15マス分のタイルがある。5×4=20マスの長方形を完成させるには、5マス分のピースを加えればよい。<br><br>
+
+                <strong>【空きの形の分析】</strong><br>
+                空いている5マスの位置は以下の通りである：<br>
+                ・行0の列2, 列3<br>
+                ・行1の列1, 列2<br>
+                ・行2の列2<br>
+                これらを図示すると、F型ペントミノの形状になる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) T型ペントミノ：十字型の形状であり、空きの形と一致しない<br>
+                ・(2) F'型（Fの鏡像）：Fに似ているが左右が反転している。裏返しは禁止なので、回転だけではFの形にならない<br>
+                ・(3) P型ペントミノ：2×2ブロックに1マス追加した形状であり、空きの形と一致しない<br>
+                ・(4) F型ペントミノ：180度回転すると空きの形と完全に一致する。<strong>正解</strong><br>
+                ・(5) W型ペントミノ：階段状の形状であり、空きの形と一致しない<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．一辺の長さがaの正四面体ABCDにおいて、辺ABの中点をM、辺CDの中点をNとする。線分MNについて、次の記述ア～エのうち正しいものをすべて含む組み合わせはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 440x280px
+                - viewBox: 0 0 440 280
+                - 正四面体の2D投影図
+                - A=(90,250), B=(350,250), C=(360,80), D=(120,40)
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="440" height="280" viewBox="0 0 440 280">
+                            <!-- 辺（実線） -->
+                            <line x1="90" y1="250" x2="350" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="90" y1="250" x2="360" y2="80" stroke="black" stroke-width="2"/>
+                            <line x1="90" y1="250" x2="120" y2="40" stroke="black" stroke-width="2"/>
+                            <line x1="350" y1="250" x2="360" y2="80" stroke="black" stroke-width="2"/>
+                            <line x1="350" y1="250" x2="120" y2="40" stroke="black" stroke-width="2"/>
+                            <!-- CD辺（背面、破線） -->
+                            <line x1="360" y1="80" x2="120" y2="40" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+
+                            <!-- MN線分（太い破線） -->
+                            <line x1="220" y1="250" x2="240" y2="60" stroke="black" stroke-width="2.5" stroke-dasharray="6,4"/>
+
+                            <!-- 頂点ラベル -->
+                            <text x="75" y="268" class="svg-text" font-size="16" font-weight="bold">A</text>
+                            <text x="360" y="268" class="svg-text" font-size="16" font-weight="bold">B</text>
+                            <text x="370" y="78" class="svg-text" font-size="16" font-weight="bold">C</text>
+                            <text x="100" y="35" class="svg-text" font-size="16" font-weight="bold">D</text>
+
+                            <!-- 中点マーカー -->
+                            <circle cx="220" cy="250" r="4" fill="black"/>
+                            <circle cx="240" cy="60" r="4" fill="black"/>
+
+                            <!-- 中点ラベル -->
+                            <text x="215" y="275" class="svg-text" font-size="15" font-weight="bold">M</text>
+                            <text x="248" y="55" class="svg-text" font-size="15" font-weight="bold">N</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="question-text" style="margin-top: 5px;">
+                    ア　MNの長さは a&radic;2 / 2 である<br>
+                    イ　MNは辺ABと辺CDの両方に垂直である<br>
+                    ウ　線分MNの中点は正四面体ABCDの重心と一致する<br>
+                    エ　線分MNは面ABCと面ABDのなす二面角の二等分面上にある
+                </div>
+
+                <div class="options">
+                    (1)　アとイのみ<br>
+                    (2)　ア、イ、ウのみ<br>
+                    (3)　ア、イ、エのみ<br>
+                    (4)　ア、ウ、エのみ<br>
+                    (5)　ア、イ、ウ、エのすべて
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                正四面体の辺の長さをaとし、座標を設定する。<br>
+                A=(0, 0, 0)、B=(a, 0, 0)、C=(a/2, a&radic;3/2, 0)、D=(a/2, a&radic;3/6, a&radic;(2/3))<br><br>
+
+                M = AB中点 = (a/2, 0, 0)<br>
+                N = CD中点 = (a/2, a&radic;3/3, a&radic;(2/3)/2)<br>
+                MNベクトル = (0, a&radic;3/3, a&radic;(2/3)/2)<br><br>
+
+                <strong>【ア の検証】</strong><br>
+                MN&sup2; = (a&radic;3/3)&sup2; + (a&radic;(2/3)/2)&sup2; = a&sup2;/3 + a&sup2;/6 = a&sup2;/2<br>
+                MN = a/&radic;2 = a&radic;2/2　→　<strong>正しい</strong><br><br>
+
+                <strong>【イ の検証】</strong><br>
+                AB = (a, 0, 0) → MN・AB = 0 → MN&perp;AB<br>
+                CD = (0, -a&radic;3/3, a&radic;(2/3)) → MN・CD = -a&sup2;/3 + a&sup2;/3 = 0 → MN&perp;CD<br>
+                → <strong>正しい</strong><br><br>
+
+                <strong>【ウ の検証】</strong><br>
+                重心G = (A+B+C+D)/4 = (a/2, a&radic;3/6, a&radic;(2/3)/4)<br>
+                MN中点 = (a/2, a&radic;3/6, a&radic;(2/3)/4)<br>
+                MN中点 = G → <strong>正しい</strong><br><br>
+
+                <strong>【エ の検証】</strong><br>
+                面ABCと面ABDのなす二面角の二等分面は、辺ABを含む平面である。<br>
+                面ABCの外向き法線: (0, 0, -1)<br>
+                面ABDの外向き法線: (0, -2&radic;2/3, 1/3)（正規化済み）<br>
+                二等分面の法線方向: (0, -2&radic;2/3, -2/3)<br>
+                点Nからこの二等分面までの距離を計算すると &radic;2/2 &ne; 0<br>
+                → 線分MNはこの二等分面上にない → <strong>誤り</strong><br><br>
+
+                正しいのはア、イ、ウの3つ。したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
