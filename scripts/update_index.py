@@ -147,7 +147,7 @@ def main():
     project_root = os.path.dirname(script_dir)
 
     # HTMLファイルを検索
-    pattern = os.path.join(project_root, '航大思考*.html')
+    pattern = os.path.join(project_root, '航大思考問題', '航大思考*.html')
     html_files = glob.glob(pattern)
 
     if not html_files:
