@@ -1,0 +1,503 @@
+<!--
+================================================================================
+印刷44.html - 資料読み取り問題2種（印刷用）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 公立図書館の蔵書数と年間貸出冊数の散布図から、
+  合計が前回比で減少した年を特定する
+- 問2（高難度）: 空港利用客の旅行目的別・渡航先地域別割合表から、
+  出張客数と観光客数を逆算し、出張客が観光客を上回る地域の出張客合計を求める
+
+【正解】
+- 問1: (2) 2005年
+- 問2: (5) 1170人
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、ある市の公立図書館における1990年から2020年までの30年間の蔵書数および年間貸出冊数の推移を5年ごとに示したものである。蔵書数と年間貸出冊数の合計が、前回の調査時点（5年前）と比較して減少した年はいつか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【蔵書数と年間貸出冊数の推移】</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 600x450px
+                        - viewBox: 0 0 600 450
+                        - 余白: 上40, 下60, 左80, 右20
+
+                        座標系定義:
+                        - プロット領域: x: 80-580, y: 40-390
+                        - X軸: 蔵書数（万冊）, 0-300, xPixel(v) = 80 + (v/300)*500
+                        - Y軸: 年間貸出冊数（万冊）, 0-400, yPixel(v) = 390 - (v/400)*350
+
+                        データ点:
+                        1990 (80, 180): (213, 233)
+                        1995 (105, 230): (255, 189)
+                        2000 (130, 280): (297, 145)
+                        2005 (155, 250): (338, 171)
+                        2010 (180, 300): (380, 128)
+                        2015 (210, 340): (430, 93)
+                        2020 (240, 370): (480, 66)
+                        -->
+                        <svg width="600" height="450" viewBox="0 0 600 450">
+                            <!-- Y軸ラベル（縦書き） -->
+                            <text x="15" y="215" class="svg-text" text-anchor="middle" transform="rotate(-90, 15, 215)" font-size="13">年間貸出冊数（万冊）</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="330" y="440" class="svg-text" text-anchor="middle" font-size="13">蔵書数（万冊）</text>
+
+                            <!-- Y軸目盛り線と数値 -->
+                            <line x1="80" y1="390" x2="580" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="70" y="394" class="svg-text" text-anchor="end" font-size="12">0</text>
+
+                            <line x1="80" y1="302" x2="580" y2="302" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="70" y="306" class="svg-text" text-anchor="end" font-size="12">100</text>
+
+                            <line x1="80" y1="215" x2="580" y2="215" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="70" y="219" class="svg-text" text-anchor="end" font-size="12">200</text>
+
+                            <line x1="80" y1="128" x2="580" y2="128" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="70" y="132" class="svg-text" text-anchor="end" font-size="12">300</text>
+
+                            <line x1="80" y1="40" x2="580" y2="40" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="70" y="44" class="svg-text" text-anchor="end" font-size="12">400</text>
+
+                            <!-- X軸目盛り線と数値 -->
+                            <line x1="80" y1="40" x2="80" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="80" y="410" class="svg-text" text-anchor="middle" font-size="12">0</text>
+
+                            <line x1="163" y1="40" x2="163" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="163" y="410" class="svg-text" text-anchor="middle" font-size="12">50</text>
+
+                            <line x1="247" y1="40" x2="247" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="247" y="410" class="svg-text" text-anchor="middle" font-size="12">100</text>
+
+                            <line x1="330" y1="40" x2="330" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="330" y="410" class="svg-text" text-anchor="middle" font-size="12">150</text>
+
+                            <line x1="413" y1="40" x2="413" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="413" y="410" class="svg-text" text-anchor="middle" font-size="12">200</text>
+
+                            <line x1="497" y1="40" x2="497" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="497" y="410" class="svg-text" text-anchor="middle" font-size="12">250</text>
+
+                            <line x1="580" y1="40" x2="580" y2="390" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/>
+                            <text x="580" y="410" class="svg-text" text-anchor="middle" font-size="12">300</text>
+
+                            <!-- 軸線 -->
+                            <line x1="80" y1="390" x2="580" y2="390" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="40" x2="80" y2="390" stroke="black" stroke-width="2"/>
+
+                            <!-- データ点とラベル -->
+                            <!-- 1990年 (80, 180) → pixel (213, 233) -->
+                            <circle cx="213" cy="233" r="5" fill="black"/>
+                            <text x="213" y="255" class="svg-text" text-anchor="middle" font-size="11">1990年：80, 180</text>
+
+                            <!-- 1995年 (105, 230) → pixel (255, 189) -->
+                            <circle cx="255" cy="189" r="5" fill="black"/>
+                            <text x="255" y="181" class="svg-text" text-anchor="middle" font-size="11">1995年：105, 230</text>
+
+                            <!-- 2000年 (130, 280) → pixel (297, 145) -->
+                            <circle cx="297" cy="145" r="5" fill="black"/>
+                            <text x="297" y="137" class="svg-text" text-anchor="middle" font-size="11">2000年：130, 280</text>
+
+                            <!-- 2005年 (155, 250) → pixel (338, 171) -->
+                            <circle cx="338" cy="171" r="5" fill="black"/>
+                            <text x="370" y="186" class="svg-text" text-anchor="start" font-size="11">2005年：155, 250</text>
+
+                            <!-- 2010年 (180, 300) → pixel (380, 128) -->
+                            <circle cx="380" cy="128" r="5" fill="black"/>
+                            <text x="380" y="120" class="svg-text" text-anchor="middle" font-size="11">2010年：180, 300</text>
+
+                            <!-- 2015年 (210, 340) → pixel (430, 93) -->
+                            <circle cx="430" cy="93" r="5" fill="black"/>
+                            <text x="430" y="85" class="svg-text" text-anchor="middle" font-size="11">2015年：210, 340</text>
+
+                            <!-- 2020年 (240, 370) → pixel (480, 66) -->
+                            <circle cx="480" cy="66" r="5" fill="black"/>
+                            <text x="480" y="58" class="svg-text" text-anchor="middle" font-size="11">2020年：240, 370</text>
+                        </svg>
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                        （文部科学省：「社会教育調査（令和3年度）」より作成（一部改変））
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 2000年</td>
+                            <td>(2) 2005年</td>
+                            <td>(3) 2010年</td>
+                            <td>(4) 2015年</td>
+                            <td>(5) 2020年</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                各年の蔵書数と貸出冊数の合計を求め、5年前の値と比較する。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・1990年: 80 + 180 = 260<br>
+                ・1995年: 105 + 230 = 335（前回比 +75、増加）<br>
+                ・2000年: 130 + 280 = 410（前回比 +75、増加）<br>
+                ・<strong>2005年: 155 + 250 = 405（前回比 -5、減少）</strong><br>
+                ・2010年: 180 + 300 = 480（前回比 +75、増加）<br>
+                ・2015年: 210 + 340 = 550（前回比 +70、増加）<br>
+                ・2020年: 240 + 370 = 610（前回比 +60、増加）<br><br>
+
+                蔵書数は一貫して増加しているが、2005年は貸出冊数が2000年の280万冊から250万冊に減少しており、蔵書数の増加分（+25）を上回る減少（-30）が生じたため、合計が前回より減少した唯一の年である。<br><br>
+
+                したがって、正解は<strong>(2) 2005年</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、ある国際空港の年間利用客4500人について、旅行目的（出張・観光）と渡航先地域別の人数の割合を示したものである。出張客が観光客を上回っている渡航先地域をすべて特定し、それらの地域の出張客の合計は何人か。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【旅行目的別・渡航先地域別利用客の割合（計4500人）】</div>
+                    <div class="figure-content">
+                        <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（単位：%）</div>
+                        <table class="figure-table">
+                            <tr>
+                                <th style="min-width: 80px;">
+                                    <div style="position: relative; height: 40px;">
+                                        <span style="position: absolute; top: 0; right: 5px; font-size: 12px;">地域</span>
+                                        <span style="position: absolute; bottom: 0; left: 5px; font-size: 12px;">目的</span>
+                                        <svg width="80" height="40" viewBox="0 0 80 40" style="position: absolute; top: 0; left: 0;">
+                                            <line x1="0" y1="40" x2="80" y2="0" stroke="#333" stroke-width="1"/>
+                                        </svg>
+                                    </div>
+                                </th>
+                                <th>北米</th>
+                                <th>ヨーロッパ</th>
+                                <th>アジア</th>
+                                <th>オセアニア</th>
+                                <th>その他</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">出　張</td>
+                                <td>40.0</td>
+                                <td>20.0</td>
+                                <td>25.0</td>
+                                <td>8.0</td>
+                                <td>7.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">観　光</td>
+                                <td>20.0</td>
+                                <td>35.0</td>
+                                <td>15.0</td>
+                                <td>18.0</td>
+                                <td>12.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">全　体</td>
+                                <td>28.0</td>
+                                <td>29.0</td>
+                                <td>19.0</td>
+                                <td>14.0</td>
+                                <td>10.0</td>
+                                <td>100.0</td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                            （国土交通省：「航空輸送統計年報（令和7年度）」より作成（一部改変））
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 990人</td>
+                            <td>(2) 1050人</td>
+                            <td>(3) 1080人</td>
+                            <td>(4) 1110人</td>
+                            <td>(5) 1170人</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                まず、全体の割合と各目的の割合から連立方程式を立て、出張客と観光客の人数を求める。次に、各地域の出張客数と観光客数を比較する。<br><br>
+
+                <strong>【出張客数・観光客数の算出】</strong><br>
+                出張客をB人、観光客をL人とすると、B + L = 4500<br>
+                北米について: 0.40B + 0.20L = 0.28 × 4500 = 1260<br>
+                0.40B + 0.20(4500 - B) = 1260<br>
+                0.40B + 900 - 0.20B = 1260<br>
+                0.20B = 360<br>
+                <strong>B = 1800（出張客）、L = 2700（観光客）</strong><br><br>
+
+                <strong>【地域別比較】</strong><br>
+                ・北米: 出張 0.40 × 1800 = <strong>720</strong>、観光 0.20 × 2700 = 540 → 出張 > 観光<br>
+                ・ヨーロッパ: 出張 0.20 × 1800 = 360、観光 0.35 × 2700 = 945 → 出張 < 観光<br>
+                ・アジア: 出張 0.25 × 1800 = <strong>450</strong>、観光 0.15 × 2700 = 405 → 出張 > 観光<br>
+                ・オセアニア: 出張 0.08 × 1800 = 144、観光 0.18 × 2700 = 486 → 出張 < 観光<br>
+                ・その他: 出張 0.07 × 1800 = 126、観光 0.12 × 2700 = 324 → 出張 < 観光<br><br>
+
+                <strong>【出張客合計】</strong><br>
+                北米（720）＋ アジア（450）＝ <strong>1170人</strong><br><br>
+
+                したがって、正解は<strong>(5) 1170人</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
