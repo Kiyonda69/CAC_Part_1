@@ -1,0 +1,729 @@
+<!--
+================================================================================
+航大思考43.html - 資料読み取り問題2種（インタラクティブ版）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 鋼材の地域別入荷量・消費量・在庫量データから前月の在庫量を逆算し、
+  関東と中部の前月在庫量の差を求める
+- 問2（高難度）: 主要品目別貿易額データから前年値を逆算し、前年に貿易黒字だった
+  品目を特定してそれらの黒字額の合計を求める
+
+【正解】
+- 問1: (4) 173千トン
+- 問2: (3) 1230億ドル
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                表は、我が国の主な地域における令和7年3月の鋼材の入荷量、消費量、および在庫量と、それらの対前月差を示したものである。2月の関東と中部の在庫量の差はいくらか。正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【3月の鋼材の地域別状況】</div>
+                <div class="figure-content">
+                    <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（千トン）</div>
+                    <table class="figure-table">
+                        <tr>
+                            <th rowspan="2">地域</th>
+                            <th colspan="2">入荷量</th>
+                            <th colspan="2">消費量</th>
+                            <th colspan="2">在庫量</th>
+                        </tr>
+                        <tr>
+                            <th>当月値</th>
+                            <th>対前月差</th>
+                            <th>当月値</th>
+                            <th>対前月差</th>
+                            <th>当月値</th>
+                            <th>対前月差</th>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">全　国</td>
+                            <td>856</td>
+                            <td>63</td>
+                            <td>812</td>
+                            <td>△18</td>
+                            <td>1425</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">北海道</td>
+                            <td>38</td>
+                            <td>2</td>
+                            <td>35</td>
+                            <td>△1</td>
+                            <td>72</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">関　東</td>
+                            <td>285</td>
+                            <td>25</td>
+                            <td>264</td>
+                            <td>△7</td>
+                            <td>498</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">中　部</td>
+                            <td>196</td>
+                            <td>14</td>
+                            <td>188</td>
+                            <td>△3</td>
+                            <td>312</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">近　畿</td>
+                            <td>152</td>
+                            <td>△5</td>
+                            <td>148</td>
+                            <td>2</td>
+                            <td>205</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">中　国</td>
+                            <td>108</td>
+                            <td>18</td>
+                            <td>96</td>
+                            <td>△6</td>
+                            <td>187</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">九　州</td>
+                            <td>77</td>
+                            <td>9</td>
+                            <td>81</td>
+                            <td>△3</td>
+                            <td>151</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    <div style="text-align: left; margin-top: 8px; font-size: 13px;">
+                        注）：今月の在庫量＝前月の在庫量＋今月の入荷量－今月の消費量
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                        （経済産業省：「鉄鋼・非鉄金属・金属製品統計（令和7年3月）」より作成（一部改変））
+                    </div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>161千トン
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>167千トン
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>170千トン
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>173千トン
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>179千トン
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>注の式を変形して前月の在庫量を求める。</p>
+                    <p>前月の在庫量＝今月の在庫量－今月の入荷量＋今月の消費量</p>
+                    <br>
+                    <p><strong>【計算過程】</strong></p>
+                    <p>・関東の2月在庫量: 498 - 285 + 264 = 477（千トン）</p>
+                    <p>・中部の2月在庫量: 312 - 196 + 188 = 304（千トン）</p>
+                    <br>
+                    <p>・差: 477 - 304 = <strong>173</strong>（千トン）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4) 173千トン</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                表は、令和7年における我が国の主要品目別の輸出額および輸入額と、それぞれの対前年差を示したものである。前年（令和6年）に貿易黒字（輸出額＞輸入額）であった品目をすべて特定し、それらの品目の前年の貿易黒字額（輸出額－輸入額）の合計はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【令和7年の主要品目別貿易額】</div>
+                <div class="figure-content">
+                    <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（億ドル）</div>
+                    <table class="figure-table">
+                        <tr>
+                            <th rowspan="2">品目</th>
+                            <th colspan="2">輸出額</th>
+                            <th colspan="2">輸入額</th>
+                        </tr>
+                        <tr>
+                            <th>当年値</th>
+                            <th>対前年差</th>
+                            <th>当年値</th>
+                            <th>対前年差</th>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">自動車</td>
+                            <td>1350</td>
+                            <td>90</td>
+                            <td>340</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">電子部品</td>
+                            <td>920</td>
+                            <td>△55</td>
+                            <td>1080</td>
+                            <td>45</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">化学製品</td>
+                            <td>780</td>
+                            <td>130</td>
+                            <td>710</td>
+                            <td>△20</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">一般機械</td>
+                            <td>1150</td>
+                            <td>60</td>
+                            <td>880</td>
+                            <td>75</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #e8e8e8; font-weight: bold;">食料品</td>
+                            <td>95</td>
+                            <td>△12</td>
+                            <td>750</td>
+                            <td>110</td>
+                        </tr>
+                    </table>
+                    <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                        （財務省：「貿易統計（令和7年）」より作成（一部改変））
+                    </div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>1170億ドル
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>1200億ドル
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>1230億ドル
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>1260億ドル
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>1290億ドル
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>まず前年値（＝当年値－対前年差）を計算し、各品目が貿易黒字か赤字かを判定する。次に、黒字品目の黒字額を合計する。</p>
+                    <br>
+                    <p><strong>【前年値の計算】</strong></p>
+                    <p>・自動車: 輸出 1350-90=1260、輸入 340-25=315 → <strong>黒字</strong>（1260-315=945）</p>
+                    <p>・電子部品: 輸出 920+55=975、輸入 1080-45=1035 → 赤字（975-1035=-60）</p>
+                    <p>・化学製品: 輸出 780-130=650、輸入 710+20=730 → 赤字（650-730=-80）</p>
+                    <p>・一般機械: 輸出 1150-60=1090、輸入 880-75=805 → <strong>黒字</strong>（1090-805=285）</p>
+                    <p>・食料品: 輸出 95+12=107、輸入 750-110=640 → 赤字（107-640=-533）</p>
+                    <br>
+                    <p><strong>【黒字額の合計】</strong></p>
+                    <p>自動車（945）＋ 一般機械（285）＝ <strong>1230億ドル</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) 1230億ドル</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考43/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

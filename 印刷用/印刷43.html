@@ -1,0 +1,478 @@
+<!--
+================================================================================
+印刷43.html - 資料読み取り問題2種（印刷用）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 鋼材の地域別入荷量・消費量・在庫量データから前月の在庫量を逆算し、
+  関東と中部の前月在庫量の差を求める
+- 問2（高難度）: 主要品目別貿易額データから前年値を逆算し、前年に貿易黒字だった
+  品目を特定してそれらの黒字額の合計を求める
+
+【正解】
+- 問1: (4) 173千トン
+- 問2: (3) 1230億ドル
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、我が国の主な地域における令和7年3月の鋼材の入荷量、消費量、および在庫量と、それらの対前月差を示したものである。2月の関東と中部の在庫量の差はいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【3月の鋼材の地域別状況】</div>
+                    <div class="figure-content">
+                        <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（千トン）</div>
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="2">地域</th>
+                                <th colspan="2">入荷量</th>
+                                <th colspan="2">消費量</th>
+                                <th colspan="2">在庫量</th>
+                            </tr>
+                            <tr>
+                                <th>当月値</th>
+                                <th>対前月差</th>
+                                <th>当月値</th>
+                                <th>対前月差</th>
+                                <th>当月値</th>
+                                <th>対前月差</th>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">全　国</td>
+                                <td>856</td>
+                                <td>63</td>
+                                <td>812</td>
+                                <td>△18</td>
+                                <td>1425</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">北海道</td>
+                                <td>38</td>
+                                <td>2</td>
+                                <td>35</td>
+                                <td>△1</td>
+                                <td>72</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">関　東</td>
+                                <td>285</td>
+                                <td>25</td>
+                                <td>264</td>
+                                <td>△7</td>
+                                <td>498</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">中　部</td>
+                                <td>196</td>
+                                <td>14</td>
+                                <td>188</td>
+                                <td>△3</td>
+                                <td>312</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">近　畿</td>
+                                <td>152</td>
+                                <td>△5</td>
+                                <td>148</td>
+                                <td>2</td>
+                                <td>205</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">中　国</td>
+                                <td>108</td>
+                                <td>18</td>
+                                <td>96</td>
+                                <td>△6</td>
+                                <td>187</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">九　州</td>
+                                <td>77</td>
+                                <td>9</td>
+                                <td>81</td>
+                                <td>△3</td>
+                                <td>151</td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <div style="text-align: left; margin-top: 8px; font-size: 13px;">
+                            注）：今月の在庫量＝前月の在庫量＋今月の入荷量－今月の消費量
+                        </div>
+                        <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                            （経済産業省：「鉄鋼・非鉄金属・金属製品統計（令和7年3月）」より作成（一部改変））
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 161千トン</td>
+                            <td>(2) 167千トン</td>
+                            <td>(3) 170千トン</td>
+                            <td>(4) 173千トン</td>
+                            <td>(5) 179千トン</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                注の式を変形して前月の在庫量を求める。<br>
+                前月の在庫量＝今月の在庫量－今月の入荷量＋今月の消費量<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・関東の2月在庫量: 498 - 285 + 264 = 477（千トン）<br>
+                ・中部の2月在庫量: 312 - 196 + 188 = 304（千トン）<br><br>
+
+                ・差: 477 - 304 = <strong>173</strong>（千トン）<br><br>
+
+                したがって、正解は<strong>(4) 173千トン</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、令和7年における我が国の主要品目別の輸出額および輸入額と、それぞれの対前年差を示したものである。前年（令和6年）に貿易黒字（輸出額＞輸入額）であった品目をすべて特定し、それらの品目の前年の貿易黒字額（輸出額－輸入額）の合計はおよそいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【令和7年の主要品目別貿易額】</div>
+                    <div class="figure-content">
+                        <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（億ドル）</div>
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="2">品目</th>
+                                <th colspan="2">輸出額</th>
+                                <th colspan="2">輸入額</th>
+                            </tr>
+                            <tr>
+                                <th>当年値</th>
+                                <th>対前年差</th>
+                                <th>当年値</th>
+                                <th>対前年差</th>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">自動車</td>
+                                <td>1350</td>
+                                <td>90</td>
+                                <td>340</td>
+                                <td>25</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">電子部品</td>
+                                <td>920</td>
+                                <td>△55</td>
+                                <td>1080</td>
+                                <td>45</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">化学製品</td>
+                                <td>780</td>
+                                <td>130</td>
+                                <td>710</td>
+                                <td>△20</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">一般機械</td>
+                                <td>1150</td>
+                                <td>60</td>
+                                <td>880</td>
+                                <td>75</td>
+                            </tr>
+                            <tr>
+                                <td style="background-color: #e8e8e8; font-weight: bold;">食料品</td>
+                                <td>95</td>
+                                <td>△12</td>
+                                <td>750</td>
+                                <td>110</td>
+                            </tr>
+                        </table>
+                        <div style="text-align: center; margin-top: 8px; font-size: 13px;">
+                            （財務省：「貿易統計（令和7年）」より作成（一部改変））
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 1170億ドル</td>
+                            <td>(2) 1200億ドル</td>
+                            <td>(3) 1230億ドル</td>
+                            <td>(4) 1260億ドル</td>
+                            <td>(5) 1290億ドル</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                まず前年値（＝当年値－対前年差）を計算し、各品目が貿易黒字か赤字かを判定する。次に、黒字品目の黒字額を合計する。<br><br>
+
+                <strong>【前年値の計算】</strong><br>
+                ・自動車: 輸出 1350-90=1260、輸入 340-25=315 → 黒字（1260-315=<strong>945</strong>）<br>
+                ・電子部品: 輸出 920-(-55)=975、輸入 1080-45=1035 → 赤字（975-1035=-60）<br>
+                ・化学製品: 輸出 780-130=650、輸入 710-(-20)=730 → 赤字（650-730=-80）<br>
+                ・一般機械: 輸出 1150-60=1090、輸入 880-75=805 → 黒字（1090-805=<strong>285</strong>）<br>
+                ・食料品: 輸出 95-(-12)=107、輸入 750-110=640 → 赤字（107-640=-533）<br><br>
+
+                <strong>【黒字額の合計】</strong><br>
+                自動車（945）＋ 一般機械（285）＝ <strong>1230億ドル</strong><br><br>
+
+                したがって、正解は<strong>(3) 1230億ドル</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
