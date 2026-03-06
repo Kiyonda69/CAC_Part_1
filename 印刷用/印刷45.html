@@ -1,0 +1,391 @@
+<!--
+================================================================================
+印刷45.html - 資料読み取り問題2種（印刷用）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 製造部門と販売部門の従業員データから、
+  合算した非正規雇用者割合の変化を計算する
+- 問2（高難度）: 3地域の店舗数と1店舗あたり平均売上高から、
+  全地域の加重平均売上高の変化を求める（単純平均のトラップあり）
+
+【正解】
+- 問1: (4) 13.2ポイント
+- 問2: (3) 16.9百万円
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、ある企業の製造部門と販売部門の従業員数（正規雇用と非正規雇用の内訳）を年度別に示したものである。製造部門と販売部門を合わせた非正規雇用者の割合は、2016年から2017年にかけておよそ何ポイント増加したか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【部門別従業員数】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="3">年度</th>
+                                <th colspan="3">製造部門</th>
+                                <th colspan="3">販売部門</th>
+                            </tr>
+                            <tr>
+                                <th>正規雇用</th>
+                                <th>非正規雇用</th>
+                                <th>非正規割合</th>
+                                <th>正規雇用</th>
+                                <th>非正規雇用</th>
+                                <th>非正規割合</th>
+                            </tr>
+                            <tr>
+                                <th>（人）</th>
+                                <th>（人）</th>
+                                <th>（%）</th>
+                                <th>（人）</th>
+                                <th>（人）</th>
+                                <th>（%）</th>
+                            </tr>
+                            <tr><td>2012</td><td>420</td><td>130</td><td>23.6</td><td>280</td><td>190</td><td>40.4</td></tr>
+                            <tr><td>2013</td><td>380</td><td>170</td><td>30.9</td><td>310</td><td>160</td><td>34.0</td></tr>
+                            <tr><td>2014</td><td>450</td><td>150</td><td>25.0</td><td>260</td><td>220</td><td>45.8</td></tr>
+                            <tr><td>2015</td><td>350</td><td>200</td><td>36.4</td><td>330</td><td>180</td><td>35.3</td></tr>
+                            <tr><td>2016</td><td>400</td><td>160</td><td>28.6</td><td>290</td><td>210</td><td>42.0</td></tr>
+                            <tr><td>2017</td><td>300</td><td>240</td><td>44.4</td><td>250</td><td>270</td><td>51.9</td></tr>
+                            <tr><td>2018</td><td>370</td><td>190</td><td>33.9</td><td>320</td><td>200</td><td>38.5</td></tr>
+                            <tr><td>2019</td><td>340</td><td>220</td><td>39.3</td><td>270</td><td>250</td><td>48.1</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 8.4ポイント</td>
+                            <td>(2) 10.6ポイント</td>
+                            <td>(3) 11.9ポイント</td>
+                        </tr>
+                        <tr>
+                            <td>(4) 13.2ポイント</td>
+                            <td>(5) 15.8ポイント</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                各部門の非正規割合は表に示されているが、2部門を合わせた非正規割合は単純に足したり平均したりするのではなく、合計人数から計算する必要がある。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                2016年:<br>
+                ・非正規合計 = 160 + 210 = 370人<br>
+                ・全従業員 = (400 + 160) + (290 + 210) = 560 + 500 = 1060人<br>
+                ・非正規割合 = 370 / 1060 = 34.9%<br><br>
+
+                2017年:<br>
+                ・非正規合計 = 240 + 270 = 510人<br>
+                ・全従業員 = (300 + 240) + (250 + 270) = 540 + 520 = 1060人<br>
+                ・非正規割合 = 510 / 1060 = 48.1%<br><br>
+
+                増加ポイント = 48.1 - 34.9 = <strong>13.2ポイント</strong><br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、あるスーパーマーケットチェーンの3つの地域（東部・中部・西部）の店舗数と1店舗あたり平均売上高を年度別に示したものである。全地域を合わせた1店舗あたり平均売上高は、2019年から2020年にかけておよそいくら減少したか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【地域別店舗数と1店舗あたり平均売上高】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="2">年度</th>
+                                <th colspan="2">東部</th>
+                                <th colspan="2">中部</th>
+                                <th colspan="2">西部</th>
+                            </tr>
+                            <tr>
+                                <th>店舗数</th>
+                                <th>平均売上高<br>（百万円）</th>
+                                <th>店舗数</th>
+                                <th>平均売上高<br>（百万円）</th>
+                                <th>店舗数</th>
+                                <th>平均売上高<br>（百万円）</th>
+                            </tr>
+                            <tr><td>2016</td><td>24</td><td>85</td><td>18</td><td>72</td><td>15</td><td>68</td></tr>
+                            <tr><td>2017</td><td>28</td><td>78</td><td>20</td><td>75</td><td>18</td><td>70</td></tr>
+                            <tr><td>2018</td><td>30</td><td>82</td><td>22</td><td>68</td><td>20</td><td>74</td></tr>
+                            <tr><td>2019</td><td>35</td><td>90</td><td>25</td><td>80</td><td>22</td><td>76</td></tr>
+                            <tr><td>2020</td><td>40</td><td>72</td><td>28</td><td>65</td><td>30</td><td>60</td></tr>
+                            <tr><td>2021</td><td>38</td><td>76</td><td>26</td><td>70</td><td>28</td><td>64</td></tr>
+                            <tr><td>2022</td><td>42</td><td>80</td><td>30</td><td>74</td><td>25</td><td>72</td></tr>
+                            <tr><td>2023</td><td>45</td><td>84</td><td>32</td><td>78</td><td>27</td><td>68</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 14.2百万円</td>
+                            <td>(2) 16.3百万円</td>
+                            <td>(3) 16.9百万円</td>
+                        </tr>
+                        <tr>
+                            <td>(4) 18.5百万円</td>
+                            <td>(5) 20.1百万円</td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                3地域の平均売上高を単純に平均するのではなく、各地域の総売上高（= 店舗数 × 平均売上高）を合計し、全店舗数で割って加重平均を求める必要がある。店舗数が地域ごとに異なるため、単純平均と加重平均は一致しない。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                2019年:<br>
+                ・東部: 35店 × 90百万円 = 3,150百万円<br>
+                ・中部: 25店 × 80百万円 = 2,000百万円<br>
+                ・西部: 22店 × 76百万円 = 1,672百万円<br>
+                ・総売上高 = 6,822百万円、総店舗数 = 82店<br>
+                ・加重平均 = 6,822 / 82 = <strong>83.2百万円</strong><br><br>
+
+                2020年:<br>
+                ・東部: 40店 × 72百万円 = 2,880百万円<br>
+                ・中部: 28店 × 65百万円 = 1,820百万円<br>
+                ・西部: 30店 × 60百万円 = 1,800百万円<br>
+                ・総売上高 = 6,500百万円、総店舗数 = 98店<br>
+                ・加重平均 = 6,500 / 98 = <strong>66.3百万円</strong><br><br>
+
+                減少額 = 83.2 - 66.3 = <strong>16.9百万円</strong><br><br>
+
+                <strong>【注意】</strong><br>
+                単純に3地域の平均売上高を平均すると、2019年は(90+80+76)/3=82.0、2020年は(72+65+60)/3=65.7となり、差は16.3百万円（選択肢(2)）となる。これは店舗数による重みを考慮していないため誤りである。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
