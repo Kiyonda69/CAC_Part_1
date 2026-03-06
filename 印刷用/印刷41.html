@@ -1,0 +1,585 @@
+<!--
+================================================================================
+印刷41.html - 北海道乳製品輸出データ読み取り問題（印刷用）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 棒グラフと折れ線グラフから生産量を逆算し、前年比増加率を求める
+- 問2（高難度）: 複数条件でのフィルタリングと生産量の平均値算出
+
+【データ】
+北海道の乳製品輸出量（トン）と輸出比率（%）の推移（2014-2022年）
+- 輸出量: 820, 1050, 1380, 1560, 1890, 2150, 2480, 1870, 2960
+- 輸出比率: 3.2, 3.8, 4.5, 5.1, 6.3, 7.2, 8.5, 6.8, 10.4
+
+【正解】
+- 問1: (4) 3.5%
+- 問2: (2) 約29500トン
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、北海道の乳製品の輸出量および輸出比率（生産量に対する輸出量の割合）の推移を示したものである。2022年における乳製品の生産量の前年比増加率はおよそいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x380px
+                - viewBox: 0 0 620 380
+                - 余白: 上下左右20px
+
+                座標系定義:
+                - グラフ原点: (80, 300)
+                - X軸: 右方向, 各年間隔=55px
+                - Y軸(左/輸出量): 上方向, 1000t=80px
+                - Y軸(右/輸出比率): 上方向, 2%=40px
+                - 棒幅: 35px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【乳製品の輸出量および輸出比率の推移】</div>
+                    <div class="figure-content">
+                        <svg width="620" height="380" viewBox="0 0 620 380">
+                            <!-- 凡例 -->
+                            <rect x="140" y="10" width="16" height="12" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="162" y="21" class="svg-text" font-size="12">輸出量</text>
+                            <line x1="220" y1="16" x2="250" y2="16" stroke="black" stroke-width="2"/>
+                            <circle cx="235" cy="16" r="4" fill="black"/>
+                            <text x="256" y="21" class="svg-text" font-size="12">輸出比率</text>
+
+                            <!-- Y軸左（輸出量） -->
+                            <text x="15" y="50" class="svg-text" font-size="11">3000</text>
+                            <text x="15" y="130" class="svg-text" font-size="11">2000</text>
+                            <text x="15" y="210" class="svg-text" font-size="11">1000</text>
+                            <text x="35" y="310" class="svg-text" font-size="11">0</text>
+                            <text x="10" y="170" class="svg-text" font-size="11" transform="rotate(-90, 10, 170)">輸出量(t)</text>
+
+                            <!-- Y軸右（輸出比率） -->
+                            <text x="575" y="60" class="svg-text" font-size="11">12.0</text>
+                            <text x="575" y="100" class="svg-text" font-size="11">10.0</text>
+                            <text x="575" y="140" class="svg-text" font-size="11">8.0</text>
+                            <text x="575" y="180" class="svg-text" font-size="11">6.0</text>
+                            <text x="575" y="220" class="svg-text" font-size="11">4.0</text>
+                            <text x="575" y="260" class="svg-text" font-size="11">2.0</text>
+                            <text x="585" y="310" class="svg-text" font-size="11">0</text>
+                            <text x="612" y="190" class="svg-text" font-size="10" transform="rotate(90, 612, 190)">輸出比率(%)</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="60" y1="300" x2="565" y2="300" stroke="black" stroke-width="1"/>
+                            <line x1="60" y1="220" x2="565" y2="220" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="60" y1="140" x2="565" y2="140" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="60" y1="60" x2="565" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <!-- 棒グラフ（輸出量） -->
+                            <!-- 2014: 820t → 高さ=820/3000*240=65.6px, y=300-65.6=234.4 -->
+                            <rect x="72" y="234" width="35" height="66" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="89" y="228" class="svg-text" font-size="10" text-anchor="middle">820</text>
+
+                            <!-- 2015: 1050t → 高さ=84px, y=216 -->
+                            <rect x="127" y="216" width="35" height="84" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="144" y="210" class="svg-text" font-size="10" text-anchor="middle">1050</text>
+
+                            <!-- 2016: 1380t → 高さ=110.4px, y=189.6 -->
+                            <rect x="182" y="190" width="35" height="110" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="199" y="184" class="svg-text" font-size="10" text-anchor="middle">1380</text>
+
+                            <!-- 2017: 1560t → 高さ=124.8px, y=175.2 -->
+                            <rect x="237" y="175" width="35" height="125" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="254" y="169" class="svg-text" font-size="10" text-anchor="middle">1560</text>
+
+                            <!-- 2018: 1890t → 高さ=151.2px, y=148.8 -->
+                            <rect x="292" y="149" width="35" height="151" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="309" y="143" class="svg-text" font-size="10" text-anchor="middle">1890</text>
+
+                            <!-- 2019: 2150t → 高さ=172px, y=128 -->
+                            <rect x="347" y="128" width="35" height="172" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="364" y="122" class="svg-text" font-size="10" text-anchor="middle">2150</text>
+
+                            <!-- 2020: 2480t → 高さ=198.4px, y=101.6 -->
+                            <rect x="402" y="102" width="35" height="198" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="419" y="96" class="svg-text" font-size="10" text-anchor="middle">2480</text>
+
+                            <!-- 2021: 1870t → 高さ=149.6px, y=150.4 -->
+                            <rect x="457" y="150" width="35" height="150" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="474" y="144" class="svg-text" font-size="10" text-anchor="middle">1870</text>
+
+                            <!-- 2022: 2960t → 高さ=236.8px, y=63.2 -->
+                            <rect x="512" y="63" width="35" height="237" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="529" y="57" class="svg-text" font-size="10" text-anchor="middle">2960</text>
+
+                            <!-- 折れ線グラフ（輸出比率） -->
+                            <!-- 比率の縦軸: 0%=300, 12%=60 → 1%あたり20px -->
+                            <!-- 2014: 3.2% → y=300-3.2*20=236 -->
+                            <!-- 2015: 3.8% → y=224 -->
+                            <!-- 2016: 4.5% → y=210 -->
+                            <!-- 2017: 5.1% → y=198 -->
+                            <!-- 2018: 6.3% → y=174 -->
+                            <!-- 2019: 7.2% → y=156 -->
+                            <!-- 2020: 8.5% → y=130 -->
+                            <!-- 2021: 6.8% → y=164 -->
+                            <!-- 2022: 10.4% → y=92 -->
+                            <polyline points="89,236 144,224 199,210 254,198 309,174 364,156 419,130 474,164 529,92"
+                                      fill="none" stroke="black" stroke-width="2"/>
+                            <circle cx="89" cy="236" r="4" fill="black"/>
+                            <circle cx="144" cy="224" r="4" fill="black"/>
+                            <circle cx="199" cy="210" r="4" fill="black"/>
+                            <circle cx="254" cy="198" r="4" fill="black"/>
+                            <circle cx="309" cy="174" r="4" fill="black"/>
+                            <circle cx="364" cy="156" r="4" fill="black"/>
+                            <circle cx="419" cy="130" r="4" fill="black"/>
+                            <circle cx="474" cy="164" r="4" fill="black"/>
+                            <circle cx="529" cy="92" r="4" fill="black"/>
+
+                            <!-- 比率ラベル -->
+                            <text x="89" y="250" class="svg-text" font-size="10" text-anchor="middle">3.2</text>
+                            <text x="144" y="238" class="svg-text" font-size="10" text-anchor="middle">3.8</text>
+                            <text x="199" y="224" class="svg-text" font-size="10" text-anchor="middle">4.5</text>
+                            <text x="254" y="192" class="svg-text" font-size="10" text-anchor="middle">5.1</text>
+                            <text x="309" y="168" class="svg-text" font-size="10" text-anchor="middle">6.3</text>
+                            <text x="364" y="150" class="svg-text" font-size="10" text-anchor="middle">7.2</text>
+                            <text x="419" y="124" class="svg-text" font-size="10" text-anchor="middle">8.5</text>
+                            <text x="474" y="178" class="svg-text" font-size="10" text-anchor="middle">6.8</text>
+                            <text x="529" y="86" class="svg-text" font-size="10" text-anchor="middle">10.4</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="89" y="320" class="svg-text" font-size="11" text-anchor="middle">2014</text>
+                            <text x="144" y="320" class="svg-text" font-size="11" text-anchor="middle">2015</text>
+                            <text x="199" y="320" class="svg-text" font-size="11" text-anchor="middle">2016</text>
+                            <text x="254" y="320" class="svg-text" font-size="11" text-anchor="middle">2017</text>
+                            <text x="309" y="320" class="svg-text" font-size="11" text-anchor="middle">2018</text>
+                            <text x="364" y="320" class="svg-text" font-size="11" text-anchor="middle">2019</text>
+                            <text x="419" y="320" class="svg-text" font-size="11" text-anchor="middle">2020</text>
+                            <text x="474" y="320" class="svg-text" font-size="11" text-anchor="middle">2021</text>
+                            <text x="529" y="320" class="svg-text" font-size="11" text-anchor="middle">2022</text>
+
+                            <!-- 出典 -->
+                            <text x="565" y="345" class="svg-text" font-size="10" text-anchor="end">(北海道庁:「乳製品の輸出」より作成)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 1.5%</td>
+                            <td>(2) 2.5%</td>
+                            <td>(3) 3.0%</td>
+                            <td>(4) 3.5%</td>
+                            <td>(5) 4.5%</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                輸出比率＝輸出量÷生産量×100 なので、生産量＝輸出量÷輸出比率×100 で求められる。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・2021年の生産量 = 1870 ÷ 6.8 × 100 = 27,500（トン）<br>
+                ・2022年の生産量 = 2960 ÷ 10.4 × 100 ≒ 28,462（トン）<br><br>
+
+                ・前年比増加率 = (28,462 - 27,500) ÷ 27,500 × 100<br>
+                　　　　　　　= 962 ÷ 27,500 × 100<br>
+                　　　　　　　≒ 3.5%<br><br>
+
+                したがって、正解は<strong>(4) 3.5%</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ表を用いて答えよ。2014年から2022年の期間で、輸出量が1500トン以上かつ輸出比率が8%未満の年をすべて選び、それらの年の生産量の平均はおよそいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                問2は問1と同じグラフを参照する
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【乳製品の輸出量および輸出比率の推移】（再掲）</div>
+                    <div class="figure-content">
+                        <svg width="620" height="380" viewBox="0 0 620 380">
+                            <!-- 凡例 -->
+                            <rect x="140" y="10" width="16" height="12" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="162" y="21" class="svg-text" font-size="12">輸出量</text>
+                            <line x1="220" y1="16" x2="250" y2="16" stroke="black" stroke-width="2"/>
+                            <circle cx="235" cy="16" r="4" fill="black"/>
+                            <text x="256" y="21" class="svg-text" font-size="12">輸出比率</text>
+
+                            <!-- Y軸左（輸出量） -->
+                            <text x="15" y="50" class="svg-text" font-size="11">3000</text>
+                            <text x="15" y="130" class="svg-text" font-size="11">2000</text>
+                            <text x="15" y="210" class="svg-text" font-size="11">1000</text>
+                            <text x="35" y="310" class="svg-text" font-size="11">0</text>
+                            <text x="10" y="170" class="svg-text" font-size="11" transform="rotate(-90, 10, 170)">輸出量(t)</text>
+
+                            <!-- Y軸右（輸出比率） -->
+                            <text x="575" y="60" class="svg-text" font-size="11">12.0</text>
+                            <text x="575" y="100" class="svg-text" font-size="11">10.0</text>
+                            <text x="575" y="140" class="svg-text" font-size="11">8.0</text>
+                            <text x="575" y="180" class="svg-text" font-size="11">6.0</text>
+                            <text x="575" y="220" class="svg-text" font-size="11">4.0</text>
+                            <text x="575" y="260" class="svg-text" font-size="11">2.0</text>
+                            <text x="585" y="310" class="svg-text" font-size="11">0</text>
+                            <text x="612" y="190" class="svg-text" font-size="10" transform="rotate(90, 612, 190)">輸出比率(%)</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="60" y1="300" x2="565" y2="300" stroke="black" stroke-width="1"/>
+                            <line x1="60" y1="220" x2="565" y2="220" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="60" y1="140" x2="565" y2="140" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="60" y1="60" x2="565" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <!-- 棒グラフ（輸出量） -->
+                            <rect x="72" y="234" width="35" height="66" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="89" y="228" class="svg-text" font-size="10" text-anchor="middle">820</text>
+
+                            <rect x="127" y="216" width="35" height="84" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="144" y="210" class="svg-text" font-size="10" text-anchor="middle">1050</text>
+
+                            <rect x="182" y="190" width="35" height="110" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="199" y="184" class="svg-text" font-size="10" text-anchor="middle">1380</text>
+
+                            <rect x="237" y="175" width="35" height="125" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="254" y="169" class="svg-text" font-size="10" text-anchor="middle">1560</text>
+
+                            <rect x="292" y="149" width="35" height="151" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="309" y="143" class="svg-text" font-size="10" text-anchor="middle">1890</text>
+
+                            <rect x="347" y="128" width="35" height="172" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="364" y="122" class="svg-text" font-size="10" text-anchor="middle">2150</text>
+
+                            <rect x="402" y="102" width="35" height="198" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="419" y="96" class="svg-text" font-size="10" text-anchor="middle">2480</text>
+
+                            <rect x="457" y="150" width="35" height="150" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="474" y="144" class="svg-text" font-size="10" text-anchor="middle">1870</text>
+
+                            <rect x="512" y="63" width="35" height="237" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="529" y="57" class="svg-text" font-size="10" text-anchor="middle">2960</text>
+
+                            <!-- 折れ線グラフ（輸出比率） -->
+                            <polyline points="89,236 144,224 199,210 254,198 309,174 364,156 419,130 474,164 529,92"
+                                      fill="none" stroke="black" stroke-width="2"/>
+                            <circle cx="89" cy="236" r="4" fill="black"/>
+                            <circle cx="144" cy="224" r="4" fill="black"/>
+                            <circle cx="199" cy="210" r="4" fill="black"/>
+                            <circle cx="254" cy="198" r="4" fill="black"/>
+                            <circle cx="309" cy="174" r="4" fill="black"/>
+                            <circle cx="364" cy="156" r="4" fill="black"/>
+                            <circle cx="419" cy="130" r="4" fill="black"/>
+                            <circle cx="474" cy="164" r="4" fill="black"/>
+                            <circle cx="529" cy="92" r="4" fill="black"/>
+
+                            <!-- 比率ラベル -->
+                            <text x="89" y="250" class="svg-text" font-size="10" text-anchor="middle">3.2</text>
+                            <text x="144" y="238" class="svg-text" font-size="10" text-anchor="middle">3.8</text>
+                            <text x="199" y="224" class="svg-text" font-size="10" text-anchor="middle">4.5</text>
+                            <text x="254" y="192" class="svg-text" font-size="10" text-anchor="middle">5.1</text>
+                            <text x="309" y="168" class="svg-text" font-size="10" text-anchor="middle">6.3</text>
+                            <text x="364" y="150" class="svg-text" font-size="10" text-anchor="middle">7.2</text>
+                            <text x="419" y="124" class="svg-text" font-size="10" text-anchor="middle">8.5</text>
+                            <text x="474" y="178" class="svg-text" font-size="10" text-anchor="middle">6.8</text>
+                            <text x="529" y="86" class="svg-text" font-size="10" text-anchor="middle">10.4</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="89" y="320" class="svg-text" font-size="11" text-anchor="middle">2014</text>
+                            <text x="144" y="320" class="svg-text" font-size="11" text-anchor="middle">2015</text>
+                            <text x="199" y="320" class="svg-text" font-size="11" text-anchor="middle">2016</text>
+                            <text x="254" y="320" class="svg-text" font-size="11" text-anchor="middle">2017</text>
+                            <text x="309" y="320" class="svg-text" font-size="11" text-anchor="middle">2018</text>
+                            <text x="364" y="320" class="svg-text" font-size="11" text-anchor="middle">2019</text>
+                            <text x="419" y="320" class="svg-text" font-size="11" text-anchor="middle">2020</text>
+                            <text x="474" y="320" class="svg-text" font-size="11" text-anchor="middle">2021</text>
+                            <text x="529" y="320" class="svg-text" font-size="11" text-anchor="middle">2022</text>
+
+                            <!-- 出典 -->
+                            <text x="565" y="345" class="svg-text" font-size="10" text-anchor="end">(北海道庁:「乳製品の輸出」より作成)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none; box-shadow: none; padding: 10px 0;">
+                    <table class="option-table">
+                        <tr>
+                            <td>(1) 約27,500トン</td>
+                            <td>(2) 約29,500トン</td>
+                            <td>(3) 約30,500トン</td>
+                            <td>(4) 約31,500トン</td>
+                            <td>(5) 約32,500トン</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                まず、各年が「輸出量1500トン以上」かつ「輸出比率8%未満」の条件を満たすかを確認する。次に、該当する年の生産量を求めて平均する。<br><br>
+
+                <strong>【条件の確認】</strong><br>
+                ・2014年: 輸出量820t（1500未満） → 該当しない<br>
+                ・2015年: 輸出量1050t（1500未満） → 該当しない<br>
+                ・2016年: 輸出量1380t（1500未満） → 該当しない<br>
+                ・2017年: 輸出量1560t、比率5.1% → <strong>該当する</strong><br>
+                ・2018年: 輸出量1890t、比率6.3% → <strong>該当する</strong><br>
+                ・2019年: 輸出量2150t、比率7.2% → <strong>該当する</strong><br>
+                ・2020年: 輸出量2480t、比率8.5%（8%以上） → 該当しない<br>
+                ・2021年: 輸出量1870t、比率6.8% → <strong>該当する</strong><br>
+                ・2022年: 輸出量2960t、比率10.4%（8%以上） → 該当しない<br><br>
+
+                <strong>【生産量の計算】</strong><br>
+                ・2017年: 1560 ÷ 5.1 × 100 ≒ 30,588（トン）<br>
+                ・2018年: 1890 ÷ 6.3 × 100 = 30,000（トン）<br>
+                ・2019年: 2150 ÷ 7.2 × 100 ≒ 29,861（トン）<br>
+                ・2021年: 1870 ÷ 6.8 × 100 = 27,500（トン）<br><br>
+
+                ・平均 = (30,588 + 30,000 + 29,861 + 27,500) ÷ 4<br>
+                　　　 = 117,949 ÷ 4<br>
+                　　　 ≒ 29,487（トン）<br><br>
+
+                したがって、正解は<strong>(2) 約29,500トン</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
