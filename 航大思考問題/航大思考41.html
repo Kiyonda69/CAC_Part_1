@@ -1,0 +1,811 @@
+<!--
+================================================================================
+航大思考41.html - 北海道乳製品輸出データ読み取り問題（インタラクティブ版）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 棒グラフと折れ線グラフから生産量を逆算し、前年比増加率を求める
+- 問2（高難度）: 複数条件でのフィルタリングと生産量の平均値算出
+
+【データ】
+北海道の乳製品輸出量（トン）と輸出比率（%）の推移（2014-2022年）
+- 輸出量: 820, 1050, 1380, 1560, 1890, 2150, 2480, 1870, 2960
+- 輸出比率: 3.2, 3.8, 4.5, 5.1, 6.3, 7.2, 8.5, 6.8, 10.4
+
+【正解】
+- 問1: (4) 3.5%
+- 問2: (2) 約29500トン
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                表は、北海道の乳製品の輸出量および輸出比率（生産量に対する輸出量の割合）の推移を示したものである。2022年における乳製品の生産量の前年比増加率はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x380px
+            - viewBox: 0 0 620 380
+            - グラフ原点: (80, 300)
+            - X軸: 各年間隔=55px
+            - Y軸左(輸出量): 1000t=80px
+            - Y軸右(輸出比率): 2%=40px
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【乳製品の輸出量および輸出比率の推移】</div>
+                <div class="figure-content">
+                    <svg width="620" height="380" viewBox="0 0 620 380">
+                        <!-- 凡例 -->
+                        <rect x="140" y="10" width="16" height="12" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="162" y="21" class="svg-text" font-size="12">輸出量</text>
+                        <line x1="220" y1="16" x2="250" y2="16" stroke="black" stroke-width="2"/>
+                        <circle cx="235" cy="16" r="4" fill="black"/>
+                        <text x="256" y="21" class="svg-text" font-size="12">輸出比率</text>
+
+                        <!-- Y軸左（輸出量） -->
+                        <text x="15" y="50" class="svg-text" font-size="11">3000</text>
+                        <text x="15" y="130" class="svg-text" font-size="11">2000</text>
+                        <text x="15" y="210" class="svg-text" font-size="11">1000</text>
+                        <text x="35" y="310" class="svg-text" font-size="11">0</text>
+                        <text x="10" y="170" class="svg-text" font-size="11" transform="rotate(-90, 10, 170)">輸出量(t)</text>
+
+                        <!-- Y軸右（輸出比率） -->
+                        <text x="575" y="60" class="svg-text" font-size="11">12.0</text>
+                        <text x="575" y="100" class="svg-text" font-size="11">10.0</text>
+                        <text x="575" y="140" class="svg-text" font-size="11">8.0</text>
+                        <text x="575" y="180" class="svg-text" font-size="11">6.0</text>
+                        <text x="575" y="220" class="svg-text" font-size="11">4.0</text>
+                        <text x="575" y="260" class="svg-text" font-size="11">2.0</text>
+                        <text x="585" y="310" class="svg-text" font-size="11">0</text>
+                        <text x="612" y="190" class="svg-text" font-size="10" transform="rotate(90, 612, 190)">輸出比率(%)</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="300" x2="565" y2="300" stroke="black" stroke-width="1"/>
+                        <line x1="60" y1="220" x2="565" y2="220" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="140" x2="565" y2="140" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="565" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                        <!-- 棒グラフ（輸出量） -->
+                        <rect x="72" y="234" width="35" height="66" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="89" y="228" class="svg-text" font-size="10" text-anchor="middle">820</text>
+
+                        <rect x="127" y="216" width="35" height="84" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="144" y="210" class="svg-text" font-size="10" text-anchor="middle">1050</text>
+
+                        <rect x="182" y="190" width="35" height="110" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="199" y="184" class="svg-text" font-size="10" text-anchor="middle">1380</text>
+
+                        <rect x="237" y="175" width="35" height="125" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="254" y="169" class="svg-text" font-size="10" text-anchor="middle">1560</text>
+
+                        <rect x="292" y="149" width="35" height="151" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="309" y="143" class="svg-text" font-size="10" text-anchor="middle">1890</text>
+
+                        <rect x="347" y="128" width="35" height="172" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="364" y="122" class="svg-text" font-size="10" text-anchor="middle">2150</text>
+
+                        <rect x="402" y="102" width="35" height="198" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="419" y="96" class="svg-text" font-size="10" text-anchor="middle">2480</text>
+
+                        <rect x="457" y="150" width="35" height="150" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="474" y="144" class="svg-text" font-size="10" text-anchor="middle">1870</text>
+
+                        <rect x="512" y="63" width="35" height="237" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="529" y="57" class="svg-text" font-size="10" text-anchor="middle">2960</text>
+
+                        <!-- 折れ線グラフ（輸出比率） -->
+                        <polyline points="89,236 144,224 199,210 254,198 309,174 364,156 419,130 474,164 529,92"
+                                  fill="none" stroke="black" stroke-width="2"/>
+                        <circle cx="89" cy="236" r="4" fill="black"/>
+                        <circle cx="144" cy="224" r="4" fill="black"/>
+                        <circle cx="199" cy="210" r="4" fill="black"/>
+                        <circle cx="254" cy="198" r="4" fill="black"/>
+                        <circle cx="309" cy="174" r="4" fill="black"/>
+                        <circle cx="364" cy="156" r="4" fill="black"/>
+                        <circle cx="419" cy="130" r="4" fill="black"/>
+                        <circle cx="474" cy="164" r="4" fill="black"/>
+                        <circle cx="529" cy="92" r="4" fill="black"/>
+
+                        <!-- 比率ラベル -->
+                        <text x="89" y="250" class="svg-text" font-size="10" text-anchor="middle">3.2</text>
+                        <text x="144" y="238" class="svg-text" font-size="10" text-anchor="middle">3.8</text>
+                        <text x="199" y="224" class="svg-text" font-size="10" text-anchor="middle">4.5</text>
+                        <text x="254" y="192" class="svg-text" font-size="10" text-anchor="middle">5.1</text>
+                        <text x="309" y="168" class="svg-text" font-size="10" text-anchor="middle">6.3</text>
+                        <text x="364" y="150" class="svg-text" font-size="10" text-anchor="middle">7.2</text>
+                        <text x="419" y="124" class="svg-text" font-size="10" text-anchor="middle">8.5</text>
+                        <text x="474" y="178" class="svg-text" font-size="10" text-anchor="middle">6.8</text>
+                        <text x="529" y="86" class="svg-text" font-size="10" text-anchor="middle">10.4</text>
+
+                        <!-- X軸ラベル -->
+                        <text x="89" y="320" class="svg-text" font-size="11" text-anchor="middle">2014</text>
+                        <text x="144" y="320" class="svg-text" font-size="11" text-anchor="middle">2015</text>
+                        <text x="199" y="320" class="svg-text" font-size="11" text-anchor="middle">2016</text>
+                        <text x="254" y="320" class="svg-text" font-size="11" text-anchor="middle">2017</text>
+                        <text x="309" y="320" class="svg-text" font-size="11" text-anchor="middle">2018</text>
+                        <text x="364" y="320" class="svg-text" font-size="11" text-anchor="middle">2019</text>
+                        <text x="419" y="320" class="svg-text" font-size="11" text-anchor="middle">2020</text>
+                        <text x="474" y="320" class="svg-text" font-size="11" text-anchor="middle">2021</text>
+                        <text x="529" y="320" class="svg-text" font-size="11" text-anchor="middle">2022</text>
+
+                        <!-- 出典 -->
+                        <text x="565" y="345" class="svg-text" font-size="10" text-anchor="end">(北海道庁:「乳製品の輸出」より作成)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>1.5%
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>2.5%
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>3.0%
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>3.5%
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>4.5%
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>輸出比率＝輸出量÷生産量×100 なので、生産量＝輸出量÷輸出比率×100 で求められる。</p>
+                    <br>
+                    <p><strong>【計算過程】</strong></p>
+                    <p>・2021年の生産量 = 1870 ÷ 6.8 × 100 = 27,500（トン）</p>
+                    <p>・2022年の生産量 = 2960 ÷ 10.4 × 100 ≒ 28,462（トン）</p>
+                    <br>
+                    <p>・前年比増加率 = (28,462 - 27,500) ÷ 27,500 × 100</p>
+                    <p>　= 962 ÷ 27,500 × 100 ≒ 3.5%</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4) 3.5%</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ表を用いて答えよ。2014年から2022年の期間で、輸出量が1500トン以上かつ輸出比率が8%未満の年をすべて選び、それらの年の生産量の平均はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!-- 問2用グラフ（再掲） -->
+            <div class="figure-container">
+                <div class="figure-title">【乳製品の輸出量および輸出比率の推移】（再掲）</div>
+                <div class="figure-content">
+                    <svg width="620" height="380" viewBox="0 0 620 380">
+                        <!-- 凡例 -->
+                        <rect x="140" y="10" width="16" height="12" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="162" y="21" class="svg-text" font-size="12">輸出量</text>
+                        <line x1="220" y1="16" x2="250" y2="16" stroke="black" stroke-width="2"/>
+                        <circle cx="235" cy="16" r="4" fill="black"/>
+                        <text x="256" y="21" class="svg-text" font-size="12">輸出比率</text>
+
+                        <!-- Y軸左（輸出量） -->
+                        <text x="15" y="50" class="svg-text" font-size="11">3000</text>
+                        <text x="15" y="130" class="svg-text" font-size="11">2000</text>
+                        <text x="15" y="210" class="svg-text" font-size="11">1000</text>
+                        <text x="35" y="310" class="svg-text" font-size="11">0</text>
+                        <text x="10" y="170" class="svg-text" font-size="11" transform="rotate(-90, 10, 170)">輸出量(t)</text>
+
+                        <!-- Y軸右（輸出比率） -->
+                        <text x="575" y="60" class="svg-text" font-size="11">12.0</text>
+                        <text x="575" y="100" class="svg-text" font-size="11">10.0</text>
+                        <text x="575" y="140" class="svg-text" font-size="11">8.0</text>
+                        <text x="575" y="180" class="svg-text" font-size="11">6.0</text>
+                        <text x="575" y="220" class="svg-text" font-size="11">4.0</text>
+                        <text x="575" y="260" class="svg-text" font-size="11">2.0</text>
+                        <text x="585" y="310" class="svg-text" font-size="11">0</text>
+                        <text x="612" y="190" class="svg-text" font-size="10" transform="rotate(90, 612, 190)">輸出比率(%)</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="300" x2="565" y2="300" stroke="black" stroke-width="1"/>
+                        <line x1="60" y1="220" x2="565" y2="220" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="140" x2="565" y2="140" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="565" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                        <!-- 棒グラフ（輸出量） -->
+                        <rect x="72" y="234" width="35" height="66" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="89" y="228" class="svg-text" font-size="10" text-anchor="middle">820</text>
+
+                        <rect x="127" y="216" width="35" height="84" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="144" y="210" class="svg-text" font-size="10" text-anchor="middle">1050</text>
+
+                        <rect x="182" y="190" width="35" height="110" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="199" y="184" class="svg-text" font-size="10" text-anchor="middle">1380</text>
+
+                        <rect x="237" y="175" width="35" height="125" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="254" y="169" class="svg-text" font-size="10" text-anchor="middle">1560</text>
+
+                        <rect x="292" y="149" width="35" height="151" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="309" y="143" class="svg-text" font-size="10" text-anchor="middle">1890</text>
+
+                        <rect x="347" y="128" width="35" height="172" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="364" y="122" class="svg-text" font-size="10" text-anchor="middle">2150</text>
+
+                        <rect x="402" y="102" width="35" height="198" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="419" y="96" class="svg-text" font-size="10" text-anchor="middle">2480</text>
+
+                        <rect x="457" y="150" width="35" height="150" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="474" y="144" class="svg-text" font-size="10" text-anchor="middle">1870</text>
+
+                        <rect x="512" y="63" width="35" height="237" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="529" y="57" class="svg-text" font-size="10" text-anchor="middle">2960</text>
+
+                        <!-- 折れ線グラフ（輸出比率） -->
+                        <polyline points="89,236 144,224 199,210 254,198 309,174 364,156 419,130 474,164 529,92"
+                                  fill="none" stroke="black" stroke-width="2"/>
+                        <circle cx="89" cy="236" r="4" fill="black"/>
+                        <circle cx="144" cy="224" r="4" fill="black"/>
+                        <circle cx="199" cy="210" r="4" fill="black"/>
+                        <circle cx="254" cy="198" r="4" fill="black"/>
+                        <circle cx="309" cy="174" r="4" fill="black"/>
+                        <circle cx="364" cy="156" r="4" fill="black"/>
+                        <circle cx="419" cy="130" r="4" fill="black"/>
+                        <circle cx="474" cy="164" r="4" fill="black"/>
+                        <circle cx="529" cy="92" r="4" fill="black"/>
+
+                        <!-- 比率ラベル -->
+                        <text x="89" y="250" class="svg-text" font-size="10" text-anchor="middle">3.2</text>
+                        <text x="144" y="238" class="svg-text" font-size="10" text-anchor="middle">3.8</text>
+                        <text x="199" y="224" class="svg-text" font-size="10" text-anchor="middle">4.5</text>
+                        <text x="254" y="192" class="svg-text" font-size="10" text-anchor="middle">5.1</text>
+                        <text x="309" y="168" class="svg-text" font-size="10" text-anchor="middle">6.3</text>
+                        <text x="364" y="150" class="svg-text" font-size="10" text-anchor="middle">7.2</text>
+                        <text x="419" y="124" class="svg-text" font-size="10" text-anchor="middle">8.5</text>
+                        <text x="474" y="178" class="svg-text" font-size="10" text-anchor="middle">6.8</text>
+                        <text x="529" y="86" class="svg-text" font-size="10" text-anchor="middle">10.4</text>
+
+                        <!-- X軸ラベル -->
+                        <text x="89" y="320" class="svg-text" font-size="11" text-anchor="middle">2014</text>
+                        <text x="144" y="320" class="svg-text" font-size="11" text-anchor="middle">2015</text>
+                        <text x="199" y="320" class="svg-text" font-size="11" text-anchor="middle">2016</text>
+                        <text x="254" y="320" class="svg-text" font-size="11" text-anchor="middle">2017</text>
+                        <text x="309" y="320" class="svg-text" font-size="11" text-anchor="middle">2018</text>
+                        <text x="364" y="320" class="svg-text" font-size="11" text-anchor="middle">2019</text>
+                        <text x="419" y="320" class="svg-text" font-size="11" text-anchor="middle">2020</text>
+                        <text x="474" y="320" class="svg-text" font-size="11" text-anchor="middle">2021</text>
+                        <text x="529" y="320" class="svg-text" font-size="11" text-anchor="middle">2022</text>
+
+                        <!-- 出典 -->
+                        <text x="565" y="345" class="svg-text" font-size="10" text-anchor="end">(北海道庁:「乳製品の輸出」より作成)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>約27,500トン
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>約29,500トン
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>約30,500トン
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>約31,500トン
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>約32,500トン
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>まず各年が「輸出量1500トン以上」かつ「輸出比率8%未満」の条件を満たすかを確認し、該当する年の生産量を求めて平均する。</p>
+                    <br>
+                    <p><strong>【条件の確認】</strong></p>
+                    <p>・2014年: 輸出量820t（1500未満） → 該当しない</p>
+                    <p>・2015年: 輸出量1050t（1500未満） → 該当しない</p>
+                    <p>・2016年: 輸出量1380t（1500未満） → 該当しない</p>
+                    <p>・2017年: 輸出量1560t、比率5.1% → <strong>該当する</strong></p>
+                    <p>・2018年: 輸出量1890t、比率6.3% → <strong>該当する</strong></p>
+                    <p>・2019年: 輸出量2150t、比率7.2% → <strong>該当する</strong></p>
+                    <p>・2020年: 輸出量2480t、比率8.5%（8%以上） → 該当しない</p>
+                    <p>・2021年: 輸出量1870t、比率6.8% → <strong>該当する</strong></p>
+                    <p>・2022年: 輸出量2960t、比率10.4%（8%以上） → 該当しない</p>
+                    <br>
+                    <p><strong>【生産量の計算】</strong></p>
+                    <p>・2017年: 1560 ÷ 5.1 × 100 ≒ 30,588t</p>
+                    <p>・2018年: 1890 ÷ 6.3 × 100 = 30,000t</p>
+                    <p>・2019年: 2150 ÷ 7.2 × 100 ≒ 29,861t</p>
+                    <p>・2021年: 1870 ÷ 6.8 × 100 = 27,500t</p>
+                    <br>
+                    <p>平均 = (30,588 + 30,000 + 29,861 + 27,500) ÷ 4 ≒ 29,487t</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2) 約29,500トン</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考41/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
