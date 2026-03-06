@@ -1,0 +1,387 @@
+<!--
+================================================================================
+印刷46.html - 資料読み取り問題2種（印刷用）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 5つの農場の収穫データから、
+  1ヘクタールあたりの出荷額が高い順に並べる
+- 問2（高難度）: 5つの支店の半期業績データから、
+  従業員1人あたりの年間利益額が大きい順に並べる
+
+【正解】
+- 問1: (5) C→E→A→D→B
+- 問2: (2) 丙→甲→戊→乙→丁
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、ある地域の5つの農場（A～E）の年間収穫データを示したものである。1ヘクタールあたりの出荷額が高い年度順に農場を並べたものはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【農場別年間収穫データ】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>農場</th>
+                                <th>作付面積<br>(ha)</th>
+                                <th>収穫量<br>(t)</th>
+                                <th>農薬使用量<br>(kg)</th>
+                                <th>従業員数<br>(人)</th>
+                                <th>出荷額<br>(万円)</th>
+                            </tr>
+                            <tr><td>A</td><td>12</td><td>84</td><td>36</td><td>8</td><td>420</td></tr>
+                            <tr><td>B</td><td>18</td><td>108</td><td>72</td><td>12</td><td>540</td></tr>
+                            <tr><td>C</td><td>8</td><td>72</td><td>16</td><td>6</td><td>504</td></tr>
+                            <tr><td>D</td><td>15</td><td>105</td><td>60</td><td>10</td><td>480</td></tr>
+                            <tr><td>E</td><td>10</td><td>60</td><td>25</td><td>5</td><td>360</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) C→A→E→D→B<br>
+                    (2) E→C→A→D→B<br>
+                    (3) C→E→D→A→B<br>
+                    (4) A→C→E→D→B<br>
+                    (5) C→E→A→D→B
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                各農場の出荷額を作付面積で割り、1ヘクタールあたりの出荷額を求めて比較する。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・A: 420 / 12 = 35.0万円/ha<br>
+                ・B: 540 / 18 = 30.0万円/ha<br>
+                ・C: 504 / 8 = 63.0万円/ha<br>
+                ・D: 480 / 15 = 32.0万円/ha<br>
+                ・E: 360 / 10 = 36.0万円/ha<br><br>
+
+                <strong>【順位の決定】</strong><br>
+                高い順に並べると: C(63.0) → E(36.0) → A(35.0) → D(32.0) → B(30.0)<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) C→A→E→D→B → AとEが逆（A=35.0 < E=36.0）<br>
+                ・(2) E→C→A→D→B → CとEが逆（C=63.0 > E=36.0）<br>
+                ・(3) C→E→D→A→B → DとAが逆（D=32.0 < A=35.0）<br>
+                ・(4) A→C→E→D→B → Aが1位は誤り<br>
+                ・(5) C→E→A→D→B → 正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、ある企業の5つの支店（甲～戊）の上半期・下半期の売上高と経費、および従業員数を示したものである。従業員1人あたりの年間利益額（年間利益＝上半期利益＋下半期利益、各半期の利益＝売上高－経費）が大きい順に支店を並べたものはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【支店別半期業績データ】　　　　（単位：百万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="2">支店</th>
+                                <th colspan="2">上半期</th>
+                                <th colspan="2">下半期</th>
+                                <th rowspan="2">従業員数<br>(人)</th>
+                            </tr>
+                            <tr>
+                                <th>売上高</th>
+                                <th>経費</th>
+                                <th>売上高</th>
+                                <th>経費</th>
+                            </tr>
+                            <tr><td>甲</td><td>180</td><td>120</td><td>240</td><td>150</td><td>30</td></tr>
+                            <tr><td>乙</td><td>250</td><td>170</td><td>200</td><td>130</td><td>40</td></tr>
+                            <tr><td>丙</td><td>150</td><td>90</td><td>190</td><td>110</td><td>25</td></tr>
+                            <tr><td>丁</td><td>300</td><td>210</td><td>280</td><td>190</td><td>50</td></tr>
+                            <tr><td>戊</td><td>200</td><td>140</td><td>220</td><td>140</td><td>35</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 甲→丙→戊→乙→丁<br>
+                    (2) 丙→甲→戊→乙→丁<br>
+                    (3) 丙→甲→乙→戊→丁<br>
+                    (4) 丙→戊→甲→乙→丁<br>
+                    (5) 丁→甲→戊→乙→丙
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                各支店の上半期・下半期それぞれの利益を求め、年間利益を算出した後、従業員数で割る必要がある。年間売上高の大きさと1人あたり利益額は必ずしも一致しない点に注意。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                甲: 上半期利益 = 180 - 120 = 60、下半期利益 = 240 - 150 = 90<br>
+                　　年間利益 = 150、1人あたり = 150 / 30 = <strong>5.00百万円</strong><br><br>
+
+                乙: 上半期利益 = 250 - 170 = 80、下半期利益 = 200 - 130 = 70<br>
+                　　年間利益 = 150、1人あたり = 150 / 40 = <strong>3.75百万円</strong><br><br>
+
+                丙: 上半期利益 = 150 - 90 = 60、下半期利益 = 190 - 110 = 80<br>
+                　　年間利益 = 140、1人あたり = 140 / 25 = <strong>5.60百万円</strong><br><br>
+
+                丁: 上半期利益 = 300 - 210 = 90、下半期利益 = 280 - 190 = 90<br>
+                　　年間利益 = 180、1人あたり = 180 / 50 = <strong>3.60百万円</strong><br><br>
+
+                戊: 上半期利益 = 200 - 140 = 60、下半期利益 = 220 - 140 = 80<br>
+                　　年間利益 = 140、1人あたり = 140 / 35 = <strong>4.00百万円</strong><br><br>
+
+                <strong>【順位の決定】</strong><br>
+                大きい順: 丙(5.60) → 甲(5.00) → 戊(4.00) → 乙(3.75) → 丁(3.60)<br><br>
+
+                <strong>【注意】</strong><br>
+                年間利益の総額だけを見ると丁(180)が最大だが、従業員数(50人)が多いため1人あたりでは最下位となる。甲と乙は年間利益が同額(150)だが、従業員数の差(30人 vs 40人)により1人あたりでは甲が上位となる。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
