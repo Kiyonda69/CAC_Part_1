@@ -1,0 +1,808 @@
+<!--
+================================================================================
+航大思考42.html - 産業別製造品出荷額と輸出割合データ読み取り問題（インタラクティブ版）
+================================================================================
+
+【問題概要】
+- 問1（標準）: 帯グラフから各業種の輸出額を計算し、全業種の輸出額合計を求める
+- 問2（高難度）: 輸出比率が20%以上の業種を特定し、それらの国内出荷額の合計を算出
+
+【データ】
+産業別製造品出荷額等と輸出割合
+- 輸送機械: 68兆円, 輸出45%
+- 化学: 47兆円, 輸出22%
+- 食料品: 35兆円, 輸出3%
+- 電子部品: 28兆円, 輸出58%
+- 鉄鋼: 19兆円, 輸出31%
+- その他: 103兆円, 輸出12%
+
+【正解】
+- 問1: (3) 76兆円
+- 問2: (1) 約99兆円
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                図は、日本における産業別の製造品出荷額等（1年あたりの総額）とその割合、および産業別の輸出割合を示したものである。全業種の輸出額の合計はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x400px
+            - viewBox: 0 0 620 400
+            - グラフ原点: (80, 320)
+            - X軸: 480px = 100%（製造品出荷額割合）
+            - Y軸: 260px = 100%（輸出/国内比率）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【産業別製造品出荷額等と輸出割合】</div>
+                <div class="figure-content">
+                    <svg width="620" height="400" viewBox="0 0 620 400">
+                        <!-- 各列の出荷額ラベル（上部） -->
+                        <text x="134" y="30" class="svg-text" font-size="11" text-anchor="middle">68</text>
+                        <text x="226" y="30" class="svg-text" font-size="11" text-anchor="middle">47</text>
+                        <text x="292" y="30" class="svg-text" font-size="11" text-anchor="middle">35</text>
+                        <text x="342" y="30" class="svg-text" font-size="11" text-anchor="middle">28</text>
+                        <text x="380" y="30" class="svg-text" font-size="11" text-anchor="middle">19</text>
+                        <text x="477" y="30" class="svg-text" font-size="11" text-anchor="middle">103</text>
+                        <text x="134" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="226" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="292" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="342" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="380" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="477" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+
+                        <!-- Y軸ラベル -->
+                        <text x="25" y="324" class="svg-text" font-size="11" text-anchor="middle">0</text>
+                        <text x="25" y="272" class="svg-text" font-size="11" text-anchor="middle">20</text>
+                        <text x="25" y="220" class="svg-text" font-size="11" text-anchor="middle">40</text>
+                        <text x="25" y="168" class="svg-text" font-size="11" text-anchor="middle">60</text>
+                        <text x="25" y="116" class="svg-text" font-size="11" text-anchor="middle">80</text>
+                        <text x="25" y="64" class="svg-text" font-size="11" text-anchor="middle">100</text>
+                        <text x="42" y="55" class="svg-text" font-size="11">(％)</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="320" x2="560" y2="320" stroke="black" stroke-width="1"/>
+                        <line x1="60" y1="268" x2="560" y2="268" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="216" x2="560" y2="216" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="164" x2="560" y2="164" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="112" x2="560" y2="112" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="560" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="60" y2="320" stroke="black" stroke-width="1"/>
+
+                        <!-- 凡例 -->
+                        <rect x="460" y="60" width="14" height="10" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="480" y="69" class="svg-text" font-size="11">輸出部分</text>
+                        <rect x="460" y="76" width="14" height="10" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="480" y="85" class="svg-text" font-size="11">国内部分</text>
+
+                        <!-- 輸送機械 (68兆円, 輸出45%, 国内55%) -->
+                        <rect x="80" y="60" width="109" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="80" y="177" width="109" height="143" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="134" y="130" class="svg-text" font-size="12" text-anchor="middle">輸送</text>
+                        <text x="134" y="146" class="svg-text" font-size="12" text-anchor="middle">機械</text>
+                        <text x="134" y="170" class="svg-text" font-size="11" text-anchor="middle">45%</text>
+
+                        <!-- 化学 (47兆円, 輸出22%, 国内78%) -->
+                        <rect x="189" y="60" width="75" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="189" y="117" width="75" height="203" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="226" y="88" class="svg-text" font-size="12" text-anchor="middle">化学</text>
+                        <text x="226" y="108" class="svg-text" font-size="11" text-anchor="middle">22%</text>
+
+                        <!-- 食料品 (35兆円, 輸出3%, 国内97%) -->
+                        <rect x="264" y="60" width="56" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="264" y="68" width="56" height="252" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="292" y="200" class="svg-text" font-size="11" text-anchor="middle">食料品</text>
+                        <text x="292" y="216" class="svg-text" font-size="11" text-anchor="middle">3%</text>
+
+                        <!-- 電子部品 (28兆円, 輸出58%, 国内42%) -->
+                        <rect x="320" y="60" width="45" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="320" y="211" width="45" height="109" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="342" y="130" class="svg-text" font-size="10" text-anchor="middle">電子</text>
+                        <text x="342" y="143" class="svg-text" font-size="10" text-anchor="middle">部品</text>
+                        <text x="342" y="162" class="svg-text" font-size="11" text-anchor="middle">58%</text>
+
+                        <!-- 鉄鋼 (19兆円, 輸出31%, 国内69%) -->
+                        <rect x="365" y="60" width="30" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="365" y="141" width="30" height="179" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="380" y="100" class="svg-text" font-size="10" text-anchor="middle">鉄鋼</text>
+                        <text x="380" y="118" class="svg-text" font-size="10" text-anchor="middle">31%</text>
+
+                        <!-- その他 (103兆円, 輸出12%, 国内88%) -->
+                        <rect x="395" y="60" width="165" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="395" y="91" width="165" height="229" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="477" y="78" class="svg-text" font-size="12" text-anchor="middle">その他</text>
+                        <text x="477" y="200" class="svg-text" font-size="11" text-anchor="middle">12%</text>
+
+                        <!-- X軸目盛り -->
+                        <text x="80" y="340" class="svg-text" font-size="11" text-anchor="middle">0</text>
+                        <text x="128" y="340" class="svg-text" font-size="11" text-anchor="middle">10</text>
+                        <text x="176" y="340" class="svg-text" font-size="11" text-anchor="middle">20</text>
+                        <text x="224" y="340" class="svg-text" font-size="11" text-anchor="middle">30</text>
+                        <text x="272" y="340" class="svg-text" font-size="11" text-anchor="middle">40</text>
+                        <text x="320" y="340" class="svg-text" font-size="11" text-anchor="middle">50</text>
+                        <text x="368" y="340" class="svg-text" font-size="11" text-anchor="middle">60</text>
+                        <text x="416" y="340" class="svg-text" font-size="11" text-anchor="middle">70</text>
+                        <text x="464" y="340" class="svg-text" font-size="11" text-anchor="middle">80</text>
+                        <text x="512" y="340" class="svg-text" font-size="11" text-anchor="middle">90</text>
+                        <text x="560" y="340" class="svg-text" font-size="11" text-anchor="middle">100</text>
+                        <text x="320" y="360" class="svg-text" font-size="12" text-anchor="middle">製造品出荷額割合（%）</text>
+
+                        <!-- 出典 -->
+                        <text x="560" y="385" class="svg-text" font-size="10" text-anchor="end">(経済産業省:「工業統計調査」より作成)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>68兆円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>72兆円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>76兆円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>80兆円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>84兆円
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>各業種の輸出額＝出荷額×輸出割合 で求め、すべて合計する。</p>
+                    <br>
+                    <p><strong>【計算過程】</strong></p>
+                    <p>・輸送機械: 68 × 0.45 = 30.6（兆円）</p>
+                    <p>・化学: 47 × 0.22 = 10.34（兆円）</p>
+                    <p>・食料品: 35 × 0.03 = 1.05（兆円）</p>
+                    <p>・電子部品: 28 × 0.58 = 16.24（兆円）</p>
+                    <p>・鉄鋼: 19 × 0.31 = 5.89（兆円）</p>
+                    <p>・その他: 103 × 0.12 = 12.36（兆円）</p>
+                    <br>
+                    <p>合計 = 30.6 + 10.34 + 1.05 + 16.24 + 5.89 + 12.36 ≒ 76.5兆円</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) 76兆円</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ図を用いて答えよ。輸出割合が20%以上の業種をすべて選び、それらの業種の国内出荷額（＝出荷額－輸出額）の合計はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!-- 問2用グラフ（再掲） -->
+            <div class="figure-container">
+                <div class="figure-title">【産業別製造品出荷額等と輸出割合】（再掲）</div>
+                <div class="figure-content">
+                    <svg width="620" height="400" viewBox="0 0 620 400">
+                        <!-- 各列の出荷額ラベル（上部） -->
+                        <text x="134" y="30" class="svg-text" font-size="11" text-anchor="middle">68</text>
+                        <text x="226" y="30" class="svg-text" font-size="11" text-anchor="middle">47</text>
+                        <text x="292" y="30" class="svg-text" font-size="11" text-anchor="middle">35</text>
+                        <text x="342" y="30" class="svg-text" font-size="11" text-anchor="middle">28</text>
+                        <text x="380" y="30" class="svg-text" font-size="11" text-anchor="middle">19</text>
+                        <text x="477" y="30" class="svg-text" font-size="11" text-anchor="middle">103</text>
+                        <text x="134" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="226" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="292" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="342" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="380" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+                        <text x="477" y="44" class="svg-text" font-size="10" text-anchor="middle">兆円</text>
+
+                        <!-- Y軸ラベル -->
+                        <text x="25" y="324" class="svg-text" font-size="11" text-anchor="middle">0</text>
+                        <text x="25" y="272" class="svg-text" font-size="11" text-anchor="middle">20</text>
+                        <text x="25" y="220" class="svg-text" font-size="11" text-anchor="middle">40</text>
+                        <text x="25" y="168" class="svg-text" font-size="11" text-anchor="middle">60</text>
+                        <text x="25" y="116" class="svg-text" font-size="11" text-anchor="middle">80</text>
+                        <text x="25" y="64" class="svg-text" font-size="11" text-anchor="middle">100</text>
+                        <text x="42" y="55" class="svg-text" font-size="11">(％)</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="60" y1="320" x2="560" y2="320" stroke="black" stroke-width="1"/>
+                        <line x1="60" y1="268" x2="560" y2="268" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="216" x2="560" y2="216" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="164" x2="560" y2="164" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="112" x2="560" y2="112" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="560" y2="60" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="60" y1="60" x2="60" y2="320" stroke="black" stroke-width="1"/>
+
+                        <!-- 凡例 -->
+                        <rect x="460" y="60" width="14" height="10" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="480" y="69" class="svg-text" font-size="11">輸出部分</text>
+                        <rect x="460" y="76" width="14" height="10" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="480" y="85" class="svg-text" font-size="11">国内部分</text>
+
+                        <!-- 輸送機械 -->
+                        <rect x="80" y="60" width="109" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="80" y="177" width="109" height="143" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="134" y="130" class="svg-text" font-size="12" text-anchor="middle">輸送</text>
+                        <text x="134" y="146" class="svg-text" font-size="12" text-anchor="middle">機械</text>
+                        <text x="134" y="170" class="svg-text" font-size="11" text-anchor="middle">45%</text>
+
+                        <!-- 化学 -->
+                        <rect x="189" y="60" width="75" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="189" y="117" width="75" height="203" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="226" y="88" class="svg-text" font-size="12" text-anchor="middle">化学</text>
+                        <text x="226" y="108" class="svg-text" font-size="11" text-anchor="middle">22%</text>
+
+                        <!-- 食料品 -->
+                        <rect x="264" y="60" width="56" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="264" y="68" width="56" height="252" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="292" y="200" class="svg-text" font-size="11" text-anchor="middle">食料品</text>
+                        <text x="292" y="216" class="svg-text" font-size="11" text-anchor="middle">3%</text>
+
+                        <!-- 電子部品 -->
+                        <rect x="320" y="60" width="45" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="320" y="211" width="45" height="109" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="342" y="130" class="svg-text" font-size="10" text-anchor="middle">電子</text>
+                        <text x="342" y="143" class="svg-text" font-size="10" text-anchor="middle">部品</text>
+                        <text x="342" y="162" class="svg-text" font-size="11" text-anchor="middle">58%</text>
+
+                        <!-- 鉄鋼 -->
+                        <rect x="365" y="60" width="30" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="365" y="141" width="30" height="179" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="380" y="100" class="svg-text" font-size="10" text-anchor="middle">鉄鋼</text>
+                        <text x="380" y="118" class="svg-text" font-size="10" text-anchor="middle">31%</text>
+
+                        <!-- その他 -->
+                        <rect x="395" y="60" width="165" height="260" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="395" y="91" width="165" height="229" fill="#bbb" stroke="black" stroke-width="1"/>
+                        <text x="477" y="78" class="svg-text" font-size="12" text-anchor="middle">その他</text>
+                        <text x="477" y="200" class="svg-text" font-size="11" text-anchor="middle">12%</text>
+
+                        <!-- X軸目盛り -->
+                        <text x="80" y="340" class="svg-text" font-size="11" text-anchor="middle">0</text>
+                        <text x="128" y="340" class="svg-text" font-size="11" text-anchor="middle">10</text>
+                        <text x="176" y="340" class="svg-text" font-size="11" text-anchor="middle">20</text>
+                        <text x="224" y="340" class="svg-text" font-size="11" text-anchor="middle">30</text>
+                        <text x="272" y="340" class="svg-text" font-size="11" text-anchor="middle">40</text>
+                        <text x="320" y="340" class="svg-text" font-size="11" text-anchor="middle">50</text>
+                        <text x="368" y="340" class="svg-text" font-size="11" text-anchor="middle">60</text>
+                        <text x="416" y="340" class="svg-text" font-size="11" text-anchor="middle">70</text>
+                        <text x="464" y="340" class="svg-text" font-size="11" text-anchor="middle">80</text>
+                        <text x="512" y="340" class="svg-text" font-size="11" text-anchor="middle">90</text>
+                        <text x="560" y="340" class="svg-text" font-size="11" text-anchor="middle">100</text>
+                        <text x="320" y="360" class="svg-text" font-size="12" text-anchor="middle">製造品出荷額割合（%）</text>
+
+                        <!-- 出典 -->
+                        <text x="560" y="385" class="svg-text" font-size="10" text-anchor="end">(経済産業省:「工業統計調査」より作成)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>約99兆円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>約105兆円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>約111兆円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>約117兆円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>約123兆円
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>まず各業種の輸出割合が20%以上かどうかを確認し、該当する業種の国内出荷額（出荷額×（1－輸出割合））を求めて合計する。</p>
+                    <br>
+                    <p><strong>【条件の確認】</strong></p>
+                    <p>・輸送機械: 輸出割合45%（20%以上） → <strong>該当する</strong></p>
+                    <p>・化学: 輸出割合22%（20%以上） → <strong>該当する</strong></p>
+                    <p>・食料品: 輸出割合3%（20%未満） → 該当しない</p>
+                    <p>・電子部品: 輸出割合58%（20%以上） → <strong>該当する</strong></p>
+                    <p>・鉄鋼: 輸出割合31%（20%以上） → <strong>該当する</strong></p>
+                    <p>・その他: 輸出割合12%（20%未満） → 該当しない</p>
+                    <br>
+                    <p><strong>【国内出荷額の計算】</strong></p>
+                    <p>・輸送機械: 68 × 0.55 = 37.4兆円</p>
+                    <p>・化学: 47 × 0.78 = 36.66兆円</p>
+                    <p>・電子部品: 28 × 0.42 = 11.76兆円</p>
+                    <p>・鉄鋼: 19 × 0.69 = 13.11兆円</p>
+                    <br>
+                    <p>合計 = 37.4 + 36.66 + 11.76 + 13.11 ≒ 98.9兆円</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1) 約99兆円</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考42/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
