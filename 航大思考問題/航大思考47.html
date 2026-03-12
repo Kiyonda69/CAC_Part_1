@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            図のように、黒と白の6つのマスからなる行が、ある規則にしたがって上から下のように変化している。図と同じ規則にしたがって変化しているものは次のうちどれか。正しいものを(1)～(5)から1つ選べ。ただし、選択肢では矢印を省略している。
+        </div>
+
+        <!--
+        図表仕様:
+        - 例示パターン: 6セル×4行、セルサイズ26px
+        - ルール: next[i] = current[i] XOR current[(i+1) % 6]
+        -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="166" height="176" viewBox="0 0 166 176">
+                    <!-- 行1: 1 1 0 1 0 0 -->
+                    <rect x="0" y="5" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="26" y="5" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="52" y="5" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="78" y="5" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="104" y="5" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="130" y="5" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <text x="78" y="43" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行2: 0 1 1 1 0 1 -->
+                    <rect x="0" y="50" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="26" y="50" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="52" y="50" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="78" y="50" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="104" y="50" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="130" y="50" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <text x="78" y="88" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行3: 1 0 0 1 1 1 -->
+                    <rect x="0" y="95" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="26" y="95" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="52" y="95" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="78" y="95" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="104" y="95" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="130" y="95" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <text x="78" y="133" class="svg-text" text-anchor="middle" font-size="16">↓</text>
+                    <!-- 行4: 1 0 1 0 0 0 -->
+                    <rect x="0" y="140" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="26" y="140" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="52" y="140" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    <rect x="78" y="140" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="104" y="140" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    <rect x="130" y="140" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- 選択肢（図形） -->
+        <div class="options-figure" id="q1-options">
+            <!-- 選択肢(1): 不正解 -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                <svg width="156" height="140" viewBox="0 0 156 140">
+                    <text x="78" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                    <g transform="translate(0, 20)">
+                        <rect x="0" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(2): 不正解 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                <svg width="156" height="140" viewBox="0 0 156 140">
+                    <text x="78" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                    <g transform="translate(0, 20)">
+                        <rect x="0" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(3): 正解 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                <svg width="156" height="140" viewBox="0 0 156 140">
+                    <text x="78" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                    <g transform="translate(0, 20)">
+                        <rect x="0" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(4): 不正解 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                <svg width="156" height="140" viewBox="0 0 156 140">
+                    <text x="78" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                    <g transform="translate(0, 20)">
+                        <rect x="0" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(5): 不正解 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                <svg width="156" height="140" viewBox="0 0 156 140">
+                    <text x="78" y="14" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                    <g transform="translate(0, 20)">
+                        <rect x="0" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="0" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="0" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="30" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="30" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="60" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="60" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="0" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="26" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="52" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="78" y="90" width="26" height="26" fill="black" stroke="black" stroke-width="1"/>
+                        <rect x="104" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                        <rect x="130" y="90" width="26" height="26" fill="white" stroke="black" stroke-width="1"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p><strong>【規則の発見】</strong></p>
+                <p>この問題の規則は「各マスの次の行の値は、そのマスと右隣のマスの排他的論理和（XOR）で決まる」というものである。6マス目の右隣は1マス目に循環する。</p>
+                <br>
+                <p>具体的には、現在の行を a[1], a[2], ..., a[6] とすると、次の行は:</p>
+                <p>・b[i] = a[i] XOR a[i+1]（i = 1, 2, ..., 5）</p>
+                <p>・b[6] = a[6] XOR a[1]（循環）</p>
+                <p>ここで、同じ色なら白、異なる色なら黒となる。</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 行2→行3: 3番目が不一致 → 不正解</p>
+                <p>・(2) 行2→行3: 6番目が不一致 → 不正解</p>
+                <p>・(3) 全ての行間でXOR規則が成立 → <strong>正解</strong></p>
+                <p>・(4) 行1→行2: 6番目が不一致 → 不正解</p>
+                <p>・(5) 行2→行3: 1番目が不一致 → 不正解</p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            1辺の長さが1の立方体ABCD-EFGHがある（ABCDが上面、EFGHが下面で、A-E、B-F、C-G、D-Hがそれぞれ対応する頂点）。8つの頂点のうち3つを選んで三角形を作るとき、正三角形となるものは全部で何個あるか。正しいものを(1)～(5)から1つ選べ。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 400x280px
+        - viewBox: 0 0 400 280
+        - 等角投影の立方体、頂点ラベル付き
+        -->
+        <div class="figure-container">
+            <div class="figure-content">
+                <svg width="400" height="280" viewBox="0 0 400 280">
+                    <!-- 隠れ辺（破線） -->
+                    <line x1="160" y1="180" x2="160" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="160" y1="180" x2="120" y2="220" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                    <line x1="160" y1="180" x2="320" y2="180" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                    <!-- 見える辺（実線） -->
+                    <line x1="120" y1="80" x2="280" y2="80" stroke="black" stroke-width="1.5"/>
+                    <line x1="280" y1="80" x2="320" y2="40" stroke="black" stroke-width="1.5"/>
+                    <line x1="320" y1="40" x2="160" y2="40" stroke="black" stroke-width="1.5"/>
+                    <line x1="160" y1="40" x2="120" y2="80" stroke="black" stroke-width="1.5"/>
+                    <line x1="120" y1="220" x2="280" y2="220" stroke="black" stroke-width="1.5"/>
+                    <line x1="280" y1="220" x2="320" y2="180" stroke="black" stroke-width="1.5"/>
+                    <line x1="120" y1="80" x2="120" y2="220" stroke="black" stroke-width="1.5"/>
+                    <line x1="280" y1="80" x2="280" y2="220" stroke="black" stroke-width="1.5"/>
+                    <line x1="320" y1="40" x2="320" y2="180" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 頂点ラベル -->
+                    <text x="105" y="75" class="svg-text" font-size="16" font-weight="bold">A</text>
+                    <text x="288" y="75" class="svg-text" font-size="16" font-weight="bold">B</text>
+                    <text x="328" y="37" class="svg-text" font-size="16" font-weight="bold">C</text>
+                    <text x="143" y="37" class="svg-text" font-size="16" font-weight="bold">D</text>
+                    <text x="100" y="235" class="svg-text" font-size="16" font-weight="bold">E</text>
+                    <text x="288" y="235" class="svg-text" font-size="16" font-weight="bold">F</text>
+                    <text x="328" y="195" class="svg-text" font-size="16" font-weight="bold">G</text>
+                    <text x="143" y="195" class="svg-text" font-size="16" font-weight="bold">H</text>
+                </svg>
+            </div>
+        </div>
+
+        <!-- テキスト選択肢 -->
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                <span class="option-label">(1)</span>4個
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                <span class="option-label">(2)</span>8個
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                <span class="option-label">(3)</span>12個
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                <span class="option-label">(4)</span>16個
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                <span class="option-label">(5)</span>24個
+            </button>
+        </div>
+
+        <!-- 解説セクション -->
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【解法】</strong></p>
+                <p>立方体の8頂点間の距離は3種類ある:</p>
+                <p>・辺の長さ: 1（隣接する2頂点）</p>
+                <p>・面の対角線: sqrt(2)（同じ面上の対角頂点）</p>
+                <p>・空間対角線: sqrt(3)（立方体の対角頂点）</p>
+                <br>
+                <p>正三角形を作るには、3辺が全て等しくなければならない。</p>
+                <br>
+                <p><strong>【辺の長さ1の正三角形】</strong></p>
+                <p>立方体のグラフは二部グラフであり、奇数サイクルを含まないため、辺のみで三角形を作ることは不可能。</p>
+                <br>
+                <p><strong>【空間対角線sqrt(3)の正三角形】</strong></p>
+                <p>3頂点が互いに全てsqrt(3)離れることはない（座標計算から不可能）。</p>
+                <br>
+                <p><strong>【面の対角線sqrt(2)の正三角形】</strong></p>
+                <p>立方体には2つの正四面体が内接する:</p>
+                <p>・正四面体1: A, C, F, H（4頂点が互いにsqrt(2)で結ばれる）</p>
+                <p>・正四面体2: B, D, E, G（4頂点が互いにsqrt(2)で結ばれる）</p>
+                <p>各正四面体から3頂点を選ぶ方法は C(4,3) = 4通り。</p>
+                <p>合計 4 + 4 = <strong>8個</strong>の正三角形が存在する。</p>
+                <br>
+                <p>したがって、正解は<strong>(2)</strong>の8個である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考47/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
