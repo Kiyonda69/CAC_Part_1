@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            下図は立方体の展開図であり、各面にはア〜カの文字が記されている。この展開図を組み立てて立方体を作ったとき、アの面と向かい合う面の文字と、イの面と向かい合う面の文字の組み合わせとして正しいものを1つ選べ。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 400x260px
+        - viewBox: 0 0 400 260
+        - 階段型展開図: 各面65×65px
+        - ア(0,0), イ(65,0), ウ(65,65), エ(130,65), オ(130,130), カ(195,130)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【展開図】</div>
+            <div class="figure-content">
+                <svg width="400" height="260" viewBox="0 0 400 260">
+                    <g transform="translate(80, 20)">
+                        <!-- ア (0,0) -->
+                        <rect x="0" y="0" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="32" y="40" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">ア</text>
+
+                        <!-- イ (1,0) -->
+                        <rect x="65" y="0" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="97" y="40" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">イ</text>
+
+                        <!-- ウ (1,1) -->
+                        <rect x="65" y="65" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="97" y="105" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">ウ</text>
+
+                        <!-- エ (2,1) -->
+                        <rect x="130" y="65" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="162" y="105" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">エ</text>
+
+                        <!-- オ (2,2) -->
+                        <rect x="130" y="130" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="162" y="170" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">オ</text>
+
+                        <!-- カ (3,2) -->
+                        <rect x="195" y="130" width="65" height="65" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="227" y="170" text-anchor="middle" font-size="22" font-weight="bold" font-family="serif">カ</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">(1)</span>アの向かい: カ、イの向かい: オ
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">(2)</span>アの向かい: エ、イの向かい: オ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">(3)</span>アの向かい: オ、イの向かい: カ
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">(4)</span>アの向かい: エ、イの向かい: カ
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">(5)</span>アの向かい: カ、イの向かい: エ
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【展開図の折りたたみ】</strong></p>
+                <p>この展開図は階段型の配置である。ウを正面（手前の面）として固定し、順に折りたたむ。</p>
+                <br>
+                <p><strong>ステップ1:</strong> ウを正面に固定する。</p>
+                <p><strong>ステップ2:</strong> イはウの上辺に接続 → 上面に折れる。</p>
+                <p><strong>ステップ3:</strong> アはイの左辺に接続 → イが上面になった後、アは左面に折れる。</p>
+                <p><strong>ステップ4:</strong> エはウの右辺に接続 → 右面に折れる。</p>
+                <p><strong>ステップ5:</strong> オはエの下辺に接続 → エが右面になった後、オは下面に折れる。</p>
+                <p><strong>ステップ6:</strong> カはオの右辺に接続 → オが下面になった後、カは背面に折れる。</p>
+                <br>
+                <p><strong>【各面の位置】</strong></p>
+                <p>・ア = 左面、イ = 上面、ウ = 正面</p>
+                <p>・エ = 右面、オ = 下面、カ = 背面</p>
+                <br>
+                <p><strong>【向かい合う面】</strong></p>
+                <p>・ア（左面）↔ エ（右面）</p>
+                <p>・イ（上面）↔ オ（下面）</p>
+                <p>・ウ（正面）↔ カ（背面）</p>
+                <br>
+                <p>したがって、アの向かいは<strong>エ</strong>、イの向かいは<strong>オ</strong>であり、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            1辺の長さが1の立方体ABCD-EFGHがある。底面ABCDの頂点はA、B、C、Dであり、上面EFGHの頂点はそれぞれA、B、C、Dの真上にE、F、G、Hがある。頂点A、C、F、Hを結んでできる四面体について確実にいえるものを1つ選べ。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 350x320px
+        - viewBox: 0 0 350 320
+        - 斜投影法による立方体の描画
+        - 四面体ACFHの辺を太線で表示
+
+        座標系（斜投影）:
+        x' = 80 + x*85 + z*40
+        y' = 270 - y*85 - z*40
+
+        頂点座標:
+        A(0,0,0)=(80,270), B(1,0,0)=(165,270)
+        C(1,1,0)=(165,185), D(0,1,0)=(80,185)
+        E(0,0,1)=(120,230), F(1,0,1)=(205,230)
+        G(1,1,1)=(205,145), H(0,1,1)=(120,145)
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【立方体ABCD-EFGH】</div>
+            <div class="figure-content">
+                <svg width="350" height="320" viewBox="0 0 350 320">
+                    <!-- 立方体の辺（背面の辺を破線で表示） -->
+                    <line x1="80" y1="270" x2="120" y2="230" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                    <line x1="80" y1="185" x2="120" y2="145" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                    <line x1="80" y1="270" x2="80" y2="185" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+
+                    <!-- 前面の辺（実線） -->
+                    <line x1="165" y1="270" x2="205" y2="230" stroke="black" stroke-width="1.5"/>
+                    <line x1="165" y1="185" x2="205" y2="145" stroke="black" stroke-width="1.5"/>
+                    <line x1="165" y1="270" x2="165" y2="185" stroke="black" stroke-width="1.5"/>
+                    <line x1="80" y1="185" x2="165" y2="185" stroke="black" stroke-width="1.5"/>
+                    <line x1="165" y1="270" x2="80" y2="270" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 上面・右面の辺 -->
+                    <line x1="120" y1="230" x2="205" y2="230" stroke="black" stroke-width="1.5"/>
+                    <line x1="120" y1="145" x2="205" y2="145" stroke="black" stroke-width="1.5"/>
+                    <line x1="120" y1="230" x2="120" y2="145" stroke="black" stroke-width="1.5"/>
+                    <line x1="205" y1="230" x2="205" y2="145" stroke="black" stroke-width="1.5"/>
+
+                    <!-- 四面体ACFHの辺（太い灰色線） -->
+                    <line x1="80" y1="270" x2="165" y2="185" stroke="#555" stroke-width="2.5"/>
+                    <line x1="80" y1="270" x2="205" y2="230" stroke="#555" stroke-width="2.5"/>
+                    <line x1="80" y1="270" x2="120" y2="145" stroke="#555" stroke-width="2.5"/>
+                    <line x1="165" y1="185" x2="205" y2="230" stroke="#555" stroke-width="2.5"/>
+                    <line x1="165" y1="185" x2="120" y2="145" stroke="#555" stroke-width="2.5"/>
+                    <line x1="205" y1="230" x2="120" y2="145" stroke="#555" stroke-width="2.5"/>
+
+                    <!-- 頂点ラベル -->
+                    <text x="68" y="288" font-size="16" font-weight="bold" font-family="serif">A</text>
+                    <text x="168" y="288" font-size="16" font-weight="bold" font-family="serif">B</text>
+                    <text x="168" y="180" font-size="16" font-weight="bold" font-family="serif">C</text>
+                    <text x="62" y="183" font-size="16" font-weight="bold" font-family="serif">D</text>
+                    <text x="106" y="242" font-size="16" font-weight="bold" font-family="serif">E</text>
+                    <text x="210" y="238" font-size="16" font-weight="bold" font-family="serif">F</text>
+                    <text x="210" y="142" font-size="16" font-weight="bold" font-family="serif">G</text>
+                    <text x="104" y="142" font-size="16" font-weight="bold" font-family="serif">H</text>
+
+                    <!-- 四面体の頂点を強調 -->
+                    <circle cx="80" cy="270" r="4" fill="black"/>
+                    <circle cx="165" cy="185" r="4" fill="black"/>
+                    <circle cx="205" cy="230" r="4" fill="black"/>
+                    <circle cx="120" cy="145" r="4" fill="black"/>
+
+                    <!-- 凡例 -->
+                    <line x1="30" y1="305" x2="60" y2="305" stroke="#555" stroke-width="2.5"/>
+                    <text x="65" y="310" font-size="13" font-family="serif">四面体ACFHの辺</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <span class="option-label">(1)</span>四面体ACFHの体積は立方体の体積の1/3である。
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <span class="option-label">(2)</span>四面体ACFHの体積は立方体の体積の1/4である。
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <span class="option-label">(3)</span>四面体ACFHの体積は立方体の体積の1/6である。
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <span class="option-label">(4)</span>四面体ACFHの体積は立方体の体積の1/2である。
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <span class="option-label">(5)</span>四面体ACFHの体積は立方体の体積の2/3である。
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p><strong>【座標設定】</strong></p>
+                <p>立方体の頂点に座標を設定する。</p>
+                <p>・底面: A(0,0,0)、B(1,0,0)、C(1,1,0)、D(0,1,0)</p>
+                <p>・上面: E(0,0,1)、F(1,0,1)、G(1,1,1)、H(0,1,1)</p>
+                <br>
+                <p><strong>【四面体ACFHが正四面体であることの確認】</strong></p>
+                <p>全ての辺の長さを計算すると、6本全てがsqrt(2)で等しい。</p>
+                <p>|AC|=|AF|=|AH|=|CF|=|CH|=|FH|=sqrt(2)</p>
+                <p>よって四面体ACFHは正四面体である。</p>
+                <br>
+                <p><strong>【体積の計算】</strong></p>
+                <p>立方体から四面体ACFHを切り出すと、4つの直角三角錐が残る。</p>
+                <p>残る4つの三角錐は頂点B、D、E、Gにそれぞれ1つずつ存在する。</p>
+                <br>
+                <p>例えば頂点Bの直角三角錐B-ACFは、3辺BA、BC、BFが互いに直交し、各辺の長さが1であるから、</p>
+                <p>体積 = (1/6) x 1 x 1 x 1 = 1/6</p>
+                <br>
+                <p>他の3つ（D-ACH、E-AFH、G-CFH）も同様に体積1/6である。</p>
+                <br>
+                <p>4つの直角三角錐の体積の合計 = 4 x 1/6 = 2/3</p>
+                <br>
+                <p>四面体ACFHの体積 = 立方体の体積 - 直角三角錐の合計 = 1 - 2/3 = <strong>1/3</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">(空欄)</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考49/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
