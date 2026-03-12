@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 12px 16px; margin: 8px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 15px; line-height: 1.5;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .options-figure { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 16px 0; }
+        .option-figure-button {
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s ease; padding: 8px;
+        }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; opacity: 0.85; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            図のように、数がある規則にしたがってピラミッド状に並んでいる。左辺には行番号（1, 2, 3, ...）が、右辺には奇数（1, 3, 5, ...）が並び、内部の数はその直上にある2つの数の和である。このとき、7行目の左から4番目にある数はいくつか。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 500x280px
+        - viewBox: 0 0 500 280
+        - ピラミッド型の数配列（1〜5行を表示）
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【数のピラミッド（1行目〜5行目）】</div>
+            <div class="figure-content">
+                <svg width="500" height="280" viewBox="0 0 500 280">
+                    <!-- 行1: [1] -->
+                    <g transform="translate(250, 20)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">1</text>
+                    </g>
+
+                    <!-- 行2: [2, 3] -->
+                    <g transform="translate(220, 70)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">2</text>
+                    </g>
+                    <g transform="translate(280, 70)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">3</text>
+                    </g>
+
+                    <!-- 行3: [3, 5, 5] -->
+                    <g transform="translate(190, 120)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">3</text>
+                    </g>
+                    <g transform="translate(250, 120)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">5</text>
+                    </g>
+                    <g transform="translate(310, 120)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">5</text>
+                    </g>
+
+                    <!-- 行4: [4, 8, 10, 7] -->
+                    <g transform="translate(160, 170)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">4</text>
+                    </g>
+                    <g transform="translate(220, 170)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">8</text>
+                    </g>
+                    <g transform="translate(280, 170)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">10</text>
+                    </g>
+                    <g transform="translate(340, 170)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">7</text>
+                    </g>
+
+                    <!-- 行5: [5, 12, 18, 17, 9] -->
+                    <g transform="translate(130, 220)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">5</text>
+                    </g>
+                    <g transform="translate(190, 220)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">12</text>
+                    </g>
+                    <g transform="translate(250, 220)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">18</text>
+                    </g>
+                    <g transform="translate(310, 220)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">17</text>
+                    </g>
+                    <g transform="translate(370, 220)">
+                        <rect x="-25" y="0" width="50" height="36" fill="white" stroke="black" stroke-width="1.5" rx="3"/>
+                        <text x="0" y="24" text-anchor="middle" font-size="16" font-weight="bold" font-family="serif">9</text>
+                    </g>
+
+                    <!-- 接続線 -->
+                    <line x1="237" y1="36" x2="220" y2="70" stroke="#999" stroke-width="1"/>
+                    <line x1="263" y1="36" x2="280" y2="70" stroke="#999" stroke-width="1"/>
+
+                    <line x1="207" y1="106" x2="190" y2="120" stroke="#999" stroke-width="1"/>
+                    <line x1="233" y1="106" x2="250" y2="120" stroke="#999" stroke-width="1"/>
+                    <line x1="267" y1="106" x2="250" y2="120" stroke="#999" stroke-width="1"/>
+                    <line x1="293" y1="106" x2="310" y2="120" stroke="#999" stroke-width="1"/>
+
+                    <line x1="177" y1="156" x2="160" y2="170" stroke="#999" stroke-width="1"/>
+                    <line x1="203" y1="156" x2="220" y2="170" stroke="#999" stroke-width="1"/>
+                    <line x1="237" y1="156" x2="220" y2="170" stroke="#999" stroke-width="1"/>
+                    <line x1="263" y1="156" x2="280" y2="170" stroke="#999" stroke-width="1"/>
+                    <line x1="297" y1="156" x2="280" y2="170" stroke="#999" stroke-width="1"/>
+                    <line x1="323" y1="156" x2="340" y2="170" stroke="#999" stroke-width="1"/>
+
+                    <line x1="147" y1="206" x2="130" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="173" y1="206" x2="190" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="207" y1="206" x2="190" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="233" y1="206" x2="250" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="267" y1="206" x2="250" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="293" y1="206" x2="310" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="327" y1="206" x2="310" y2="220" stroke="#999" stroke-width="1"/>
+                    <line x1="353" y1="206" x2="370" y2="220" stroke="#999" stroke-width="1"/>
+
+                    <!-- ラベル -->
+                    <text x="100" y="160" text-anchor="end" font-size="12" fill="#666" font-family="serif">左辺: 行番号</text>
+                    <text x="400" y="160" text-anchor="start" font-size="12" fill="#666" font-family="serif">右辺: 奇数</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">(1)</span>47
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">(2)</span>65
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">(3)</span>56
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">(4)</span>61
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">(5)</span>72
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【規則の確認】</strong></p>
+                <p>・左辺: 行番号（1行目=1, 2行目=2, ...）</p>
+                <p>・右辺: 奇数（1行目=1, 2行目=3, ...、すなわち 2n-1）</p>
+                <p>・内部: 直上の2つの数の和</p>
+                <br>
+                <p><strong>【6行目の計算】</strong></p>
+                <p>5行目: 5, 12, 18, 17, 9</p>
+                <p>6行目の左辺 = 6、右辺 = 2x6-1 = 11</p>
+                <p>位置2: 5+12 = 17、位置3: 12+18 = 30、位置4: 18+17 = 35、位置5: 17+9 = 26</p>
+                <p>6行目: 6, 17, 30, 35, 26, 11</p>
+                <br>
+                <p><strong>【7行目の計算】</strong></p>
+                <p>7行目の左辺 = 7、右辺 = 13</p>
+                <p>位置2: 6+17 = 23、位置3: 17+30 = 47、<strong>位置4: 30+35 = 65</strong>、位置5: 35+26 = 61、位置6: 26+11 = 37</p>
+                <p>7行目: 7, 23, 47, <strong>65</strong>, 61, 37, 13</p>
+                <br>
+                <p>したがって、7行目の左から4番目の数は<strong>65</strong>であり、正解は<strong>(2)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            図のように、4x4のマス目がある正方形の紙を、点線に沿って3回折った。折った紙の図中の位置に穴を開け、紙を完全に広げたとき、穴の位置を正しく示しているものはどれか。
+        </div>
+
+        <!--
+        図表仕様:
+        - SVGサイズ: 600x180px
+        - viewBox: 0 0 600 180
+        - 折り手順と穴位置を図示
+        -->
+        <div class="figure-container">
+            <div class="figure-title">【折り方と穴の位置】</div>
+            <div class="figure-content">
+                <svg width="600" height="170" viewBox="0 0 600 170">
+                    <!-- ステップ1: 元の正方形 -->
+                    <g transform="translate(20, 30)">
+                        <text x="50" y="-10" text-anchor="middle" font-size="11" font-family="serif">元の紙</text>
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                    </g>
+                    <text x="135" y="80" font-size="20" font-family="serif">→</text>
+                    <text x="128" y="100" font-size="9" fill="#666" font-family="serif">折り1</text>
+
+                    <!-- ステップ2: 半分に折った後 -->
+                    <g transform="translate(155, 30)">
+                        <text x="25" y="-10" text-anchor="middle" font-size="11" font-family="serif">折り1後</text>
+                        <rect x="0" y="0" width="50" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="50" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="50" y2="50" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                    </g>
+                    <text x="218" y="80" font-size="20" font-family="serif">→</text>
+                    <text x="211" y="100" font-size="9" fill="#666" font-family="serif">折り2</text>
+
+                    <!-- ステップ3: 4分の1 -->
+                    <g transform="translate(245, 55)">
+                        <text x="25" y="-30" text-anchor="middle" font-size="11" font-family="serif">折り2後</text>
+                        <rect x="0" y="0" width="50" height="50" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="50" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="0" y2="50" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                    </g>
+                    <text x="308" y="80" font-size="20" font-family="serif">→</text>
+                    <text x="301" y="100" font-size="9" fill="#666" font-family="serif">折り3</text>
+
+                    <!-- ステップ4: 三角形 + 穴 -->
+                    <g transform="translate(335, 55)">
+                        <text x="25" y="-30" text-anchor="middle" font-size="11" font-family="serif">折り3後</text>
+                        <polygon points="0,0 0,50 50,50" fill="white" stroke="black" stroke-width="1.5"/>
+                        <circle cx="12" cy="38" r="5" fill="black"/>
+                        <text x="25" y="68" text-anchor="middle" font-size="10" fill="#666" font-family="serif">穴</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-figure" id="q2-options">
+            <!-- 選択肢(1): 誤答A（反転パターン） -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                <svg width="120" height="140" viewBox="0 0 120 140">
+                    <text x="60" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                    <g transform="translate(10, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <circle cx="12" cy="12" r="6" fill="black"/>
+                        <circle cx="87" cy="12" r="6" fill="black"/>
+                        <circle cx="37" cy="37" r="6" fill="black"/>
+                        <circle cx="62" cy="37" r="6" fill="black"/>
+                        <circle cx="37" cy="62" r="6" fill="black"/>
+                        <circle cx="62" cy="62" r="6" fill="black"/>
+                        <circle cx="12" cy="87" r="6" fill="black"/>
+                        <circle cx="87" cy="87" r="6" fill="black"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(2): 誤答B（上下辺のみ） -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                <svg width="120" height="140" viewBox="0 0 120 140">
+                    <text x="60" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                    <g transform="translate(10, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <circle cx="37" cy="12" r="6" fill="black"/>
+                        <circle cx="62" cy="12" r="6" fill="black"/>
+                        <circle cx="37" cy="87" r="6" fill="black"/>
+                        <circle cx="62" cy="87" r="6" fill="black"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(3): 誤答C（左右辺のみ） -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                <svg width="120" height="140" viewBox="0 0 120 140">
+                    <text x="60" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                    <g transform="translate(10, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <circle cx="12" cy="37" r="6" fill="black"/>
+                        <circle cx="87" cy="37" r="6" fill="black"/>
+                        <circle cx="12" cy="62" r="6" fill="black"/>
+                        <circle cx="87" cy="62" r="6" fill="black"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(4): 誤答D（中央4穴） -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                <svg width="120" height="140" viewBox="0 0 120 140">
+                    <text x="60" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                    <g transform="translate(10, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <circle cx="37" cy="37" r="6" fill="black"/>
+                        <circle cx="62" cy="37" r="6" fill="black"/>
+                        <circle cx="37" cy="62" r="6" fill="black"/>
+                        <circle cx="62" cy="62" r="6" fill="black"/>
+                    </g>
+                </svg>
+            </button>
+
+            <!-- 選択肢(5): 正解（リングパターン8穴） -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                <svg width="120" height="140" viewBox="0 0 120 140">
+                    <text x="60" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                    <g transform="translate(10, 25)">
+                        <rect x="0" y="0" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                        <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                        <circle cx="37" cy="12" r="6" fill="black"/>
+                        <circle cx="62" cy="12" r="6" fill="black"/>
+                        <circle cx="12" cy="37" r="6" fill="black"/>
+                        <circle cx="87" cy="37" r="6" fill="black"/>
+                        <circle cx="12" cy="62" r="6" fill="black"/>
+                        <circle cx="87" cy="62" r="6" fill="black"/>
+                        <circle cx="37" cy="87" r="6" fill="black"/>
+                        <circle cx="62" cy="87" r="6" fill="black"/>
+                    </g>
+                </svg>
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (5)）</div>
+            <div class="explanation-content">
+                <p><strong>【折りの追跡】</strong></p>
+                <p>4x4グリッドの正方形の紙を次のように折る。</p>
+                <br>
+                <p><strong>折り1（右半分を左に折る）:</strong></p>
+                <p>垂直中心線で折ると、列3が列2に、列4が列1に重なる。</p>
+                <p>結果: 2x4の長方形（各位置に2層）</p>
+                <br>
+                <p><strong>折り2（下半分を上に折る）:</strong></p>
+                <p>水平中心線で折ると、行3が行2に、行4が行1に重なる。</p>
+                <p>結果: 2x2の正方形（各位置に4層）</p>
+                <br>
+                <p><strong>折り3（対角線で折る）:</strong></p>
+                <p>右上から左下への対角線で折ると、右上の三角形が左下に重なる。</p>
+                <p>結果: 三角形（位置によって4層または8層）</p>
+                <br>
+                <p><strong>【穴の位置の追跡】</strong></p>
+                <p>穴は三角形の左下付近（元の2x2で(2,1)の位置）に開けられる。</p>
+                <p>この位置には対角線折りにより(1,2)の層も重なっている。</p>
+                <br>
+                <p>(2,1)の位置に対応する元のセル: (2,1), (2,4), (3,1), (3,4)</p>
+                <p>(1,2)の位置に対応する元のセル: (1,2), (1,3), (4,2), (4,3)</p>
+                <br>
+                <p>合計8つの穴がリング状（環状）に配置される。正解は<strong>(5)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">(空欄)</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_03/航大思考50/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
