@@ -1,0 +1,769 @@
+<!--
+================================================================================
+航大思考59.html - 資料読み取り問題（前年比推移グラフ）
+================================================================================
+問1（標準）: 3店舗の売上高の前年比推移から特定店舗の売上高を求める
+問2（高難度）: 比率条件から個別売上を求め、2店舗の差を算出
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                図は、3つの店舗P、Q、Rの売上高の前年比推移を示したものである。2020年の店舗Qの売上高が4000万円であったとき、2024年の店舗Qの売上高はおよそいくらになるか。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 580x380px
+            - viewBox: 0 0 580 380
+
+            座標系定義:
+            - グラフエリア: x=90〜540, y=50〜330
+            - X軸: 2021(x=170), 2022(x=290), 2023(x=410), 2024(x=530)
+            - Y軸: -10%(y=330) 〜 +40%(y=50)
+
+            データ:
+            - 店舗P(○破線):   +10, +20,  -5, +15
+            - 店舗Q(△一点鎖線): +25, -10,  +5, +30
+            - 店舗R(■実線):    +5, +15, +25,  -5
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【売上高の前年比推移】</div>
+                <div class="figure-content">
+                    <svg width="580" height="380" viewBox="0 0 580 380">
+                        <!-- Y軸ラベル (%) -->
+                        <text x="30" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                        <!-- 凡例 -->
+                        <circle cx="160" cy="42" r="6" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="175" y="47" class="svg-text">店舗P</text>
+                        <polygon points="270,36 276,48 264,48" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="285" y="47" class="svg-text">店舗Q</text>
+                        <rect x="384" y="36" width="12" height="12" fill="black" stroke="black" stroke-width="2"/>
+                        <text x="405" y="47" class="svg-text">店舗R</text>
+
+                        <!-- グラフ背景・枠線 -->
+                        <rect x="90" y="50" width="450" height="280" fill="none" stroke="black" stroke-width="1"/>
+
+                        <!-- 横グリッド線 -->
+                        <line x1="90" y1="50" x2="540" y2="50" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="106" x2="540" y2="106" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="162" x2="540" y2="162" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="218" x2="540" y2="218" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="274" x2="540" y2="274" stroke="black" stroke-width="0.8"/>
+                        <line x1="90" y1="330" x2="540" y2="330" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                        <!-- Y軸ラベル -->
+                        <text x="80" y="55" class="svg-text" text-anchor="end">40</text>
+                        <text x="80" y="111" class="svg-text" text-anchor="end">30</text>
+                        <text x="80" y="167" class="svg-text" text-anchor="end">20</text>
+                        <text x="80" y="223" class="svg-text" text-anchor="end">10</text>
+                        <text x="80" y="279" class="svg-text" text-anchor="end">0</text>
+                        <text x="75" y="335" class="svg-text" text-anchor="end">-10</text>
+
+                        <!-- X軸ラベル -->
+                        <text x="170" y="355" class="svg-text" text-anchor="middle">2021</text>
+                        <text x="290" y="355" class="svg-text" text-anchor="middle">2022</text>
+                        <text x="410" y="355" class="svg-text" text-anchor="middle">2023</text>
+                        <text x="530" y="355" class="svg-text" text-anchor="middle">2024</text>
+                        <text x="560" y="370" class="svg-text" text-anchor="middle">(年)</text>
+
+                        <!-- 店舗P: ○ 破線  +10, +20, -5, +15 -->
+                        <line x1="170" y1="218" x2="290" y2="162" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <line x1="290" y1="162" x2="410" y2="302" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <line x1="410" y1="302" x2="530" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <circle cx="170" cy="218" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="290" cy="162" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="410" cy="302" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="530" cy="190" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="152" y="214" class="svg-text" text-anchor="end" font-weight="bold">+10</text>
+                        <text x="290" y="148" class="svg-text" text-anchor="middle" font-weight="bold">+20</text>
+                        <text x="410" y="320" class="svg-text" text-anchor="middle" font-weight="bold">-5</text>
+                        <text x="510" y="194" class="svg-text" text-anchor="end" font-weight="bold">+15</text>
+
+                        <!-- 店舗Q: △ 一点鎖線  +25, -10, +5, +30 -->
+                        <line x1="170" y1="134" x2="290" y2="330" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <line x1="290" y1="330" x2="410" y2="246" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <line x1="410" y1="246" x2="530" y2="106" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <polygon points="170,127 177,141 163,141" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="290,323 297,337 283,337" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="410,239 417,253 403,253" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="530,99 537,113 523,113" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="170" y="117" class="svg-text" text-anchor="middle" font-weight="bold">+25</text>
+                        <text x="270" y="336" class="svg-text" text-anchor="end" font-weight="bold">-10</text>
+                        <text x="430" y="250" class="svg-text" font-weight="bold">+5</text>
+                        <text x="530" y="88" class="svg-text" text-anchor="middle" font-weight="bold">+30</text>
+
+                        <!-- 店舗R: ■ 実線  +5, +15, +25, -5 -->
+                        <line x1="170" y1="246" x2="290" y2="190" stroke="black" stroke-width="1.5"/>
+                        <line x1="290" y1="190" x2="410" y2="134" stroke="black" stroke-width="1.5"/>
+                        <line x1="410" y1="134" x2="530" y2="302" stroke="black" stroke-width="1.5"/>
+                        <rect x="163" y="239" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="283" y="183" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="403" y="127" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="523" y="295" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <text x="190" y="264" class="svg-text" font-weight="bold">+5</text>
+                        <text x="262" y="194" class="svg-text" text-anchor="end" font-weight="bold">+15</text>
+                        <text x="410" y="117" class="svg-text" text-anchor="middle" font-weight="bold">+25</text>
+                        <text x="530" y="322" class="svg-text" text-anchor="middle" font-weight="bold">-5</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>4960万円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>5380万円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>5820万円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>6140万円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>6500万円
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法】</strong></p>
+                    <p>前年比推移のグラフから、店舗Qの各年の前年比を読み取る。</p>
+                    <br>
+                    <p>・2021年: +25%</p>
+                    <p>・2022年: -10%</p>
+                    <p>・2023年: +5%</p>
+                    <p>・2024年: +30%</p>
+                    <br>
+                    <p><strong>【計算過程】</strong></p>
+                    <p>・2021年: 4000 x 1.25 = 5000（万円）</p>
+                    <p>・2022年: 5000 x 0.90 = 4500（万円）</p>
+                    <p>・2023年: 4500 x 1.05 = 4725（万円）</p>
+                    <p>・2024年: 4725 x 1.30 = 6142.5（万円）</p>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>前年比は「前年の値に対する比率」であるため、単純に比率を加算するのではなく、各年の値に順に掛ける必要がある（複利的な計算）。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4) 6140万円</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1の図を用いて、以下の問いに答えよ。2020年の3店舗P、Q、Rの売上高の合計が12000万円であり、P、Q、Rの売上高の比が3:2:1であったとする。このとき、2024年における店舗Pと店舗Rの売上高の差はおよそいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!-- 問1のグラフ再掲 -->
+            <div class="figure-container">
+                <div class="figure-title">【売上高の前年比推移】（問1の図を再掲）</div>
+                <div class="figure-content">
+                    <svg width="580" height="380" viewBox="0 0 580 380">
+                        <text x="30" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                        <circle cx="160" cy="42" r="6" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="175" y="47" class="svg-text">店舗P</text>
+                        <polygon points="270,36 276,48 264,48" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="285" y="47" class="svg-text">店舗Q</text>
+                        <rect x="384" y="36" width="12" height="12" fill="black" stroke="black" stroke-width="2"/>
+                        <text x="405" y="47" class="svg-text">店舗R</text>
+
+                        <rect x="90" y="50" width="450" height="280" fill="none" stroke="black" stroke-width="1"/>
+
+                        <line x1="90" y1="50" x2="540" y2="50" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="106" x2="540" y2="106" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="162" x2="540" y2="162" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="218" x2="540" y2="218" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                        <line x1="90" y1="274" x2="540" y2="274" stroke="black" stroke-width="0.8"/>
+                        <line x1="90" y1="330" x2="540" y2="330" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                        <text x="80" y="55" class="svg-text" text-anchor="end">40</text>
+                        <text x="80" y="111" class="svg-text" text-anchor="end">30</text>
+                        <text x="80" y="167" class="svg-text" text-anchor="end">20</text>
+                        <text x="80" y="223" class="svg-text" text-anchor="end">10</text>
+                        <text x="80" y="279" class="svg-text" text-anchor="end">0</text>
+                        <text x="75" y="335" class="svg-text" text-anchor="end">-10</text>
+
+                        <text x="170" y="355" class="svg-text" text-anchor="middle">2021</text>
+                        <text x="290" y="355" class="svg-text" text-anchor="middle">2022</text>
+                        <text x="410" y="355" class="svg-text" text-anchor="middle">2023</text>
+                        <text x="530" y="355" class="svg-text" text-anchor="middle">2024</text>
+                        <text x="560" y="370" class="svg-text" text-anchor="middle">(年)</text>
+
+                        <!-- 店舗P: ○ 破線 -->
+                        <line x1="170" y1="218" x2="290" y2="162" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <line x1="290" y1="162" x2="410" y2="302" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <line x1="410" y1="302" x2="530" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                        <circle cx="170" cy="218" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="290" cy="162" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="410" cy="302" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="530" cy="190" r="7" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="155" y="210" class="svg-text" text-anchor="end" font-weight="bold">+10</text>
+                        <text x="305" y="155" class="svg-text" font-weight="bold">+20</text>
+                        <text x="425" y="310" class="svg-text" font-weight="bold">-5</text>
+                        <text x="530" y="182" class="svg-text" text-anchor="middle" font-weight="bold">+15</text>
+
+                        <!-- 店舗Q: △ 一点鎖線 -->
+                        <line x1="170" y1="134" x2="290" y2="330" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <line x1="290" y1="330" x2="410" y2="246" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <line x1="410" y1="246" x2="530" y2="106" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                        <polygon points="170,127 177,141 163,141" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="290,323 297,337 283,337" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="410,239 417,253 403,253" fill="none" stroke="black" stroke-width="2"/>
+                        <polygon points="530,99 537,113 523,113" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="155" y="128" class="svg-text" text-anchor="end" font-weight="bold">+25</text>
+                        <text x="275" y="342" class="svg-text" text-anchor="end" font-weight="bold">-10</text>
+                        <text x="395" y="240" class="svg-text" text-anchor="end" font-weight="bold">+5</text>
+                        <text x="545" y="100" class="svg-text" font-weight="bold">+30</text>
+
+                        <!-- 店舗R: ■ 実線 -->
+                        <line x1="170" y1="246" x2="290" y2="190" stroke="black" stroke-width="1.5"/>
+                        <line x1="290" y1="190" x2="410" y2="134" stroke="black" stroke-width="1.5"/>
+                        <line x1="410" y1="134" x2="530" y2="302" stroke="black" stroke-width="1.5"/>
+                        <rect x="163" y="239" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="283" y="183" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="403" y="127" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <rect x="523" y="295" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                        <text x="170" y="262" class="svg-text" text-anchor="middle" font-weight="bold">+5</text>
+                        <text x="275" y="185" class="svg-text" text-anchor="end" font-weight="bold">+15</text>
+                        <text x="418" y="122" class="svg-text" font-weight="bold">+25</text>
+                        <text x="530" y="320" class="svg-text" text-anchor="middle" font-weight="bold">-5</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>4280万円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>4950万円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>5320万円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>5540万円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>5780万円
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【ステップ1: 2020年の各店舗の売上高を求める】</strong></p>
+                    <p>P:Q:R = 3:2:1 で合計12000万円なので、</p>
+                    <p>・店舗P = 12000 x 3/6 = 6000（万円）</p>
+                    <p>・店舗Q = 12000 x 2/6 = 4000（万円）</p>
+                    <p>・店舗R = 12000 x 1/6 = 2000（万円）</p>
+                    <br>
+                    <p><strong>【ステップ2: 店舗Pの2024年売上高を計算】</strong></p>
+                    <p>グラフから店舗Pの前年比: +10%, +20%, -5%, +15%</p>
+                    <p>・2021年: 6000 x 1.10 = 6600（万円）</p>
+                    <p>・2022年: 6600 x 1.20 = 7920（万円）</p>
+                    <p>・2023年: 7920 x 0.95 = 7524（万円）</p>
+                    <p>・2024年: 7524 x 1.15 = 8652.6（万円）</p>
+                    <br>
+                    <p><strong>【ステップ3: 店舗Rの2024年売上高を計算】</strong></p>
+                    <p>グラフから店舗Rの前年比: +5%, +15%, +25%, -5%</p>
+                    <p>・2021年: 2000 x 1.05 = 2100（万円）</p>
+                    <p>・2022年: 2100 x 1.15 = 2415（万円）</p>
+                    <p>・2023年: 2415 x 1.25 = 3018.75（万円）</p>
+                    <p>・2024年: 3018.75 x 0.95 = 2867.8（万円）</p>
+                    <br>
+                    <p><strong>【ステップ4: 差を求める】</strong></p>
+                    <p>8652.6 - 2867.8 = 5784.8 ≈ 5780（万円）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5) 5780万円</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">(空欄)</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考59/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
