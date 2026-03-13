@@ -1,0 +1,775 @@
+<!--
+================================================================================
+航大思考55.html - セット55（公共施設別電力消費の資料読み取り / 工場別不良品損失の複合計算）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .figure-table td.label-cell {
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                図は、ある市の公共施設における施設別の年間電力消費量（総消費量1,000GWhに占める割合）と、各施設の再生可能エネルギー導入率を示したものである。再生可能エネルギーによる電力消費量の合計はいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x380px
+            - viewBox: 0 0 620 380
+            - チャート領域: x=55~545, y=55~305
+            - X軸: 施設別電力消費割合 0~100%
+            - Y軸: 再エネ導入率 0~100%
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【施設別再生可能エネルギー導入率】</div>
+                <div class="figure-content">
+                    <svg width="620" height="380" viewBox="0 0 620 380">
+                        <!-- GWh labels above segments -->
+                        <text x="99" y="42" class="svg-text" text-anchor="middle" font-size="12">180</text>
+                        <text x="99" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+                        <text x="180" y="42" class="svg-text" text-anchor="middle" font-size="12">150</text>
+                        <text x="180" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+                        <text x="281" y="42" class="svg-text" text-anchor="middle" font-size="12">260</text>
+                        <text x="281" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+                        <text x="366" y="42" class="svg-text" text-anchor="middle" font-size="12">90</text>
+                        <text x="366" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+                        <text x="442" y="42" class="svg-text" text-anchor="middle" font-size="12">220</text>
+                        <text x="442" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+                        <text x="521" y="42" class="svg-text" text-anchor="middle" font-size="12">100</text>
+                        <text x="521" y="54" class="svg-text" text-anchor="middle" font-size="12">GWh</text>
+
+                        <!-- Y-axis labels -->
+                        <text x="15" y="60" class="svg-text" text-anchor="middle" font-size="12">(%)</text>
+                        <text x="45" y="59" class="svg-text" text-anchor="end" font-size="12">100</text>
+                        <text x="45" y="109" class="svg-text" text-anchor="end" font-size="12">80</text>
+                        <text x="45" y="159" class="svg-text" text-anchor="end" font-size="12">60</text>
+                        <text x="45" y="209" class="svg-text" text-anchor="end" font-size="12">40</text>
+                        <text x="45" y="259" class="svg-text" text-anchor="end" font-size="12">20</text>
+                        <text x="45" y="309" class="svg-text" text-anchor="end" font-size="12">0</text>
+
+                        <!-- Y-axis gridlines -->
+                        <line x1="50" y1="55" x2="545" y2="55" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="105" x2="545" y2="105" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="155" x2="545" y2="155" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="205" x2="545" y2="205" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="50" y1="255" x2="545" y2="255" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- Chart border -->
+                        <rect x="55" y="55" width="490" height="250" fill="none" stroke="black" stroke-width="1.5"/>
+
+                        <!-- Segment 1: 学校施設 18% (x=55 to 143), renewable 24% -->
+                        <line x1="143" y1="55" x2="143" y2="305" stroke="black" stroke-width="1"/>
+                        <rect x="55" y="55" width="88" height="250" fill="white"/>
+                        <rect x="55" y="245" width="88" height="60" fill="#b0b0b0"/>
+                        <rect x="55" y="55" width="88" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="99" y="185" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">学校</text>
+                        <text x="99" y="202" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">施設</text>
+                        <text x="99" y="230" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">24%</text>
+
+                        <!-- Segment 2: 庁舎 15% (x=143 to 217), renewable 12% -->
+                        <line x1="217" y1="55" x2="217" y2="305" stroke="black" stroke-width="1"/>
+                        <rect x="143" y="55" width="74" height="250" fill="white"/>
+                        <rect x="143" y="275" width="74" height="30" fill="#b0b0b0"/>
+                        <rect x="143" y="55" width="74" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="180" y="200" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">庁舎</text>
+                        <text x="180" y="230" class="svg-text" text-anchor="middle" font-size="12">12%</text>
+
+                        <!-- Segment 3: 病院 26% (x=217 to 344), renewable 8% -->
+                        <line x1="344" y1="55" x2="344" y2="305" stroke="black" stroke-width="1"/>
+                        <rect x="217" y="55" width="127" height="250" fill="white"/>
+                        <rect x="217" y="285" width="127" height="20" fill="#b0b0b0"/>
+                        <rect x="217" y="55" width="127" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="281" y="200" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">病院</text>
+                        <text x="281" y="230" class="svg-text" text-anchor="middle" font-size="12">8%</text>
+
+                        <!-- Segment 4: スポーツ施設 9% (x=344 to 388), renewable 32% -->
+                        <line x1="388" y1="55" x2="388" y2="305" stroke="black" stroke-width="1"/>
+                        <rect x="344" y="55" width="44" height="250" fill="white"/>
+                        <rect x="344" y="225" width="44" height="80" fill="#b0b0b0"/>
+                        <rect x="344" y="55" width="44" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="362" y="80" class="svg-text" font-size="11" writing-mode="tb" dominant-baseline="central">スポーツ</text>
+                        <text x="375" y="80" class="svg-text" font-size="11" writing-mode="tb" dominant-baseline="central">施設</text>
+                        <text x="366" y="215" class="svg-text" text-anchor="middle" font-size="11">32%</text>
+
+                        <!-- Segment 5: 上下水道施設 22% (x=388 to 496), renewable 5% -->
+                        <line x1="496" y1="55" x2="496" y2="305" stroke="black" stroke-width="1"/>
+                        <rect x="388" y="55" width="108" height="250" fill="white"/>
+                        <rect x="388" y="292.5" width="108" height="12.5" fill="#b0b0b0"/>
+                        <rect x="388" y="55" width="108" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="442" y="195" class="svg-text" text-anchor="middle" font-size="12">上下水道</text>
+                        <text x="442" y="212" class="svg-text" text-anchor="middle" font-size="12">施設</text>
+                        <text x="442" y="240" class="svg-text" text-anchor="middle" font-size="12">5%</text>
+
+                        <!-- Segment 6: その他 10% (x=496 to 545), renewable 15% -->
+                        <rect x="496" y="55" width="49" height="250" fill="white"/>
+                        <rect x="496" y="267.5" width="49" height="37.5" fill="#b0b0b0"/>
+                        <rect x="496" y="55" width="49" height="250" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="521" y="195" class="svg-text" text-anchor="middle" font-size="12">その他</text>
+                        <text x="521" y="230" class="svg-text" text-anchor="middle" font-size="12">15%</text>
+
+                        <!-- X-axis labels -->
+                        <text x="55" y="322" class="svg-text" text-anchor="middle" font-size="11">0</text>
+                        <text x="104" y="322" class="svg-text" text-anchor="middle" font-size="11">10</text>
+                        <text x="153" y="322" class="svg-text" text-anchor="middle" font-size="11">20</text>
+                        <text x="202" y="322" class="svg-text" text-anchor="middle" font-size="11">30</text>
+                        <text x="251" y="322" class="svg-text" text-anchor="middle" font-size="11">40</text>
+                        <text x="300" y="322" class="svg-text" text-anchor="middle" font-size="11">50</text>
+                        <text x="349" y="322" class="svg-text" text-anchor="middle" font-size="11">60</text>
+                        <text x="398" y="322" class="svg-text" text-anchor="middle" font-size="11">70</text>
+                        <text x="447" y="322" class="svg-text" text-anchor="middle" font-size="11">80</text>
+                        <text x="496" y="322" class="svg-text" text-anchor="middle" font-size="11">90</text>
+                        <text x="545" y="322" class="svg-text" text-anchor="middle" font-size="11">100</text>
+
+                        <!-- X-axis tick marks -->
+                        <line x1="55" y1="305" x2="55" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="104" y1="305" x2="104" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="153" y1="305" x2="153" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="202" y1="305" x2="202" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="251" y1="305" x2="251" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="300" y1="305" x2="300" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="349" y1="305" x2="349" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="398" y1="305" x2="398" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="447" y1="305" x2="447" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="496" y1="305" x2="496" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="545" y1="305" x2="545" y2="310" stroke="black" stroke-width="1"/>
+
+                        <!-- X-axis title -->
+                        <text x="300" y="340" class="svg-text" text-anchor="middle" font-size="13">施設別電力消費割合（%）</text>
+
+                        <!-- Legend -->
+                        <rect x="558" y="100" width="15" height="15" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="578" y="112" class="svg-text" font-size="10" text-anchor="start">系統電力</text>
+                        <rect x="558" y="125" width="15" height="15" fill="#b0b0b0" stroke="black" stroke-width="1"/>
+                        <text x="578" y="137" class="svg-text" font-size="10" text-anchor="start">再エネ</text>
+
+                        <!-- Source -->
+                        <text x="300" y="365" class="svg-text" text-anchor="middle" font-size="11">（総務省：「令和5年度公共施設エネルギー調査」より作成）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>119.2GWh
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>128.4GWh
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>136.8GWh
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>145.6GWh
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>152.0GWh
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各施設について「電力消費量 × 再エネ導入率」を計算し、合計を求める。</p>
+                    <br>
+                    <p><strong>【各施設の再エネ電力量】</strong></p>
+                    <p>・学校施設: 180GWh × 24% = 43.2GWh</p>
+                    <p>・庁舎: 150GWh × 12% = 18.0GWh</p>
+                    <p>・病院: 260GWh × 8% = 20.8GWh</p>
+                    <p>・スポーツ施設: 90GWh × 32% = 28.8GWh</p>
+                    <p>・上下水道施設: 220GWh × 5% = 11.0GWh</p>
+                    <p>・その他: 100GWh × 15% = 15.0GWh</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>43.2 + 18.0 + 20.8 + 28.8 + 11.0 + 15.0 = <strong>136.8GWh</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                表は、ある企業の5つの工場（P～T）における年間生産量、不良品率、および不良品1個あたりの損失額を示したものである。5工場の不良品による年間損失額の合計として最も近いものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【工場別品質管理データ】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>工場</th>
+                            <th>年間生産量<br>(個)</th>
+                            <th>不良品率<br>(%)</th>
+                            <th>不良品1個あたり<br>損失額(円)</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">P</td>
+                            <td>12,000</td>
+                            <td>3.5</td>
+                            <td>800</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">Q</td>
+                            <td>8,500</td>
+                            <td>2.8</td>
+                            <td>1,200</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">R</td>
+                            <td>15,000</td>
+                            <td>1.5</td>
+                            <td>950</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">S</td>
+                            <td>6,000</td>
+                            <td>4.2</td>
+                            <td>1,500</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="text-align: center;">T</td>
+                            <td>9,500</td>
+                            <td>2.0</td>
+                            <td>1,100</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>約121万円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>約128万円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>約134万円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>約137万円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>約142万円
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>各工場について「年間生産量 × 不良品率 × 損失単価」を計算し、合計を求める。</p>
+                    <br>
+                    <p><strong>【各工場の年間損失額】</strong></p>
+                    <p>・P工場: 12,000 × 0.035 × 800 = 420 × 800 = 336,000円</p>
+                    <p>・Q工場: 8,500 × 0.028 × 1,200 = 238 × 1,200 = 285,600円</p>
+                    <p>・R工場: 15,000 × 0.015 × 950 = 225 × 950 = 213,750円</p>
+                    <p>・S工場: 6,000 × 0.042 × 1,500 = 252 × 1,500 = 378,000円</p>
+                    <p>・T工場: 9,500 × 0.020 × 1,100 = 190 × 1,100 = 209,000円</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>336,000 + 285,600 + 213,750 + 378,000 + 209,000 = <strong>1,422,350円 ≒ 約142万円</strong></p>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>・3段階の掛け算が必要な点が問1との違い</p>
+                    <p>・不良品率を小数に変換して計算する（例: 3.5% = 0.035）</p>
+                    <p>・生産量が最大のR工場は損失額が最大ではない</p>
+                    <p>・S工場は生産量が最小だが、不良品率と損失単価が高いため損失額が最大</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考55/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
