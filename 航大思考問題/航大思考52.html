@@ -1,0 +1,741 @@
+<!--
+================================================================================
+航大思考52.html - セット52（水道事業データの資料読み取り / 農業データの複合分析）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .figure-table td.label-cell {
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                表は、日本の水道事業体を給水人口の規模別にまとめた運営状況のデータである。これらの区分のうち、職員1人あたりの年間総配水量が2番目に多い区分はどれか。正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【水道事業の規模別運営状況】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th colspan="2">事業規模</th>
+                            <th>事業体数</th>
+                            <th>給水人口<br>(千人)</th>
+                            <th>年間総配水量<br>(千m<sup>3</sup>)</th>
+                            <th>職員数<br>(人)</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">大規模(給水人口50万人以上)</td>
+                            <td>12</td>
+                            <td>18,456</td>
+                            <td>4,128,500</td>
+                            <td>28,450</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">中規模(10万～50万人)</td>
+                            <td>78</td>
+                            <td>16,234</td>
+                            <td>3,245,600</td>
+                            <td>18,920</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">やや中規模(5万～10万人)</td>
+                            <td>115</td>
+                            <td>8,124</td>
+                            <td>1,586,400</td>
+                            <td>9,850</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">小規模(1万～5万人)</td>
+                            <td>482</td>
+                            <td>10,856</td>
+                            <td>2,124,800</td>
+                            <td>12,340</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" colspan="2">極小規模(1万人未満)</td>
+                            <td>685</td>
+                            <td>3,248</td>
+                            <td>645,200</td>
+                            <td>5,680</td>
+                        </tr>
+                        <tr style="border-top: 3px double #333;">
+                            <th colspan="2">合計</th>
+                            <td><strong>1,372</strong></td>
+                            <td><strong>56,918</strong></td>
+                            <td><strong>11,730,500</strong></td>
+                            <td><strong>75,240</strong></td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #666;">
+                    （総務省：「令和5年度地方公営企業年鑑」より作成）
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>大規模(給水人口50万人以上)
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>中規模(10万～50万人)
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>やや中規模(5万～10万人)
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>小規模(1万～5万人)
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>極小規模(1万人未満)
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>各区分について「年間総配水量 / 職員数」を計算し、2番目に大きい値を求める。</p>
+                    <br>
+                    <p><strong>【各区分の職員1人あたり年間総配水量】</strong></p>
+                    <p>・大規模: 4,128,500 / 28,450 ≒ 145.1 千m<sup>3</sup>/人</p>
+                    <p>・中規模: 3,245,600 / 18,920 ≒ 171.5 千m<sup>3</sup>/人</p>
+                    <p>・やや中規模: 1,586,400 / 9,850 ≒ 161.1 千m<sup>3</sup>/人</p>
+                    <p>・小規模: 2,124,800 / 12,340 ≒ 172.2 千m<sup>3</sup>/人</p>
+                    <p>・極小規模: 645,200 / 5,680 ≒ 113.6 千m<sup>3</sup>/人</p>
+                    <br>
+                    <p><strong>【順位】</strong></p>
+                    <p>1位: 小規模(172.2) → 2位: 中規模(171.5) → 3位: やや中規模(161.1) → 4位: 大規模(145.1) → 5位: 極小規模(113.6)</p>
+                    <br>
+                    <p>したがって、2番目に多いのは<strong>中規模(10万～50万人)</strong>であり、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                表は、日本の地域別農業データをまとめたものである。次のア～エの記述のうち、正しいものの組み合わせを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【地域別農業の概況】</div>
+                <div class="figure-content">
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th>地域</th>
+                            <th>経営体数</th>
+                            <th>耕地面積<br>(ha)</th>
+                            <th>農業産出額<br>(億円)</th>
+                            <th>農業所得<br>(億円)</th>
+                            <th>農業就業人口<br>(千人)</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">北海道</td>
+                            <td>36,200</td>
+                            <td>1,143,000</td>
+                            <td>12,667</td>
+                            <td>5,024</td>
+                            <td>82</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">東北</td>
+                            <td>184,500</td>
+                            <td>582,400</td>
+                            <td>13,840</td>
+                            <td>3,912</td>
+                            <td>198</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">関東</td>
+                            <td>215,300</td>
+                            <td>418,600</td>
+                            <td>19,280</td>
+                            <td>5,865</td>
+                            <td>285</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">北陸</td>
+                            <td>52,800</td>
+                            <td>168,200</td>
+                            <td>3,145</td>
+                            <td>780</td>
+                            <td>58</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">東海</td>
+                            <td>85,600</td>
+                            <td>135,800</td>
+                            <td>7,524</td>
+                            <td>2,148</td>
+                            <td>105</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">近畿</td>
+                            <td>78,400</td>
+                            <td>103,500</td>
+                            <td>5,280</td>
+                            <td>1,425</td>
+                            <td>89</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">中国四国</td>
+                            <td>105,200</td>
+                            <td>178,600</td>
+                            <td>7,856</td>
+                            <td>2,034</td>
+                            <td>124</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">九州</td>
+                            <td>132,400</td>
+                            <td>348,200</td>
+                            <td>17,632</td>
+                            <td>5,420</td>
+                            <td>196</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="margin-top: 10px; font-size: 13px; color: #666;">
+                    （農林水産省：「令和5年度農林業センサス」より作成）
+                </div>
+            </div>
+
+            <div style="margin: 15px 0 15px 10px; line-height: 2.2;">
+                ア　農業就業人口1千人あたりの農業産出額が最も高い地域は北海道である。<br>
+                イ　経営体1つあたりの耕地面積が2番目に広い地域は九州である。<br>
+                ウ　農業産出額に占める農業所得の割合が最も低い地域は北陸である。<br>
+                エ　耕地面積1haあたりの農業産出額が最も高い地域は関東である。<br>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>ア、イ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>ア、ウ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>イ、ウ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>ウ、エ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>ア、エ
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【各記述の検証】</strong></p>
+                    <br>
+                    <p><strong>ア: 農業就業人口1千人あたりの農業産出額</strong></p>
+                    <p>・北海道: 12,667 / 82 ≒ 154.5（最大）</p>
+                    <p>・九州: 17,632 / 196 ≒ 90.0</p>
+                    <p>・東海: 7,524 / 105 ≒ 71.7</p>
+                    <p>→ 北海道が最も高い → <strong>正しい</strong></p>
+                    <br>
+                    <p><strong>イ: 経営体1つあたりの耕地面積</strong></p>
+                    <p>・北海道: 1,143,000 / 36,200 ≒ 31.57 ha（1位）</p>
+                    <p>・北陸: 168,200 / 52,800 ≒ 3.19 ha（2位）</p>
+                    <p>・東北: 582,400 / 184,500 ≒ 3.16 ha（3位）</p>
+                    <p>・九州: 348,200 / 132,400 ≒ 2.63 ha（4位）</p>
+                    <p>→ 2位は北陸であり九州ではない → <strong>誤り</strong></p>
+                    <br>
+                    <p><strong>ウ: 農業産出額に占める農業所得の割合</strong></p>
+                    <p>・北陸: 780 / 3,145 ≒ 24.8%（最低）</p>
+                    <p>・中国四国: 2,034 / 7,856 ≒ 25.9%</p>
+                    <p>・近畿: 1,425 / 5,280 ≒ 27.0%</p>
+                    <p>→ 北陸が最も低い → <strong>正しい</strong></p>
+                    <br>
+                    <p><strong>エ: 耕地面積1haあたりの農業産出額</strong></p>
+                    <p>・東海: 7,524 / 135,800 ≒ 0.0554 億円/ha（最大）</p>
+                    <p>・近畿: 5,280 / 103,500 ≒ 0.0510</p>
+                    <p>・関東: 19,280 / 418,600 ≒ 0.0461</p>
+                    <p>→ 最も高いのは東海であり関東ではない → <strong>誤り</strong></p>
+                    <br>
+                    <p>正しい記述は<strong>ア</strong>と<strong>ウ</strong>であり、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考52/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
