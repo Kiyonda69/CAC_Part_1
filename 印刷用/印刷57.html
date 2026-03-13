@@ -1,0 +1,435 @@
+<!--
+================================================================================
+印刷57.html - セット57（電子部品出荷額の散布図読み取り / 従業員の地域別割合から実数計算）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .figure-table td.label-cell {
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、2010年から2020年までの10年間における国内出荷額および海外出荷額の推移を2年ごとに示したものである。国内出荷額と海外出荷額の合計が、前回の調査時点（2年前）と比較して減少した年はいつか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 550x420px
+                - viewBox: 0 0 550 420
+                - 余白: 上30px, 下40px, 左80px, 右30px
+
+                座標系定義:
+                - プロット領域: x=80~520, y=30~380
+                - X軸: 国内出荷額 2000~6000億円, 1単位=0.11px
+                - Y軸: 海外出荷額 1000~5000億円, 1単位=0.0875px (上方向)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【出荷額の推移】</div>
+                    <div class="figure-content">
+                        <svg width="550" height="420" viewBox="0 0 550 420">
+                            <!-- Y軸ラベル -->
+                            <text x="15" y="30" class="svg-text" font-size="12">（億円）</text>
+                            <text x="10" y="100" class="svg-text" font-size="11" writing-mode="tb">海</text>
+                            <text x="10" y="115" class="svg-text" font-size="11" writing-mode="tb">外</text>
+                            <text x="10" y="130" class="svg-text" font-size="11" writing-mode="tb">出</text>
+                            <text x="10" y="145" class="svg-text" font-size="11" writing-mode="tb">荷</text>
+                            <text x="10" y="160" class="svg-text" font-size="11" writing-mode="tb">額</text>
+
+                            <!-- Y軸目盛 -->
+                            <text x="72" y="384" class="svg-text" font-size="12" text-anchor="end">1000</text>
+                            <text x="72" y="296" class="svg-text" font-size="12" text-anchor="end">2000</text>
+                            <text x="72" y="209" class="svg-text" font-size="12" text-anchor="end">3000</text>
+                            <text x="72" y="122" class="svg-text" font-size="12" text-anchor="end">4000</text>
+                            <text x="72" y="34" class="svg-text" font-size="12" text-anchor="end">5000</text>
+
+                            <!-- X軸目盛 -->
+                            <text x="80" y="404" class="svg-text" font-size="12" text-anchor="middle">2000</text>
+                            <text x="190" y="404" class="svg-text" font-size="12" text-anchor="middle">3000</text>
+                            <text x="300" y="404" class="svg-text" font-size="12" text-anchor="middle">4000</text>
+                            <text x="410" y="404" class="svg-text" font-size="12" text-anchor="middle">5000</text>
+                            <text x="520" y="404" class="svg-text" font-size="12" text-anchor="middle">6000</text>
+                            <text x="300" y="418" class="svg-text" font-size="12" text-anchor="middle">国内出荷額</text>
+                            <text x="520" y="418" class="svg-text" font-size="12">（億円）</text>
+
+                            <!-- 軸線 -->
+                            <line x1="80" y1="380" x2="520" y2="380" stroke="black" stroke-width="1.5"/>
+                            <line x1="80" y1="30" x2="80" y2="380" stroke="black" stroke-width="1.5"/>
+
+                            <!-- グリッド線（破線） -->
+                            <line x1="190" y1="30" x2="190" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="300" y1="30" x2="300" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="410" y1="30" x2="410" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="520" y1="30" x2="520" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="292" x2="520" y2="292" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="205" x2="520" y2="205" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="118" x2="520" y2="118" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="30" x2="520" y2="30" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+                            <!-- データ点と年ラベル -->
+                            <!-- 2010年: (3200, 1800) → x=212, y=310 -->
+                            <circle cx="212" cy="310" r="5" fill="black"/>
+                            <text x="170" y="330" class="svg-text" font-size="11">2010年：3200, 1800</text>
+
+                            <!-- 2012年: (3800, 2400) → x=278, y=258 -->
+                            <circle cx="278" cy="258" r="5" fill="black"/>
+                            <text x="145" y="250" class="svg-text" font-size="11">2012年：3800, 2400</text>
+
+                            <!-- 2014年: (4500, 3100) → x=355, y=196 -->
+                            <circle cx="355" cy="196" r="5" fill="black"/>
+                            <text x="365" y="190" class="svg-text" font-size="11">2014年：4500, 3100</text>
+
+                            <!-- 2016年: (4200, 2900) → x=322, y=214 -->
+                            <circle cx="322" cy="214" r="5" fill="black"/>
+                            <text x="332" y="232" class="svg-text" font-size="11">2016年：4200, 2900</text>
+
+                            <!-- 2018年: (5000, 3500) → x=410, y=161 -->
+                            <circle cx="410" cy="161" r="5" fill="black"/>
+                            <text x="418" y="154" class="svg-text" font-size="11">2018年：5000, 3500</text>
+
+                            <!-- 2020年: (4600, 4200) → x=366, y=100 -->
+                            <circle cx="366" cy="100" r="5" fill="black"/>
+                            <text x="375" y="93" class="svg-text" font-size="11">2020年：4600, 4200</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">（経済産業省：「電子部品・デバイス出荷統計」より作成（一部改変））</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　2012年　　(2)　2014年　　(3)　2018年　　(4)　2016年　　(5)　2020年
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                各年の国内出荷額と海外出荷額の合計を求め、前回（2年前）と比較する。<br><br>
+
+                <strong>【各年の合計出荷額】</strong><br>
+                ・2010年：3200 + 1800 = 5000（億円）<br>
+                ・2012年：3800 + 2400 = 6200（億円）→ 前回比 +1200<br>
+                ・2014年：4500 + 3100 = 7600（億円）→ 前回比 +1400<br>
+                ・2016年：4200 + 2900 = 7100（億円）→ 前回比 <strong>-500（減少）</strong><br>
+                ・2018年：5000 + 3500 = 8500（億円）→ 前回比 +1400<br>
+                ・2020年：4600 + 4200 = 8800（億円）→ 前回比 +300<br><br>
+
+                合計が前回より減少したのは2016年のみである。<br>
+                したがって、正解は<strong>(4) 2016年</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、ある企業の従業員3600人について、職種（営業部・技術部）と勤務地域（東京・大阪・名古屋・福岡・その他）別の人数の割合を示したものである。5つの地域における技術部の総数は何人か。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【従業員の地域別内訳（計3600人）】</div>
+                    <div class="figure-content">
+                        <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（単位：%）</div>
+                        <table class="figure-table" style="font-size: 14px;">
+                            <tr>
+                                <th style="min-width: 80px;">職種 ＼ 地域</th>
+                                <th>東京</th>
+                                <th>大阪</th>
+                                <th>名古屋</th>
+                                <th>福岡</th>
+                                <th>その他</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">営 業 部</td>
+                                <td>36.0</td>
+                                <td>24.0</td>
+                                <td>18.0</td>
+                                <td>15.0</td>
+                                <td>7.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">技 術 部</td>
+                                <td>42.0</td>
+                                <td>18.0</td>
+                                <td>24.0</td>
+                                <td>9.0</td>
+                                <td>7.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">全　体</td>
+                                <td>38.0</td>
+                                <td>22.0</td>
+                                <td>20.0</td>
+                                <td>13.0</td>
+                                <td>7.0</td>
+                                <td>100.0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　1200人　　(2)　1400人　　(3)　1600人　　(4)　1800人　　(5)　2000人
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                営業部の人数をx人、技術部の人数をy人とする。<br><br>
+
+                <strong>【連立方程式の設定】</strong><br>
+                ・x + y = 3600 …(i)<br>
+                ・東京の列から：0.36x + 0.42y = 0.38 × 3600 = 1368 …(ii)<br><br>
+
+                <strong>【計算過程】</strong><br>
+                (i)より x = 3600 - y を(ii)に代入：<br>
+                0.36(3600 - y) + 0.42y = 1368<br>
+                1296 - 0.36y + 0.42y = 1368<br>
+                0.06y = 72<br>
+                y = <strong>1200</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                ・x = 3600 - 1200 = 2400<br>
+                ・大阪の検算：0.24 × 2400 + 0.18 × 1200 = 576 + 216 = 792 = 0.22 × 3600（整合）<br><br>
+
+                したがって、正解は<strong>(1) 1200人</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
