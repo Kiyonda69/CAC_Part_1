@@ -1,0 +1,527 @@
+<!--
+================================================================================
+印刷59.html - 資料読み取り問題（前年比推移グラフ）
+================================================================================
+問1（標準）: 3店舗の売上高の前年比推移から特定店舗の売上高を求める
+問2（高難度）: 比率条件から個別売上を求め、2店舗の差を算出
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、3つの店舗P、Q、Rの売上高の前年比推移を示したものである。2020年の店舗Qの売上高が4000万円であったとき、2024年の店舗Qの売上高はおよそいくらになるか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 580x380px
+                - viewBox: 0 0 580 380
+                - 余白: 上下左右20px
+
+                座標系定義:
+                - グラフエリア: x=90〜540, y=50〜330
+                - X軸: 2021(x=170), 2022(x=290), 2023(x=410), 2024(x=530)
+                - Y軸: -10%(y=330) 〜 +40%(y=50)
+                - 1% = 5.6px
+
+                データ:
+                - 店舗P(○破線):   +10, +20,  -5, +15
+                - 店舗Q(△一点鎖線): +25, -10,  +5, +30
+                - 店舗R(■実線):    +5, +15, +25,  -5
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【売上高の前年比推移】</div>
+                    <div class="figure-content">
+                        <svg width="580" height="380" viewBox="0 0 580 380">
+                            <!-- Y軸ラベル (%) -->
+                            <text x="30" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                            <!-- 凡例 -->
+                            <circle cx="160" cy="42" r="6" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="175" y="47" class="svg-text">店舗P</text>
+                            <polygon points="270,36 276,48 264,48" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="285" y="47" class="svg-text">店舗Q</text>
+                            <rect x="384" y="36" width="12" height="12" fill="black" stroke="black" stroke-width="2"/>
+                            <text x="405" y="47" class="svg-text">店舗R</text>
+
+                            <!-- グラフ背景・枠線 -->
+                            <rect x="90" y="50" width="450" height="280" fill="none" stroke="black" stroke-width="1"/>
+
+                            <!-- 横グリッド線 -->
+                            <line x1="90" y1="50" x2="540" y2="50" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="106" x2="540" y2="106" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="162" x2="540" y2="162" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="218" x2="540" y2="218" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="274" x2="540" y2="274" stroke="black" stroke-width="0.8"/>
+                            <line x1="90" y1="330" x2="540" y2="330" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="80" y="55" class="svg-text" text-anchor="end">40</text>
+                            <text x="80" y="111" class="svg-text" text-anchor="end">30</text>
+                            <text x="80" y="167" class="svg-text" text-anchor="end">20</text>
+                            <text x="80" y="223" class="svg-text" text-anchor="end">10</text>
+                            <text x="80" y="279" class="svg-text" text-anchor="end">0</text>
+                            <text x="75" y="335" class="svg-text" text-anchor="end">-10</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="170" y="355" class="svg-text" text-anchor="middle">2021</text>
+                            <text x="290" y="355" class="svg-text" text-anchor="middle">2022</text>
+                            <text x="410" y="355" class="svg-text" text-anchor="middle">2023</text>
+                            <text x="530" y="355" class="svg-text" text-anchor="middle">2024</text>
+                            <text x="560" y="370" class="svg-text" text-anchor="middle">(年)</text>
+
+                            <!-- 店舗P: ○ 破線  +10, +20, -5, +15 -->
+                            <!-- y(10)=218, y(20)=162, y(-5)=302, y(15)=190 -->
+                            <line x1="170" y1="218" x2="290" y2="162" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <line x1="290" y1="162" x2="410" y2="302" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <line x1="410" y1="302" x2="530" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <circle cx="170" cy="218" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="290" cy="162" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="410" cy="302" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="530" cy="190" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- P データラベル -->
+                            <text x="155" y="210" class="svg-text" text-anchor="end" font-weight="bold">+10</text>
+                            <text x="305" y="155" class="svg-text" font-weight="bold">+20</text>
+                            <text x="425" y="310" class="svg-text" font-weight="bold">-5</text>
+                            <text x="530" y="182" class="svg-text" text-anchor="middle" font-weight="bold">+15</text>
+
+                            <!-- 店舗Q: △ 一点鎖線  +25, -10, +5, +30 -->
+                            <!-- y(25)=134, y(-10)=330, y(5)=246, y(30)=106 -->
+                            <line x1="170" y1="134" x2="290" y2="330" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <line x1="290" y1="330" x2="410" y2="246" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <line x1="410" y1="246" x2="530" y2="106" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <polygon points="170,127 177,141 163,141" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="290,323 297,337 283,337" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="410,239 417,253 403,253" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="530,99 537,113 523,113" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- Q データラベル -->
+                            <text x="155" y="128" class="svg-text" text-anchor="end" font-weight="bold">+25</text>
+                            <text x="275" y="342" class="svg-text" text-anchor="end" font-weight="bold">-10</text>
+                            <text x="395" y="240" class="svg-text" text-anchor="end" font-weight="bold">+5</text>
+                            <text x="545" y="100" class="svg-text" font-weight="bold">+30</text>
+
+                            <!-- 店舗R: ■ 実線  +5, +15, +25, -5 -->
+                            <!-- y(5)=246, y(15)=190, y(25)=134, y(-5)=302 -->
+                            <line x1="170" y1="246" x2="290" y2="190" stroke="black" stroke-width="1.5"/>
+                            <line x1="290" y1="190" x2="410" y2="134" stroke="black" stroke-width="1.5"/>
+                            <line x1="410" y1="134" x2="530" y2="302" stroke="black" stroke-width="1.5"/>
+                            <rect x="163" y="239" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="283" y="183" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="403" y="127" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="523" y="295" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <!-- R データラベル -->
+                            <text x="170" y="262" class="svg-text" text-anchor="middle" font-weight="bold">+5</text>
+                            <text x="275" y="185" class="svg-text" text-anchor="end" font-weight="bold">+15</text>
+                            <text x="418" y="122" class="svg-text" font-weight="bold">+25</text>
+                            <text x="530" y="320" class="svg-text" text-anchor="middle" font-weight="bold">-5</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 4960万円　　(2) 5380万円　　(3) 5820万円　　(4) 6140万円　　(5) 6500万円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                前年比推移のグラフから、店舗Qの各年の前年比を読み取る。<br><br>
+
+                ・2021年: +25%<br>
+                ・2022年: -10%<br>
+                ・2023年: +5%<br>
+                ・2024年: +30%<br><br>
+
+                2020年の売上高4000万円に、各年の前年比を順に掛けていく。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・2021年: 4000 x 1.25 = 5000（万円）<br>
+                ・2022年: 5000 x 0.90 = 4500（万円）<br>
+                ・2023年: 4500 x 1.05 = 4725（万円）<br>
+                ・2024年: 4725 x 1.30 = 6142.5（万円）<br><br>
+
+                <strong>【注意点】</strong><br>
+                前年比は「前年の値に対する比率」であるため、単純に比率を加算するのではなく、各年の値に順に掛ける必要がある（複利的な計算）。<br><br>
+
+                したがって、2024年の店舗Qの売上高はおよそ<strong>6140万円</strong>であり、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1の図を用いて、以下の問いに答えよ。2020年の3店舗P、Q、Rの売上高の合計が12000万円であり、P、Q、Rの売上高の比が3:2:1であったとする。このとき、2024年における店舗Pと店舗Rの売上高の差はおよそいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様: 問1と同じグラフを参照
+
+                計算:
+                2020年: P=6000, Q=4000, R=2000 (合計12000, 比3:2:1)
+
+                P 2024: 6000 x 1.10 x 1.20 x 0.95 x 1.15 = 8652.6
+                R 2024: 2000 x 1.05 x 1.15 x 1.25 x 0.95 = 2867.8
+                差: 8652.6 - 2867.8 = 5784.8 ≈ 5780
+                -->
+
+                <!-- 問1のグラフ再掲（参照用） -->
+                <div class="figure-container">
+                    <div class="figure-title">【売上高の前年比推移】（問1の図を再掲）</div>
+                    <div class="figure-content">
+                        <svg width="580" height="380" viewBox="0 0 580 380">
+                            <!-- Y軸ラベル (%) -->
+                            <text x="30" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                            <!-- 凡例 -->
+                            <circle cx="160" cy="42" r="6" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="175" y="47" class="svg-text">店舗P</text>
+                            <polygon points="270,36 276,48 264,48" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="285" y="47" class="svg-text">店舗Q</text>
+                            <rect x="384" y="36" width="12" height="12" fill="black" stroke="black" stroke-width="2"/>
+                            <text x="405" y="47" class="svg-text">店舗R</text>
+
+                            <!-- グラフ背景・枠線 -->
+                            <rect x="90" y="50" width="450" height="280" fill="none" stroke="black" stroke-width="1"/>
+
+                            <!-- 横グリッド線 -->
+                            <line x1="90" y1="50" x2="540" y2="50" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="106" x2="540" y2="106" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="162" x2="540" y2="162" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="218" x2="540" y2="218" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="90" y1="274" x2="540" y2="274" stroke="black" stroke-width="0.8"/>
+                            <line x1="90" y1="330" x2="540" y2="330" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="80" y="55" class="svg-text" text-anchor="end">40</text>
+                            <text x="80" y="111" class="svg-text" text-anchor="end">30</text>
+                            <text x="80" y="167" class="svg-text" text-anchor="end">20</text>
+                            <text x="80" y="223" class="svg-text" text-anchor="end">10</text>
+                            <text x="80" y="279" class="svg-text" text-anchor="end">0</text>
+                            <text x="75" y="335" class="svg-text" text-anchor="end">-10</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="170" y="355" class="svg-text" text-anchor="middle">2021</text>
+                            <text x="290" y="355" class="svg-text" text-anchor="middle">2022</text>
+                            <text x="410" y="355" class="svg-text" text-anchor="middle">2023</text>
+                            <text x="530" y="355" class="svg-text" text-anchor="middle">2024</text>
+                            <text x="560" y="370" class="svg-text" text-anchor="middle">(年)</text>
+
+                            <!-- 店舗P: ○ 破線 -->
+                            <line x1="170" y1="218" x2="290" y2="162" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <line x1="290" y1="162" x2="410" y2="302" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <line x1="410" y1="302" x2="530" y2="190" stroke="black" stroke-width="1.5" stroke-dasharray="8,4"/>
+                            <circle cx="170" cy="218" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="290" cy="162" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="410" cy="302" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="530" cy="190" r="7" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="155" y="210" class="svg-text" text-anchor="end" font-weight="bold">+10</text>
+                            <text x="305" y="155" class="svg-text" font-weight="bold">+20</text>
+                            <text x="425" y="310" class="svg-text" font-weight="bold">-5</text>
+                            <text x="530" y="182" class="svg-text" text-anchor="middle" font-weight="bold">+15</text>
+
+                            <!-- 店舗Q: △ 一点鎖線 -->
+                            <line x1="170" y1="134" x2="290" y2="330" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <line x1="290" y1="330" x2="410" y2="246" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <line x1="410" y1="246" x2="530" y2="106" stroke="black" stroke-width="1.5" stroke-dasharray="12,3,3,3"/>
+                            <polygon points="170,127 177,141 163,141" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="290,323 297,337 283,337" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="410,239 417,253 403,253" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="530,99 537,113 523,113" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="155" y="128" class="svg-text" text-anchor="end" font-weight="bold">+25</text>
+                            <text x="275" y="342" class="svg-text" text-anchor="end" font-weight="bold">-10</text>
+                            <text x="395" y="240" class="svg-text" text-anchor="end" font-weight="bold">+5</text>
+                            <text x="545" y="100" class="svg-text" font-weight="bold">+30</text>
+
+                            <!-- 店舗R: ■ 実線 -->
+                            <line x1="170" y1="246" x2="290" y2="190" stroke="black" stroke-width="1.5"/>
+                            <line x1="290" y1="190" x2="410" y2="134" stroke="black" stroke-width="1.5"/>
+                            <line x1="410" y1="134" x2="530" y2="302" stroke="black" stroke-width="1.5"/>
+                            <rect x="163" y="239" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="283" y="183" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="403" y="127" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <rect x="523" y="295" width="14" height="14" fill="black" stroke="black" stroke-width="2"/>
+                            <text x="170" y="262" class="svg-text" text-anchor="middle" font-weight="bold">+5</text>
+                            <text x="275" y="185" class="svg-text" text-anchor="end" font-weight="bold">+15</text>
+                            <text x="418" y="122" class="svg-text" font-weight="bold">+25</text>
+                            <text x="530" y="320" class="svg-text" text-anchor="middle" font-weight="bold">-5</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 4280万円　　(2) 4950万円　　(3) 5320万円　　(4) 5540万円　　(5) 5780万円
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                <strong>【ステップ1: 2020年の各店舗の売上高を求める】</strong><br>
+                P:Q:R = 3:2:1 で合計12000万円なので、<br>
+                ・店舗P = 12000 x 3/6 = 6000（万円）<br>
+                ・店舗Q = 12000 x 2/6 = 4000（万円）<br>
+                ・店舗R = 12000 x 1/6 = 2000（万円）<br><br>
+
+                <strong>【ステップ2: 店舗Pの2024年売上高を計算】</strong><br>
+                グラフから店舗Pの前年比: +10%, +20%, -5%, +15%<br>
+                ・2021年: 6000 x 1.10 = 6600（万円）<br>
+                ・2022年: 6600 x 1.20 = 7920（万円）<br>
+                ・2023年: 7920 x 0.95 = 7524（万円）<br>
+                ・2024年: 7524 x 1.15 = 8652.6（万円）<br><br>
+
+                <strong>【ステップ3: 店舗Rの2024年売上高を計算】</strong><br>
+                グラフから店舗Rの前年比: +5%, +15%, +25%, -5%<br>
+                ・2021年: 2000 x 1.05 = 2100（万円）<br>
+                ・2022年: 2100 x 1.15 = 2415（万円）<br>
+                ・2023年: 2415 x 1.25 = 3018.75（万円）<br>
+                ・2024年: 3018.75 x 0.95 = 2867.8（万円）<br><br>
+
+                <strong>【ステップ4: 差を求める】</strong><br>
+                8652.6 - 2867.8 = 5784.8 ≈ 5780（万円）<br><br>
+
+                したがって、2024年における店舗Pと店舗Rの売上高の差はおよそ<strong>5780万円</strong>であり、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
