@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .figure-table td.label-cell {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                図は、ある市の公共スポーツ施設における年間利用者数の内訳を、男女別・年齢層別に示したものである。30代の利用者数は、利用者数全体のおよそ何%か。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 650x500px
+            - viewBox: 0 0 650 500
+            - 左側円グラフ: 男性（中心165,210、半径125）
+            - 右側円グラフ: 女性（中心485,210、半径125）
+            - 凡例: 下部中央
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【男女別・年齢層別スポーツ施設利用者数】</div>
+                <div class="figure-content">
+                    <svg width="650" height="440" viewBox="0 0 650 440">
+                        <!-- パターン定義 -->
+                        <defs>
+                            <pattern id="diag" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                                <rect width="8" height="8" fill="white"/>
+                                <line x1="0" y1="0" x2="0" y2="8" stroke="black" stroke-width="1.5"/>
+                            </pattern>
+                            <pattern id="dots" patternUnits="userSpaceOnUse" width="8" height="8">
+                                <rect width="8" height="8" fill="white"/>
+                                <circle cx="4" cy="4" r="1.5" fill="black"/>
+                            </pattern>
+                            <pattern id="cross" patternUnits="userSpaceOnUse" width="8" height="8">
+                                <rect width="8" height="8" fill="white"/>
+                                <line x1="0" y1="0" x2="8" y2="8" stroke="black" stroke-width="1"/>
+                                <line x1="8" y1="0" x2="0" y2="8" stroke="black" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+
+                        <!-- タイトルラベル -->
+                        <text x="165" y="45" class="svg-text" text-anchor="middle" font-size="14" font-weight="bold">男性</text>
+                        <text x="165" y="63" class="svg-text" text-anchor="middle" font-size="13">9,450人（63%）</text>
+                        <text x="485" y="45" class="svg-text" text-anchor="middle" font-size="14" font-weight="bold">女性</text>
+                        <text x="485" y="63" class="svg-text" text-anchor="middle" font-size="13">5,550人（37%）</text>
+
+                        <!-- 男性円グラフ -->
+                        <path d="M 165 210 L 165.0 85.0 A 125 125 0 0 1 225.2 100.5 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                        <text x="185.2" y="131.3" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">8%</text>
+                        <path d="M 165 210 L 225.2 100.5 A 125 125 0 0 1 283.9 248.6 Z" fill="url(#diag)" stroke="black" stroke-width="1.5"/>
+                        <text x="240.5" y="180.1" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">22%</text>
+                        <path d="M 165 210 L 283.9 248.6 A 125 125 0 0 1 91.5 311.1 Z" fill="url(#dots)" stroke="black" stroke-width="1.5"/>
+                        <text x="190.1" y="287.3" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">30%</text>
+                        <path d="M 165 210 L 91.5 311.1 A 125 125 0 0 1 63.9 136.5 Z" fill="url(#cross)" stroke="black" stroke-width="1.5"/>
+                        <text x="84.8" y="222.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">25%</text>
+                        <path d="M 165 210 L 63.9 136.5 A 125 125 0 0 1 133.9 88.9 Z" fill="#808080" stroke="black" stroke-width="1.5"/>
+                        <text x="119.3" y="142.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="13">11%</text>
+                        <path d="M 165 210 L 133.9 88.9 A 125 125 0 0 1 165.0 85.0 Z" fill="#303030" stroke="black" stroke-width="1.5"/>
+                        <text x="154.8" y="129.4" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="12">4%</text>
+
+                        <!-- 女性円グラフ -->
+                        <path d="M 485 210 L 485.0 85.0 A 125 125 0 0 1 570.6 118.9 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                        <text x="514.9" y="134.5" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">12%</text>
+                        <path d="M 485 210 L 570.6 118.9 A 125 125 0 0 1 603.9 248.6 Z" fill="url(#diag)" stroke="black" stroke-width="1.5"/>
+                        <text x="563.7" y="189.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">18%</text>
+                        <path d="M 485 210 L 603.9 248.6 A 125 125 0 0 1 485.0 335.0 Z" fill="url(#dots)" stroke="black" stroke-width="1.5"/>
+                        <text x="532.8" y="275.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">20%</text>
+                        <path d="M 485 210 L 485.0 335.0 A 125 125 0 0 1 362.2 186.6 Z" fill="url(#cross)" stroke="black" stroke-width="1.5"/>
+                        <text x="422.4" y="261.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">28%</text>
+                        <path d="M 485 210 L 362.2 186.6 A 125 125 0 0 1 431.8 96.9 Z" fill="#808080" stroke="black" stroke-width="1.5"/>
+                        <text x="420.8" y="160.2" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="13">15%</text>
+                        <path d="M 485 210 L 431.8 96.9 A 125 125 0 0 1 485.0 85.0 Z" fill="#303030" stroke="black" stroke-width="1.5"/>
+                        <text x="467.3" y="130.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="12">7%</text>
+
+                        <!-- 凡例 -->
+                        <rect x="150" y="370" width="16" height="14" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="172" y="382" class="svg-text" font-size="12">10代以下</text>
+                        <rect x="250" y="370" width="16" height="14" fill="url(#diag)" stroke="black" stroke-width="1"/>
+                        <text x="272" y="382" class="svg-text" font-size="12">20代</text>
+                        <rect x="320" y="370" width="16" height="14" fill="url(#dots)" stroke="black" stroke-width="1"/>
+                        <text x="342" y="382" class="svg-text" font-size="12">30代</text>
+                        <rect x="390" y="370" width="16" height="14" fill="url(#cross)" stroke="black" stroke-width="1"/>
+                        <text x="412" y="382" class="svg-text" font-size="12">40代</text>
+                        <rect x="460" y="370" width="16" height="14" fill="#808080" stroke="black" stroke-width="1"/>
+                        <text x="482" y="382" class="svg-text" font-size="12">50代</text>
+                        <rect x="530" y="370" width="16" height="14" fill="#303030" stroke="black" stroke-width="1"/>
+                        <text x="552" y="382" class="svg-text" font-size="12">60代以上</text>
+
+                        <text x="325" y="420" class="svg-text" text-anchor="middle" font-size="11">（架空のデータに基づく）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>26.3%
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>28.5%
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>30.0%
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>33.4%
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>35.0%
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>男女それぞれの30代の人数を求め、全体に対する割合を計算する。</p>
+                    <br>
+                    <p><strong>【男性の30代】</strong></p>
+                    <p>・9,450人 × 30% = 2,835人</p>
+                    <br>
+                    <p><strong>【女性の30代】</strong></p>
+                    <p>・5,550人 × 20% = 1,110人</p>
+                    <br>
+                    <p><strong>【全体に占める割合】</strong></p>
+                    <p>・30代合計：2,835 + 1,110 = 3,945人</p>
+                    <p>・利用者総数：9,450 + 5,550 = 15,000人</p>
+                    <p>・割合：3,945 / 15,000 = <strong>26.3%</strong></p>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>男女の30代割合を単純平均すると (30+20)/2 = 25.0% となるが、男性の利用者数が女性より多いため、男性寄りの値 26.3% が正解となる。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1) 26.3%</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ図を用いる。40代以上の利用者のうち、女性が占める割合はおよそ何%か。正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【男女別・年齢層別スポーツ施設利用者数】（問1と同じ図）</div>
+                <div class="figure-content">
+                    <svg width="650" height="440" viewBox="0 0 650 440">
+                        <defs>
+                            <pattern id="diag2" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+                                <rect width="8" height="8" fill="white"/>
+                                <line x1="0" y1="0" x2="0" y2="8" stroke="black" stroke-width="1.5"/>
+                            </pattern>
+                            <pattern id="dots2" patternUnits="userSpaceOnUse" width="8" height="8">
+                                <rect width="8" height="8" fill="white"/>
+                                <circle cx="4" cy="4" r="1.5" fill="black"/>
+                            </pattern>
+                            <pattern id="cross2" patternUnits="userSpaceOnUse" width="8" height="8">
+                                <rect width="8" height="8" fill="white"/>
+                                <line x1="0" y1="0" x2="8" y2="8" stroke="black" stroke-width="1"/>
+                                <line x1="8" y1="0" x2="0" y2="8" stroke="black" stroke-width="1"/>
+                            </pattern>
+                        </defs>
+
+                        <text x="165" y="45" class="svg-text" text-anchor="middle" font-size="14" font-weight="bold">男性</text>
+                        <text x="165" y="63" class="svg-text" text-anchor="middle" font-size="13">9,450人（63%）</text>
+                        <text x="485" y="45" class="svg-text" text-anchor="middle" font-size="14" font-weight="bold">女性</text>
+                        <text x="485" y="63" class="svg-text" text-anchor="middle" font-size="13">5,550人（37%）</text>
+
+                        <!-- 男性円グラフ -->
+                        <path d="M 165 210 L 165.0 85.0 A 125 125 0 0 1 225.2 100.5 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                        <text x="185.2" y="131.3" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">8%</text>
+                        <path d="M 165 210 L 225.2 100.5 A 125 125 0 0 1 283.9 248.6 Z" fill="url(#diag2)" stroke="black" stroke-width="1.5"/>
+                        <text x="240.5" y="180.1" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">22%</text>
+                        <path d="M 165 210 L 283.9 248.6 A 125 125 0 0 1 91.5 311.1 Z" fill="url(#dots2)" stroke="black" stroke-width="1.5"/>
+                        <text x="190.1" y="287.3" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">30%</text>
+                        <path d="M 165 210 L 91.5 311.1 A 125 125 0 0 1 63.9 136.5 Z" fill="url(#cross2)" stroke="black" stroke-width="1.5"/>
+                        <text x="84.8" y="222.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">25%</text>
+                        <path d="M 165 210 L 63.9 136.5 A 125 125 0 0 1 133.9 88.9 Z" fill="#808080" stroke="black" stroke-width="1.5"/>
+                        <text x="119.3" y="142.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="13">11%</text>
+                        <path d="M 165 210 L 133.9 88.9 A 125 125 0 0 1 165.0 85.0 Z" fill="#303030" stroke="black" stroke-width="1.5"/>
+                        <text x="154.8" y="129.4" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="12">4%</text>
+
+                        <!-- 女性円グラフ -->
+                        <path d="M 485 210 L 485.0 85.0 A 125 125 0 0 1 570.6 118.9 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                        <text x="514.9" y="134.5" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">12%</text>
+                        <path d="M 485 210 L 570.6 118.9 A 125 125 0 0 1 603.9 248.6 Z" fill="url(#diag2)" stroke="black" stroke-width="1.5"/>
+                        <text x="563.7" y="189.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">18%</text>
+                        <path d="M 485 210 L 603.9 248.6 A 125 125 0 0 1 485.0 335.0 Z" fill="url(#dots2)" stroke="black" stroke-width="1.5"/>
+                        <text x="532.8" y="275.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">20%</text>
+                        <path d="M 485 210 L 485.0 335.0 A 125 125 0 0 1 362.2 186.6 Z" fill="url(#cross2)" stroke="black" stroke-width="1.5"/>
+                        <text x="422.4" y="261.8" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="black" font-size="13">28%</text>
+                        <path d="M 485 210 L 362.2 186.6 A 125 125 0 0 1 431.8 96.9 Z" fill="#808080" stroke="black" stroke-width="1.5"/>
+                        <text x="420.8" y="160.2" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="13">15%</text>
+                        <path d="M 485 210 L 431.8 96.9 A 125 125 0 0 1 485.0 85.0 Z" fill="#303030" stroke="black" stroke-width="1.5"/>
+                        <text x="467.3" y="130.7" class="svg-text" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="12">7%</text>
+
+                        <!-- 凡例 -->
+                        <rect x="150" y="370" width="16" height="14" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="172" y="382" class="svg-text" font-size="12">10代以下</text>
+                        <rect x="250" y="370" width="16" height="14" fill="url(#diag2)" stroke="black" stroke-width="1"/>
+                        <text x="272" y="382" class="svg-text" font-size="12">20代</text>
+                        <rect x="320" y="370" width="16" height="14" fill="url(#dots2)" stroke="black" stroke-width="1"/>
+                        <text x="342" y="382" class="svg-text" font-size="12">30代</text>
+                        <rect x="390" y="370" width="16" height="14" fill="url(#cross2)" stroke="black" stroke-width="1"/>
+                        <text x="412" y="382" class="svg-text" font-size="12">40代</text>
+                        <rect x="460" y="370" width="16" height="14" fill="#808080" stroke="black" stroke-width="1"/>
+                        <text x="482" y="382" class="svg-text" font-size="12">50代</text>
+                        <rect x="530" y="370" width="16" height="14" fill="#303030" stroke="black" stroke-width="1"/>
+                        <text x="552" y="382" class="svg-text" font-size="12">60代以上</text>
+
+                        <text x="325" y="420" class="svg-text" text-anchor="middle" font-size="11">（架空のデータに基づく）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>33.8%
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>37.0%
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>39.5%
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>42.3%
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>50.0%
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>40代以上の利用者を男女それぞれ求め、そのうち女性が占める割合を計算する。</p>
+                    <br>
+                    <p><strong>【男性の40代以上】</strong></p>
+                    <p>・40代 + 50代 + 60代以上 = 25% + 11% + 4% = 40%</p>
+                    <p>・9,450 × 40% = <strong>3,780人</strong></p>
+                    <br>
+                    <p><strong>【女性の40代以上】</strong></p>
+                    <p>・40代 + 50代 + 60代以上 = 28% + 15% + 7% = 50%</p>
+                    <p>・5,550 × 50% = <strong>2,775人</strong></p>
+                    <br>
+                    <p><strong>【女性の割合】</strong></p>
+                    <p>・40代以上合計：3,780 + 2,775 = 6,555人</p>
+                    <p>・女性割合：2,775 / 6,555 = <strong>42.3%</strong></p>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>全体の女性比率37%をそのまま答えると(2)の誤答になる。女性は40代以上の割合が男性より高い（50% vs 40%）ため、40代以上に限れば女性比率は全体より高い42.3%となる。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4) 42.3%</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考59/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
