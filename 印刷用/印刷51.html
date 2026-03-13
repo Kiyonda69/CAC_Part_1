@@ -1,0 +1,375 @@
+<!--
+================================================================================
+印刷51.html - セット51（正六角形の頂点操作 / バス路線の論理推論）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図のような正六角形ABCDEFの頂点に次のア～オの操作のいずれか1つを行ったとき、操作後の頂点の並びが元の正六角形と一致する（回転や裏返しにより元の配置に戻せる）操作はどれか。正しいものの組み合わせを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 400x360px
+                - viewBox: 0 0 400 360
+                - 正六角形: 中心(200,180), 半径120
+                - 頂点: A(200,60), B(304,120), C(304,240), D(200,300), E(96,240), F(96,120)
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="400" height="360" viewBox="0 0 400 360">
+                            <!-- 正六角形 -->
+                            <polygon points="200,60 304,120 304,240 200,300 96,240 96,120"
+                                     fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 対角線 -->
+                            <line x1="200" y1="60" x2="200" y2="300" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+                            <line x1="96" y1="120" x2="304" y2="240" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+                            <line x1="96" y1="240" x2="304" y2="120" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+                            <!-- 頂点ラベル -->
+                            <text x="200" y="45" class="svg-text" text-anchor="middle" font-size="18" font-weight="bold">A</text>
+                            <text x="325" y="125" class="svg-text" text-anchor="start" font-size="18" font-weight="bold">B</text>
+                            <text x="325" y="248" class="svg-text" text-anchor="start" font-size="18" font-weight="bold">C</text>
+                            <text x="200" y="332" class="svg-text" text-anchor="middle" font-size="18" font-weight="bold">D</text>
+                            <text x="75" y="248" class="svg-text" text-anchor="end" font-size="18" font-weight="bold">E</text>
+                            <text x="75" y="125" class="svg-text" text-anchor="end" font-size="18" font-weight="bold">F</text>
+                            <!-- 頂点の点 -->
+                            <circle cx="200" cy="60" r="4" fill="black"/>
+                            <circle cx="304" cy="120" r="4" fill="black"/>
+                            <circle cx="304" cy="240" r="4" fill="black"/>
+                            <circle cx="200" cy="300" r="4" fill="black"/>
+                            <circle cx="96" cy="240" r="4" fill="black"/>
+                            <circle cx="96" cy="120" r="4" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    ア　AをCに、CをEに、EをAに移し、BをDに、DをFに、FをBに移す。<br>
+                    イ　AとD、BとE、CとFをそれぞれ入れ替える。<br>
+                    ウ　AとCを入れ替え、BとFを入れ替える。DとEはそのまま。<br>
+                    エ　BとFを入れ替え、CとEを入れ替える。AとDはそのまま。<br>
+                    オ　AとBを入れ替え、DとEを入れ替える。CとFはそのまま。<br>
+                </div>
+
+                <br>
+                <div class="options">
+                    (1)ア、ウ　　(2)イ、エ　　(3)ア、イ、エ　　(4)ア、ウ、オ　　(5)イ、エ、オ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                正六角形の対称操作（回転・裏返し）は全部で12通りある。操作後の頂点配置がこの12通りのいずれかに該当すれば、元の正六角形と一致する。<br><br>
+
+                <strong>【正六角形の対称操作】</strong><br>
+                ・回転: 0度、60度、120度、180度、240度、300度の6通り<br>
+                ・裏返し: 頂点を通る軸3本、辺の中点を通る軸3本の計6通り<br>
+                ・合計12通りの対称操作<br><br>
+
+                <strong>【各操作の検証】</strong><br>
+                ・ア: (ACE)(BDF) = 120度回転に対応 → 対称操作である<br>
+                ・イ: (AD)(BE)(CF) = 180度回転に対応 → 対称操作である<br>
+                ・ウ: (AC)(BF) → AとC、BとFを入れ替えるとA-Cは2つ離れた頂点、B-Fは隣接頂点。この置換は12通りの対称操作のいずれにも該当しない → 対称操作でない<br>
+                ・エ: (BF)(CE) → AとDを固定し、B-F、C-Eを入れ替える。これはA-D軸に関する鏡映（裏返し）に対応 → 対称操作である<br>
+                ・オ: (AB)(DE) → AとB、DとEを入れ替えるが、CとFが固定。正六角形の対称軸でC-Fを通る軸は(BD)(AE)の入れ替えを生じるため、(AB)(DE)は対称操作に該当しない → 対称操作でない<br><br>
+
+                したがって、正六角形の対称操作であるのは<strong>ア、イ、エ</strong>の3つであり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．6つの停留所P, Q, R, S, T, Uがあり、3つのバス路線X, Y, Zが運行している。各路線は2つ以上の停留所を通る。次のことが分かっているとき、確実にいえるものはどれか。正しいものの組み合わせを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div style="margin: 15px 0 15px 20px; line-height: 2.2;">
+                    (I)　各停留所には少なくとも1つの路線が通る。<br>
+                    (II)　路線Xは3つの停留所を通り、路線Yは3つの停留所を通り、路線Zは2つの停留所を通る。<br>
+                    (III)　PとQには路線Xのみが通る。<br>
+                    (IV)　Rには路線Xと路線Yの2つが通る。<br>
+                    (V)　Sには路線Yのみが通る。<br>
+                    (VI)　TとUにはそれぞれ少なくとも1つの路線が通るが、路線Xは通らない。<br>
+                </div>
+
+                <div class="options" style="line-height: 2.2;">
+                    ア　路線Zが通る停留所のうち少なくとも1つには、路線Yも通る。<br>
+                    イ　Rには路線X、Y、Zの3つすべてが通る。<br>
+                    ウ　TとUのうち路線Yが通るのはちょうど1つである。<br>
+                    エ　2つ以上の路線が通る停留所はちょうど2つである。<br>
+                </div>
+
+                <br>
+                <div class="options">
+                    (1)ア、イ　　(2)ア、エ　　(3)イ、ウ　　(4)ア、ウ　　(5)ウ、エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【条件の整理】</strong><br>
+                ・路線X（3停留所）: 条件(III)よりP, Qを含み、条件(IV)よりRを含む → X = {P, Q, R}<br>
+                ・条件(VI)よりTとUはXに含まれないので、X = {P, Q, R} で確定。<br>
+                ・路線Y（3停留所）: 条件(IV)よりRを含み、条件(V)よりSを含む。3つ目は条件(III)よりP,Qは不可（Xのみ）、R,Sは既に含む → TまたはUのいずれか1つ。<br>
+                ・路線Z（2停留所）: 条件(III)よりP,Qは不可、条件(V)よりSは不可 → {R, T, U}から2つ選択。<br><br>
+
+                <strong>【有効な配置の列挙】</strong><br>
+                条件(I)（全停留所にルートあり）を満たす配置は以下の4通り:<br>
+                ・配置1: Y={R,S,T}, Z={R,U} → Rに3路線<br>
+                ・配置2: Y={R,S,T}, Z={T,U} → Rに2路線、Tに2路線<br>
+                ・配置3: Y={R,S,U}, Z={R,T} → Rに3路線<br>
+                ・配置4: Y={R,S,U}, Z={T,U} → Rに2路線、Uに2路線<br><br>
+
+                <strong>【各命題の検証】</strong><br>
+                ・ア: Zの停留所の少なくとも1つにYも通る<br>
+                　→ 全4配置で成立（配置1: Rに両方、配置2: Tに両方、配置3: Rに両方、配置4: Uに両方）→ <strong>確実にいえる</strong><br>
+                ・イ: Rに3路線すべて<br>
+                　→ 配置1,3では成立するが、配置2,4では不成立 → 確実にはいえない<br>
+                ・ウ: T,Uのうち路線Yが通るのはちょうど1つ<br>
+                　→ Yの3つ目はTかUのいずれか一方 → 全4配置で成立 → <strong>確実にいえる</strong><br>
+                ・エ: 2路線以上の停留所がちょうど2つ<br>
+                　→ 配置1,3ではRのみ（1つ）、配置2,4では2つ → 確実にはいえない<br><br>
+
+                したがって、確実にいえるのは<strong>ア、ウ</strong>であり、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
