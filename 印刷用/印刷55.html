@@ -1,0 +1,492 @@
+<!--
+================================================================================
+印刷55.html - 燃料搭載量計算問題（印刷用）
+================================================================================
+問1: 単区間飛行の燃料搭載量計算（標準難度）
+問2: 2区間飛行の燃料搭載量計算（高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .note-box {
+            margin: 15px 0;
+            padding: 12px 15px;
+            border: 1px solid #999;
+            background-color: #f9f9f9;
+            font-size: 14px;
+            line-height: 1.7;
+            text-align: left;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．パイロットが空港Pから空港Qまでの飛行を計画している。下表の条件に基づき、出発時に搭載すべき最低燃料の合計として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】燃料計画データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th style="width: 280px;">項目</th>
+                                <th style="width: 280px;">値</th>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">飛行距離 P→Q</td>
+                                <td>720 km</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">巡航燃費（※1）</td>
+                                <td>2.5 kg/km</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">上昇追加燃料（※2）</td>
+                                <td>200 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">降下節約量（※3）</td>
+                                <td>80 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">地上走行燃料（※4）</td>
+                                <td>60 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">不測事態燃料（※5）</td>
+                                <td>飛行燃料の5%（10 kg単位で切り上げ）</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">予備燃料（※6）</td>
+                                <td>450 kg</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <strong>【用語の説明】</strong><br>
+                    ※1 <strong>巡航燃費</strong>: 水平飛行（巡航）中の1 kmあたりの燃料消費量<br>
+                    ※2 <strong>上昇追加燃料</strong>: 離陸してから巡航高度に達するまでに、巡航時より余分に消費する燃料<br>
+                    ※3 <strong>降下節約量</strong>: 降下中はエンジン出力を下げるため、巡航時より節約できる燃料の量<br>
+                    ※4 <strong>地上走行燃料</strong>: 離陸前に滑走路まで地上を移動するために使う燃料<br>
+                    ※5 <strong>不測事態燃料</strong>: 予期しない事態（航路変更、気象変化など）に備えた燃料<br>
+                    ※6 <strong>予備燃料</strong>: 着陸の遅延等に備えて確保しておく最低限の燃料
+                </div>
+
+                <div class="note-box">
+                    <strong>【計算方法】</strong><br>
+                    飛行燃料 = 巡航燃料（距離 x 巡航燃費） + 上昇追加燃料 - 降下節約量<br>
+                    最低搭載燃料 = 地上走行燃料 + 飛行燃料 + 不測事態燃料 + 予備燃料
+                </div>
+
+                <div class="options">
+                    (1) 2,320 kg<br>
+                    (2) 2,526 kg<br>
+                    (3) 2,560 kg<br>
+                    (4) 2,530 kg<br>
+                    (5) 2,610 kg
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【計算手順】</strong><br>
+                まず飛行燃料を求める。<br><br>
+
+                <strong>1. 巡航燃料の計算</strong><br>
+                巡航燃料 = 飛行距離 x 巡航燃費 = 720 km x 2.5 kg/km = 1,800 kg<br><br>
+
+                <strong>2. 飛行燃料の計算</strong><br>
+                飛行燃料 = 巡航燃料 + 上昇追加燃料 - 降下節約量<br>
+                = 1,800 + 200 - 80 = <strong>1,920 kg</strong><br><br>
+
+                離陸から着陸までの間、巡航時の燃料消費を基準に、上昇時にはエンジン出力が大きいため余分に燃料を消費し、降下時にはエンジン出力を下げるため燃料を節約できる。<br><br>
+
+                <strong>3. 不測事態燃料の計算</strong><br>
+                不測事態燃料 = 飛行燃料 x 5% = 1,920 x 0.05 = 96 kg<br>
+                10 kg単位で切り上げ → <strong>100 kg</strong><br><br>
+
+                <strong>4. 最低搭載燃料の合計</strong><br>
+                最低搭載燃料 = 地上走行燃料 + 飛行燃料 + 不測事態燃料 + 予備燃料<br>
+                = 60 + 1,920 + 100 + 450 = <strong>2,530 kg</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2,320 kg → 上昇追加燃料を含めずに計算した誤り<br>
+                ・(2) 2,526 kg → 不測事態燃料を10 kg単位で切り上げていない誤り<br>
+                ・(3) 2,560 kg → 不測事態燃料を飛行燃料ではなく全体に適用した誤り<br>
+                ・(4) 2,530 kg → 正解<br>
+                ・(5) 2,610 kg → 降下節約量を差し引いていない誤り<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．航空機が空港Pから空港Qを経由して空港Rへ向かう2区間の飛行を計画している。空港Qでは給油ができないため、空港Pで全区間分の燃料を搭載する必要がある。下表の条件に基づき、空港P出発時に搭載すべき最低燃料の合計として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】区間別燃料データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th style="width: 180px;">項目</th>
+                                <th style="width: 150px;">P→Q区間</th>
+                                <th style="width: 150px;">Q→R区間</th>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">飛行距離</td>
+                                <td>800 km</td>
+                                <td>600 km</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">基本燃費（※1）</td>
+                                <td>2.0 kg/km</td>
+                                <td>2.0 kg/km</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">風の影響（※2）</td>
+                                <td>向かい風: +20%</td>
+                                <td>追い風: -10%</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">上昇追加燃料</td>
+                                <td>150 kg</td>
+                                <td>150 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">降下節約量</td>
+                                <td>50 kg</td>
+                                <td>50 kg</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表3】共通条件</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th style="width: 280px;">項目</th>
+                                <th style="width: 200px;">値</th>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">地上走行燃料（P出発）</td>
+                                <td>40 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">地上走行燃料（Q出発）</td>
+                                <td>30 kg</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">不測事態燃料</td>
+                                <td>全区間の飛行燃料合計の5%</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">予備燃料（R到着時）</td>
+                                <td>300 kg</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="note-box">
+                    <strong>【用語の説明】</strong><br>
+                    ※1 <strong>基本燃費</strong>: 無風状態での1 kmあたりの燃料消費量<br>
+                    ※2 <strong>風の影響</strong>: 向かい風は対地速度が下がり飛行時間が長くなるため燃料消費が増加し、追い風は対地速度が上がり飛行時間が短くなるため燃料消費が減少する。基本燃料に対する増減率で示す。
+                </div>
+
+                <div class="note-box">
+                    <strong>【計算方法】</strong><br>
+                    各区間の飛行燃料 = 基本燃料（距離 x 基本燃費） x 風の補正係数 + 上昇追加燃料 - 降下節約量<br>
+                    最低搭載燃料 = 地上走行燃料（P+Q） + 全飛行燃料 + 不測事態燃料 + 予備燃料
+                </div>
+
+                <div class="options">
+                    (1) 3,730 kg<br>
+                    (2) 3,520 kg<br>
+                    (3) 3,700 kg<br>
+                    (4) 3,835 kg<br>
+                    (5) 3,982 kg
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【計算手順】</strong><br>
+                各区間の飛行燃料を個別に計算し、合計する。<br><br>
+
+                <strong>1. P→Q区間の飛行燃料</strong><br>
+                基本燃料 = 800 km x 2.0 kg/km = 1,600 kg<br>
+                風の補正（向かい風+20%）: 1,600 x 1.20 = 1,920 kg<br>
+                飛行燃料 = 1,920 + 150 - 50 = <strong>2,020 kg</strong><br><br>
+
+                <strong>2. Q→R区間の飛行燃料</strong><br>
+                基本燃料 = 600 km x 2.0 kg/km = 1,200 kg<br>
+                風の補正（追い風-10%）: 1,200 x 0.90 = 1,080 kg<br>
+                飛行燃料 = 1,080 + 150 - 50 = <strong>1,180 kg</strong><br><br>
+
+                <strong>3. 全飛行燃料の合計</strong><br>
+                2,020 + 1,180 = <strong>3,200 kg</strong><br><br>
+
+                <strong>4. 不測事態燃料</strong><br>
+                3,200 x 0.05 = <strong>160 kg</strong><br><br>
+
+                <strong>5. 地上走行燃料の合計</strong><br>
+                P出発: 40 kg + Q出発: 30 kg = <strong>70 kg</strong><br>
+                空港Qでも離陸前に滑走路まで地上走行が必要なため、Q出発分も必要。<br><br>
+
+                <strong>6. 最低搭載燃料の合計</strong><br>
+                70 + 3,200 + 160 + 300 = <strong>3,730 kg</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 3,730 kg → 正解<br>
+                ・(2) 3,520 kg → 風の影響を考慮していない誤り<br>
+                ・(3) 3,700 kg → Q出発の地上走行燃料（30 kg）を含めていない誤り<br>
+                ・(4) 3,835 kg → 降下節約量を差し引いていない誤り<br>
+                ・(5) 3,982 kg → 追い風（-10%）を向かい風（+10%）として計算した誤り<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
