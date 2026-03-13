@@ -1,0 +1,402 @@
+<!--
+================================================================================
+印刷56.html - セット56（合板用素材の在庫データ読み取り / 同データの複合記述判定）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            text-align: right;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .figure-table td.label-cell {
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、我が国の主な地域における令和7年4月の合板用素材の入荷量、消費量、および在庫量と、それらの対前月差を示したものである。3月の埼玉県と奈良県の在庫量の差はいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【4月の合板用素材状況】</div>
+                    <div class="figure-content">
+                        <div style="text-align: right; margin-bottom: 5px; font-size: 14px;">（千m<sup>3</sup>）</div>
+                        <table class="figure-table" style="font-size: 14px;">
+                            <tr>
+                                <th rowspan="2">全　国<br>都道府県</th>
+                                <th colspan="2">入 荷 量</th>
+                                <th colspan="2">消 費 量</th>
+                                <th>在庫量</th>
+                            </tr>
+                            <tr>
+                                <th>当月値</th>
+                                <th>対前月差</th>
+                                <th>当月値</th>
+                                <th>対前月差</th>
+                                <th>当月値</th>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center; font-weight: bold;">全　国</td>
+                                <td>987</td>
+                                <td>64</td>
+                                <td>915</td>
+                                <td style="font-family: serif;">&#9651;32</td>
+                                <td>1,847</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">北 海 道</td>
+                                <td>15</td>
+                                <td style="font-family: serif;">&#9651;2</td>
+                                <td>68</td>
+                                <td style="font-family: serif;">&#9651;3</td>
+                                <td>425</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">岩　手</td>
+                                <td>26</td>
+                                <td>5</td>
+                                <td>22</td>
+                                <td>1</td>
+                                <td>78</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">埼　玉</td>
+                                <td>48</td>
+                                <td style="font-family: serif;">&#9651;7</td>
+                                <td>43</td>
+                                <td>2</td>
+                                <td>115</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">奈　良</td>
+                                <td>12</td>
+                                <td>3</td>
+                                <td>14</td>
+                                <td style="font-family: serif;">&#9651;1</td>
+                                <td>18</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">岡　山</td>
+                                <td>134</td>
+                                <td>45</td>
+                                <td>118</td>
+                                <td style="font-family: serif;">&#9651;6</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="text-align: center;">熊　本</td>
+                                <td>21</td>
+                                <td style="font-family: serif;">&#9651;5</td>
+                                <td>19</td>
+                                <td style="font-family: serif;">&#9651;2</td>
+                                <td>52</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">注）今月の在庫量＝前月の在庫量＋今月の入荷量－今月の消費量</div>
+                        <div class="legend-item" style="margin-left: 40px;">（農林水産省：「製材統計（令和7年4月）」より作成（一部改変））</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　84 千m<sup>3</sup>　　(2)　86 千m<sup>3</sup>　　(3)　88 千m<sup>3</sup>　　(4)　90 千m<sup>3</sup>　　(5)　92 千m<sup>3</sup>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                注の式を変形すると、<br>
+                前月の在庫量＝今月の在庫量－今月の入荷量＋今月の消費量<br><br>
+
+                <strong>【埼玉県の3月在庫量】</strong><br>
+                115 - 48 + 43 = <strong>110</strong> 千m<sup>3</sup><br><br>
+
+                <strong>【奈良県の3月在庫量】</strong><br>
+                18 - 12 + 14 = <strong>20</strong> 千m<sup>3</sup><br><br>
+
+                <strong>【差の計算】</strong><br>
+                110 - 20 = <strong>90</strong> 千m<sup>3</sup><br><br>
+
+                したがって、正解は<strong>(4) 90 千m<sup>3</sup></strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ表を用いて、次のア～エの記述のうち、正しいものの組み合わせを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="question-text" style="line-height: 2.2;">
+                    ア　3月の全国の消費量は950千m<sup>3</sup>を超える。<br>
+                    イ　3月から4月にかけて在庫量が減少した都道府県は、表中の6道県のうち2つである。<br>
+                    ウ　3月の岡山県の入荷量は90千m<sup>3</sup>未満である。<br>
+                    エ　3月の埼玉県の在庫量は、3月の奈良県の在庫量の6倍を超える。
+                </div>
+
+                <div class="options">
+                    (1)　ア、イ　　(2)　ア、ウ　　(3)　イ、ウ　　(4)　イ、エ　　(5)　ウ、エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【ア の検証】</strong><br>
+                3月の全国消費量 = 4月当月値 - 対前月差 = 915 - (-32) = 947 千m<sup>3</sup><br>
+                → 950を超えない → <strong>誤り</strong><br><br>
+
+                <strong>【イ の検証】</strong><br>
+                在庫量の増減 = 入荷量 - 消費量 で判断する。<br>
+                ・北海道: 15 - 68 = -53 → <strong>減少</strong><br>
+                ・岩手: 26 - 22 = +4 → 増加<br>
+                ・埼玉: 48 - 43 = +5 → 増加<br>
+                ・奈良: 12 - 14 = -2 → <strong>減少</strong><br>
+                ・岡山: 134 - 118 = +16 → 増加<br>
+                ・熊本: 21 - 19 = +2 → 増加<br>
+                → 減少は2つ（北海道、奈良） → <strong>正しい</strong><br><br>
+
+                <strong>【ウ の検証】</strong><br>
+                3月の岡山県入荷量 = 4月当月値 - 対前月差 = 134 - 45 = 89 千m<sup>3</sup><br>
+                → 90未満である → <strong>正しい</strong><br><br>
+
+                <strong>【エ の検証】</strong><br>
+                ・埼玉県3月在庫 = 115 - 48 + 43 = 110 千m<sup>3</sup><br>
+                ・奈良県3月在庫 = 18 - 12 + 14 = 20 千m<sup>3</sup><br>
+                ・比率: 110 / 20 = 5.5倍<br>
+                → 6倍を超えない → <strong>誤り</strong><br><br>
+
+                正しい記述は<strong>イ</strong>と<strong>ウ</strong>であり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
