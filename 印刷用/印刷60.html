@@ -1,0 +1,405 @@
+<!--
+================================================================================
+印刷60.html - 資料読み取り問題（研修施設の応募・修了データ分析）
+================================================================================
+問1（標準）: 応募倍率の年度別ランキング
+問2（高難度）: 選考通過率・修了率等の記述正誤判定
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．表は、ある研修施設の5年間における研修実施状況を示したものである。応募倍率（応募者数÷定員）が高い年度順に並べたものはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                表データ:
+                年度    定員  応募者数  受講者数  修了者数
+                2019    40    248       180       162
+                2020    40    312       200       174
+                2021    60    342       250       225
+                2022    60    420       280       238
+                2023    60    354       250       240
+
+                応募倍率 = 応募者数÷定員:
+                2019: 248/40 = 6.20
+                2020: 312/40 = 7.80
+                2021: 342/60 = 5.70
+                2022: 420/60 = 7.00
+                2023: 354/60 = 5.90
+
+                順位: 2020(7.80) > 2022(7.00) > 2019(6.20) > 2023(5.90) > 2021(5.70)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【各年度の研修実施状況】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>年度</th>
+                                <th>定員（人）</th>
+                                <th>応募者数（人）</th>
+                                <th>受講者数（人）</th>
+                                <th>修了者数（人）</th>
+                            </tr>
+                            <tr>
+                                <td>2019</td>
+                                <td>40</td>
+                                <td>248</td>
+                                <td>180</td>
+                                <td>162</td>
+                            </tr>
+                            <tr>
+                                <td>2020</td>
+                                <td>40</td>
+                                <td>312</td>
+                                <td>200</td>
+                                <td>174</td>
+                            </tr>
+                            <tr>
+                                <td>2021</td>
+                                <td>60</td>
+                                <td>342</td>
+                                <td>250</td>
+                                <td>225</td>
+                            </tr>
+                            <tr>
+                                <td>2022</td>
+                                <td>60</td>
+                                <td>420</td>
+                                <td>280</td>
+                                <td>238</td>
+                            </tr>
+                            <tr>
+                                <td>2023</td>
+                                <td>60</td>
+                                <td>354</td>
+                                <td>250</td>
+                                <td>240</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 2020年度→2022年度→2023年度→2019年度→2021年度<br>
+                    (2) 2020年度→2022年度→2019年度→2023年度→2021年度<br>
+                    (3) 2022年度→2020年度→2019年度→2023年度→2021年度<br>
+                    (4) 2020年度→2022年度→2019年度→2021年度→2023年度<br>
+                    (5) 2020年度→2019年度→2022年度→2023年度→2021年度
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                応募倍率 = 応募者数÷定員 を各年度について計算する。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・2019年度: 248÷40 = 6.20（倍）<br>
+                ・2020年度: 312÷40 = 7.80（倍）<br>
+                ・2021年度: 342÷60 = 5.70（倍）<br>
+                ・2022年度: 420÷60 = 7.00（倍）<br>
+                ・2023年度: 354÷60 = 5.90（倍）<br><br>
+
+                <strong>【ポイント】</strong><br>
+                定員が2019・2020年度は40人、2021年度以降は60人に変わっている点に注意が必要である。単純に応募者数だけで比較すると誤った順位になる。<br><br>
+
+                高い順に並べると、<br>
+                2020年度（7.80）→ 2022年度（7.00）→ 2019年度（6.20）→ 2023年度（5.90）→ 2021年度（5.70）<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1の表を用いて、以下の問いに答えよ。各年度について「選考通過率（受講者数÷応募者数×100）」と「修了率（修了者数÷受講者数×100）」をそれぞれ計算したとき、次のア～オの記述のうち正しいものをすべて選んだものはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div style="margin: 15px 0 15px 20px; line-height: 2.2;">
+                    ア：選考通過率が最も高い年度は2021年度である。<br>
+                    イ：選考通過率が70%を超えている年度は3つある。<br>
+                    ウ：修了率が最も低い年度は、応募倍率も最も高い。<br>
+                    エ：応募者数に対する修了者数の割合（修了者数÷応募者数×100）が最も高い年度は2023年度である。<br>
+                    オ：修了率が90%以上の年度は、選考通過率も70%以上である。
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) ア、イ、エ、オ<br>
+                    (2) ア、イ、ウ、エ<br>
+                    (3) ア、イ、エ<br>
+                    (4) ア、エ、オ<br>
+                    (5) ア、イ、ウ、エ、オ
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【選考通過率の計算】</strong><br>
+                ・2019年度: 180÷248×100 = 72.6%<br>
+                ・2020年度: 200÷312×100 = 64.1%<br>
+                ・2021年度: 250÷342×100 = 73.1%<br>
+                ・2022年度: 280÷420×100 = 66.7%<br>
+                ・2023年度: 250÷354×100 = 70.6%<br><br>
+
+                <strong>【修了率の計算】</strong><br>
+                ・2019年度: 162÷180×100 = 90.0%<br>
+                ・2020年度: 174÷200×100 = 87.0%<br>
+                ・2021年度: 225÷250×100 = 90.0%<br>
+                ・2022年度: 238÷280×100 = 85.0%<br>
+                ・2023年度: 240÷250×100 = 96.0%<br><br>
+
+                <strong>【各記述の検証】</strong><br>
+                ア：選考通過率最高は2021年度（73.1%）→ <strong>正しい</strong><br>
+                イ：70%超は2019(72.6%), 2021(73.1%), 2023(70.6%)の3つ → <strong>正しい</strong><br>
+                ウ：修了率最低は2022年度(85.0%)、応募倍率最高は2020年度(7.80) → 年度が異なるため<strong>誤り</strong><br>
+                エ：修了者数÷応募者数 → 2019(65.3%), 2020(55.8%), 2021(65.8%), 2022(56.7%), 2023(67.8%) → 2023年度が最高 → <strong>正しい</strong><br>
+                オ：修了率90%以上は2019(90.0%), 2021(90.0%), 2023(96.0%) → 選考通過率はそれぞれ72.6%, 73.1%, 70.6%で全て70%以上 → <strong>正しい</strong><br><br>
+
+                正しい記述はア、イ、エ、オの4つであり、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
