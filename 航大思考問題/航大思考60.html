@@ -1,0 +1,693 @@
+<!--
+================================================================================
+航大思考60.html - 資料読み取り問題（研修施設の応募・修了データ分析）
+================================================================================
+問1（標準）: 応募倍率の年度別ランキング
+問2（高難度）: 選考通過率・修了率等の記述正誤判定
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                表は、ある研修施設の5年間における研修実施状況を示したものである。応募倍率（応募者数÷定員）が高い年度順に並べたものはどれか。正しいものを1つ選べ。
+            </div>
+
+            <!-- 表 -->
+            <div class="figure-container">
+                <div class="figure-title">【各年度の研修実施状況】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>年度</th>
+                            <th>定員（人）</th>
+                            <th>応募者数（人）</th>
+                            <th>受講者数（人）</th>
+                            <th>修了者数（人）</th>
+                        </tr>
+                        <tr>
+                            <td>2019</td>
+                            <td>40</td>
+                            <td>248</td>
+                            <td>180</td>
+                            <td>162</td>
+                        </tr>
+                        <tr>
+                            <td>2020</td>
+                            <td>40</td>
+                            <td>312</td>
+                            <td>200</td>
+                            <td>174</td>
+                        </tr>
+                        <tr>
+                            <td>2021</td>
+                            <td>60</td>
+                            <td>342</td>
+                            <td>250</td>
+                            <td>225</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>60</td>
+                            <td>420</td>
+                            <td>280</td>
+                            <td>238</td>
+                        </tr>
+                        <tr>
+                            <td>2023</td>
+                            <td>60</td>
+                            <td>354</td>
+                            <td>250</td>
+                            <td>240</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>2020年度→2022年度→2023年度→2019年度→2021年度
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>2020年度→2022年度→2019年度→2023年度→2021年度
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>2022年度→2020年度→2019年度→2023年度→2021年度
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>2020年度→2022年度→2019年度→2021年度→2023年度
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>2020年度→2019年度→2022年度→2023年度→2021年度
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法】</strong></p>
+                    <p>応募倍率 = 応募者数÷定員 を各年度について計算する。</p>
+                    <br>
+                    <p><strong>【計算過程】</strong></p>
+                    <p>・2019年度: 248÷40 = 6.20（倍）</p>
+                    <p>・2020年度: 312÷40 = 7.80（倍）</p>
+                    <p>・2021年度: 342÷60 = 5.70（倍）</p>
+                    <p>・2022年度: 420÷60 = 7.00（倍）</p>
+                    <p>・2023年度: 354÷60 = 5.90（倍）</p>
+                    <br>
+                    <p><strong>【ポイント】</strong></p>
+                    <p>定員が2019・2020年度は40人、2021年度以降は60人に変わっている点に注意。単純に応募者数だけで比較すると誤った順位になる。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1の表を用いて、以下の問いに答えよ。各年度について「選考通過率（受講者数÷応募者数×100）」と「修了率（修了者数÷受講者数×100）」をそれぞれ計算したとき、次のア～オの記述のうち正しいものをすべて選んだものはどれか。
+            </div>
+
+            <div style="margin: 15px 0; padding: 15px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; line-height: 2.2;">
+                ア：選考通過率が最も高い年度は2021年度である。<br>
+                イ：選考通過率が70%を超えている年度は3つある。<br>
+                ウ：修了率が最も低い年度は、応募倍率も最も高い。<br>
+                エ：応募者数に対する修了者数の割合（修了者数÷応募者数×100）が最も高い年度は2023年度である。<br>
+                オ：修了率が90%以上の年度は、選考通過率も70%以上である。
+            </div>
+
+            <!-- 表（参照用） -->
+            <div class="figure-container">
+                <div class="figure-title">【各年度の研修実施状況】（問1の表を再掲）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>年度</th>
+                            <th>定員（人）</th>
+                            <th>応募者数（人）</th>
+                            <th>受講者数（人）</th>
+                            <th>修了者数（人）</th>
+                        </tr>
+                        <tr>
+                            <td>2019</td>
+                            <td>40</td>
+                            <td>248</td>
+                            <td>180</td>
+                            <td>162</td>
+                        </tr>
+                        <tr>
+                            <td>2020</td>
+                            <td>40</td>
+                            <td>312</td>
+                            <td>200</td>
+                            <td>174</td>
+                        </tr>
+                        <tr>
+                            <td>2021</td>
+                            <td>60</td>
+                            <td>342</td>
+                            <td>250</td>
+                            <td>225</td>
+                        </tr>
+                        <tr>
+                            <td>2022</td>
+                            <td>60</td>
+                            <td>420</td>
+                            <td>280</td>
+                            <td>238</td>
+                        </tr>
+                        <tr>
+                            <td>2023</td>
+                            <td>60</td>
+                            <td>354</td>
+                            <td>250</td>
+                            <td>240</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>ア、イ、エ、オ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>ア、イ、ウ、エ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>ア、イ、エ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>ア、エ、オ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>ア、イ、ウ、エ、オ
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p><strong>【選考通過率の計算】</strong></p>
+                    <p>・2019年度: 180÷248×100 = 72.6%</p>
+                    <p>・2020年度: 200÷312×100 = 64.1%</p>
+                    <p>・2021年度: 250÷342×100 = 73.1%</p>
+                    <p>・2022年度: 280÷420×100 = 66.7%</p>
+                    <p>・2023年度: 250÷354×100 = 70.6%</p>
+                    <br>
+                    <p><strong>【修了率の計算】</strong></p>
+                    <p>・2019年度: 162÷180×100 = 90.0%</p>
+                    <p>・2020年度: 174÷200×100 = 87.0%</p>
+                    <p>・2021年度: 225÷250×100 = 90.0%</p>
+                    <p>・2022年度: 238÷280×100 = 85.0%</p>
+                    <p>・2023年度: 240÷250×100 = 96.0%</p>
+                    <br>
+                    <p><strong>【各記述の検証】</strong></p>
+                    <p>ア：選考通過率最高は2021年度（73.1%）→ <strong>正しい</strong></p>
+                    <p>イ：70%超は2019(72.6%), 2021(73.1%), 2023(70.6%)の3つ → <strong>正しい</strong></p>
+                    <p>ウ：修了率最低は2022年度(85.0%)、応募倍率最高は2020年度(7.80) → 年度が異なるため<strong>誤り</strong></p>
+                    <p>エ：修了者数÷応募者数 → 2023年度(67.8%)が最高 → <strong>正しい</strong></p>
+                    <p>オ：修了率90%以上の年度(2019, 2021, 2023)は全て選考通過率70%以上 → <strong>正しい</strong></p>
+                    <br>
+                    <p>正しい記述はア、イ、エ、オであり、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考60/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
