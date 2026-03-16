@@ -1,0 +1,522 @@
+<!--
+================================================================================
+印刷64.html - セット64: 立体図形の空間認識
+================================================================================
+問1（標準）: 立方体の全頂点切断 → 切頂立体（立方八面体）の面・辺・頂点
+問2（高難度）: 立方体の3辺上の点を通る切断面の形状判定
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図のように、一辺aの立方体の8つの頂点すべてについて、各頂点に集まる3つの辺の中点を通る平面で切り落とす。このとき、できる立体の面の数、辺の数、頂点の数の組み合わせとして正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x400px
+                - viewBox: 0 0 500 400
+                - 余白: 上下左右20px
+                立方体のアイソメトリック図 + 1つの頂点での切断例を示す
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体の頂点切断</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 580x400px
+                        - viewBox: 0 0 580 400
+                        立方体頂点座標（アイソメトリック投影）:
+                          A(160,290) B(340,335) C(450,275) D(270,230)
+                          E(160,110) F(340,155) G(450,95)  H(270,50)
+                        頂点Aでの切断面（3辺の中点を結ぶ三角形）:
+                          AB中点(250,313) AE中点(160,200) AD中点(215,260)
+                        -->
+                        <svg width="580" height="400" viewBox="0 0 580 400">
+                            <!-- 前面の正方形 ABFE -->
+                            <polygon points="160,290 340,335 340,155 160,110" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 背面・側面の見える辺 -->
+                            <line x1="160" y1="110" x2="270" y2="50" stroke="black" stroke-width="2"/>
+                            <line x1="340" y1="155" x2="450" y2="95" stroke="black" stroke-width="2"/>
+                            <line x1="270" y1="50" x2="450" y2="95" stroke="black" stroke-width="2"/>
+                            <line x1="340" y1="335" x2="450" y2="275" stroke="black" stroke-width="2"/>
+                            <line x1="450" y1="95" x2="450" y2="275" stroke="black" stroke-width="2"/>
+                            <!-- 隠れ線（破線） -->
+                            <line x1="160" y1="290" x2="270" y2="230" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="270" y1="230" x2="450" y2="275" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="270" y1="230" x2="270" y2="50" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                            <!-- 頂点ラベル（辺から十分離す） -->
+                            <text x="138" y="300" class="svg-text" text-anchor="end" font-weight="bold">A</text>
+                            <text x="348" y="352" class="svg-text" font-weight="bold">B</text>
+                            <text x="462" y="283" class="svg-text" font-weight="bold">C</text>
+                            <text x="258" y="222" class="svg-text" text-anchor="end" font-weight="bold">D</text>
+                            <text x="138" y="108" class="svg-text" text-anchor="end" font-weight="bold">E</text>
+                            <text x="348" y="150" class="svg-text" font-weight="bold">F</text>
+                            <text x="462" y="90" class="svg-text" font-weight="bold">G</text>
+                            <text x="260" y="42" class="svg-text" font-weight="bold">H</text>
+
+                            <!-- 頂点Aでの切断面（三角形）を強調 -->
+                            <!-- 切断面の塗り（立方体の辺と区別するため破線・灰色で描画） -->
+                            <polygon points="250,313 160,200 215,260" fill="#cccccc" fill-opacity="0.4" stroke="#444" stroke-width="2" stroke-dasharray="8,4"/>
+                            <!-- 中点マーカー（白縁付きで辺との重なりを回避） -->
+                            <circle cx="250" cy="313" r="6" fill="white" stroke="none"/>
+                            <circle cx="250" cy="313" r="5" fill="black"/>
+                            <circle cx="160" cy="200" r="6" fill="white" stroke="none"/>
+                            <circle cx="160" cy="200" r="5" fill="black"/>
+                            <circle cx="215" cy="260" r="6" fill="white" stroke="none"/>
+                            <circle cx="215" cy="260" r="5" fill="black"/>
+
+                            <!-- 「中点」ラベル（辺・三角形の線と重ならない位置に配置） -->
+                            <!-- AB中点(250,313): AB辺の下側に配置 -->
+                            <text x="262" y="334" class="svg-text" font-size="11">中点</text>
+                            <!-- AE中点(160,200): AE辺の左側に配置 -->
+                            <text x="118" y="204" class="svg-text" font-size="11" text-anchor="end">中点</text>
+                            <!-- AD中点(215,260): 三角形の上側（辺と三角形線の間）に配置 -->
+                            <text x="196" y="254" class="svg-text" font-size="11" text-anchor="end">中点</text>
+
+                            <!-- 注釈 -->
+                            <text x="60" y="370" class="svg-text" font-size="13">※ 灰色の三角形は頂点Aでの切断面</text>
+                            <text x="60" y="390" class="svg-text" font-size="13">※ 8つの頂点すべてで同様に切断する</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢（テキスト形式） -->
+                <table class="option-table">
+                    <tr>
+                        <th></th>
+                        <th>面の数</th>
+                        <th>辺の数</th>
+                        <th>頂点の数</th>
+                    </tr>
+                    <tr>
+                        <td><strong>(1)</strong></td>
+                        <td>14</td>
+                        <td>24</td>
+                        <td>14</td>
+                    </tr>
+                    <tr>
+                        <td><strong>(2)</strong></td>
+                        <td>14</td>
+                        <td>24</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><strong>(3)</strong></td>
+                        <td>12</td>
+                        <td>20</td>
+                        <td>12</td>
+                    </tr>
+                    <tr>
+                        <td><strong>(4)</strong></td>
+                        <td>14</td>
+                        <td>30</td>
+                        <td>16</td>
+                    </tr>
+                    <tr>
+                        <td><strong>(5)</strong></td>
+                        <td>16</td>
+                        <td>24</td>
+                        <td>12</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【立体の構造分析】</strong><br>
+                一辺aの立方体の各頂点を、その頂点に集まる3辺の中点を通る平面で切り落とす操作を考える。<br><br>
+
+                <strong>【頂点の数】</strong><br>
+                ・元の立方体は12本の辺を持つ<br>
+                ・各辺の中点が、新しい立体の頂点となる<br>
+                ・したがって頂点の数は <strong>12</strong><br><br>
+
+                <strong>【面の数】</strong><br>
+                ・元の立方体の6面は、各面の4辺の中点を結ぶ正方形に縮小される → <strong>6面（正方形）</strong><br>
+                ・元の立方体の8頂点を切り落とすと、各頂点で3辺の中点を結ぶ正三角形が現れる → <strong>8面（正三角形）</strong><br>
+                ・合計: 6 + 8 = <strong>14面</strong><br><br>
+
+                <strong>【辺の数】</strong><br>
+                ・オイラーの多面体定理: V - E + F = 2<br>
+                ・12 - E + 14 = 2<br>
+                ・E = <strong>24</strong><br>
+                ・（確認: 三角形面 8×3辺 + 正方形面 6×4辺 = 48、各辺は2面で共有 → 48÷2 = 24）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 頂点14 → 頂点は辺の中点なので12個が正しい → 不正解<br>
+                ・(2) 面14、辺24、頂点12 → すべて正しい → <strong>正解</strong><br>
+                ・(3) 面12 → 三角形面8と正方形面6で14面が正しい → 不正解<br>
+                ・(4) 辺30 → 24が正しい → 不正解<br>
+                ・(5) 面16 → 14が正しい → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。<br>
+                （この立体は「立方八面体（cuboctahedron）」と呼ばれるアルキメデスの立体の一種である。）
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図のように、一辺4cmの立方体ABCD-EFGHがある。辺AE上の中点をM、辺BF上のBP=1cmとなる点をP、辺DH上のDQ=3cmとなる点をQとする。3点M、P、Qを通る平面でこの立方体を切断したとき、切断面の形状として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x420px
+                - viewBox: 0 0 500 420
+                - 立方体のアイソメトリック図にM, P, Qの位置と切断面を示す
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】立方体の切断</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 560x400px
+                        - viewBox: 0 0 560 400
+                        立方体座標:
+                          A(110,305) B(300,350) C(420,285) D(230,240)
+                          E(110,115) F(300,160) G(420,95)  H(230,50)
+                        切断点:
+                          M(110,210) AE中点
+                          P(300,303) BF上BP=1/4
+                          R(420,190) CG中点
+                          Q(230,98)  DH上DQ=3/4
+                        -->
+                        <svg width="560" height="400" viewBox="0 0 560 400">
+                            <!-- 隠れ線（破線） -->
+                            <line x1="110" y1="305" x2="230" y2="240" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="230" y1="240" x2="420" y2="285" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="230" y1="240" x2="230" y2="50" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                            <!-- 切断面（4点: M, P, R, Q） -->
+                            <polygon points="110,210 300,303 420,190 230,98" fill="#cccccc" fill-opacity="0.35" stroke="black" stroke-width="2.5"/>
+
+                            <!-- 前面の正方形 ABFE -->
+                            <polygon points="110,305 300,350 300,160 110,115" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 上面・右面の見える辺 -->
+                            <line x1="110" y1="115" x2="230" y2="50" stroke="black" stroke-width="2"/>
+                            <line x1="300" y1="160" x2="420" y2="95" stroke="black" stroke-width="2"/>
+                            <line x1="230" y1="50" x2="420" y2="95" stroke="black" stroke-width="2"/>
+                            <line x1="300" y1="350" x2="420" y2="285" stroke="black" stroke-width="2"/>
+                            <line x1="420" y1="95" x2="420" y2="285" stroke="black" stroke-width="2"/>
+
+                            <!-- 点M, P, Q, R -->
+                            <circle cx="110" cy="210" r="5" fill="black"/>
+                            <text x="82" y="214" class="svg-text" text-anchor="end" font-weight="bold">M</text>
+
+                            <circle cx="300" cy="303" r="5" fill="black"/>
+                            <text x="312" y="318" class="svg-text" font-weight="bold">P</text>
+
+                            <circle cx="230" cy="98" r="5" fill="black"/>
+                            <text x="242" y="92" class="svg-text" font-weight="bold">Q</text>
+
+                            <circle cx="420" cy="190" r="5" fill="black"/>
+                            <text x="434" y="194" class="svg-text" font-weight="bold" fill="#666">R</text>
+
+                            <!-- 頂点ラベル（辺・点と重ならないよう十分離す） -->
+                            <text x="88" y="318" class="svg-text" text-anchor="end" font-weight="bold">A</text>
+                            <text x="308" y="370" class="svg-text" font-weight="bold">B</text>
+                            <text x="434" y="296" class="svg-text" font-weight="bold">C</text>
+                            <text x="248" y="256" class="svg-text" font-weight="bold" fill="#888">D</text>
+                            <text x="88" y="110" class="svg-text" text-anchor="end" font-weight="bold">E</text>
+                            <text x="308" y="155" class="svg-text" font-weight="bold">F</text>
+                            <text x="434" y="88" class="svg-text" font-weight="bold">G</text>
+                            <text x="218" y="42" class="svg-text" text-anchor="end" font-weight="bold">H</text>
+
+                            <!-- 寸法の注記（辺から離して配置） -->
+                            <text x="72" y="260" class="svg-text" font-size="12" text-anchor="end">2cm</text>
+                            <line x1="78" y1="256" x2="104" y2="256" stroke="#888" stroke-width="0.8"/>
+                            <text x="316" y="340" class="svg-text" font-size="12">1cm</text>
+                            <line x1="306" y1="336" x2="306" y2="316" stroke="#888" stroke-width="0.8"/>
+                            <text x="202" y="172" class="svg-text" font-size="12" text-anchor="end" fill="#888">3cm</text>
+                            <line x1="208" y1="168" x2="224" y2="168" stroke="#888" stroke-width="0.8"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) ひし形（正方形でない）<br>
+                    (2) 正方形<br>
+                    (3) 長方形（正方形でない）<br>
+                    (4) 平行四辺形（長方形でもひし形でもない）<br>
+                    (5) 台形（平行四辺形でない）<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【座標設定】</strong><br>
+                立方体の頂点に座標を設定する。<br>
+                A(0,0,0)、B(4,0,0)、C(4,4,0)、D(0,4,0)<br>
+                E(0,0,4)、F(4,0,4)、G(4,4,4)、H(0,4,4)<br><br>
+
+                <strong>【切断点の座標】</strong><br>
+                ・M: 辺AEの中点 → M(0, 0, 2)<br>
+                ・P: 辺BF上でBP=1 → P(4, 0, 1)<br>
+                ・Q: 辺DH上でDQ=3 → Q(0, 4, 3)<br><br>
+
+                <strong>【切断面の方程式】</strong><br>
+                ベクトルMP = (4, 0, -1)、ベクトルMQ = (0, 4, 1)<br>
+                法線ベクトル = MP × MQ = (4, -4, 16) → 簡約化: (1, -1, 4)<br>
+                平面の方程式: x - y + 4z = 8<br><br>
+
+                <strong>【4つ目の交点】</strong><br>
+                辺CGとの交点R: x=4, y=4を代入 → 4 - 4 + 4z = 8 → z = 2<br>
+                よって R(4, 4, 2) すなわち辺CGの中点<br><br>
+
+                <strong>【切断面の形状判定】</strong><br>
+                4辺の長さを計算する:<br>
+                ・|MP| = sqrt(4² + 0² + 1²) = sqrt(17)<br>
+                ・|PR| = sqrt(0² + 4² + 1²) = sqrt(17)<br>
+                ・|RQ| = sqrt(4² + 0² + 1²) = sqrt(17)<br>
+                ・|QM| = sqrt(0² + 4² + 1²) = sqrt(17)<br>
+                <strong>4辺すべてが等しい</strong> → ひし形または正方形<br><br>
+
+                直角判定: MP · MQ = 4×0 + 0×4 + (-1)×1 = <strong>-1 ≠ 0</strong><br>
+                角度が直角でないため、正方形ではない。<br><br>
+
+                したがって、切断面は<strong>ひし形（正方形でない）</strong>であり、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
