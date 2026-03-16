@@ -1,0 +1,487 @@
+<!--
+================================================================================
+印刷66.html - セット66: 図形の回転と軌跡
+================================================================================
+問1（標準）: 正方形が直線上を1回転するときの頂点の軌跡の長さ
+問2（高難度）: 円が正三角形の外側を1周するとき、軌跡で囲まれた面積
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図のように、一辺の長さが2cmの正方形ABCDが直線l上を滑ることなく転がる。正方形が1回転（元の向きに戻る）したとき、頂点Aが描く軌跡の長さとして正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x280px
+                - viewBox: 0 0 620 280
+                - 正方形が直線上を転がる4段階を表示
+                - 各段階で頂点Aの位置と円弧軌跡を示す
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】正方形の回転と頂点Aの軌跡</div>
+                    <div class="figure-content">
+                        <svg width="620" height="260" viewBox="0 0 620 260">
+                            <!-- 直線l -->
+                            <line x1="20" y1="200" x2="600" y2="200" stroke="black" stroke-width="2"/>
+                            <text x="605" y="205" class="svg-text" font-size="13">l</text>
+
+                            <!-- 初期状態: 正方形ABCD、辺DAが底辺 -->
+                            <g>
+                                <!-- 正方形 -->
+                                <rect x="40" y="140" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 頂点ラベル -->
+                                <text x="30" y="208" class="svg-text" font-size="12">D</text>
+                                <circle cx="40" cy="200" r="2.5" fill="black"/>
+                                <text x="100" y="208" class="svg-text" font-size="12">A</text>
+                                <circle cx="100" cy="200" r="3.5" fill="black"/>
+                                <text x="103" y="140" class="svg-text" font-size="12">B</text>
+                                <circle cx="100" cy="140" r="2.5" fill="black"/>
+                                <text x="28" y="140" class="svg-text" font-size="12">C</text>
+                                <circle cx="40" cy="140" r="2.5" fill="black"/>
+                                <text x="50" y="128" class="svg-text" font-size="11" fill="#666">初期位置</text>
+                            </g>
+
+                            <!-- Step1: Aを中心に90°回転（Aは動かない） -->
+                            <g>
+                                <!-- 回転後の正方形（薄いグレー） -->
+                                <rect x="100" y="140" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <!-- Aの位置（不動点） -->
+                                <text x="95" y="225" class="svg-text" font-size="10" fill="#666">A不動</text>
+                            </g>
+
+                            <!-- Step2: Bを中心に90°回転 -->
+                            <g>
+                                <!-- 回転後の正方形 -->
+                                <rect x="160" y="140" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <!-- Aの円弧軌跡（半径2=60px scaled, 実際には比例） -->
+                                <path d="M 160,200 A 60,60 0 0,0 160,140" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                                <text x="128" y="175" class="svg-text" font-size="10" fill="#666">r=2</text>
+                            </g>
+
+                            <!-- Step3: Cを中心に90°回転 -->
+                            <g>
+                                <!-- 回転後の正方形 -->
+                                <rect x="220" y="140" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <!-- Aの円弧軌跡（半径2√2） -->
+                                <path d="M 220,140 A 84.85,84.85 0 0,0 280,55.15" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                                <text x="230" y="85" class="svg-text" font-size="10" fill="#666">r=2&#x221A;2</text>
+                            </g>
+
+                            <!-- Step4: Dを中心に90°回転 -->
+                            <g>
+                                <!-- 最終状態の正方形 -->
+                                <rect x="280" y="140" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- Aの円弧軌跡（半径2） -->
+                                <path d="M 340,80 A 60,60 0 0,0 340,200" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                                <text x="345" y="135" class="svg-text" font-size="10" fill="#666">r=2</text>
+                                <!-- 最終位置のAラベル -->
+                                <text x="342" y="208" class="svg-text" font-size="12">A</text>
+                                <circle cx="340" cy="200" r="3.5" fill="black"/>
+                            </g>
+
+                            <!-- 凡例 -->
+                            <text x="400" y="100" class="svg-text" font-size="11">--- : 頂点Aの軌跡（円弧）</text>
+                            <line x1="400" y1="115" x2="450" y2="115" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="400" y="140" class="svg-text" font-size="11">正方形は右方向に転がる</text>
+                            <text x="400" y="160" class="svg-text" font-size="11">各段階で90°ずつ回転</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　2&#x03C0;&#x221A;2 cm<br>
+                    (2)　3&#x03C0; cm<br>
+                    (3)　2&#x03C0;(1+&#x221A;2) cm<br>
+                    (4)　&#x03C0;(2+&#x221A;2) cm<br>
+                    (5)　&#x03C0;(3+&#x221A;2) cm
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【回転の分析】</strong><br>
+                正方形ABCDが直線l上を1回転（360°）するには、90°ずつ4回の回転が必要である。各回転では、地面に接している頂点を中心として正方形が倒れるように転がる。<br><br>
+
+                辺DAが底辺の初期状態から、4段階の回転を追跡する。<br><br>
+
+                <strong>【各段階での頂点Aの動き】</strong><br>
+                ・<strong>段階1</strong>：頂点A（右下）を中心に90°回転 → Aは回転の中心なので動かない（軌跡の長さ = 0）<br>
+                ・<strong>段階2</strong>：頂点B（Aの隣）を中心に90°回転 → AはBから距離2cm → 半径2、角度90°の円弧 = 2 × &#x03C0;/2 = &#x03C0; cm<br>
+                ・<strong>段階3</strong>：頂点C（Aの対角）を中心に90°回転 → AはCから距離2&#x221A;2 cm（対角線）→ 半径2&#x221A;2、角度90°の円弧 = 2&#x221A;2 × &#x03C0;/2 = &#x03C0;&#x221A;2 cm<br>
+                ・<strong>段階4</strong>：頂点D（Aの隣）を中心に90°回転 → AはDから距離2cm → 半径2、角度90°の円弧 = 2 × &#x03C0;/2 = &#x03C0; cm<br><br>
+
+                <strong>【合計の計算】</strong><br>
+                軌跡の長さ = 0 + &#x03C0; + &#x03C0;&#x221A;2 + &#x03C0; = &#x03C0;(2 + &#x221A;2) cm<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2&#x03C0;&#x221A;2 ≒ 8.89 cm → 段階3の円弧の2倍であり不正解<br>
+                ・(2) 3&#x03C0; ≒ 9.42 cm → 全ての円弧が半径2と仮定した場合であり不正解<br>
+                ・(3) 2&#x03C0;(1+&#x221A;2) ≒ 15.17 cm → 値が大きすぎて不正解<br>
+                ・(4) &#x03C0;(2+&#x221A;2) ≒ 10.73 cm → 正しい計算結果と一致<br>
+                ・(5) &#x03C0;(3+&#x221A;2) ≒ 13.87 cm → 段階1でも円弧を加算した場合であり不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図のように、半径1cmの円板が一辺6cmの正三角形の外側に沿って滑ることなく転がり、正三角形の周りを1周する。このとき、円板の中心が描く軌跡で囲まれた領域の面積として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x380px
+                - viewBox: 0 0 500 380
+                - 正三角形と円の転がり軌跡を表示
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】円板が正三角形の外側を転がる様子</div>
+                    <div class="figure-content">
+                        <svg width="500" height="350" viewBox="0 0 500 350">
+                            <!-- 正三角形（中心を(250,190)に配置） -->
+                            <!-- 辺の長さ6cm → 描画上120px -->
+                            <!-- 正三角形の頂点: 上(250,100), 左下(190,204), 右下(310,204) -->
+                            <polygon points="250,100 190,204 310,204" fill="none" stroke="black" stroke-width="2.5"/>
+
+                            <!-- 頂点ラベル -->
+                            <text x="248" y="90" class="svg-text" text-anchor="middle" font-size="12">P</text>
+                            <text x="177" y="215" class="svg-text" text-anchor="middle" font-size="12">Q</text>
+                            <text x="323" y="215" class="svg-text" text-anchor="middle" font-size="12">R</text>
+
+                            <!-- 辺の長さ表示 -->
+                            <text x="213" y="145" class="svg-text" font-size="11" fill="#666">6cm</text>
+
+                            <!-- 円の中心の軌跡（正三角形の外側にオフセット） -->
+                            <!-- 直線部分: 各辺から20px（=1cm相当）外側に平行線 -->
+                            <!-- 円弧部分: 各頂点で120°の円弧、半径20px -->
+
+                            <!-- 上辺PQに沿った軌跡（左上の辺の外側） -->
+                            <line x1="179" y1="185" x2="232" y2="83" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 上辺PRに沿った軌跡（右上の辺の外側） -->
+                            <line x1="268" y1="83" x2="321" y2="185" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 底辺QRに沿った軌跡 -->
+                            <line x1="183" y1="224" x2="317" y2="224" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 頂点Pでの円弧（上端） -->
+                            <path d="M 232,83 A 20,20 0 0,1 268,83" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 頂点Qでの円弧（左下） -->
+                            <path d="M 183,224 A 20,20 0 0,1 179,185" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 頂点Rでの円弧（右下） -->
+                            <path d="M 321,185 A 20,20 0 0,1 317,224" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                            <!-- 転がる円板の例（2か所に表示） -->
+                            <!-- 底辺の中央付近 -->
+                            <circle cx="250" cy="224" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+                            <circle cx="250" cy="224" r="2" fill="black"/>
+                            <text x="250" y="250" class="svg-text" text-anchor="middle" font-size="10">円板（半径1cm）</text>
+                            <line x1="250" y1="224" x2="250" y2="204" stroke="black" stroke-width="1"/>
+
+                            <!-- 頂点P付近に転がる円板 -->
+                            <circle cx="250" cy="80" r="20" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,2"/>
+                            <circle cx="250" cy="80" r="2" fill="black"/>
+
+                            <!-- 領域の説明 -->
+                            <text x="250" y="170" class="svg-text" text-anchor="middle" font-size="11" fill="#666">この領域の面積を求める</text>
+
+                            <!-- 凡例 -->
+                            <text x="30" y="290" class="svg-text" font-size="11">--- : 円板の中心の軌跡</text>
+                            <text x="30" y="310" class="svg-text" font-size="11">各辺に沿う直線部分と</text>
+                            <text x="30" y="330" class="svg-text" font-size="11">各頂点での円弧から成る</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　(9&#x221A;3 + 18) cm&#x00B2;<br>
+                    (2)　(9&#x221A;3 + 18 + 2&#x03C0;) cm&#x00B2;<br>
+                    (3)　(9&#x221A;3 + 24) cm&#x00B2;<br>
+                    (4)　(9&#x221A;3 + 20 + &#x03C0;) cm&#x00B2;<br>
+                    (5)　(9&#x221A;3 + 18 + &#x03C0;) cm&#x00B2;
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                <strong>【軌跡の構成】</strong><br>
+                円板の中心は、正三角形の各辺から常に半径1cmだけ離れた位置を通る。この軌跡は以下の要素から構成される：<br>
+                ・<strong>直線部分</strong>：各辺に平行な線分（辺と同じ長さ6cm）が3本<br>
+                ・<strong>円弧部分</strong>：各頂点で120°の円弧（半径1cm）が3個<br><br>
+
+                <strong>【面積の分解】</strong><br>
+                軌跡で囲まれた領域は、以下の3種類の部分に分解できる：<br><br>
+
+                <strong>1. 元の正三角形の面積</strong><br>
+                S&#x2081; = (&#x221A;3/4) × 6&#x00B2; = 9&#x221A;3 cm&#x00B2;<br><br>
+
+                <strong>2. 3つの長方形（辺に沿った帯状領域）</strong><br>
+                各辺（長さ6cm）に対して、幅1cmの帯が外側にできる。<br>
+                S&#x2082; = 3 × 6 × 1 = 18 cm&#x00B2;<br><br>
+
+                <strong>3. 3つの扇形（頂点での円弧部分）</strong><br>
+                正三角形の内角は60°なので、外側を回る際の転回角（外角）は180° - 60° = 120°である。<br>
+                各頂点で半径1cm、中心角120°の扇形ができる。<br>
+                3つの扇形の中心角の合計 = 120° × 3 = 360°（ちょうど完全な円）<br>
+                S&#x2083; = &#x03C0; × 1&#x00B2; = &#x03C0; cm&#x00B2;<br><br>
+
+                <strong>【合計面積】</strong><br>
+                S = S&#x2081; + S&#x2082; + S&#x2083; = 9&#x221A;3 + 18 + &#x03C0; cm&#x00B2;<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 扇形の面積が含まれていない → 不正解<br>
+                ・(2) 扇形の面積が2&#x03C0;（実際はπ）→ 不正解<br>
+                ・(3) 帯の面積24は長方形の幅を大きく見積もっている → 不正解<br>
+                ・(4) 帯の面積20は辺の長さの扱いに誤りがある → 不正解<br>
+                ・(5) 9&#x221A;3 + 18 + &#x03C0; → 正しい計算結果と一致<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

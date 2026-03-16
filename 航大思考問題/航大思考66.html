@@ -1,0 +1,706 @@
+<!--
+================================================================================
+航大思考66.html - セット66: 図形の回転と軌跡
+================================================================================
+問1（標準）: 正方形が直線上を1回転するときの頂点の軌跡の長さ
+問2（高難度）: 円が正三角形の外側を1周するとき、軌跡で囲まれた面積
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、一辺の長さが2cmの正方形ABCDが直線l上を滑ることなく転がる。正方形が1回転（元の向きに戻る）したとき、頂点Aが描く軌跡の長さとして正しいものを(1)〜(5)から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x240px
+            - viewBox: 0 0 620 240
+            - 正方形が直線上を転がる4段階を表示
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】正方形の回転と頂点Aの軌跡</div>
+                <div class="figure-content">
+                    <svg width="620" height="240" viewBox="0 0 620 240">
+                        <!-- 直線l -->
+                        <line x1="20" y1="185" x2="600" y2="185" stroke="black" stroke-width="2"/>
+                        <text x="605" y="190" class="svg-text" font-size="13">l</text>
+
+                        <!-- 初期状態: 正方形ABCD、辺DAが底辺 -->
+                        <g>
+                            <rect x="40" y="125" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="30" y="195" class="svg-text" font-size="12">D</text>
+                            <circle cx="40" cy="185" r="2.5" fill="black"/>
+                            <text x="100" y="195" class="svg-text" font-size="12">A</text>
+                            <circle cx="100" cy="185" r="3.5" fill="black"/>
+                            <text x="103" y="125" class="svg-text" font-size="12">B</text>
+                            <circle cx="100" cy="125" r="2.5" fill="black"/>
+                            <text x="28" y="125" class="svg-text" font-size="12">C</text>
+                            <circle cx="40" cy="125" r="2.5" fill="black"/>
+                            <text x="50" y="115" class="svg-text" font-size="11" fill="#666">初期位置</text>
+                        </g>
+
+                        <!-- Step1: Aを中心に90°回転（Aは動かない） -->
+                        <g>
+                            <rect x="100" y="125" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <text x="95" y="210" class="svg-text" font-size="10" fill="#666">A不動</text>
+                        </g>
+
+                        <!-- Step2: Bを中心に90°回転 -->
+                        <g>
+                            <rect x="160" y="125" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 160,185 A 60,60 0 0,0 160,125" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="128" y="160" class="svg-text" font-size="10" fill="#666">r=2</text>
+                        </g>
+
+                        <!-- Step3: Cを中心に90°回転 -->
+                        <g>
+                            <rect x="220" y="125" width="60" height="60" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 220,125 A 84.85,84.85 0 0,0 280,40.15" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="230" y="70" class="svg-text" font-size="10" fill="#666">r=2&#x221A;2</text>
+                        </g>
+
+                        <!-- Step4: Dを中心に90°回転 -->
+                        <g>
+                            <rect x="280" y="125" width="60" height="60" fill="none" stroke="black" stroke-width="2"/>
+                            <path d="M 340,65 A 60,60 0 0,0 340,185" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                            <text x="345" y="120" class="svg-text" font-size="10" fill="#666">r=2</text>
+                            <text x="342" y="195" class="svg-text" font-size="12">A</text>
+                            <circle cx="340" cy="185" r="3.5" fill="black"/>
+                        </g>
+
+                        <!-- 凡例 -->
+                        <text x="400" y="85" class="svg-text" font-size="11">--- : 頂点Aの軌跡（円弧）</text>
+                        <line x1="400" y1="100" x2="450" y2="100" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="400" y="125" class="svg-text" font-size="11">正方形は右方向に転がる</text>
+                        <text x="400" y="145" class="svg-text" font-size="11">各段階で90°ずつ回転</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>2&#x03C0;&#x221A;2 cm
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>3&#x03C0; cm
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>2&#x03C0;(1+&#x221A;2) cm
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>&#x03C0;(2+&#x221A;2) cm
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>&#x03C0;(3+&#x221A;2) cm
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【回転の分析】</strong></p>
+                    <p>正方形ABCDが直線l上を1回転するには、90°ずつ4回の回転が必要である。各回転では、地面に接している頂点を中心として正方形が倒れるように転がる。</p>
+                    <br>
+                    <p><strong>【各段階での頂点Aの動き】</strong></p>
+                    <p>・<strong>段階1</strong>：頂点A（右下）を中心に90°回転 → Aは回転の中心なので動かない（軌跡 = 0）</p>
+                    <p>・<strong>段階2</strong>：頂点Bを中心に90°回転 → AはBから距離2cm → 円弧 = 2 × &#x03C0;/2 = &#x03C0; cm</p>
+                    <p>・<strong>段階3</strong>：頂点Cを中心に90°回転 → AはCから距離2&#x221A;2 cm（対角線）→ 円弧 = &#x03C0;&#x221A;2 cm</p>
+                    <p>・<strong>段階4</strong>：頂点Dを中心に90°回転 → AはDから距離2cm → 円弧 = &#x03C0; cm</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>軌跡の長さ = 0 + &#x03C0; + &#x03C0;&#x221A;2 + &#x03C0; = &#x03C0;(2 + &#x221A;2) cm</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、半径1cmの円板が一辺6cmの正三角形の外側に沿って滑ることなく転がり、正三角形の周りを1周する。このとき、円板の中心が描く軌跡で囲まれた領域の面積として正しいものを(1)〜(5)から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x350px
+            - viewBox: 0 0 500 350
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】円板が正三角形の外側を転がる様子</div>
+                <div class="figure-content">
+                    <svg width="500" height="330" viewBox="0 0 500 330">
+                        <!-- 正三角形 -->
+                        <polygon points="250,80 185,193 315,193" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 頂点ラベル -->
+                        <text x="248" y="70" class="svg-text" text-anchor="middle" font-size="12">P</text>
+                        <text x="172" y="205" class="svg-text" text-anchor="middle" font-size="12">Q</text>
+                        <text x="328" y="205" class="svg-text" text-anchor="middle" font-size="12">R</text>
+
+                        <!-- 辺の長さ表示 -->
+                        <text x="210" y="130" class="svg-text" font-size="11" fill="#666">6cm</text>
+
+                        <!-- 円の中心の軌跡 -->
+                        <!-- 左辺PQ外側 -->
+                        <line x1="174" y1="174" x2="233" y2="63" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                        <!-- 右辺PR外側 -->
+                        <line x1="267" y1="63" x2="326" y2="174" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                        <!-- 底辺QR外側 -->
+                        <line x1="178" y1="213" x2="322" y2="213" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                        <!-- 頂点Pでの円弧 -->
+                        <path d="M 233,63 A 20,20 0 0,1 267,63" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                        <!-- 頂点Qでの円弧 -->
+                        <path d="M 178,213 A 20,20 0 0,1 174,174" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                        <!-- 頂点Rでの円弧 -->
+                        <path d="M 326,174 A 20,20 0 0,1 322,213" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+                        <!-- 転がる円板の例 -->
+                        <circle cx="250" cy="213" r="20" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="250" cy="213" r="2" fill="black"/>
+                        <text x="250" y="242" class="svg-text" text-anchor="middle" font-size="10">円板（半径1cm）</text>
+                        <line x1="250" y1="213" x2="250" y2="193" stroke="black" stroke-width="1"/>
+
+                        <!-- 頂点P付近に転がる円板 -->
+                        <circle cx="250" cy="60" r="20" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="3,2"/>
+                        <circle cx="250" cy="60" r="2" fill="black"/>
+
+                        <!-- 領域の説明 -->
+                        <text x="250" y="155" class="svg-text" text-anchor="middle" font-size="11" fill="#666">この領域の面積を求める</text>
+
+                        <!-- 凡例 -->
+                        <text x="30" y="275" class="svg-text" font-size="11">--- : 円板の中心の軌跡</text>
+                        <text x="30" y="295" class="svg-text" font-size="11">各辺に沿う直線部分と</text>
+                        <text x="30" y="315" class="svg-text" font-size="11">各頂点での円弧から成る</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>(9&#x221A;3 + 18) cm&#x00B2;
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>(9&#x221A;3 + 18 + 2&#x03C0;) cm&#x00B2;
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>(9&#x221A;3 + 24) cm&#x00B2;
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>(9&#x221A;3 + 20 + &#x03C0;) cm&#x00B2;
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>(9&#x221A;3 + 18 + &#x03C0;) cm&#x00B2;
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【軌跡の構成】</strong></p>
+                    <p>円板の中心は、正三角形の各辺から常に半径1cmだけ離れた位置を通る。この軌跡は以下の要素から構成される：</p>
+                    <p>・直線部分：各辺に平行な線分（辺と同じ長さ6cm）が3本</p>
+                    <p>・円弧部分：各頂点で120°の円弧（半径1cm）が3個</p>
+                    <br>
+                    <p><strong>【面積の分解】</strong></p>
+                    <p>軌跡で囲まれた領域は、以下の3種類の部分に分解できる：</p>
+                    <br>
+                    <p><strong>1. 元の正三角形の面積</strong></p>
+                    <p>S1 = (&#x221A;3/4) × 6&#x00B2; = 9&#x221A;3 cm&#x00B2;</p>
+                    <br>
+                    <p><strong>2. 3つの長方形（辺に沿った帯状領域）</strong></p>
+                    <p>各辺（長さ6cm）に対して、幅1cmの帯が外側にできる。</p>
+                    <p>S2 = 3 × 6 × 1 = 18 cm&#x00B2;</p>
+                    <br>
+                    <p><strong>3. 3つの扇形（頂点での円弧部分）</strong></p>
+                    <p>正三角形の内角は60°なので、外側を回る際の転回角は180° - 60° = 120°。</p>
+                    <p>3つの扇形の中心角の合計 = 120° × 3 = 360°（完全な円）</p>
+                    <p>S3 = &#x03C0; × 1&#x00B2; = &#x03C0; cm&#x00B2;</p>
+                    <br>
+                    <p><strong>【合計面積】</strong></p>
+                    <p>S = 9&#x221A;3 + 18 + &#x03C0; cm&#x00B2;</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考66/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
