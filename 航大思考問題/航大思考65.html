@@ -1,0 +1,782 @@
+<!--
+================================================================================
+航大思考65.html - セット65: 折り紙の空間認識
+================================================================================
+問1（標準）: 折り紙の穴あけ展開 - 2回折って穴を開けた紙の展開図
+問2（高難度）: 折り紙の切断展開 - 2回折って切断した紙の展開形状
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                正方形の紙を下図のように2回折り、穴を1つ開けた。この紙を完全に広げたとき、穴の配置として正しいものを(1)〜(5)から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 600x170px
+            - 4段階の折り手順を左から右に表示
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】折り方と穴の位置</div>
+                <div class="figure-content">
+                    <svg width="600" height="170" viewBox="0 0 600 170">
+                        <!-- ステップ1: 元の正方形 -->
+                        <g transform="translate(10, 25)">
+                            <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順1</text>
+                            <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 65,90 C 65,105 15,105 15,90" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="15,90 18,98 22,92" fill="black"/>
+                            <text x="40" y="118" class="svg-text" text-anchor="middle" font-size="11">右を左に重ねる</text>
+                        </g>
+
+                        <g transform="translate(105, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ2: 半分に折った長方形 -->
+                        <g transform="translate(145, 25)">
+                            <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順2</text>
+                            <rect x="0" y="0" width="40" height="80" fill="#f0f0f0" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 50,65 C 65,65 65,15 50,15" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="50,15 58,18 52,22" fill="black"/>
+                            <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">下を上に重ねる</text>
+                        </g>
+
+                        <g transform="translate(210, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ3: 四分の一に折った正方形 + 穴 -->
+                        <g transform="translate(250, 25)">
+                            <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">穴を開ける</text>
+                            <rect x="0" y="0" width="40" height="40" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                            <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                            <circle cx="8" cy="16" r="4" fill="black"/>
+                            <text x="44" y="20" class="svg-text" font-size="9" fill="#666">折り目</text>
+                            <text x="20" y="52" class="svg-text" text-anchor="middle" font-size="9" fill="#666">折り目</text>
+                            <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">全層に穴を開ける</text>
+                        </g>
+
+                        <g transform="translate(320, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ4: 展開後 = ? -->
+                        <g transform="translate(360, 25)">
+                            <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">広げると？</text>
+                            <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="40" y="48" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">？</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-figure" id="q1-options">
+                <!-- 選択肢(1): x,y入れ替え -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="21" cy="28" r="3.5" fill="black"/>
+                        <circle cx="69" cy="28" r="3.5" fill="black"/>
+                        <circle cx="21" cy="92" r="3.5" fill="black"/>
+                        <circle cx="69" cy="92" r="3.5" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2): 角に近い正方形 -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="13" cy="28" r="3.5" fill="black"/>
+                        <circle cx="77" cy="28" r="3.5" fill="black"/>
+                        <circle cx="13" cy="92" r="3.5" fill="black"/>
+                        <circle cx="77" cy="92" r="3.5" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3): 水平距離異なる -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="25" cy="36" r="3.5" fill="black"/>
+                        <circle cx="65" cy="36" r="3.5" fill="black"/>
+                        <circle cx="25" cy="84" r="3.5" fill="black"/>
+                        <circle cx="65" cy="84" r="3.5" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4): 垂直距離異なる -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="13" cy="44" r="3.5" fill="black"/>
+                        <circle cx="77" cy="44" r="3.5" fill="black"/>
+                        <circle cx="13" cy="76" r="3.5" fill="black"/>
+                        <circle cx="77" cy="76" r="3.5" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5): 正解 -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <circle cx="13" cy="36" r="3.5" fill="black"/>
+                        <circle cx="77" cy="36" r="3.5" fill="black"/>
+                        <circle cx="13" cy="84" r="3.5" fill="black"/>
+                        <circle cx="77" cy="84" r="3.5" fill="black"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【折り方の分析】</strong></p>
+                    <p>手順1で右半分を左半分に重ねると、紙は縦に2層になる。手順2で下半分を上半分に重ねると、紙は4層になる。</p>
+                    <br>
+                    <p><strong>【穴の位置の特定】</strong></p>
+                    <p>折り畳んだ紙は元の紙の左上4分の1にあたる。穴は左端に近く、上端からやや離れた位置に開けられている。4層すべてに穴が貫通するため、展開すると穴は4つ現れる。</p>
+                    <br>
+                    <p>・左上（元の穴の位置）</p>
+                    <p>・右上（垂直折り線で左右対称の位置）</p>
+                    <p>・左下（水平折り線で上下対称の位置）</p>
+                    <p>・右下（両方の折り線で対称の位置）</p>
+                    <br>
+                    <p>穴は左右の辺に近く（辺から約1/10）、上下方向は辺から約1/5の距離にある。この非対称な配置が正解のポイントである。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                正方形の紙を下図のように2回折り、太線に沿って切断した。この紙を完全に広げたとき、切り抜かれた部分の形として正しいものを(1)〜(5)から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 600x170px
+            - 4段階の切断手順を表示
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】折り方と切断線</div>
+                <div class="figure-content">
+                    <svg width="600" height="170" viewBox="0 0 600 170">
+                        <!-- ステップ1: 元の正方形 -->
+                        <g transform="translate(10, 25)">
+                            <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順1</text>
+                            <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 65,90 C 65,105 15,105 15,90" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="15,90 18,98 22,92" fill="black"/>
+                            <text x="40" y="118" class="svg-text" text-anchor="middle" font-size="11">右を左に重ねる</text>
+                        </g>
+
+                        <g transform="translate(105, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ2: 半分に折った長方形 -->
+                        <g transform="translate(145, 25)">
+                            <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順2</text>
+                            <rect x="0" y="0" width="40" height="80" fill="#f0f0f0" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <path d="M 50,65 C 65,65 65,15 50,15" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="50,15 58,18 52,22" fill="black"/>
+                            <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">下を上に重ねる</text>
+                        </g>
+
+                        <g transform="translate(210, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ3: 四分の一 + 切断線 -->
+                        <g transform="translate(250, 25)">
+                            <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">切断する</text>
+                            <rect x="0" y="0" width="40" height="40" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                            <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                            <line x1="8" y1="40" x2="40" y2="24" stroke="black" stroke-width="3"/>
+                            <polygon points="8,40 40,40 40,24" fill="none" stroke="black" stroke-width="1" stroke-dasharray="2,2"/>
+                            <text x="44" y="20" class="svg-text" font-size="9" fill="#666">折り目</text>
+                            <text x="20" y="52" class="svg-text" text-anchor="middle" font-size="9" fill="#666">折り目</text>
+                            <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">太線で全層を切断</text>
+                        </g>
+
+                        <g transform="translate(320, 55)">
+                            <line x1="0" y1="0" x2="25" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="25,0 19,-4 19,4" fill="black"/>
+                        </g>
+
+                        <!-- ステップ4: 展開後 = ? -->
+                        <g transform="translate(360, 25)">
+                            <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">広げると？</text>
+                            <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="40" y="48" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">？</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-figure" id="q2-options">
+                <!-- 選択肢(1): 水平方向が短いひし形 -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="21,60 45,44 69,60 45,76" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2): 正方形ダイヤモンド -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="13,60 45,28 77,60 45,92" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3): 通常の正方形 -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="40" height="40" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4): 正解 - 横長ひし形 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="13,60 45,44 77,60 45,76" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5): 極端に平たいひし形 -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="13,60 45,52 77,60 45,68" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p><strong>【折り方の分析】</strong></p>
+                    <p>問1と同様に、紙を2回折り畳む。折り畳んだ紙は元の正方形の左上4分の1に相当し、4層になっている。折り目が交わる角（右下の角）は、元の紙の中心に対応する。</p>
+                    <br>
+                    <p><strong>【切断の分析】</strong></p>
+                    <p>切断線は、折り目の交わる角の近くを通る直線である。この切断により、中心角（元の紙の中心）を含む三角形が4層すべてから切り取られる。切断線の傾きに注目すると、下辺（水平の折り目）から切り取る幅と、右辺（垂直の折り目）から切り取る高さの比が2:1になっている。</p>
+                    <br>
+                    <p><strong>【展開の追跡】</strong></p>
+                    <p>・まず水平の折りを開く：三角形が上下対称に展開され、二等辺三角形になる</p>
+                    <p>・次に垂直の折りを開く：さらに左右対称に展開され、ひし形（菱形）になる</p>
+                    <br>
+                    <p><strong>【ひし形の特徴】</strong></p>
+                    <p>・水平対角線：垂直対角線 = 2：1（横長のひし形）</p>
+                    <p>・中心は紙の中心と一致</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考65/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
