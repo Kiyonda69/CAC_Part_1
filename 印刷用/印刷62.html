@@ -1,0 +1,493 @@
+<!--
+================================================================================
+印刷62.html - 展開図問題セット
+================================================================================
+問1（標準難度）: 立方体の展開図 - 対面関係
+問2（高難度）: 5つの展開図から立方体にならないものを選ぶ
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図は立方体の展開図であり、各面にア〜カの記号と模様が描かれている。この展開図を組み立てたとき、丸（ア）が描かれた面と向かい合う面の模様として正しいものを、下の(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 400x500px
+                - viewBox: 0 0 400 500
+                - 十字型展開図: 各面100x100px
+                - 余白: 左50px, 上30px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【展開図】</div>
+                    <div class="figure-content">
+                        <svg width="400" height="500" viewBox="0 0 400 500">
+                            <!-- 十字型展開図:
+                                     [ウ]
+                                  [エ][ア][イ]
+                                     [オ]
+                                     [カ]
+                                各面100x100、左上基準
+                                ウ: (150, 30)
+                                エ: (50, 130), ア: (150, 130), イ: (250, 130)
+                                オ: (150, 230)
+                                カ: (150, 330)
+                            -->
+
+                            <!-- ウ: 四角□ -->
+                            <rect x="150" y="30" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="200" y="55" class="svg-text" text-anchor="middle" font-size="12">ウ</text>
+                            <rect x="175" y="60" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- エ: 星☆ -->
+                            <rect x="50" y="130" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="100" y="155" class="svg-text" text-anchor="middle" font-size="12">エ</text>
+                            <polygon points="100,165 107,185 128,185 111,197 118,217 100,207 82,217 89,197 72,185 93,185" fill="none" stroke="black" stroke-width="1.5"/>
+
+                            <!-- ア: 丸○ -->
+                            <rect x="150" y="130" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="200" y="155" class="svg-text" text-anchor="middle" font-size="12">ア</text>
+                            <circle cx="200" cy="195" r="25" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- イ: 三角△ -->
+                            <rect x="250" y="130" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="300" y="155" class="svg-text" text-anchor="middle" font-size="12">イ</text>
+                            <polygon points="300,165 275,220 325,220" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- オ: 十字+ -->
+                            <rect x="150" y="230" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="200" y="255" class="svg-text" text-anchor="middle" font-size="12">オ</text>
+                            <line x1="200" y1="260" x2="200" y2="320" stroke="black" stroke-width="2"/>
+                            <line x1="170" y1="290" x2="230" y2="290" stroke="black" stroke-width="2"/>
+
+                            <!-- カ: 菱形◇ -->
+                            <rect x="150" y="330" width="100" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="200" y="355" class="svg-text" text-anchor="middle" font-size="12">カ</text>
+                            <polygon points="200,365 225,395 200,425 175,395" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: 正解は(2)菱形◇ -->
+                <!-- 対面関係: ア↔カ, イ↔エ, ウ↔オ -->
+                <!-- (1)三角, (2)菱形(正解), (3)四角, (4)十字, (5)星 -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="110" viewBox="0 0 600 110">
+                            <!-- 選択肢(1): 三角△ -->
+                            <g transform="translate(10, 10)">
+                                <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                                <polygon points="45,30 20,85 70,85" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(2): 菱形◇（正解） -->
+                            <g transform="translate(130, 10)">
+                                <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                                <polygon points="45,35 70,60 45,85 20,60" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(3): 四角□ -->
+                            <g transform="translate(250, 10)">
+                                <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="20" y="35" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(4): 十字+ -->
+                            <g transform="translate(370, 10)">
+                                <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                                <line x1="45" y1="30" x2="45" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="15" y1="60" x2="75" y2="60" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(5): 星☆ -->
+                            <g transform="translate(490, 10)">
+                                <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                                <polygon points="45,28 51,48 72,48 55,60 62,80 45,70 28,80 35,60 18,48 39,48" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【展開図の分析】</strong><br>
+                十字型展開図の各面の配置を確認する。<br><br>
+
+                中央の面「ア（丸）」を基準に、展開図を組み立てる。<br>
+                ・ア（丸）の右隣 → イ（三角）<br>
+                ・ア（丸）の左隣 → エ（星）<br>
+                ・ア（丸）の上 → ウ（四角）<br>
+                ・ア（丸）の下 → オ（十字）<br>
+                ・オ（十字）のさらに下 → カ（菱形）<br><br>
+
+                <strong>【対面関係の特定】</strong><br>
+                十字型展開図では、中央の面から2つ離れた面が向かい合う。<br>
+                ・ア（丸） ↔ カ（菱形）：中央とその2つ下<br>
+                ・イ（三角） ↔ エ（星）：左右の面<br>
+                ・ウ（四角） ↔ オ（十字）：上下の面<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 三角 → イの模様。アとは隣接関係であり、向かい合わない<br>
+                ・<strong>(2) 菱形 → カの模様。アと向かい合う面であり、正解</strong><br>
+                ・(3) 四角 → ウの模様。アとは隣接関係であり、向かい合わない<br>
+                ・(4) 十字 → オの模様。アとは隣接関係であり、向かい合わない<br>
+                ・(5) 星 → エの模様。アとは隣接関係であり、向かい合わない<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の(1)〜(5)は、いずれも6つの正方形を辺でつなげた図形である。このうち、折りたたんで立方体を組み立てることが<strong>できない</strong>ものを一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 650x700px
+                - viewBox: 0 0 650 700
+                - 各正方形: 40x40px
+                - 5つの展開図を縦に配置
+                -->
+                <!--
+                図表仕様:
+                - SVGサイズ: 640x420px
+                - viewBox: 0 0 640 420
+                - 各正方形: 36x36px
+                - 上段3つ、下段2つの配置
+                - 余白: 各図形間20px以上
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="640" height="420" viewBox="0 0 640 420">
+
+                            <!-- ===== 上段: (1)(2)(3) ===== -->
+
+                            <!-- (1) 十字型 - 有効 -->
+                            <g transform="translate(10, 10)">
+                                <text x="10" y="75" class="svg-text" font-size="16">(1)</text>
+                                <rect x="72" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="36" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="72" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="108" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="72" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="72" y="108" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (2) S字型 - 有効 -->
+                            <g transform="translate(210, 10)">
+                                <text x="10" y="55" class="svg-text" font-size="16">(2)</text>
+                                <rect x="40" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="148" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (3) 2x3長方形 - 無効（正解） -->
+                            <g transform="translate(430, 10)">
+                                <text x="10" y="35" class="svg-text" font-size="16">(3)</text>
+                                <rect x="40" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="40" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- ===== 下段: (4)(5) ===== -->
+
+                            <!-- (4) 階段型 - 有効 -->
+                            <g transform="translate(50, 220)">
+                                <text x="10" y="75" class="svg-text" font-size="16">(4)</text>
+                                <rect x="40" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="40" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="108" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- (5) S字型2 - 有効 -->
+                            <g transform="translate(310, 220)">
+                                <text x="10" y="55" class="svg-text" font-size="16">(5)</text>
+                                <rect x="40" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="0" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="76" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="112" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="148" y="36" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="148" y="72" width="36" height="36" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【展開図の判別方法】</strong><br>
+                立方体の展開図として成立するには、以下の条件を全て満たす必要がある。<br>
+                ・6つの正方形が辺でつながっている（連結）<br>
+                ・折りたたんだとき、面同士が重ならない<br>
+                ・折りたたんだとき、全ての面が立方体の6面を構成する<br><br>
+
+                <strong>【各選択肢の検討】</strong><br><br>
+
+                ・(1) 十字型：最も基本的な展開図の一つ。中央の面を底面にすると、上下左右と対面の計6面が正しく構成される。 → 組み立て可能<br><br>
+
+                ・(2) S字型：各段が1マスずつずれた階段状。折りたたむと各面が立方体の異なる面を構成する。 → 組み立て可能<br><br>
+
+                ・<strong>(3) 2行3列の長方形：6つの正方形が2行3列に並んでいる。この形は、折りたたむと面が重なってしまう。具体的には、上段の左端と下段の左端を折り上げると同じ方向を向き、立方体にならない。 → 組み立て不可能</strong><br><br>
+
+                ・(4) 階段型：1マスずつ右にずれながら下に伸びる形。S字型と同様に、折りたたむと6面全てが異なる方向を向く。 → 組み立て可能<br><br>
+
+                ・(5) S字型の変形：上段2マス、中段3マス、下段1マスの構成。折りたたむと正しく立方体が構成される。 → 組み立て可能<br><br>
+
+                <strong>【2行3列の長方形が不可能な理由】</strong><br>
+                2行3列の長方形を折りたたむ場合を考える。上段中央を固定して周囲を折ると、上段左と下段左がともに同じ方向に折れ、面が重なる。どの面を基準にしても、必ず2つの面が同じ位置に来てしまうため、立方体を構成できない。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
