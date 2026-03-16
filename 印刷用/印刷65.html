@@ -1,0 +1,585 @@
+<!--
+================================================================================
+印刷65.html - セット65: 折り紙の空間認識
+================================================================================
+問1（標準）: 折り紙の穴あけ展開 - 2回折って穴を開けた紙の展開図
+問2（高難度）: 折り紙の切断展開 - 2回折って切断した紙の展開形状
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．正方形の紙を下図のように2回折り、穴を1つ開けた。この紙を完全に広げたとき、穴の配置として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x180px
+                - viewBox: 0 0 620 180
+                - 4段階の折り手順を左から右に表示
+                  Stage 1: 正方形 (0-80)x(0-80) + 折り線
+                  Stage 2: 長方形 (0-40)x(0-80) + 折り線
+                  Stage 3: 小正方形 (0-40)x(0-40) + 穴
+                  Stage 4: 正方形 + ?
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】折り方と穴の位置</div>
+                    <div class="figure-content">
+                        <svg width="620" height="180" viewBox="0 0 620 180">
+                            <!-- ステップ1: 元の正方形 -->
+                            <g transform="translate(20, 30)">
+                                <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順1</text>
+                                <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 垂直折り線（破線） -->
+                                <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <!-- 折り方向の矢印（右から左へ） -->
+                                <path d="M 65,90 C 65,105 15,105 15,90" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="15,90 18,98 22,92" fill="black"/>
+                                <text x="40" y="118" class="svg-text" text-anchor="middle" font-size="11">右を左に重ねる</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(115, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ2: 半分に折った長方形 -->
+                            <g transform="translate(160, 30)">
+                                <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順2</text>
+                                <rect x="0" y="0" width="40" height="80" fill="#f0f0f0" stroke="black" stroke-width="2"/>
+                                <!-- 水平折り線（破線） -->
+                                <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <!-- 折り方向の矢印（下から上へ） -->
+                                <path d="M 50,65 C 65,65 65,15 50,15" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="50,15 58,18 52,22" fill="black"/>
+                                <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">下を上に重ねる</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(225, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ3: 四分の一に折った正方形 + 穴 -->
+                            <g transform="translate(270, 30)">
+                                <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">穴を開ける</text>
+                                <rect x="0" y="0" width="40" height="40" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                                <!-- 折り目を示す辺 -->
+                                <line x1="40" y1="0" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                                <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                                <!-- 穴の位置 (8, 16) -->
+                                <circle cx="8" cy="16" r="4" fill="black"/>
+                                <!-- 辺のラベル -->
+                                <text x="44" y="20" class="svg-text" font-size="9" fill="#666">折り目</text>
+                                <text x="20" y="52" class="svg-text" text-anchor="middle" font-size="9" fill="#666">折り目</text>
+                                <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">全層に穴を開ける</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(345, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ4: 展開後 = ? -->
+                            <g transform="translate(390, 30)">
+                                <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">広げると？</text>
+                                <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="40" y="48" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">？</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様:
+                - SVGサイズ: 600x120px
+                - 5つの選択肢を横一列に配置
+                - 各選択肢: 90x90の正方形に穴4つ
+                - 正解: (5) 穴の位置 (8,16),(72,16),(8,64),(72,64)
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="130" viewBox="0 0 600 130">
+                            <!-- 選択肢(1): x,y入れ替え (16,8),(64,8),(16,72),(64,72) -->
+                            <g transform="translate(10, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="21" cy="28" r="3.5" fill="black"/>
+                                <circle cx="69" cy="28" r="3.5" fill="black"/>
+                                <circle cx="21" cy="92" r="3.5" fill="black"/>
+                                <circle cx="69" cy="92" r="3.5" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(2): 角に近い位置 (8,8),(72,8),(8,72),(72,72) -->
+                            <g transform="translate(120, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="13" cy="28" r="3.5" fill="black"/>
+                                <circle cx="77" cy="28" r="3.5" fill="black"/>
+                                <circle cx="13" cy="92" r="3.5" fill="black"/>
+                                <circle cx="77" cy="92" r="3.5" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(3): 水平距離が異なる (20,16),(60,16),(20,64),(60,64) -->
+                            <g transform="translate(230, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="25" cy="36" r="3.5" fill="black"/>
+                                <circle cx="65" cy="36" r="3.5" fill="black"/>
+                                <circle cx="25" cy="84" r="3.5" fill="black"/>
+                                <circle cx="65" cy="84" r="3.5" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(4): 垂直距離が異なる (8,24),(72,24),(8,56),(72,56) -->
+                            <g transform="translate(340, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="13" cy="44" r="3.5" fill="black"/>
+                                <circle cx="77" cy="44" r="3.5" fill="black"/>
+                                <circle cx="13" cy="76" r="3.5" fill="black"/>
+                                <circle cx="77" cy="76" r="3.5" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(5): 正解 (8,16),(72,16),(8,64),(72,64) -->
+                            <g transform="translate(450, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="13" cy="36" r="3.5" fill="black"/>
+                                <circle cx="77" cy="36" r="3.5" fill="black"/>
+                                <circle cx="13" cy="84" r="3.5" fill="black"/>
+                                <circle cx="77" cy="84" r="3.5" fill="black"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                <strong>【折り方の分析】</strong><br>
+                手順1で右半分を左半分に重ねると、紙は縦に2層になる。このとき、紙の左右方向の対称軸（中央の垂直線）で折り畳まれている。<br>
+                手順2で下半分を上半分に重ねると、紙は4層になる。上下方向の対称軸（中央の水平線）でも折り畳まれる。<br><br>
+
+                <strong>【穴の位置の特定】</strong><br>
+                折り畳んだ紙は元の紙の左上4分の1にあたる。穴は左上の角に近い位置（左端から約1/5、上端から約1/5の位置）に開けられている。<br><br>
+
+                4層すべてに穴が貫通するため、展開すると穴は4つ現れる。各穴の位置は以下のとおり：<br>
+                ・左上（元の穴の位置）<br>
+                ・右上（垂直折り線で左右対称の位置）<br>
+                ・左下（水平折り線で上下対称の位置）<br>
+                ・右下（両方の折り線で対称の位置）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 穴の位置のx座標とy座標が入れ替わっている → 不正解<br>
+                ・(2) 穴が紙の四隅の対角線上にあり、辺からの距離が等しい → 不正解<br>
+                ・(3) 穴の左右の間隔が正解より狭い → 不正解<br>
+                ・(4) 穴の上下の間隔が正解より狭い → 不正解<br>
+                ・(5) 左端・右端に近く、上寄りと下寄りに穴がある正しい配置 → 正解<br><br>
+
+                穴は左右の辺に近く（辺から約1/10の距離）、上下方向は辺から約1/5の距離にある。この非対称な配置が正解のポイントである。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．正方形の紙を下図のように2回折り、太線に沿って切断した。この紙を完全に広げたとき、切り抜かれた部分の形として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x180px
+                - 4段階の切断手順を表示
+                  Stage 1: 正方形 + 折り線
+                  Stage 2: 長方形 + 折り線
+                  Stage 3: 小正方形 + 切断線
+                  Stage 4: ?
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】折り方と切断線</div>
+                    <div class="figure-content">
+                        <svg width="620" height="180" viewBox="0 0 620 180">
+                            <!-- ステップ1: 元の正方形 -->
+                            <g transform="translate(20, 30)">
+                                <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順1</text>
+                                <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <path d="M 65,90 C 65,105 15,105 15,90" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="15,90 18,98 22,92" fill="black"/>
+                                <text x="40" y="118" class="svg-text" text-anchor="middle" font-size="11">右を左に重ねる</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(115, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ2: 半分に折った長方形 -->
+                            <g transform="translate(160, 30)">
+                                <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">手順2</text>
+                                <rect x="0" y="0" width="40" height="80" fill="#f0f0f0" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                                <path d="M 50,65 C 65,65 65,15 50,15" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="50,15 58,18 52,22" fill="black"/>
+                                <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">下を上に重ねる</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(225, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ3: 四分の一 + 切断線 -->
+                            <g transform="translate(270, 30)">
+                                <text x="20" y="-5" class="svg-text" text-anchor="middle" font-size="12">切断する</text>
+                                <rect x="0" y="0" width="40" height="40" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                                <!-- 折り目を示す太い辺 -->
+                                <line x1="40" y1="0" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                                <line x1="0" y1="40" x2="40" y2="40" stroke="black" stroke-width="2.5"/>
+                                <!-- 切断線: (8,40)から(40,24)へ -->
+                                <line x1="8" y1="40" x2="40" y2="24" stroke="black" stroke-width="3"/>
+                                <!-- 切り取り部分をハッチングで表示 -->
+                                <polygon points="8,40 40,40 40,24" fill="none" stroke="black" stroke-width="1" stroke-dasharray="2,2"/>
+                                <!-- 辺のラベル -->
+                                <text x="44" y="20" class="svg-text" font-size="9" fill="#666">折り目</text>
+                                <text x="20" y="52" class="svg-text" text-anchor="middle" font-size="9" fill="#666">折り目</text>
+                                <text x="20" y="118" class="svg-text" text-anchor="middle" font-size="11">太線で全層を切断</text>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <g transform="translate(345, 60)">
+                                <line x1="0" y1="0" x2="30" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="30,0 24,-4 24,4" fill="black"/>
+                            </g>
+
+                            <!-- ステップ4: 展開後 = ? -->
+                            <g transform="translate(390, 30)">
+                                <text x="40" y="-5" class="svg-text" text-anchor="middle" font-size="12">広げると？</text>
+                                <rect x="0" y="0" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="40" y="48" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">？</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様:
+                - 各選択肢: 正方形の中にひし形（切り抜き部分）
+                - 正解(4): ひし形 頂点(8,40),(40,24),(72,40),(40,56) → 水平対角線64, 垂直対角線32
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="130" viewBox="0 0 600 130">
+                            <!-- 選択肢(1): 水平方向が短いひし形 (16,40),(40,24),(64,40),(40,56) -->
+                            <g transform="translate(10, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="21,60 45,44 69,60 45,76" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(2): 正方形ダイヤモンド (8,40),(40,8),(72,40),(40,72) -->
+                            <g transform="translate(120, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="13,60 45,28 77,60 45,92" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(3): 通常の正方形（回転なし） -->
+                            <g transform="translate(230, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <rect x="25" y="40" width="40" height="40" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(4): 正解 ひし形 (8,40),(40,24),(72,40),(40,56) -->
+                            <g transform="translate(340, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="13,60 45,44 77,60 45,76" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(5): 垂直方向がさらに短いひし形 (8,40),(40,32),(72,40),(40,48) -->
+                            <g transform="translate(450, 10)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="5" y="20" width="80" height="80" fill="none" stroke="black" stroke-width="1.5"/>
+                                <polygon points="13,60 45,52 77,60 45,68" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【折り方の分析】</strong><br>
+                問1と同様に、紙を右半分を左に重ねて垂直に折り、次に下半分を上に重ねて水平に折る。折り畳まれた紙は元の正方形の左上4分の1に相当し、4層になっている。<br><br>
+
+                <strong>【切断の分析】</strong><br>
+                切断線は、折り目の交わる角（元の紙の中心に対応）から、下辺の折り目沿いの点と右辺の折り目沿いの点を結ぶ直線である。この切断により、中心角を含む三角形が4層すべてから切り取られる。<br><br>
+
+                <strong>【展開の追跡】</strong><br>
+                ・まず水平の折りを開く：切り取った三角形は水平の折り線で鏡像になり、2つの三角形が合わさって二等辺三角形になる。<br>
+                ・次に垂直の折りを開く：この三角形がさらに左右対称に鏡像となり、全体としてひし形（菱形）が現れる。<br><br>
+
+                <strong>【ひし形の特徴】</strong><br>
+                ・水平方向の対角線は紙の幅の約80%（長い）<br>
+                ・垂直方向の対角線は紙の高さの約40%（短い）<br>
+                ・水平対角線：垂直対角線 = 2：1<br>
+                ・中心は紙の中心と一致<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ひし形だが水平方向が短すぎる（対角線比が約1.5:1） → 不正解<br>
+                ・(2) 対角線が等しい正方形のひし形になっている → 不正解<br>
+                ・(3) 回転していない通常の正方形であり、ひし形ではない → 不正解<br>
+                ・(4) 水平に長いひし形で、対角線比が2:1で正しい → 正解<br>
+                ・(5) ひし形だが垂直方向が短すぎる（極端に平たい） → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
