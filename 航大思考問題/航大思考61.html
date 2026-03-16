@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button { flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 120px; padding: 8px; background-color: white; border: 3px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .options-container { margin: 20px 0; }
+        .option-button { display: block; width: 100%; padding: 15px 20px; margin: 10px 0; background-color: white; border: 2px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s ease; font-family: inherit; font-size: 16px; }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section { display: none; margin-top: 30px; padding: 25px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+        @media (max-width: 600px) { .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; } }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図はある立方体の展開図であり、各面には異なる模様が1つずつ描かれている。この展開図を組み立てて立方体を作るとき、丸（●）が描かれた面と向かい合う面の模様として正しいものを、(1)～(5)から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x340px
+            - viewBox: 0 0 260 320
+            - 変則十字型展開図: 各面70×70px
+            - 面の配置:
+                    [A:□]
+              [B:★][C:●][D:△]
+                    [E:◇]
+                    [F:＋]
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【展開図】</div>
+                <div class="figure-content">
+                    <svg width="500" height="340" viewBox="0 0 260 320">
+                        <!-- 外枠（実線） -->
+                        <path d="M20,90 L90,90 L160,90 L160,20 L230,20 L230,160 L160,160 L160,300 L90,300 L90,160 L20,160 Z"
+                              fill="white" stroke="black" stroke-width="2"/>
+
+                        <!-- 折り線（破線） -->
+                        <line x1="160" y1="90" x2="230" y2="90" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <line x1="90" y1="90" x2="90" y2="160" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <line x1="160" y1="90" x2="160" y2="160" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <line x1="90" y1="160" x2="160" y2="160" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <line x1="90" y1="230" x2="160" y2="230" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+                        <!-- 面A: 四角（□）- 位置(160,20) -->
+                        <rect x="176" y="34" width="38" height="38" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 面B: 星（★）- 位置(20,90) -->
+                        <polygon points="55,107 59,119 72,119 62,127 66,140 55,132 44,140 48,127 38,119 51,119"
+                                 fill="black"/>
+
+                        <!-- 面C: 丸（●）- 位置(90,90) -->
+                        <circle cx="125" cy="125" r="20" fill="black"/>
+
+                        <!-- 面D: 三角（△）- 位置(160,90) -->
+                        <polygon points="195,105 215,145 175,145" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 面E: ひし形（◇）- 位置(90,160) -->
+                        <polygon points="125,172 150,195 125,218 100,195" fill="none" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 面F: 十字（＋）- 位置(90,230) -->
+                        <rect x="107" y="250" width="36" height="12" fill="black"/>
+                        <rect x="119" y="238" width="12" height="36" fill="black"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-figure" id="q1-options">
+                <!-- (1) 十字（＋）← 正解 -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <svg width="90" height="100" viewBox="0 0 90 100">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <rect x="25" y="42" width="40" height="12" fill="black"/>
+                        <rect x="39" y="28" width="12" height="40" fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- (2) 星（★） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <svg width="90" height="100" viewBox="0 0 90 100">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <polygon points="45,25 49,37 62,37 52,45 56,58 45,50 34,58 38,45 28,37 41,37"
+                                 fill="black"/>
+                    </svg>
+                </button>
+
+                <!-- (3) 三角（△） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <svg width="90" height="100" viewBox="0 0 90 100">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <polygon points="45,25 65,62 25,62" fill="none" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </button>
+
+                <!-- (4) ひし形（◇） -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <svg width="90" height="100" viewBox="0 0 90 100">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <polygon points="45,24 66,45 45,66 24,45" fill="none" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </button>
+
+                <!-- (5) 四角（□） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <svg width="90" height="100" viewBox="0 0 90 100">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <rect x="25" y="25" width="40" height="40" fill="none" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>丸（●）が描かれた面を基準（正面）として組み立てを考える。</p>
+                    <br>
+                    <p><strong>【各面の位置】</strong></p>
+                    <p>・星（★）は丸の左 → <strong>左面</strong></p>
+                    <p>・三角（△）は丸の右 → <strong>右面</strong></p>
+                    <p>・ひし形（◇）は丸の下 → <strong>底面</strong></p>
+                    <p>・四角（□）は三角の上 → 三角が右面になると、四角は上に折れて<strong>上面</strong></p>
+                    <p>・十字（＋）はひし形の下 → ひし形が底面になると、十字は奥に折れて<strong>背面</strong></p>
+                    <br>
+                    <p><strong>【向かい合う面のペア】</strong></p>
+                    <p>・丸（●） ↔ 十字（＋）（正面 ↔ 背面）</p>
+                    <p>・星（★） ↔ 三角（△）（左面 ↔ 右面）</p>
+                    <p>・四角（□） ↔ ひし形（◇）（上面 ↔ 底面）</p>
+                    <br>
+                    <p>したがって、丸の向かい側は十字（＋）であり、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下図は、3×3×3の格子空間に1辺1の立方体ブロックを配置したときの正面図と右側面図を示している。黒色の部分はブロックが見える位置、白色の部分はブロックが見えない位置を表す。2つの投影図がともに正しくなるようにブロックを配置するとき、必要なブロックの最小個数として正しいものを、(1)～(5)から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-content">
+                    <svg width="550" height="220" viewBox="0 0 550 220">
+                        <!-- 正面図タイトル -->
+                        <text x="120" y="25" text-anchor="middle" font-size="15" font-weight="bold" font-family="serif">正面図</text>
+
+                        <!-- 正面図 3x3グリッド -->
+                        <g transform="translate(38, 35)">
+                            <text x="-15" y="27" text-anchor="middle" font-size="12" font-family="serif">3</text>
+                            <text x="-15" y="62" text-anchor="middle" font-size="12" font-family="serif">2</text>
+                            <text x="-15" y="97" text-anchor="middle" font-size="12" font-family="serif">1</text>
+                            <text x="18" y="125" text-anchor="middle" font-size="12" font-family="serif">1</text>
+                            <text x="53" y="125" text-anchor="middle" font-size="12" font-family="serif">2</text>
+                            <text x="88" y="125" text-anchor="middle" font-size="12" font-family="serif">3</text>
+
+                            <!-- y=3: ■ □ ■ -->
+                            <rect x="0" y="0" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="0" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="0" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <!-- y=2: ■ ■ ■ -->
+                            <rect x="0" y="35" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="35" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="35" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <!-- y=1: □ ■ □ -->
+                            <rect x="0" y="70" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="70" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="70" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+
+                            <text x="52" y="145" text-anchor="middle" font-size="13" font-family="serif">x</text>
+                            <text x="-30" y="60" text-anchor="middle" font-size="13" font-family="serif">y</text>
+                        </g>
+
+                        <text x="210" y="105" font-size="16" font-family="serif" text-anchor="middle">正面から</text>
+                        <text x="210" y="125" font-size="16" font-family="serif" text-anchor="middle">見た図</text>
+
+                        <!-- 右側面図タイトル -->
+                        <text x="415" y="25" text-anchor="middle" font-size="15" font-weight="bold" font-family="serif">右側面図</text>
+
+                        <!-- 右側面図 3x3グリッド -->
+                        <g transform="translate(333, 35)">
+                            <text x="-15" y="27" text-anchor="middle" font-size="12" font-family="serif">3</text>
+                            <text x="-15" y="62" text-anchor="middle" font-size="12" font-family="serif">2</text>
+                            <text x="-15" y="97" text-anchor="middle" font-size="12" font-family="serif">1</text>
+                            <text x="18" y="125" text-anchor="middle" font-size="12" font-family="serif">1</text>
+                            <text x="53" y="125" text-anchor="middle" font-size="12" font-family="serif">2</text>
+                            <text x="88" y="125" text-anchor="middle" font-size="12" font-family="serif">3</text>
+
+                            <!-- y=3: ■ ■ □ -->
+                            <rect x="0" y="0" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="0" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="0" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+                            <!-- y=2: □ ■ ■ -->
+                            <rect x="0" y="35" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="35" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="35" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <!-- y=1: ■ ■ □ -->
+                            <rect x="0" y="70" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="35" y="70" width="35" height="35" fill="black" stroke="black" stroke-width="1"/>
+                            <rect x="70" y="70" width="35" height="35" fill="white" stroke="black" stroke-width="1"/>
+
+                            <text x="52" y="145" text-anchor="middle" font-size="13" font-family="serif">z</text>
+                            <text x="-30" y="60" text-anchor="middle" font-size="13" font-family="serif">y</text>
+                        </g>
+
+                        <text x="505" y="105" font-size="16" font-family="serif" text-anchor="middle">右側面</text>
+                        <text x="505" y="125" font-size="16" font-family="serif" text-anchor="middle">から見た図</text>
+
+                        <g transform="translate(140, 175)">
+                            <text x="0" y="0" font-size="12" font-family="serif">※ x: 左右方向、y: 上下方向、z: 奥行き方向（手前=1, 奥=3）</text>
+                            <text x="0" y="20" font-size="12" font-family="serif">※ 正面図はz方向に、右側面図はx方向に投影した図である</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>5個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>6個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>7個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>8個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>9個
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法の方針】</strong></p>
+                    <p>各高さ（y=1, 2, 3）ごとに、正面図と右側面図を同時に満たす最小のブロック配置を求める。</p>
+                    <br>
+                    <p>正面図で(x, y)が黒 = 高さyのx列にブロックが1つ以上ある</p>
+                    <p>右側面図で(z, y)が黒 = 高さyのz行にブロックが1つ以上ある</p>
+                    <br>
+                    <p><strong>【y=1（最下段）】</strong></p>
+                    <p>正面図: x=2のみ黒（必要列数: 1）</p>
+                    <p>右側面図: z=1, z=2が黒（必要行数: 2）</p>
+                    <p>最小ブロック数 = max(1, 2) = <strong>2個</strong></p>
+                    <p>配置例: (2,1,1), (2,1,2)</p>
+                    <br>
+                    <p><strong>【y=2（中段）】</strong></p>
+                    <p>正面図: x=1, 2, 3すべて黒（必要列数: 3）</p>
+                    <p>右側面図: z=2, z=3が黒（必要行数: 2）</p>
+                    <p>最小ブロック数 = max(3, 2) = <strong>3個</strong></p>
+                    <p>配置例: (1,2,3), (2,2,2), (3,2,2)</p>
+                    <br>
+                    <p><strong>【y=3（最上段）】</strong></p>
+                    <p>正面図: x=1, x=3が黒（必要列数: 2）</p>
+                    <p>右側面図: z=1, z=2が黒（必要行数: 2）</p>
+                    <p>最小ブロック数 = max(2, 2) = <strong>2個</strong></p>
+                    <p>配置例: (1,3,2), (3,3,1)</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>2 + 3 + 2 = <strong>7個</strong></p>
+                    <br>
+                    <p>各高さで、正面図のr列と右側面図のc行を同時に満たすには最低max(r, c)個のブロックが必要であり、これは達成可能である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考61/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
