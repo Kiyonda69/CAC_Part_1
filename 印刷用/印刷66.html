@@ -1,0 +1,567 @@
+<!--
+================================================================================
+印刷66.html - セット66: 資料の空欄穴埋め
+================================================================================
+問1（標準）: 路線別月間旅客数の空欄穴埋め - 行・列の合計から空欄を特定
+問2（高難度）: 研修コース受講者数と修了率の空欄穴埋め - 2つの表の交差推論
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 9px 14px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 15px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 7px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .blank-cell {
+            background-color: #fffde7;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の表は、ある航空会社の4つの路線（P、Q、R、S）における月別旅客数（百人）をまとめたものである。表中の空欄ア、イ、ウに当てはまる数値の組合せとして正しいものを、下の(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【路線別月間旅客数】（単位：百人）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>路線</th>
+                                <th>4月</th>
+                                <th>5月</th>
+                                <th>6月</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td>P</td>
+                                <td>42</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>54</td>
+                                <td>144</td>
+                            </tr>
+                            <tr>
+                                <td>Q</td>
+                                <td>35</td>
+                                <td>38</td>
+                                <td class="blank-cell">（イ）</td>
+                                <td>115</td>
+                            </tr>
+                            <tr>
+                                <td>R</td>
+                                <td class="blank-cell">（ウ）</td>
+                                <td>30</td>
+                                <td>45</td>
+                                <td>103</td>
+                            </tr>
+                            <tr>
+                                <td>S</td>
+                                <td>25</td>
+                                <td>22</td>
+                                <td>28</td>
+                                <td>75</td>
+                            </tr>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>合計</th>
+                                <td><strong>130</strong></td>
+                                <td><strong>138</strong></td>
+                                <td><strong>169</strong></td>
+                                <td><strong>437</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <table class="option-table">
+                            <tr>
+                                <th></th>
+                                <th>ア</th>
+                                <th>イ</th>
+                                <th>ウ</th>
+                            </tr>
+                            <tr>
+                                <td>(1)</td>
+                                <td>46</td>
+                                <td>42</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>(2)</td>
+                                <td>48</td>
+                                <td>44</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(3)</strong></td>
+                                <td><strong>48</strong></td>
+                                <td><strong>42</strong></td>
+                                <td><strong>28</strong></td>
+                            </tr>
+                            <tr>
+                                <td>(4)</td>
+                                <td>48</td>
+                                <td>42</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>(5)</td>
+                                <td>50</td>
+                                <td>40</td>
+                                <td>28</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                各空欄は、行の合計（横の合計）または列の合計（縦の合計）から求められる。<br><br>
+
+                <strong>【アの計算】</strong><br>
+                P路線の行合計より：<br>
+                42 + ア + 54 = 144<br>
+                ア = 144 - 42 - 54 = <strong>48</strong><br><br>
+
+                <strong>【イの計算】</strong><br>
+                Q路線の行合計より：<br>
+                35 + 38 + イ = 115<br>
+                イ = 115 - 35 - 38 = <strong>42</strong><br><br>
+
+                <strong>【ウの計算】</strong><br>
+                R路線の行合計より：<br>
+                ウ + 30 + 45 = 103<br>
+                ウ = 103 - 30 - 45 = <strong>28</strong><br><br>
+
+                <strong>【検算（列合計による確認）】</strong><br>
+                ・4月の列合計：42 + 35 + 28 + 25 = 130 → 一致<br>
+                ・5月の列合計：48 + 38 + 30 + 22 = 138 → 一致<br>
+                ・6月の列合計：54 + 42 + 45 + 28 = 169 → 一致<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=46 → P合計が42+46+54=142となり144と不一致<br>
+                ・(2) イ=44 → Q合計が35+38+44=117となり115と不一致<br>
+                ・(3) ア=48, イ=42, ウ=28 → 全ての行・列合計が一致 → <strong>正解</strong><br>
+                ・(4) ウ=30 → R合計が30+30+45=105となり103と不一致<br>
+                ・(5) ア=50 → P合計が42+50+54=146となり144と不一致<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ（1/2）========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の表1、表2は、ある研修施設における4つのコース（A～D）の受講者数と修了に関する資料である。表中の空欄ア～エに当てはまる数値の組合せとして正しいものを、次ページの(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】コース別受講者数（単位：人）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>コース</th>
+                                <th>前期</th>
+                                <th>後期</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>25</td>
+                                <td>15</td>
+                                <td>40</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>20</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>15</td>
+                                <td class="blank-cell">（イ）</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>12</td>
+                                <td>8</td>
+                                <td>20</td>
+                            </tr>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>合計</th>
+                                <td><strong>82</strong></td>
+                                <td><strong>58</strong></td>
+                                <td><strong>140</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】コース別修了者数と修了率</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>コース</th>
+                                <th>修了者数（人）</th>
+                                <th>修了率（%）</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td>32</td>
+                                <td>80.0</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td class="blank-cell">（ウ）</td>
+                                <td>70.0</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td>24</td>
+                                <td class="blank-cell">（エ）</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td>15</td>
+                                <td>75.0</td>
+                            </tr>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>合計</th>
+                                <td><strong>106</strong></td>
+                                <td>―</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※ 修了率 = 修了者数 / 受講者合計 × 100</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ（2/2：選択肢）========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2（続き）</div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <table class="option-table">
+                            <tr>
+                                <th></th>
+                                <th>ア</th>
+                                <th>ウ</th>
+                                <th>エ</th>
+                            </tr>
+                            <tr>
+                                <td><strong>(1)</strong></td>
+                                <td><strong>30</strong></td>
+                                <td><strong>35</strong></td>
+                                <td><strong>80.0</strong></td>
+                            </tr>
+                            <tr>
+                                <td>(2)</td>
+                                <td>30</td>
+                                <td>28</td>
+                                <td>80.0</td>
+                            </tr>
+                            <tr>
+                                <td>(3)</td>
+                                <td>32</td>
+                                <td>35</td>
+                                <td>80.0</td>
+                            </tr>
+                            <tr>
+                                <td>(4)</td>
+                                <td>30</td>
+                                <td>35</td>
+                                <td>75.0</td>
+                            </tr>
+                            <tr>
+                                <td>(5)</td>
+                                <td>28</td>
+                                <td>35</td>
+                                <td>80.0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                この問題では、表1と表2を相互に参照しながら空欄を求める必要がある。<br><br>
+
+                <strong>【ステップ1：表1の空欄を求める】</strong><br>
+                ア（Bコース前期）：B合計より、ア + 20 = 50 → ア = <strong>30</strong><br>
+                イ（Cコース後期）：C合計より、15 + イ = 30 → イ = <strong>15</strong><br><br>
+
+                検算（列合計）：<br>
+                ・前期合計：25 + 30 + 15 + 12 = 82 → 一致<br>
+                ・後期合計：15 + 20 + 15 + 8 = 58 → 一致<br><br>
+
+                <strong>【ステップ2：表2の空欄を求める（表1の値を利用）】</strong><br>
+                ウ（Bコース修了者数）：<br>
+                表1よりBコースの受講者合計は50人。修了率70.0%より<br>
+                ウ = 50 × 0.70 = <strong>35</strong>（人）<br><br>
+
+                エ（Cコース修了率）：<br>
+                表1よりCコースの受講者合計は30人。修了者数は24人より<br>
+                エ = 24 / 30 × 100 = <strong>80.0</strong>（%）<br><br>
+
+                検算（修了者合計）：<br>
+                32 + 35 + 24 + 15 = 106 → 一致<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=30, ウ=35, エ=80.0 → 全ての条件を満たす → <strong>正解</strong><br>
+                ・(2) ウ=28 → B修了率が28/50=56%となり70%と不一致<br>
+                ・(3) ア=32 → B合計が32+20=52となり50と不一致<br>
+                ・(4) エ=75.0 → C修了率が24/30=80%であり75%と不一致<br>
+                ・(5) ア=28 → B合計が28+20=48となり50と不一致<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
