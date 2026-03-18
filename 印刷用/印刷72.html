@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .explanation { padding: 20px 0; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options { margin-left: 20px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．左と右の図ではある規則がある。同様の規則性で並ぶとき、左端の図と対応するものを(1)～(5)から選べ。（6点）</div>
+
+                <!-- 例題：規則の提示 -->
+                <div class="figure-container">
+                    <div class="figure-title">【規則の例】</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 500x180px
+                        - viewBox: 0 0 500 180
+                        - 規則: 左の図形を90度時計回りに回転すると右の図形になる
+                        - 各グリッドセル: 25x25px
+                        - グリッド: 4x4 = 100x100px
+                        -->
+                        <svg width="500" height="180" viewBox="0 0 500 180">
+                            <!-- 左の図形（L字型） -->
+                            <text x="80" y="20" class="svg-text" text-anchor="middle">左</text>
+                            <g transform="translate(30, 30)">
+                                <!-- グリッド枠 -->
+                                <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- L字型の塗りつぶし -->
+                                <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                <rect x="0" y="75" width="25" height="25" fill="black"/>
+                                <rect x="25" y="75" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <!-- 矢印 -->
+                            <text x="175" y="90" font-size="28" text-anchor="middle">→</text>
+
+                            <!-- 右の図形（90度時計回り回転したL字型） -->
+                            <text x="310" y="20" class="svg-text" text-anchor="middle">右</text>
+                            <g transform="translate(260, 30)">
+                                <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- 90度時計回り: [1,1,1,1], [1,0,0,0], [0,0,0,0], [0,0,0,0] -->
+                                <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                <rect x="75" y="0" width="25" height="25" fill="black"/>
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 問題：左端の図形 -->
+                <div class="figure-container">
+                    <div class="figure-title">【問題】</div>
+                    <div class="figure-content">
+                        <!--
+                        左端の図形: 非対称T字変形
+                        [0,1,1,0]
+                        [0,1,0,0]
+                        [1,1,1,0]
+                        [0,0,0,0]
+                        -->
+                        <svg width="500" height="180" viewBox="0 0 500 180">
+                            <text x="80" y="20" class="svg-text" text-anchor="middle">左端</text>
+                            <g transform="translate(30, 30)">
+                                <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [0,1,1,0] -->
+                                <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                <!-- [0,1,0,0] -->
+                                <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                <!-- [1,1,1,0] -->
+                                <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                <rect x="50" y="50" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <!-- 矢印と？ -->
+                            <text x="175" y="90" font-size="28" text-anchor="middle">→</text>
+                            <text x="250" y="95" font-size="36" text-anchor="middle" font-weight="bold">?</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!--
+                        選択肢の配置:
+                        (1) 反時計回り90度: [0,1,0,0], [0,1,1,1], [0,1,0,1], [0,0,0,0] ← これは正解のCW
+                        (2) 180度回転: [0,0,0,0], [0,1,1,1], [0,0,1,0], [0,1,1,0]
+                        (3) 正解 90度CW: [0,1,0,0], [0,1,1,1], [0,1,0,1], [0,0,0,0]
+
+                        整理:
+                        正解(90CW): row0=[0,1,0,0], row1=[0,1,1,1], row2=[0,1,0,1], row3=[0,0,0,0]
+                        選択肢の順序（正解=3番目）:
+                        (1) 反時計回り: [0,0,0,0], [1,0,1,0], [1,1,1,0], [0,0,1,0]
+                        (2) 180度: [0,0,0,0], [0,1,1,1], [0,0,1,0], [0,1,1,0]
+                        (3) 正解: [0,1,0,0], [0,1,1,1], [0,1,0,1], [0,0,0,0]
+                        (4) 水平反転: [0,1,1,0], [0,0,1,0], [0,1,1,1], [0,0,0,0]
+                        (5) 垂直反転: [0,0,0,0], [1,1,1,0], [0,1,0,0], [0,1,1,0]
+                        -->
+                        <svg width="620" height="150" viewBox="0 0 620 150">
+                            <!-- 選択肢(1): 反時計回り90度 -->
+                            <g transform="translate(10, 10)">
+                                <text x="50" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <g transform="translate(0, 20)">
+                                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- CCW: [0,0,0,0],[1,0,1,0],[1,1,1,0],[0,0,1,0] -->
+                                    <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="75" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(2): 180度回転 -->
+                            <g transform="translate(130, 10)">
+                                <text x="50" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <g transform="translate(0, 20)">
+                                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- 180: [0,0,0,0],[0,1,1,1],[0,0,1,0],[0,1,1,0] -->
+                                    <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="75" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="75" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="75" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(3): 正解（90度時計回り） -->
+                            <g transform="translate(250, 10)">
+                                <text x="50" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <g transform="translate(0, 20)">
+                                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- CW正解: [0,1,0,0],[0,1,1,1],[0,1,0,1],[0,0,0,0] -->
+                                    <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="75" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="75" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(4): 水平反転 -->
+                            <g transform="translate(370, 10)">
+                                <text x="50" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <g transform="translate(0, 20)">
+                                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- 水平反転: [0,1,1,0],[0,0,1,0],[0,1,1,1],[0,0,0,0] -->
+                                    <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="75" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(5): 垂直反転 -->
+                            <g transform="translate(490, 10)">
+                                <text x="50" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <g transform="translate(0, 20)">
+                                    <rect x="0" y="0" width="100" height="100" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="75" y1="0" x2="75" y2="100" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="100" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="100" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="75" x2="100" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- 垂直反転: [0,0,0,0],[1,1,1,0],[0,1,0,0],[0,1,1,0] -->
+                                    <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="75" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="75" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                例題の左の図形（L字型）を90度時計回りに回転させると、右の図形と一致する。<br>
+                したがって、この問題の規則は「90度時計回り回転」である。<br><br>
+
+                <strong>【解法】</strong><br>
+                左端の図形を90度時計回りに回転させる。<br>
+                回転の変換: 位置(i, j)の要素は位置(j, N-1-i)に移動する（Nはグリッドサイズ）。<br><br>
+
+                元の図形:<br>
+                行0: [空][黒][黒][空]<br>
+                行1: [空][黒][空][空]<br>
+                行2: [黒][黒][黒][空]<br>
+                行3: [空][空][空][空]<br><br>
+
+                90度時計回り回転後:<br>
+                行0: [空][黒][空][空]<br>
+                行1: [空][黒][黒][黒]<br>
+                行2: [空][黒][空][黒]<br>
+                行3: [空][空][空][空]<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 反時計回り90度回転 → 回転方向が逆のため不正解<br>
+                ・(2) 180度回転 → 回転角度が異なるため不正解<br>
+                ・(3) 90度時計回り回転 → 規則に一致するため正解<br>
+                ・(4) 水平反転（左右反転） → 回転ではなく反転のため不正解<br>
+                ・(5) 垂直反転（上下反転） → 回転ではなく反転のため不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下に示す2組の例では、左の図形にある共通の変換規則を適用すると右の図形になる。同じ規則を問題の図形に適用したとき、正しい結果を(1)～(5)から選べ。（6点）</div>
+
+                <!-- 例題1 -->
+                <div class="figure-container">
+                    <div class="figure-title">【例題】</div>
+                    <div class="figure-content">
+                        <!--
+                        規則: 90度時計回り回転 + 白黒反転
+                        例1左: [1,1,0],[0,1,0],[0,0,0]
+                        例1右: [1,1,0],[1,0,0],[1,1,1]
+                        例2左: [1,0,0],[1,1,0],[1,0,0]
+                        例2右: [0,0,0],[1,0,1],[1,1,1]
+                        -->
+                        <svg width="600" height="200" viewBox="0 0 600 200">
+                            <!-- 例1 -->
+                            <text x="120" y="15" class="svg-text" text-anchor="middle" font-weight="bold">例1</text>
+                            <!-- 例1左 -->
+                            <text x="55" y="35" class="svg-text" text-anchor="middle">左</text>
+                            <g transform="translate(15, 45)">
+                                <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [1,1,0],[0,1,0],[0,0,0] -->
+                                <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                <rect x="25" y="25" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <text x="120" y="90" font-size="24" text-anchor="middle">→</text>
+
+                            <!-- 例1右 -->
+                            <text x="185" y="35" class="svg-text" text-anchor="middle">右</text>
+                            <g transform="translate(145, 45)">
+                                <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [1,1,0],[1,0,0],[1,1,1] -->
+                                <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                <rect x="50" y="50" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <!-- 例2 -->
+                            <text x="420" y="15" class="svg-text" text-anchor="middle" font-weight="bold">例2</text>
+                            <!-- 例2左 -->
+                            <text x="355" y="35" class="svg-text" text-anchor="middle">左</text>
+                            <g transform="translate(315, 45)">
+                                <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [1,0,0],[1,1,0],[1,0,0] -->
+                                <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                <rect x="0" y="50" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <text x="420" y="90" font-size="24" text-anchor="middle">→</text>
+
+                            <!-- 例2右 -->
+                            <text x="485" y="35" class="svg-text" text-anchor="middle">右</text>
+                            <g transform="translate(445, 45)">
+                                <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [0,0,0],[1,0,1],[1,1,1] -->
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                <rect x="50" y="50" width="25" height="25" fill="black"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 問題の図形 -->
+                <div class="figure-container">
+                    <div class="figure-title">【問題】</div>
+                    <div class="figure-content">
+                        <!--
+                        問題図形: [0,1,0],[1,1,0],[0,1,1]
+                        -->
+                        <svg width="300" height="150" viewBox="0 0 300 150">
+                            <text x="55" y="20" class="svg-text" text-anchor="middle">左</text>
+                            <g transform="translate(15, 30)">
+                                <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                <!-- [0,1,0],[1,1,0],[0,1,1] -->
+                                <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                <rect x="50" y="50" width="25" height="25" fill="black"/>
+                            </g>
+
+                            <text x="130" y="75" font-size="24" text-anchor="middle">→</text>
+                            <text x="200" y="80" font-size="36" text-anchor="middle" font-weight="bold">?</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!--
+                        正解(90CW+反転): [1,0,1],[0,0,0],[0,1,1]  → 選択肢(4)
+                        (1) 反転のみ: [1,0,1],[0,0,1],[1,0,0]
+                        (2) 回転のみ(反転なし): [0,1,0],[1,1,0],[1,0,0]
+                        (3) 反時計+反転: [0,0,1],[1,1,0],[1,0,1]
+                        (4) 正解: [1,0,1],[0,0,0],[0,1,1]
+                        (5) 水平反転+色反転: [1,0,1],[1,0,0],[0,0,1]
+                        -->
+                        <svg width="620" height="130" viewBox="0 0 620 130">
+                            <!-- 選択肢(1) -->
+                            <g transform="translate(10, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <g transform="translate(2, 20)">
+                                    <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- [1,0,1],[0,0,1],[1,0,0] -->
+                                    <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(2) -->
+                            <g transform="translate(130, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <g transform="translate(2, 20)">
+                                    <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- [0,1,0],[1,1,0],[1,0,0] -->
+                                    <rect x="25" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(3) -->
+                            <g transform="translate(250, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <g transform="translate(2, 20)">
+                                    <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- [0,0,1],[1,1,0],[1,0,1] -->
+                                    <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(4): 正解 -->
+                            <g transform="translate(370, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <g transform="translate(2, 20)">
+                                    <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- 正解[1,0,1],[0,0,0],[0,1,1] -->
+                                    <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="25" y="50" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+
+                            <!-- 選択肢(5) -->
+                            <g transform="translate(490, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <g transform="translate(2, 20)">
+                                    <rect x="0" y="0" width="75" height="75" fill="none" stroke="#ccc" stroke-width="1"/>
+                                    <line x1="25" y1="0" x2="25" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="50" y1="0" x2="50" y2="75" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="25" x2="75" y2="25" stroke="#ccc" stroke-width="0.5"/>
+                                    <line x1="0" y1="50" x2="75" y2="50" stroke="#ccc" stroke-width="0.5"/>
+                                    <!-- [1,0,1],[1,0,0],[0,0,1] -->
+                                    <rect x="0" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="0" width="25" height="25" fill="black"/>
+                                    <rect x="0" y="25" width="25" height="25" fill="black"/>
+                                    <rect x="50" y="50" width="25" height="25" fill="black"/>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                例題の2組を比較して、共通する変換規則を見つける。<br><br>
+
+                例1: 左の図形を90度時計回りに回転し、さらに白黒を反転（塗りつぶしと空白を入れ替え）すると右の図形になる。<br>
+                例2: 同じく90度時計回り回転+白黒反転で右の図形が得られる。<br><br>
+
+                したがって、規則は「90度時計回り回転 + 白黒反転」の複合変換である。<br><br>
+
+                <strong>【解法】</strong><br>
+                問題の図形に同じ変換を適用する。<br><br>
+
+                元の図形（3x3）:<br>
+                行0: [空][黒][空]<br>
+                行1: [黒][黒][空]<br>
+                行2: [空][黒][黒]<br><br>
+
+                ステップ1: 90度時計回り回転<br>
+                行0: [空][黒][空]<br>
+                行1: [黒][黒][黒]<br>
+                行2: [黒][空][空]<br><br>
+
+                ステップ2: 白黒反転<br>
+                行0: [黒][空][黒]<br>
+                行1: [空][空][空]<br>
+                行2: [空][黒][黒]<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 白黒反転のみ（回転なし） → 不正解<br>
+                ・(2) 90度時計回り回転のみ（反転なし） → 不正解<br>
+                ・(3) 反時計回り回転+白黒反転 → 回転方向が逆のため不正解<br>
+                ・(4) 90度時計回り回転+白黒反転 → 規則に一致するため正解<br>
+                ・(5) 水平反転+白黒反転 → 変換が異なるため不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
