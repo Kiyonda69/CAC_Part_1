@@ -1,0 +1,544 @@
+<!--
+================================================================================
+印刷67.html - 資料の空欄穴埋め問題（セット67）
+================================================================================
+問1（標準難度）: 研修生の試験成績表の穴埋め - 行合計・列合計から空欄を求める
+問2（高難度）: 営業所の月別売上表の穴埋め - 列合計＋条件から連立方程式で解く
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 18px;
+            min-width: 70px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある研修所で5人の研修生（甲〜戊）が3科目（科目X、科目Y、科目Z）の筆記試験を受験した。下表はその結果の一部をまとめたものである。表中の空欄ア〜ウに当てはまる数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】研修生の科目別得点</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>研修生</th>
+                                <th>科目X</th>
+                                <th>科目Y</th>
+                                <th>科目Z</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td>甲</td>
+                                <td>78</td>
+                                <td><strong>ア</strong></td>
+                                <td>64</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>乙</td>
+                                <td><strong>イ</strong></td>
+                                <td>70</td>
+                                <td>82</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>丙</td>
+                                <td>85</td>
+                                <td>62</td>
+                                <td><strong>ウ</strong></td>
+                                <td>220</td>
+                            </tr>
+                            <tr>
+                                <td>丁</td>
+                                <td>72</td>
+                                <td>80</td>
+                                <td>76</td>
+                                <td>228</td>
+                            </tr>
+                            <tr>
+                                <td>戊</td>
+                                <td>68</td>
+                                <td>74</td>
+                                <td>70</td>
+                                <td>212</td>
+                            </tr>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>科目合計</th>
+                                <td><strong>375</strong></td>
+                                <td><strong>356</strong></td>
+                                <td><strong>365</strong></td>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <table class="option-table">
+                            <tr>
+                                <th></th>
+                                <th>ア</th>
+                                <th>イ</th>
+                                <th>ウ</th>
+                            </tr>
+                            <tr>
+                                <td><strong>(1)</strong></td>
+                                <td>70</td>
+                                <td>72</td>
+                                <td>73</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(2)</strong></td>
+                                <td>72</td>
+                                <td>70</td>
+                                <td>73</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(3)</strong></td>
+                                <td>70</td>
+                                <td>72</td>
+                                <td>75</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(4)</strong></td>
+                                <td>68</td>
+                                <td>74</td>
+                                <td>73</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(5)</strong></td>
+                                <td>70</td>
+                                <td>74</td>
+                                <td>71</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                行（横）の合計と列（縦）の合計の両方を利用して、空欄の値を求める。<br><br>
+
+                <strong>【ア（甲の科目Y）の求め方】</strong><br>
+                科目Yの合計が356であることを利用する。<br>
+                ア + 70 + 62 + 80 + 74 = 356<br>
+                ア + 286 = 356<br>
+                ア = 356 - 286 = <strong>70</strong><br><br>
+
+                <strong>【イ（乙の科目X）の求め方】</strong><br>
+                科目Xの合計が375であることを利用する。<br>
+                78 + イ + 85 + 72 + 68 = 375<br>
+                303 + イ = 375<br>
+                イ = 375 - 303 = <strong>72</strong><br><br>
+
+                <strong>【ウ（丙の科目Z）の求め方】</strong><br>
+                丙の行合計が220であることを利用する。<br>
+                85 + 62 + ウ = 220<br>
+                147 + ウ = 220<br>
+                ウ = 220 - 147 = <strong>73</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                科目Zの合計: 64 + 82 + 73 + 76 + 70 = 365（一致）<br><br>
+
+                したがって、ア=70、イ=72、ウ=73であり、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある地域の5つの営業所（甲〜戊）について、4月から6月の月別売上高（万円）を下表にまとめた。ただし、丙営業所の4月の売上高は丁営業所の4月の売上高より10万円多いことが分かっている。表中の空欄ア〜エに当てはまる数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】営業所別の月別売上高（万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>営業所</th>
+                                <th>4月</th>
+                                <th>5月</th>
+                                <th>6月</th>
+                                <th>合計</th>
+                            </tr>
+                            <tr>
+                                <td>甲</td>
+                                <td>240</td>
+                                <td><strong>ア</strong></td>
+                                <td>280</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>乙</td>
+                                <td>180</td>
+                                <td>200</td>
+                                <td><strong>イ</strong></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>丙</td>
+                                <td><strong>ウ</strong></td>
+                                <td>170</td>
+                                <td>190</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>丁</td>
+                                <td><strong>エ</strong></td>
+                                <td>150</td>
+                                <td>160</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>戊</td>
+                                <td>120</td>
+                                <td>130</td>
+                                <td>140</td>
+                                <td>390</td>
+                            </tr>
+                            <tr style="background-color: #f0f0f0;">
+                                <th>月合計</th>
+                                <td><strong>870</strong></td>
+                                <td><strong>910</strong></td>
+                                <td><strong>970</strong></td>
+                                <td><strong>2750</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <table class="option-table">
+                            <tr>
+                                <th></th>
+                                <th>ア</th>
+                                <th>イ</th>
+                                <th>ウ</th>
+                                <th>エ</th>
+                            </tr>
+                            <tr>
+                                <td><strong>(1)</strong></td>
+                                <td>260</td>
+                                <td>200</td>
+                                <td>160</td>
+                                <td>170</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(2)</strong></td>
+                                <td>260</td>
+                                <td>200</td>
+                                <td>170</td>
+                                <td>160</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(3)</strong></td>
+                                <td>250</td>
+                                <td>210</td>
+                                <td>170</td>
+                                <td>160</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(4)</strong></td>
+                                <td>260</td>
+                                <td>200</td>
+                                <td>180</td>
+                                <td>150</td>
+                            </tr>
+                            <tr>
+                                <td><strong>(5)</strong></td>
+                                <td>260</td>
+                                <td>210</td>
+                                <td>165</td>
+                                <td>165</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【解法のポイント】</strong><br>
+                列（月）の合計から求められる空欄と、条件を組み合わせた連立方程式で求める空欄がある。<br><br>
+
+                <strong>【ア（甲の5月売上）の求め方】</strong><br>
+                5月の合計が910であることを利用する。<br>
+                ア + 200 + 170 + 150 + 130 = 910<br>
+                ア + 650 = 910<br>
+                ア = 910 - 650 = <strong>260</strong><br><br>
+
+                <strong>【イ（乙の6月売上）の求め方】</strong><br>
+                6月の合計が970であることを利用する。<br>
+                280 + イ + 190 + 160 + 140 = 970<br>
+                770 + イ = 970<br>
+                イ = 970 - 770 = <strong>200</strong><br><br>
+
+                <strong>【ウとエ（丙・丁の4月売上）の求め方】</strong><br>
+                4月の合計が870であることから、<br>
+                240 + 180 + ウ + エ + 120 = 870<br>
+                540 + ウ + エ = 870<br>
+                ウ + エ = 330 ・・・(i)<br><br>
+
+                条件「丙の4月売上は丁の4月売上より10万円多い」から、<br>
+                ウ = エ + 10 ・・・(ii)<br><br>
+
+                (ii)を(i)に代入すると、<br>
+                (エ + 10) + エ = 330<br>
+                2エ + 10 = 330<br>
+                2エ = 320<br>
+                エ = <strong>160</strong><br>
+                ウ = 160 + 10 = <strong>170</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                4月合計: 240 + 180 + 170 + 160 + 120 = 870（一致）<br>
+                総合計: 780 + 580 + 530 + 470 + 390 = 2750（一致）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ウ=160、エ=170 → 条件「丙 > 丁」に矛盾（160 < 170）<br>
+                ・(2) 全て一致 → 正解<br>
+                ・(3) ア=250 → 5月合計が900になり不一致<br>
+                ・(4) ウ+エ=330だが ウ-エ=30 → 条件「差が10」に不一致<br>
+                ・(5) イ=210 → 6月合計が980になり不一致<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
