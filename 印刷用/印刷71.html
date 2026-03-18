@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .explanation { padding: 20px 0; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options { margin-left: 20px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある地形について、東西方向の断面図（南北中央を通る）と南北方向の断面図（主峰を通る）が下図のとおりである。この地形の等高線図（上から見た図）として最も適切なものを、(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図1: 地形の断面図
+                地形モデル: z = 4.0*exp(-((x-2.5)^2/2.88 + (y-3)^2/4.5)) + 2.5*exp(-((x-5.5)^2/0.5 + (y-3)^2/2.0))
+                XZ断面 (y=3): 主峰 x=2.5, z=4.0; 副峰 x=5.5, z=2.68
+                YZ断面 (x=2.5): 単一峰 y=3.0, z=4.0
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】地形の断面図</div>
+                    <div class="figure-content">
+                        <svg width="620" height="210" viewBox="0 0 620 210">
+                            <!-- XZ断面タイトル -->
+                            <text x="205" y="15" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">東西方向の断面図</text>
+
+                            <!-- Ground line -->
+                            <line x1="30" y1="175" x2="380" y2="175" stroke="black" stroke-width="1.5"/>
+                            <!-- Z-axis -->
+                            <line x1="30" y1="175" x2="30" y2="30" stroke="black" stroke-width="1"/>
+                            <line x1="27" y1="144" x2="33" y2="144" stroke="black" stroke-width="1"/>
+                            <text x="22" y="148" class="svg-text" font-size="10" text-anchor="end">1</text>
+                            <line x1="27" y1="113" x2="33" y2="113" stroke="black" stroke-width="1"/>
+                            <text x="22" y="117" class="svg-text" font-size="10" text-anchor="end">2</text>
+                            <line x1="27" y1="82" x2="33" y2="82" stroke="black" stroke-width="1"/>
+                            <text x="22" y="86" class="svg-text" font-size="10" text-anchor="end">3</text>
+                            <line x1="27" y1="51" x2="33" y2="51" stroke="black" stroke-width="1"/>
+                            <text x="22" y="55" class="svg-text" font-size="10" text-anchor="end">4</text>
+                            <text x="18" y="28" class="svg-text" font-size="11">Z</text>
+                            <line x1="33" y1="144" x2="380" y2="144" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="33" y1="113" x2="380" y2="113" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="33" y1="82" x2="380" y2="82" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="33" y1="51" x2="380" y2="51" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <!-- Mountain fill + profile -->
+                            <polygon points="30,161 55,144 80,118 105,87 130,61 155,51 180,61 205,87 230,117 255,134 280,114 305,92 330,126 355,165 380,174 380,175 30,175"
+                                     fill="#e0e0e0" stroke="none"/>
+                            <polyline points="30,161 55,144 80,118 105,87 130,61 155,51 180,61 205,87 230,117 255,134 280,114 305,92 330,126 355,165 380,174"
+                                      fill="none" stroke="black" stroke-width="2.5"/>
+                            <text x="205" y="198" class="svg-text" font-size="11" text-anchor="middle">X（東西方向）</text>
+                            <text x="30" y="192" class="svg-text" font-size="10">西</text>
+                            <text x="380" y="192" class="svg-text" font-size="10" text-anchor="end">東</text>
+
+                            <!-- Separator -->
+                            <line x1="400" y1="20" x2="400" y2="195" stroke="#ccc" stroke-width="1" stroke-dasharray="4,4"/>
+
+                            <!-- YZ断面タイトル -->
+                            <text x="500" y="15" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">南北方向の断面図</text>
+
+                            <line x1="420" y1="175" x2="580" y2="175" stroke="black" stroke-width="1.5"/>
+                            <line x1="420" y1="175" x2="420" y2="30" stroke="black" stroke-width="1"/>
+                            <line x1="417" y1="144" x2="423" y2="144" stroke="black" stroke-width="1"/>
+                            <text x="413" y="148" class="svg-text" font-size="10" text-anchor="end">1</text>
+                            <line x1="417" y1="113" x2="423" y2="113" stroke="black" stroke-width="1"/>
+                            <text x="413" y="117" class="svg-text" font-size="10" text-anchor="end">2</text>
+                            <line x1="417" y1="82" x2="423" y2="82" stroke="black" stroke-width="1"/>
+                            <text x="413" y="86" class="svg-text" font-size="10" text-anchor="end">3</text>
+                            <line x1="417" y1="51" x2="423" y2="51" stroke="black" stroke-width="1"/>
+                            <text x="413" y="55" class="svg-text" font-size="10" text-anchor="end">4</text>
+                            <text x="413" y="28" class="svg-text" font-size="11">Z</text>
+                            <line x1="423" y1="144" x2="580" y2="144" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="423" y1="113" x2="580" y2="113" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="423" y1="82" x2="580" y2="82" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+                            <line x1="423" y1="51" x2="580" y2="51" stroke="#ddd" stroke-width="0.5" stroke-dasharray="3,3"/>
+
+                            <polygon points="420,158 434,144 448,124 462,100 476,76 490,58 504,51 518,58 532,76 546,100 560,124 574,144 588,158 588,175 420,175"
+                                     fill="#e0e0e0" stroke="none"/>
+                            <polyline points="420,158 434,144 448,124 462,100 476,76 490,58 504,51 518,58 532,76 546,100 560,124 574,144 588,158"
+                                      fill="none" stroke="black" stroke-width="2.5"/>
+                            <text x="504" y="198" class="svg-text" font-size="11" text-anchor="middle">Y（南北方向）</text>
+                            <text x="420" y="192" class="svg-text" font-size="10">南</text>
+                            <text x="588" y="192" class="svg-text" font-size="10" text-anchor="end">北</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢（等高線図） -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="120" viewBox="0 0 600 120">
+                            <!-- (1) 単一の円形等高線 -->
+                            <g transform="translate(10,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="2" y="18" width="86" height="72" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                                <ellipse cx="45" cy="54" rx="30" ry="26" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="45" cy="54" rx="20" ry="17" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="45" cy="54" rx="10" ry="8" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (2) 2つの等しい等高線 -->
+                            <g transform="translate(120,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="2" y="18" width="86" height="72" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                                <ellipse cx="28" cy="54" rx="17" ry="21" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="28" cy="54" rx="9" ry="12" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="62" cy="54" rx="17" ry="21" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="62" cy="54" rx="9" ry="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (3) 南北に細長い -->
+                            <g transform="translate(230,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="2" y="18" width="86" height="72" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                                <ellipse cx="45" cy="54" rx="14" ry="30" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="45" cy="54" rx="9" ry="20" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="45" cy="54" rx="4" ry="10" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (4) ★正解: 大+小 -->
+                            <g transform="translate(340,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="2" y="18" width="86" height="72" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                                <ellipse cx="30" cy="54" rx="22" ry="27" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="30" cy="54" rx="15" ry="18" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="30" cy="54" rx="7" ry="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="70" cy="54" rx="12" ry="15" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="70" cy="54" rx="5" ry="7" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (5) 3つ -->
+                            <g transform="translate(450,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="2" y="18" width="86" height="72" fill="none" stroke="#ccc" stroke-width="0.5"/>
+                                <ellipse cx="45" cy="32" rx="13" ry="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="32" r="4" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="25" cy="68" rx="13" ry="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="25" cy="68" r="4" fill="none" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="65" cy="68" rx="13" ry="9" fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="65" cy="68" r="4" fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+                <strong>【断面図の読み取り】</strong><br>
+                ・東西方向の断面図には2つのピークが見える。左側（西寄り）の主峰は高さ約4、右側（東寄り）の副峰は高さ約2.7であり、主峰の方が明らかに高い。<br>
+                ・南北方向の断面図には1つのピーク（高さ約4）のみが対称形に現れている。<br><br>
+                <strong>【等高線への変換】</strong><br>
+                ・東西方向に2つの山が存在するため、等高線図には2つの等高線群が東西方向に並ぶ。<br>
+                ・主峰の方が高いため、主峰側の等高線群が大きく（等高線の数も多く）、副峰側は小さい。<br><br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 単一の等高線群のみ → 東西断面に2つのピークがあることと矛盾。<br>
+                ・(2) 2つの等しい大きさの等高線 → 2つのピークの高さが異なることと矛盾。<br>
+                ・(3) 南北方向に細長い等高線 → 東西方向に2峰が並ぶことと矛盾。<br>
+                ・(4) 大きな主峰等高線＋小さな副峰等高線 → 断面図の特徴と一致。<br>
+                ・(5) 3つの等高線群 → 断面図に3つ目のピークがないため矛盾。<br><br>
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図のように、円柱（半径3、高さ10）に3つの穴が加工されている。上面から円柱型の盲穴（半径1.5、深さ3）、底面から円錐型の穴（底面半径2、高さ3）、さらに高さ6の位置に水平方向の貫通穴（半径0.7）がある。この立体を中心軸を含む鉛直面（貫通穴に垂直な面）で切断したとき、断面図として正しいものを(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <!--
+                図2: 3D円柱の図
+                円柱: 半径3, 高さ10
+                上部: 円柱盲穴 (半径1.5, 深さ3)
+                底部: 円錐穴 (底面半径2, 頂点高さ3)
+                側面: 貫通穴 (半径0.7, 高さz=6)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】加工された円柱</div>
+                    <div class="figure-content">
+                        <svg width="600" height="390" viewBox="0 0 600 390">
+                            <line x1="120" y1="60" x2="120" y2="310" stroke="black" stroke-width="2"/>
+                            <line x1="320" y1="60" x2="320" y2="310" stroke="black" stroke-width="2"/>
+                            <ellipse cx="220" cy="60" rx="100" ry="25" fill="white" stroke="black" stroke-width="2"/>
+                            <path d="M 120,310 A 100,25 0 0 0 320,310" fill="none" stroke="black" stroke-width="2"/>
+                            <path d="M 120,310 A 100,25 0 0 1 320,310" fill="none" stroke="black" stroke-width="1" stroke-dasharray="5,5"/>
+
+                            <!-- 上部盲穴 -->
+                            <ellipse cx="220" cy="60" rx="50" ry="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <line x1="170" y1="60" x2="170" y2="135" stroke="gray" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="270" y1="60" x2="270" y2="135" stroke="gray" stroke-width="1" stroke-dasharray="4,4"/>
+                            <path d="M 170,135 A 50,12 0 0 0 270,135" fill="none" stroke="gray" stroke-width="1" stroke-dasharray="4,4"/>
+
+                            <!-- 底部円錐穴 -->
+                            <line x1="153" y1="310" x2="220" y2="235" stroke="gray" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="287" y1="310" x2="220" y2="235" stroke="gray" stroke-width="1" stroke-dasharray="4,4"/>
+
+                            <!-- 貫通穴 -->
+                            <circle cx="220" cy="210" r="18" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="200" y1="210" x2="119" y2="210" stroke="black" stroke-width="0.8"/>
+                            <line x1="240" y1="210" x2="321" y2="210" stroke="black" stroke-width="0.8"/>
+
+                            <!-- 切断面 -->
+                            <line x1="220" y1="28" x2="220" y2="345" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+                            <text x="230" y="370" class="svg-text" font-size="13" font-weight="bold">切断面</text>
+
+                            <!-- ラベル -->
+                            <line x1="275" y1="90" x2="350" y2="78" stroke="black" stroke-width="0.8"/>
+                            <text x="355" y="73" class="svg-text" font-size="12">円柱穴(半径1.5, 深さ3)</text>
+                            <line x1="240" y1="205" x2="350" y2="175" stroke="black" stroke-width="0.8"/>
+                            <text x="355" y="172" class="svg-text" font-size="12">貫通穴(半径0.7)</text>
+                            <line x1="255" y1="275" x2="350" y2="270" stroke="black" stroke-width="0.8"/>
+                            <text x="355" y="267" class="svg-text" font-size="12">円錐穴(底面半径2, 高さ3)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="150" viewBox="0 0 600 150">
+                            <!-- (1) 上=長方形, 下=長方形, 穴=あり -->
+                            <g transform="translate(10,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <path d="M 18,18 L 32,18 L 32,48 L 59,48 L 59,18 L 72,18 L 72,118 L 63,118 L 63,88 L 27,88 L 27,118 L 18,118 Z"
+                                      fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="58" r="6" fill="white" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (2) ★正解 -->
+                            <g transform="translate(120,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <path d="M 18,18 L 32,18 L 32,48 L 59,48 L 59,18 L 72,18 L 72,118 L 63,118 L 45,88 L 27,118 L 18,118 Z"
+                                      fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="58" r="6" fill="white" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (3) 穴なし -->
+                            <g transform="translate(230,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <path d="M 18,18 L 32,18 L 32,48 L 59,48 L 59,18 L 72,18 L 72,118 L 63,118 L 45,88 L 27,118 L 18,118 Z"
+                                      fill="none" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (4) 上下逆 -->
+                            <g transform="translate(340,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <path d="M 18,18 L 27,18 L 45,48 L 63,18 L 72,18 L 72,118 L 59,118 L 59,88 L 32,88 L 32,118 L 18,118 Z"
+                                      fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="58" r="6" fill="white" stroke="black" stroke-width="1.5"/>
+                            </g>
+                            <!-- (5) 下=半円 -->
+                            <g transform="translate(450,5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <path d="M 18,18 L 32,18 L 32,48 L 59,48 L 59,18 L 72,18 L 72,118 L 63,118 A 18,18 0 0 0 27,118 L 18,118 Z"
+                                      fill="none" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="58" r="6" fill="white" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+                <strong>【切断面の分析】</strong><br>
+                中心軸を含む鉛直面で円柱を切断すると、以下の4つの要素が断面に現れる。<br><br>
+                <strong>1. 外形（長方形）</strong><br>
+                円柱を中心軸を含む面で切断すると、断面の外形は幅（=直径6）×高さ（=10）の長方形になる。<br><br>
+                <strong>2. 上部の円柱盲穴（長方形の切り欠き）</strong><br>
+                円柱型の盲穴を中心軸を含む面で切断すると、断面には幅（=直径3）×深さ（=3）の長方形の切り欠きが現れる。<br><br>
+                <strong>3. 底部の円錐穴（三角形の切り欠き）</strong><br>
+                円錐を中心軸を含む面で切断すると、断面には二等辺三角形が現れる。底辺（=直径4）が底面に、頂点が高さ3の位置にある三角形の切り欠きとなる。<br><br>
+                <strong>4. 貫通穴（円）</strong><br>
+                水平方向の貫通穴に垂直な面で切断しているため、穴の断面は半径0.7の円として高さ6の位置に現れる。<br><br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 底部が長方形 → 円錐穴の断面は三角形であるため不正解。<br>
+                ・(2) 上部=長方形、底部=三角形、貫通穴=円 → 全ての特徴が一致。正解。<br>
+                ・(3) 貫通穴の断面がない → 貫通穴は断面に現れるため不正解。<br>
+                ・(4) 上下の特徴が入れ替わっている → 円柱穴は上部、円錐穴は底部にあるため不正解。<br>
+                ・(5) 底部が半円 → 円錐穴の断面は三角形（半円ではない）であるため不正解。<br><br>
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
