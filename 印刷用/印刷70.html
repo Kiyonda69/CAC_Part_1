@@ -1,0 +1,542 @@
+<!--
+================================================================================
+印刷70.html - 箱ひげ図の読み取り問題セット
+================================================================================
+問1: 3支店の月間営業成績の箱ひげ図から正しい記述を選ぶ（標準）
+問2: 4校の通学時間の箱ひげ図から正しい記述の組合せを選ぶ（高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある会社の3つの支店（東京、大阪、福岡）における社員の月間営業成績（万円）を箱ひげ図にまとめた。次の記述のうち、正しいものはどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x340px
+                - viewBox: 0 0 500 340
+                - Y軸: 営業成績（万円）100〜400
+                - X軸: 東京、大阪、福岡
+
+                データ:
+                東京: Min=120, Q1=180, Med=220, Q3=280, Max=350
+                大阪: Min=100, Q1=160, Med=240, Q3=300, Max=380
+                福岡: Min=80,  Q1=150, Med=200, Q3=260, Max=320
+
+                座標系:
+                - プロットエリア: x=80〜460, y=30〜280
+                - yPos(value) = 280 - (value - 60) * 250 / 340
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】支店別月間営業成績</div>
+                    <div class="figure-content">
+                        <svg width="500" height="340" viewBox="0 0 500 340">
+                            <!-- Y軸 -->
+                            <line x1="80" y1="30" x2="80" y2="280" stroke="black" stroke-width="1.5"/>
+                            <!-- X軸 -->
+                            <line x1="80" y1="280" x2="460" y2="280" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="70" y="255" class="svg-text" text-anchor="end">100</text>
+                            <line x1="78" y1="251" x2="82" y2="251" stroke="black" stroke-width="1"/>
+                            <text x="70" y="218" class="svg-text" text-anchor="end">150</text>
+                            <line x1="78" y1="214" x2="82" y2="214" stroke="black" stroke-width="1"/>
+                            <text x="70" y="181" class="svg-text" text-anchor="end">200</text>
+                            <line x1="78" y1="177" x2="82" y2="177" stroke="black" stroke-width="1"/>
+                            <text x="70" y="144" class="svg-text" text-anchor="end">250</text>
+                            <line x1="78" y1="140" x2="82" y2="140" stroke="black" stroke-width="1"/>
+                            <text x="70" y="108" class="svg-text" text-anchor="end">300</text>
+                            <line x1="78" y1="104" x2="82" y2="104" stroke="black" stroke-width="1"/>
+                            <text x="70" y="71" class="svg-text" text-anchor="end">350</text>
+                            <line x1="78" y1="67" x2="82" y2="67" stroke="black" stroke-width="1"/>
+                            <text x="70" y="34" class="svg-text" text-anchor="end">400</text>
+                            <line x1="78" y1="30" x2="82" y2="30" stroke="black" stroke-width="1"/>
+
+                            <!-- Y軸単位 -->
+                            <text x="35" y="155" class="svg-text" text-anchor="middle" transform="rotate(-90,35,155)">営業成績（万円）</text>
+
+                            <!-- グリッド線（薄いグレー） -->
+                            <line x1="80" y1="251" x2="460" y2="251" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="214" x2="460" y2="214" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="177" x2="460" y2="177" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="140" x2="460" y2="140" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="104" x2="460" y2="104" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="67" x2="460" y2="67" stroke="#ddd" stroke-width="0.5"/>
+
+                            <!-- 東京 (center=160, box 130-190) -->
+                            <!-- Min=120 → y=236, Q1=180 → y=192, Med=220 → y=162, Q3=280 → y=118, Max=350 → y=67 -->
+                            <!-- ひげ（最小値〜Q1） -->
+                            <line x1="160" y1="236" x2="160" y2="192" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="236" x2="175" y2="236" stroke="black" stroke-width="1.5"/>
+                            <!-- 箱（Q1〜Q3） -->
+                            <rect x="130" y="118" width="60" height="74" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 中央値 -->
+                            <line x1="130" y1="162" x2="190" y2="162" stroke="black" stroke-width="2.5"/>
+                            <!-- ひげ（Q3〜最大値） -->
+                            <line x1="160" y1="118" x2="160" y2="67" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="67" x2="175" y2="67" stroke="black" stroke-width="1.5"/>
+                            <!-- ラベル -->
+                            <text x="160" y="305" class="svg-text" text-anchor="middle">東京</text>
+
+                            <!-- 大阪 (center=270, box 240-300) -->
+                            <!-- Min=100 → y=251, Q1=160 → y=207, Med=240 → y=148, Q3=300 → y=104, Max=380 → y=45 -->
+                            <!-- ひげ（最小値〜Q1） -->
+                            <line x1="270" y1="251" x2="270" y2="207" stroke="black" stroke-width="1.5"/>
+                            <line x1="255" y1="251" x2="285" y2="251" stroke="black" stroke-width="1.5"/>
+                            <!-- 箱（Q1〜Q3） -->
+                            <rect x="240" y="104" width="60" height="103" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 中央値 -->
+                            <line x1="240" y1="148" x2="300" y2="148" stroke="black" stroke-width="2.5"/>
+                            <!-- ひげ（Q3〜最大値） -->
+                            <line x1="270" y1="104" x2="270" y2="45" stroke="black" stroke-width="1.5"/>
+                            <line x1="255" y1="45" x2="285" y2="45" stroke="black" stroke-width="1.5"/>
+                            <!-- ラベル -->
+                            <text x="270" y="305" class="svg-text" text-anchor="middle">大阪</text>
+
+                            <!-- 福岡 (center=380, box 350-410) -->
+                            <!-- Min=80 → y=265, Q1=150 → y=214, Med=200 → y=177, Q3=260 → y=133, Max=320 → y=89 -->
+                            <!-- ひげ（最小値〜Q1） -->
+                            <line x1="380" y1="265" x2="380" y2="214" stroke="black" stroke-width="1.5"/>
+                            <line x1="365" y1="265" x2="395" y2="265" stroke="black" stroke-width="1.5"/>
+                            <!-- 箱（Q1〜Q3） -->
+                            <rect x="350" y="133" width="60" height="81" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 中央値 -->
+                            <line x1="350" y1="177" x2="410" y2="177" stroke="black" stroke-width="2.5"/>
+                            <!-- ひげ（Q3〜最大値） -->
+                            <line x1="380" y1="133" x2="380" y2="89" stroke="black" stroke-width="1.5"/>
+                            <line x1="365" y1="89" x2="395" y2="89" stroke="black" stroke-width="1.5"/>
+                            <!-- ラベル -->
+                            <text x="380" y="305" class="svg-text" text-anchor="middle">福岡</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 大阪支店の四分位範囲は東京支店の四分位範囲より小さい<br>
+                    (2) 福岡支店の中央値は3支店の中で最も高い<br>
+                    (3) 東京支店の範囲（最大値と最小値の差）は大阪支店の範囲より小さい<br>
+                    (4) 3支店の中で、範囲が最も小さいのは福岡支店である<br>
+                    (5) 大阪支店の中央値は東京支店の第3四分位数より大きい
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                各支店のデータを箱ひげ図から読み取る。<br><br>
+
+                <strong>【各支店の統計量】</strong><br>
+                ・東京: 最小値=120, Q1=180, 中央値=220, Q3=280, 最大値=350<br>
+                ・大阪: 最小値=100, Q1=160, 中央値=240, Q3=300, 最大値=380<br>
+                ・福岡: 最小値=80, Q1=150, 中央値=200, Q3=260, 最大値=320<br><br>
+
+                <strong>【四分位範囲（IQR = Q3 - Q1）】</strong><br>
+                ・東京: 280 - 180 = 100<br>
+                ・大阪: 300 - 160 = 140<br>
+                ・福岡: 260 - 150 = 110<br><br>
+
+                <strong>【範囲（最大値 - 最小値）】</strong><br>
+                ・東京: 350 - 120 = 230<br>
+                ・大阪: 380 - 100 = 280<br>
+                ・福岡: 320 - 80 = 240<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 大阪のIQR(140) > 東京のIQR(100) → 大阪の方が大きいので誤り<br>
+                ・(2) 福岡の中央値(200)は最も低い → 最も高いのは大阪(240)なので誤り<br>
+                ・(3) 東京の範囲(230) < 大阪の範囲(280) → 正しい<br>
+                ・(4) 範囲が最も小さいのは東京(230)であり、福岡(240)ではない → 誤り<br>
+                ・(5) 大阪の中央値(240) < 東京のQ3(280) → 大きくないので誤り<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある市の4つの中学校（P校、Q校、R校、S校）における生徒の通学時間（分）を箱ひげ図にまとめた。次の記述ア〜エのうち、正しいものをすべて含む選択肢はどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 520x340px
+                - viewBox: 0 0 520 340
+                - Y軸: 通学時間（分）0〜65
+                - X軸: P校、Q校、R校、S校
+
+                データ:
+                P: Min=5,  Q1=15, Med=25, Q3=35, Max=50
+                Q: Min=10, Q1=20, Med=30, Q3=40, Max=55
+                R: Min=8,  Q1=18, Med=22, Q3=32, Max=48
+                S: Min=3,  Q1=12, Med=28, Q3=45, Max=60
+
+                座標系:
+                - プロットエリア: x=80〜480, y=30〜280
+                - yPos(value) = 280 - value * 250 / 65
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】中学校別通学時間</div>
+                    <div class="figure-content">
+                        <svg width="520" height="340" viewBox="0 0 520 340">
+                            <!-- Y軸 -->
+                            <line x1="80" y1="30" x2="80" y2="280" stroke="black" stroke-width="1.5"/>
+                            <!-- X軸 -->
+                            <line x1="80" y1="280" x2="480" y2="280" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="70" y="284" class="svg-text" text-anchor="end">0</text>
+                            <line x1="78" y1="280" x2="82" y2="280" stroke="black" stroke-width="1"/>
+                            <text x="70" y="245" class="svg-text" text-anchor="end">10</text>
+                            <line x1="78" y1="242" x2="82" y2="242" stroke="black" stroke-width="1"/>
+                            <text x="70" y="207" class="svg-text" text-anchor="end">20</text>
+                            <line x1="78" y1="203" x2="82" y2="203" stroke="black" stroke-width="1"/>
+                            <text x="70" y="168" class="svg-text" text-anchor="end">30</text>
+                            <line x1="78" y1="165" x2="82" y2="165" stroke="black" stroke-width="1"/>
+                            <text x="70" y="129" class="svg-text" text-anchor="end">40</text>
+                            <line x1="78" y1="126" x2="82" y2="126" stroke="black" stroke-width="1"/>
+                            <text x="70" y="91" class="svg-text" text-anchor="end">50</text>
+                            <line x1="78" y1="88" x2="82" y2="88" stroke="black" stroke-width="1"/>
+                            <text x="70" y="52" class="svg-text" text-anchor="end">60</text>
+                            <line x1="78" y1="49" x2="82" y2="49" stroke="black" stroke-width="1"/>
+
+                            <!-- Y軸単位 -->
+                            <text x="30" y="155" class="svg-text" text-anchor="middle" transform="rotate(-90,30,155)">通学時間（分）</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="80" y1="242" x2="480" y2="242" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="203" x2="480" y2="203" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="165" x2="480" y2="165" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="126" x2="480" y2="126" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="88" x2="480" y2="88" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="49" x2="480" y2="49" stroke="#ddd" stroke-width="0.5"/>
+
+                            <!-- P校 (center=160, box 135-185) -->
+                            <!-- Min=5→y=261, Q1=15→y=222, Med=25→y=184, Q3=35→y=145, Max=50→y=88 -->
+                            <line x1="160" y1="261" x2="160" y2="222" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="261" x2="175" y2="261" stroke="black" stroke-width="1.5"/>
+                            <rect x="135" y="145" width="50" height="77" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="135" y1="184" x2="185" y2="184" stroke="black" stroke-width="2.5"/>
+                            <line x1="160" y1="145" x2="160" y2="88" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="88" x2="175" y2="88" stroke="black" stroke-width="1.5"/>
+                            <text x="160" y="305" class="svg-text" text-anchor="middle">P校</text>
+
+                            <!-- Q校 (center=260, box 235-285) -->
+                            <!-- Min=10→y=242, Q1=20→y=203, Med=30→y=165, Q3=40→y=126, Max=55→y=69 -->
+                            <line x1="260" y1="242" x2="260" y2="203" stroke="black" stroke-width="1.5"/>
+                            <line x1="245" y1="242" x2="275" y2="242" stroke="black" stroke-width="1.5"/>
+                            <rect x="235" y="126" width="50" height="77" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="235" y1="165" x2="285" y2="165" stroke="black" stroke-width="2.5"/>
+                            <line x1="260" y1="126" x2="260" y2="69" stroke="black" stroke-width="1.5"/>
+                            <line x1="245" y1="69" x2="275" y2="69" stroke="black" stroke-width="1.5"/>
+                            <text x="260" y="305" class="svg-text" text-anchor="middle">Q校</text>
+
+                            <!-- R校 (center=360, box 335-385) -->
+                            <!-- Min=8→y=249, Q1=18→y=211, Med=22→y=195, Q3=32→y=157, Max=48→y=95 -->
+                            <line x1="360" y1="249" x2="360" y2="211" stroke="black" stroke-width="1.5"/>
+                            <line x1="345" y1="249" x2="375" y2="249" stroke="black" stroke-width="1.5"/>
+                            <rect x="335" y="157" width="50" height="54" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="335" y1="195" x2="385" y2="195" stroke="black" stroke-width="2.5"/>
+                            <line x1="360" y1="157" x2="360" y2="95" stroke="black" stroke-width="1.5"/>
+                            <line x1="345" y1="95" x2="375" y2="95" stroke="black" stroke-width="1.5"/>
+                            <text x="360" y="305" class="svg-text" text-anchor="middle">R校</text>
+
+                            <!-- S校 (center=460, box 435-485) → adjust to fit: center=440, box 415-465 -->
+                            <!-- Min=3→y=268, Q1=12→y=234, Med=28→y=172, Q3=45→y=107, Max=60→y=49 -->
+                            <line x1="440" y1="268" x2="440" y2="234" stroke="black" stroke-width="1.5"/>
+                            <line x1="425" y1="268" x2="455" y2="268" stroke="black" stroke-width="1.5"/>
+                            <rect x="415" y="107" width="50" height="127" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="415" y1="172" x2="465" y2="172" stroke="black" stroke-width="2.5"/>
+                            <line x1="440" y1="107" x2="440" y2="49" stroke="black" stroke-width="1.5"/>
+                            <line x1="425" y1="49" x2="455" y2="49" stroke="black" stroke-width="1.5"/>
+                            <text x="440" y="305" class="svg-text" text-anchor="middle">S校</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="question-text">
+                    ア．S校の四分位範囲は4校の中で最も大きい<br>
+                    イ．Q校の中央値はR校の中央値より小さい<br>
+                    ウ．P校の範囲（最大値と最小値の差）はR校の範囲と等しい<br>
+                    エ．4校の中で、第3四分位数が最も大きいのはS校である
+                </div>
+
+                <div class="options">
+                    (1) ア、イ<br>
+                    (2) イ、ウ<br>
+                    (3) ア、ウ<br>
+                    (4) イ、エ<br>
+                    (5) ア、エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                各校のデータを箱ひげ図から読み取る。<br><br>
+
+                <strong>【各校の統計量】</strong><br>
+                ・P校: 最小値=5, Q1=15, 中央値=25, Q3=35, 最大値=50<br>
+                ・Q校: 最小値=10, Q1=20, 中央値=30, Q3=40, 最大値=55<br>
+                ・R校: 最小値=8, Q1=18, 中央値=22, Q3=32, 最大値=48<br>
+                ・S校: 最小値=3, Q1=12, 中央値=28, Q3=45, 最大値=60<br><br>
+
+                <strong>【四分位範囲（IQR = Q3 - Q1）】</strong><br>
+                ・P校: 35 - 15 = 20<br>
+                ・Q校: 40 - 20 = 20<br>
+                ・R校: 32 - 18 = 14<br>
+                ・S校: 45 - 12 = 33<br><br>
+
+                <strong>【範囲（最大値 - 最小値）】</strong><br>
+                ・P校: 50 - 5 = 45<br>
+                ・Q校: 55 - 10 = 45<br>
+                ・R校: 48 - 8 = 40<br>
+                ・S校: 60 - 3 = 57<br><br>
+
+                <strong>【記述の検討】</strong><br>
+                ・ア: S校のIQR(33)は最大 → <strong>正しい</strong><br>
+                ・イ: Q校の中央値(30) > R校の中央値(22) → Q校の方が大きいので<strong>誤り</strong><br>
+                ・ウ: P校の範囲(45) ≠ R校の範囲(40) → 等しくないので<strong>誤り</strong><br>
+                ・エ: S校のQ3(45)は最大（P:35, Q:40, R:32） → <strong>正しい</strong><br><br>
+
+                正しい記述はアとエであり、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
