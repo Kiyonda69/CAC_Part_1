@@ -1,0 +1,561 @@
+<!--
+================================================================================
+印刷69.html - セット69: 図表の読み取り（折れ線グラフ・表）
+================================================================================
+問1（標準）: 折れ線グラフ読み取り - 4都市の月別平均気温から正しい記述を選ぶ
+問2（高難度）: 表の複合読み取り - エネルギー源別発電構成比と総発電量から正しい記述を選ぶ
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の折れ線グラフと表は、4つの都市（P～S）における4月から8月の月別平均気温を示したものである。これらの資料から読み取れる記述として正しいものを、(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 600x360px
+                - viewBox: 0 0 600 360
+                - 折れ線グラフ: 4都市×5ヶ月（データラベルなし、表で補完）
+                - Y軸: 0～30（気温 ℃）
+                - X軸: 4月～8月
+                座標系:
+                - Y: 280=0℃, 30=30℃ → 1℃あたり8.33px
+                - X: 120, 220, 320, 420, 520
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図：4都市の月別平均気温の推移】</div>
+                    <div class="figure-content">
+                        <svg width="600" height="360" viewBox="0 0 600 360">
+                            <!-- Y軸 -->
+                            <line x1="80" y1="30" x2="80" y2="280" stroke="black" stroke-width="2"/>
+                            <!-- X軸 -->
+                            <line x1="80" y1="280" x2="560" y2="280" stroke="black" stroke-width="2"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="25" y="165" class="svg-text" text-anchor="middle" transform="rotate(-90, 25, 165)">平均気温（℃）</text>
+
+                            <!-- Y軸目盛り: 0, 5, 10, 15, 20, 25, 30 -->
+                            <!-- Y: 280=0℃, 30=30℃ → 1℃ = 250/30 = 8.33px -->
+                            <text x="70" y="284" class="svg-text" text-anchor="end">0</text>
+                            <line x1="75" y1="280" x2="80" y2="280" stroke="black" stroke-width="1"/>
+
+                            <text x="70" y="242" class="svg-text" text-anchor="end">5</text>
+                            <line x1="75" y1="238.3" x2="560" y2="238.3" stroke="#ccc" stroke-width="0.5"/>
+
+                            <text x="70" y="200" class="svg-text" text-anchor="end">10</text>
+                            <line x1="75" y1="196.7" x2="560" y2="196.7" stroke="#ccc" stroke-width="0.5"/>
+
+                            <text x="70" y="159" class="svg-text" text-anchor="end">15</text>
+                            <line x1="75" y1="155.0" x2="560" y2="155.0" stroke="#ccc" stroke-width="0.5"/>
+
+                            <text x="70" y="117" class="svg-text" text-anchor="end">20</text>
+                            <line x1="75" y1="113.3" x2="560" y2="113.3" stroke="#ccc" stroke-width="0.5"/>
+
+                            <text x="70" y="76" class="svg-text" text-anchor="end">25</text>
+                            <line x1="75" y1="71.7" x2="560" y2="71.7" stroke="#ccc" stroke-width="0.5"/>
+
+                            <text x="70" y="34" class="svg-text" text-anchor="end">30</text>
+                            <line x1="75" y1="30" x2="560" y2="30" stroke="#ccc" stroke-width="0.5"/>
+
+                            <!-- X軸ラベル -->
+                            <text x="120" y="300" class="svg-text" text-anchor="middle">4月</text>
+                            <text x="220" y="300" class="svg-text" text-anchor="middle">5月</text>
+                            <text x="320" y="300" class="svg-text" text-anchor="middle">6月</text>
+                            <text x="420" y="300" class="svg-text" text-anchor="middle">7月</text>
+                            <text x="520" y="300" class="svg-text" text-anchor="middle">8月</text>
+
+                            <!-- 都市P: 10, 16, 22, 28, 26 (実線・黒丸) -->
+                            <!-- y = 280 - temp * 8.33 -->
+                            <polyline points="120,196.7 220,146.7 320,96.7 420,46.8 520,63.4"
+                                fill="none" stroke="black" stroke-width="2.5"/>
+                            <circle cx="120" cy="196.7" r="5" fill="black"/>
+                            <circle cx="220" cy="146.7" r="5" fill="black"/>
+                            <circle cx="320" cy="96.7" r="5" fill="black"/>
+                            <circle cx="420" cy="46.8" r="5" fill="black"/>
+                            <circle cx="520" cy="63.4" r="5" fill="black"/>
+
+                            <!-- 都市Q: 14, 18, 24, 26, 22 (破線・黒四角) -->
+                            <polyline points="120,163.4 220,130.1 320,80.1 420,63.4 520,96.7"
+                                fill="none" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+                            <rect x="115" y="158.4" width="10" height="10" fill="black"/>
+                            <rect x="215" y="125.1" width="10" height="10" fill="black"/>
+                            <rect x="315" y="75.1" width="10" height="10" fill="black"/>
+                            <rect x="415" y="58.4" width="10" height="10" fill="black"/>
+                            <rect x="515" y="91.7" width="10" height="10" fill="black"/>
+
+                            <!-- 都市R: 8, 12, 18, 24, 28 (点線・黒三角) -->
+                            <polyline points="120,213.4 220,180.0 320,130.1 420,80.1 520,46.8"
+                                fill="none" stroke="black" stroke-width="2" stroke-dasharray="3,3"/>
+                            <polygon points="120,207.4 114,218.4 126,218.4" fill="black"/>
+                            <polygon points="220,174.0 214,185.0 226,185.0" fill="black"/>
+                            <polygon points="320,124.1 314,135.1 326,135.1" fill="black"/>
+                            <polygon points="420,74.1 414,85.1 426,85.1" fill="black"/>
+                            <polygon points="520,40.8 514,51.8 526,51.8" fill="black"/>
+
+                            <!-- 都市S: 16, 16, 20, 22, 20 (一点鎖線・白丸) -->
+                            <polyline points="120,146.7 220,146.7 320,113.3 420,96.7 520,113.3"
+                                fill="none" stroke="black" stroke-width="2" stroke-dasharray="15,5,3,5"/>
+                            <circle cx="120" cy="146.7" r="5" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="220" cy="146.7" r="5" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="320" cy="113.3" r="5" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="420" cy="96.7" r="5" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="520" cy="113.3" r="5" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 凡例 -->
+                            <line x1="100" y1="330" x2="135" y2="330" stroke="black" stroke-width="2.5"/>
+                            <circle cx="117" cy="330" r="4" fill="black"/>
+                            <text x="140" y="334" class="svg-text" font-size="12">都市P</text>
+
+                            <line x1="210" y1="330" x2="245" y2="330" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+                            <rect x="224" y="326" width="7" height="7" fill="black"/>
+                            <text x="250" y="334" class="svg-text" font-size="12">都市Q</text>
+
+                            <line x1="320" y1="330" x2="355" y2="330" stroke="black" stroke-width="2" stroke-dasharray="3,3"/>
+                            <polygon points="337,324 332,336 342,336" fill="black"/>
+                            <text x="360" y="334" class="svg-text" font-size="12">都市R</text>
+
+                            <line x1="430" y1="330" x2="465" y2="330" stroke="black" stroke-width="2" stroke-dasharray="15,5,3,5"/>
+                            <circle cx="447" cy="330" r="4" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="470" y="334" class="svg-text" font-size="12">都市S</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表：月別平均気温（℃）】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>都市</th>
+                                <th>4月</th>
+                                <th>5月</th>
+                                <th>6月</th>
+                                <th>7月</th>
+                                <th>8月</th>
+                            </tr>
+                            <tr>
+                                <td>P</td>
+                                <td>10</td>
+                                <td>16</td>
+                                <td>22</td>
+                                <td>28</td>
+                                <td>26</td>
+                            </tr>
+                            <tr>
+                                <td>Q</td>
+                                <td>14</td>
+                                <td>18</td>
+                                <td>24</td>
+                                <td>26</td>
+                                <td>22</td>
+                            </tr>
+                            <tr>
+                                <td>R</td>
+                                <td>8</td>
+                                <td>12</td>
+                                <td>18</td>
+                                <td>24</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>S</td>
+                                <td>16</td>
+                                <td>16</td>
+                                <td>20</td>
+                                <td>22</td>
+                                <td>20</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 4都市全てにおいて、6月の平均気温は20度以上である<br>
+                    (2) 都市Pと都市Qの7月の平均気温の差は3度である<br>
+                    (3) 5月から6月にかけて平均気温の上昇幅が最も大きい都市はQである<br>
+                    (4) 8月に平均気温が最も高い都市はRである<br>
+                    (5) 都市Sの5ヶ月間の平均気温は19度である<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                各選択肢を検証する。<br><br>
+
+                <strong>【(1) の検証】</strong><br>
+                6月の平均気温: P=22℃、Q=24℃、R=<strong>18℃</strong>、S=20℃<br>
+                都市Rが18℃で20度未満なので、<strong>誤り</strong>。<br><br>
+
+                <strong>【(2) の検証】</strong><br>
+                7月の気温: P=28℃、Q=26℃<br>
+                差: 28 - 26 = <strong>2℃</strong><br>
+                3度ではないので、<strong>誤り</strong>。<br><br>
+
+                <strong>【(3) の検証】</strong><br>
+                5月→6月の上昇幅: P=22-16=<strong>6℃</strong>、Q=24-18=<strong>6℃</strong>、R=18-12=<strong>6℃</strong>、S=20-16=<strong>4℃</strong><br>
+                最大はP、Q、Rの3都市が同率（6℃）であり、Qのみではないので<strong>誤り</strong>。<br><br>
+
+                <strong>【(4) の検証】</strong><br>
+                8月の気温: P=26℃、Q=22℃、R=<strong>28℃</strong>、S=20℃<br>
+                最も高いのは都市R（28℃）なので、<strong>正しい</strong>。<br><br>
+
+                <strong>【(5) の検証】</strong><br>
+                都市Sの5ヶ月の合計: 16+16+20+22+20 = 94℃<br>
+                平均: 94 / 5 = <strong>18.8℃</strong><br>
+                19度ではないので、<strong>誤り</strong>。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の2つの表は、ある地域における2023年と2025年のエネルギー源別発電構成比（%）と各年の総発電量を示したものである。これらの表から読み取れる記述として正しいものを、(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1：エネルギー源別発電構成比（%）】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>エネルギー源</th>
+                                <th>火力</th>
+                                <th>水力</th>
+                                <th>太陽光</th>
+                                <th>風力</th>
+                                <th>原子力</th>
+                            </tr>
+                            <tr>
+                                <td>2023年</td>
+                                <td>40</td>
+                                <td>25</td>
+                                <td>15</td>
+                                <td>10</td>
+                                <td>10</td>
+                            </tr>
+                            <tr>
+                                <td>2025年</td>
+                                <td>30</td>
+                                <td>20</td>
+                                <td>25</td>
+                                <td>15</td>
+                                <td>10</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2：総発電量】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>年</th>
+                                <th>総発電量（万kWh）</th>
+                            </tr>
+                            <tr>
+                                <td>2023年</td>
+                                <td>500</td>
+                            </tr>
+                            <tr>
+                                <td>2025年</td>
+                                <td>600</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※ 各エネルギー源の発電量（万kWh）＝ 総発電量 × 構成比（%）/ 100</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 2023年から2025年にかけて、火力の発電量は増加した<br>
+                    (2) 2025年における再生可能エネルギー（水力・太陽光・風力）の合計発電量は350万kWh以上である<br>
+                    (3) 太陽光の発電量の増加量は、風力の発電量の増加量の2倍である<br>
+                    (4) 2025年の水力と風力の発電量の合計は、2023年の火力の発電量と等しい<br>
+                    (5) 原子力の発電量は2年間で変化していない<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                まず、各エネルギー源の発電量を計算する。<br><br>
+
+                <strong>【2023年の発電量（総発電量500万kWh）】</strong><br>
+                ・火力: 500 × 40/100 = <strong>200万kWh</strong><br>
+                ・水力: 500 × 25/100 = <strong>125万kWh</strong><br>
+                ・太陽光: 500 × 15/100 = <strong>75万kWh</strong><br>
+                ・風力: 500 × 10/100 = <strong>50万kWh</strong><br>
+                ・原子力: 500 × 10/100 = <strong>50万kWh</strong><br><br>
+
+                <strong>【2025年の発電量（総発電量600万kWh）】</strong><br>
+                ・火力: 600 × 30/100 = <strong>180万kWh</strong><br>
+                ・水力: 600 × 20/100 = <strong>120万kWh</strong><br>
+                ・太陽光: 600 × 25/100 = <strong>150万kWh</strong><br>
+                ・風力: 600 × 15/100 = <strong>90万kWh</strong><br>
+                ・原子力: 600 × 10/100 = <strong>60万kWh</strong><br><br>
+
+                <strong>【各選択肢の検証】</strong><br><br>
+
+                (1) 火力: 200 → 180万kWh（<strong>20万kWh減少</strong>） → <strong>誤り</strong><br><br>
+
+                (2) 2025年の再生可能エネルギー合計: 120 + 150 + 90 = <strong>360万kWh</strong><br>
+                360 ≧ 350 → <strong>正しい</strong><br><br>
+
+                (3) 太陽光の増加量: 150 - 75 = <strong>75万kWh</strong><br>
+                風力の増加量: 90 - 50 = <strong>40万kWh</strong><br>
+                75 ≠ 40 × 2 = 80 → 2倍ではない → <strong>誤り</strong><br><br>
+
+                (4) 2025年の水力+風力: 120 + 90 = <strong>210万kWh</strong><br>
+                2023年の火力: <strong>200万kWh</strong><br>
+                210 ≠ 200 → 等しくない → <strong>誤り</strong><br><br>
+
+                (5) 原子力: 50 → 60万kWh（<strong>10万kWh増加</strong>） → <strong>誤り</strong><br>
+                構成比は同じ10%だが、総発電量が増加しているため発電量も増加している。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
