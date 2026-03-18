@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 24px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .explanation { padding: 20px 0; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", serif; font-size: 14px; }
+        .options { margin-left: 20px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図のように5×5の正方形がある。(1)～(5)のパーツのうち4つを組み合わせてこの正方形を作るとき、要らないパーツを答えよ。ただし、パーツは回転させてもよいが、裏返すことはできない。（6点）</div>
+
+                <!--
+                図表仕様:
+                - 対象グリッド: 5×5の正方形
+                - セルサイズ: 28px
+                - グリッドサイズ: 140×140px
+                - SVGサイズ: 180×180px
+                - viewBox: 0 0 180 180
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="160" height="160" viewBox="0 0 160 160">
+                            <!-- 5×5グリッド -->
+                            <rect x="10" y="10" width="140" height="140" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 横線 -->
+                            <line x1="10" y1="38" x2="150" y2="38" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="66" x2="150" y2="66" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="94" x2="150" y2="94" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="122" x2="150" y2="122" stroke="black" stroke-width="1"/>
+                            <!-- 縦線 -->
+                            <line x1="38" y1="10" x2="38" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="66" y1="10" x2="66" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="94" y1="10" x2="94" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="122" y1="10" x2="122" y2="150" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                パーツ一覧:
+                - セルサイズ: 22px
+                - (1) P型ペントミノ: 5マス (2列×3行)
+                - (2) J型ヘクソミノ: 6マス (3列×4行)
+                - (3) T型ペントミノ: 5マス (3列×3行) ← 正解（不要）
+                - (4) 不規則ヘプトミノ: 7マス (2列×4行)
+                - (5) L型ヘプトミノ: 7マス (4列×3行)
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="500" height="120" viewBox="0 0 500 120">
+                            <!-- パーツ(1): P型ペントミノ (5マス) -->
+                            <!--
+                            形状:
+                            # #
+                            # #
+                            . #
+                            セル: (0,0),(0,1),(1,0),(1,1),(2,1)
+                            -->
+                            <g transform="translate(10, 20)">
+                                <text x="22" y="-5" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(2): J型ヘクソミノ (6マス) -->
+                            <!--
+                            形状:
+                            # # #
+                            # . .
+                            # . .
+                            # . .
+                            セル: (0,0),(0,1),(0,2),(1,0),(2,0),(3,0)
+                            -->
+                            <g transform="translate(80, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="66" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(3): T型ペントミノ (5マス) ← 正解（不要） -->
+                            <!--
+                            形状:
+                            # # #
+                            . # .
+                            . # .
+                            セル: (0,0),(0,1),(0,2),(1,1),(2,1)
+                            -->
+                            <g transform="translate(180, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(4): 不規則ヘプトミノ (7マス) -->
+                            <!--
+                            形状:
+                            # #
+                            # #
+                            # #
+                            . #
+                            セル: (0,0),(0,1),(1,0),(1,1),(2,0),(2,1),(3,1)
+                            -->
+                            <g transform="translate(280, 20)">
+                                <text x="22" y="-5" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="66" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(5): L型ヘプトミノ (7マス) -->
+                            <!--
+                            形状:
+                            # . . .
+                            # # . .
+                            # # # #
+                            セル: (0,0),(1,0),(1,1),(2,0),(2,1),(2,2),(2,3)
+                            -->
+                            <g transform="translate(370, 20)">
+                                <text x="44" y="-5" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="66" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【セル数の分析】</strong><br>
+                5×5の正方形 = 25マスを4つのパーツで埋める。<br>
+                各パーツのマス数: (1)5マス、(2)6マス、(3)5マス、(4)7マス、(5)7マス<br>
+                合計: 30マス。除外すべきパーツは 30 - 25 = 5マス。<br>
+                5マスのパーツは(1)と(3)の2つがあるため、セル数だけでは決まらない。<br><br>
+
+                <strong>【空間的検証】</strong><br>
+                (3)のT型ペントミノを除外した場合、残りの(1)(2)(4)(5)で下図のように5×5を完全に埋めることができる。<br>
+                一方、(1)を除外した場合は、残りのパーツで5×5を埋めることができない。<br><br>
+
+                <!--
+                解答配置図:
+                - セルサイズ: 28px
+                - (1): 薄灰色 #ccc
+                - (2): 中灰色 #aaa
+                - (4): 暗灰色 #888
+                - (5): 濃灰色 #666
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【解答配置】</div>
+                    <div class="figure-content">
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <!-- 行0: (1)(1)(2)(2)(2) -->
+                            <rect x="10" y="10" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="10" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="10" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="10" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="10" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <!-- 行1: (1)(1)(2)(4)(4) -->
+                            <rect x="10" y="38" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="38" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="38" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="38" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="38" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- 行2: (5)(1)(2)(4)(4) -->
+                            <rect x="10" y="66" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="66" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="66" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="66" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="66" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- 行3: (5)(5)(2)(4)(4) -->
+                            <rect x="10" y="94" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="94" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="94" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="94" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="94" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- 行4: (5)(5)(5)(5)(4) -->
+                            <rect x="10" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="122" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- ラベル -->
+                            <text x="24" y="30" class="svg-text" text-anchor="middle" font-size="11">(1)</text>
+                            <text x="80" y="30" class="svg-text" text-anchor="middle" font-size="11">(2)</text>
+                            <text x="108" y="58" class="svg-text" text-anchor="middle" font-size="11">(4)</text>
+                            <text x="52" y="114" class="svg-text" text-anchor="middle" font-size="11">(5)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図のように5×5の正方形がある。(1)～(5)のパーツのうち4つを組み合わせてこの正方形を作るとき、要らないパーツを答えよ。ただし、パーツは回転させてもよいが、裏返すことはできない。（6点）</div>
+
+                <!--
+                図表仕様:
+                - 対象グリッド: 5×5の正方形
+                - セルサイズ: 28px
+                - グリッドサイズ: 140×140px
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="160" height="160" viewBox="0 0 160 160">
+                            <!-- 5×5グリッド -->
+                            <rect x="10" y="10" width="140" height="140" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="10" y1="38" x2="150" y2="38" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="66" x2="150" y2="66" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="94" x2="150" y2="94" stroke="black" stroke-width="1"/>
+                            <line x1="10" y1="122" x2="150" y2="122" stroke="black" stroke-width="1"/>
+                            <line x1="38" y1="10" x2="38" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="66" y1="10" x2="66" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="94" y1="10" x2="94" y2="150" stroke="black" stroke-width="1"/>
+                            <line x1="122" y1="10" x2="122" y2="150" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                パーツ一覧:
+                - セルサイズ: 22px
+                - (1) プラス型: 5マス ← 正解（不要）
+                - (2) 2×3+2型: 8マス
+                - (3) P型ペントミノ: 5マス
+                - (4) 不規則ヘプトミノ: 7マス
+                - (5) P反転型: 5マス
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="480" height="110" viewBox="0 0 480 110">
+                            <!-- パーツ(1): プラス型 (5マス) ← 正解（不要） -->
+                            <!--
+                            形状:
+                            . # .
+                            # # #
+                            . # .
+                            セル: (0,1),(1,0),(1,1),(1,2),(2,1)
+                            -->
+                            <g transform="translate(10, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(2): 2×3+2型 (8マス) -->
+                            <!--
+                            形状:
+                            # # #
+                            # # #
+                            # # .
+                            セル: (0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1)
+                            -->
+                            <g transform="translate(100, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(3): P型ペントミノ (5マス) -->
+                            <!--
+                            形状:
+                            # #
+                            # #
+                            . #
+                            セル: (0,0),(0,1),(1,0),(1,1),(2,1)
+                            -->
+                            <g transform="translate(200, 20)">
+                                <text x="22" y="-5" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(4): 不規則ヘプトミノ (7マス) -->
+                            <!--
+                            形状:
+                            # # .
+                            # # #
+                            . # #
+                            セル: (0,0),(0,1),(1,0),(1,1),(1,2),(2,1),(2,2)
+                            -->
+                            <g transform="translate(280, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="44" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- パーツ(5): P反転型 (5マス) -->
+                            <!--
+                            形状:
+                            # # .
+                            # # #
+                            セル: (0,0),(0,1),(1,0),(1,1),(1,2)
+                            -->
+                            <g transform="translate(380, 20)">
+                                <text x="33" y="-5" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="0" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="0" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="0" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="22" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="22" width="22" height="22" fill="#999" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【セル数の分析】</strong><br>
+                5×5の正方形 = 25マスを4つのパーツで埋める。<br>
+                各パーツのマス数: (1)5マス、(2)8マス、(3)5マス、(4)7マス、(5)5マス<br>
+                合計: 30マス。除外すべきパーツは 30 - 25 = 5マス。<br>
+                5マスのパーツは(1)、(3)、(5)の3つがあるため、セル数だけでは決まらない。<br><br>
+
+                <strong>【空間的検証】</strong><br>
+                (1)のプラス型は4回回転対称であり、回転しても形が変わらない（回転パターン数:1）。<br>
+                この高い対称性のため、他の不規則な形状のパーツと組み合わせて長方形領域を隙間なく埋めることが困難である。<br><br>
+
+                (1)を除外した場合、残りの(2)(3)(4)(5)で下図のように5×5を完全に埋めることができる。<br>
+                一方、(3)や(5)を除外した場合は、プラス型の(1)を含むため5×5を埋めることができない。<br><br>
+
+                <!--
+                解答配置図:
+                - (2): 薄灰色 #ccc
+                - (3): 中灰色 #aaa
+                - (4): 暗灰色 #888
+                - (5): 濃灰色 #666
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【解答配置】</div>
+                    <div class="figure-content">
+                        <svg width="200" height="200" viewBox="0 0 200 200">
+                            <!-- 行0: (2)(2)(2)(3)(3) -->
+                            <rect x="10" y="10" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="10" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="10" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="10" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="10" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <!-- 行1: (2)(2)(2)(3)(3) -->
+                            <rect x="10" y="38" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="38" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="38" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="38" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="38" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <!-- 行2: (2)(2)(4)(4)(3) -->
+                            <rect x="10" y="66" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="66" width="28" height="28" fill="#ccc" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="66" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="66" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="66" width="28" height="28" fill="#aaa" stroke="black" stroke-width="1.5"/>
+                            <!-- 行3: (5)(5)(4)(4)(4) -->
+                            <rect x="10" y="94" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="94" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="94" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="94" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="94" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- 行4: (5)(5)(5)(4)(4) -->
+                            <rect x="10" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="38" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="66" y="122" width="28" height="28" fill="#666" stroke="black" stroke-width="1.5"/>
+                            <rect x="94" y="122" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <rect x="122" y="122" width="28" height="28" fill="#888" stroke="black" stroke-width="1.5"/>
+                            <!-- ラベル -->
+                            <text x="38" y="30" class="svg-text" text-anchor="middle" font-size="11">(2)</text>
+                            <text x="108" y="30" class="svg-text" text-anchor="middle" font-size="11">(3)</text>
+                            <text x="80" y="86" class="svg-text" text-anchor="middle" font-size="11">(4)</text>
+                            <text x="38" y="114" class="svg-text" text-anchor="middle" font-size="11">(5)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
