@@ -1,0 +1,800 @@
+<!--
+================================================================================
+航大思考69.html - セット69: 図表の読み取り（折れ線グラフ・表）
+================================================================================
+問1（標準）: 折れ線グラフ読み取り - 4都市の月別平均気温から正しい記述を選ぶ
+問2（高難度）: 表の複合読み取り - エネルギー源別発電構成比と総発電量から正しい記述を選ぶ
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 9px 14px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 15px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 7px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の折れ線グラフは、4つの都市（P～S）における4月から8月の月別平均気温を示したものである。このグラフから読み取れる記述として正しいものを、(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 600x400px
+            - viewBox: 0 0 600 400
+            - 折れ線グラフ: 4都市×5ヶ月
+            - Y軸: 0～30（気温 ℃）
+            - X軸: 4月～8月
+            座標系:
+            - Y: 310=0℃, 30=30℃ → 1℃あたり9.33px
+            - X: 120, 220, 320, 420, 520
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【4都市の月別平均気温】</div>
+                <div class="figure-content">
+                    <svg width="600" height="400" viewBox="0 0 600 400">
+                        <!-- Y軸 -->
+                        <line x1="80" y1="30" x2="80" y2="310" stroke="black" stroke-width="2"/>
+                        <!-- X軸 -->
+                        <line x1="80" y1="310" x2="560" y2="310" stroke="black" stroke-width="2"/>
+
+                        <!-- Y軸ラベル -->
+                        <text x="25" y="180" class="svg-text" text-anchor="middle" transform="rotate(-90, 25, 180)">平均気温（℃）</text>
+
+                        <!-- Y軸目盛り -->
+                        <text x="70" y="314" class="svg-text" text-anchor="end">0</text>
+                        <line x1="75" y1="310" x2="80" y2="310" stroke="black" stroke-width="1"/>
+
+                        <text x="70" y="267" class="svg-text" text-anchor="end">5</text>
+                        <line x1="75" y1="263.3" x2="560" y2="263.3" stroke="#ccc" stroke-width="0.5"/>
+
+                        <text x="70" y="220" class="svg-text" text-anchor="end">10</text>
+                        <line x1="75" y1="216.7" x2="560" y2="216.7" stroke="#ccc" stroke-width="0.5"/>
+
+                        <text x="70" y="174" class="svg-text" text-anchor="end">15</text>
+                        <line x1="75" y1="170.0" x2="560" y2="170.0" stroke="#ccc" stroke-width="0.5"/>
+
+                        <text x="70" y="127" class="svg-text" text-anchor="end">20</text>
+                        <line x1="75" y1="123.3" x2="560" y2="123.3" stroke="#ccc" stroke-width="0.5"/>
+
+                        <text x="70" y="80" class="svg-text" text-anchor="end">25</text>
+                        <line x1="75" y1="76.7" x2="560" y2="76.7" stroke="#ccc" stroke-width="0.5"/>
+
+                        <text x="70" y="34" class="svg-text" text-anchor="end">30</text>
+                        <line x1="75" y1="30" x2="560" y2="30" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- X軸ラベル -->
+                        <text x="120" y="335" class="svg-text" text-anchor="middle">4月</text>
+                        <text x="220" y="335" class="svg-text" text-anchor="middle">5月</text>
+                        <text x="320" y="335" class="svg-text" text-anchor="middle">6月</text>
+                        <text x="420" y="335" class="svg-text" text-anchor="middle">7月</text>
+                        <text x="520" y="335" class="svg-text" text-anchor="middle">8月</text>
+
+                        <!-- 都市P: 10, 16, 22, 28, 26 (実線・黒丸) -->
+                        <polyline points="120,216.7 220,160.7 320,104.7 420,48.7 520,67.3"
+                            fill="none" stroke="black" stroke-width="2.5"/>
+                        <circle cx="120" cy="216.7" r="4" fill="black"/>
+                        <circle cx="220" cy="160.7" r="4" fill="black"/>
+                        <circle cx="320" cy="104.7" r="4" fill="black"/>
+                        <circle cx="420" cy="48.7" r="4" fill="black"/>
+                        <circle cx="520" cy="67.3" r="4" fill="black"/>
+                        <text x="120" y="233" class="svg-text" text-anchor="middle" font-size="11">10</text>
+                        <text x="220" y="155" class="svg-text" text-anchor="middle" font-size="11">16</text>
+                        <text x="320" y="99" class="svg-text" text-anchor="middle" font-size="11">22</text>
+                        <text x="420" y="43" class="svg-text" text-anchor="middle" font-size="11">28</text>
+                        <text x="520" y="62" class="svg-text" text-anchor="middle" font-size="11">26</text>
+
+                        <!-- 都市Q: 14, 18, 24, 26, 22 (破線・四角) -->
+                        <polyline points="120,179.3 220,142.0 320,86.0 420,67.3 520,104.7"
+                            fill="none" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+                        <rect x="116" y="175.3" width="8" height="8" fill="black"/>
+                        <rect x="216" y="138.0" width="8" height="8" fill="black"/>
+                        <rect x="316" y="82.0" width="8" height="8" fill="black"/>
+                        <rect x="416" y="63.3" width="8" height="8" fill="black"/>
+                        <rect x="516" y="100.7" width="8" height="8" fill="black"/>
+                        <text x="108" y="175" class="svg-text" text-anchor="end" font-size="11">14</text>
+                        <text x="208" y="138" class="svg-text" text-anchor="end" font-size="11">18</text>
+                        <text x="332" y="80" class="svg-text" text-anchor="start" font-size="11">24</text>
+                        <text x="432" y="62" class="svg-text" text-anchor="start" font-size="11">26</text>
+                        <text x="532" y="100" class="svg-text" text-anchor="start" font-size="11">22</text>
+
+                        <!-- 都市R: 8, 12, 18, 24, 28 (点線・三角) -->
+                        <polyline points="120,235.3 220,198.0 320,142.0 420,86.0 520,48.7"
+                            fill="none" stroke="black" stroke-width="2" stroke-dasharray="3,3"/>
+                        <polygon points="120,231.3 116,239.3 124,239.3" fill="black"/>
+                        <polygon points="220,194.0 216,202.0 224,202.0" fill="black"/>
+                        <polygon points="320,138.0 316,146.0 324,146.0" fill="black"/>
+                        <polygon points="420,82.0 416,90.0 424,90.0" fill="black"/>
+                        <polygon points="520,44.7 516,52.7 524,52.7" fill="black"/>
+                        <text x="132" y="243" class="svg-text" text-anchor="start" font-size="11">8</text>
+                        <text x="232" y="206" class="svg-text" text-anchor="start" font-size="11">12</text>
+                        <text x="308" y="148" class="svg-text" text-anchor="end" font-size="11">18</text>
+                        <text x="408" y="90" class="svg-text" text-anchor="end" font-size="11">24</text>
+                        <text x="508" y="45" class="svg-text" text-anchor="end" font-size="11">28</text>
+
+                        <!-- 都市S: 16, 16, 20, 22, 20 (一点鎖線・白丸) -->
+                        <polyline points="120,160.7 220,160.7 320,123.3 420,104.7 520,123.3"
+                            fill="none" stroke="black" stroke-width="2" stroke-dasharray="15,5,3,5"/>
+                        <circle cx="120" cy="160.7" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="220" cy="160.7" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="320" cy="123.3" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="420" cy="104.7" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="520" cy="123.3" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="108" y="157" class="svg-text" text-anchor="end" font-size="11">16</text>
+                        <text x="232" y="157" class="svg-text" text-anchor="start" font-size="11">16</text>
+                        <text x="332" y="120" class="svg-text" text-anchor="start" font-size="11">20</text>
+                        <text x="432" y="100" class="svg-text" text-anchor="start" font-size="11">22</text>
+                        <text x="532" y="120" class="svg-text" text-anchor="start" font-size="11">20</text>
+
+                        <!-- 凡例 -->
+                        <line x1="100" y1="360" x2="130" y2="360" stroke="black" stroke-width="2.5"/>
+                        <circle cx="115" cy="360" r="4" fill="black"/>
+                        <text x="135" y="364" class="svg-text" font-size="12">都市P</text>
+
+                        <line x1="210" y1="360" x2="240" y2="360" stroke="black" stroke-width="2" stroke-dasharray="10,5"/>
+                        <rect x="222" y="356" width="6" height="6" fill="black"/>
+                        <text x="245" y="364" class="svg-text" font-size="12">都市Q</text>
+
+                        <line x1="320" y1="360" x2="350" y2="360" stroke="black" stroke-width="2" stroke-dasharray="3,3"/>
+                        <polygon points="335,356 331,364 339,364" fill="black"/>
+                        <text x="355" y="364" class="svg-text" font-size="12">都市R</text>
+
+                        <line x1="430" y1="360" x2="460" y2="360" stroke="black" stroke-width="2" stroke-dasharray="15,5,3,5"/>
+                        <circle cx="445" cy="360" r="4" fill="white" stroke="black" stroke-width="2"/>
+                        <text x="465" y="364" class="svg-text" font-size="12">都市S</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢：テキスト形式 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>4都市全てにおいて、6月の平均気温は20度以上である
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>都市Pと都市Qの7月の平均気温の差は3度である
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>5月から6月にかけて平均気温の上昇幅が最も大きい都市はQである
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>8月に平均気温が最も高い都市はRである
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>都市Sの5ヶ月間の平均気温は19度である
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>各選択肢を検証する。</p>
+                    <br>
+                    <p><strong>【(1) の検証】</strong></p>
+                    <p>6月の平均気温: P=22℃、Q=24℃、R=<strong>18℃</strong>、S=20℃</p>
+                    <p>都市Rが18℃で20度未満なので、<strong>誤り</strong>。</p>
+                    <br>
+                    <p><strong>【(2) の検証】</strong></p>
+                    <p>7月の気温: P=28℃、Q=26℃ → 差=<strong>2℃</strong></p>
+                    <p>3度ではないので、<strong>誤り</strong>。</p>
+                    <br>
+                    <p><strong>【(3) の検証】</strong></p>
+                    <p>5月→6月の上昇幅: P=<strong>6℃</strong>、Q=<strong>6℃</strong>、R=<strong>6℃</strong>、S=<strong>4℃</strong></p>
+                    <p>P、Q、Rの3都市が同率（6℃）であり、Qのみではないので<strong>誤り</strong>。</p>
+                    <br>
+                    <p><strong>【(4) の検証】</strong></p>
+                    <p>8月の気温: P=26℃、Q=22℃、R=<strong>28℃</strong>、S=20℃</p>
+                    <p>最も高いのは都市R（28℃）なので、<strong>正しい</strong>。</p>
+                    <br>
+                    <p><strong>【(5) の検証】</strong></p>
+                    <p>都市Sの5ヶ月合計: 16+16+20+22+20 = 94℃</p>
+                    <p>平均: 94 / 5 = <strong>18.8℃</strong>（19度ではない）→ <strong>誤り</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の2つの表は、ある地域における2023年と2025年のエネルギー源別発電構成比（%）と各年の総発電量を示したものである。これらの表から読み取れる記述として正しいものを、(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1：エネルギー源別発電構成比（%）】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>エネルギー源</th>
+                            <th>火力</th>
+                            <th>水力</th>
+                            <th>太陽光</th>
+                            <th>風力</th>
+                            <th>原子力</th>
+                        </tr>
+                        <tr>
+                            <td>2023年</td>
+                            <td>40</td>
+                            <td>25</td>
+                            <td>15</td>
+                            <td>10</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td>2025年</td>
+                            <td>30</td>
+                            <td>20</td>
+                            <td>25</td>
+                            <td>15</td>
+                            <td>10</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2：総発電量】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>年</th>
+                            <th>総発電量（万kWh）</th>
+                        </tr>
+                        <tr>
+                            <td>2023年</td>
+                            <td>500</td>
+                        </tr>
+                        <tr>
+                            <td>2025年</td>
+                            <td>600</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">※ 各エネルギー源の発電量（万kWh）＝ 総発電量 × 構成比（%）/ 100</div>
+                </div>
+            </div>
+
+            <!-- 選択肢：テキスト形式 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>2023年から2025年にかけて、火力の発電量は増加した
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>2025年における再生可能エネルギー（水力・太陽光・風力）の合計発電量は350万kWh以上である
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>太陽光の発電量の増加量は、風力の発電量の増加量の2倍である
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>2025年の水力と風力の発電量の合計は、2023年の火力の発電量と等しい
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>原子力の発電量は2年間で変化していない
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>まず、各エネルギー源の発電量を計算する。</p>
+                    <br>
+                    <p><strong>【2023年の発電量（総発電量500万kWh）】</strong></p>
+                    <p>・火力: 500 × 40/100 = <strong>200万kWh</strong></p>
+                    <p>・水力: 500 × 25/100 = <strong>125万kWh</strong></p>
+                    <p>・太陽光: 500 × 15/100 = <strong>75万kWh</strong></p>
+                    <p>・風力: 500 × 10/100 = <strong>50万kWh</strong></p>
+                    <p>・原子力: 500 × 10/100 = <strong>50万kWh</strong></p>
+                    <br>
+                    <p><strong>【2025年の発電量（総発電量600万kWh）】</strong></p>
+                    <p>・火力: 600 × 30/100 = <strong>180万kWh</strong></p>
+                    <p>・水力: 600 × 20/100 = <strong>120万kWh</strong></p>
+                    <p>・太陽光: 600 × 25/100 = <strong>150万kWh</strong></p>
+                    <p>・風力: 600 × 15/100 = <strong>90万kWh</strong></p>
+                    <p>・原子力: 600 × 10/100 = <strong>60万kWh</strong></p>
+                    <br>
+                    <p><strong>【各選択肢の検証】</strong></p>
+                    <br>
+                    <p>(1) 火力: 200 → 180万kWh（<strong>20万kWh減少</strong>）→ <strong>誤り</strong></p>
+                    <br>
+                    <p>(2) 2025年の再生可能エネルギー合計: 120 + 150 + 90 = <strong>360万kWh</strong></p>
+                    <p>360 ≧ 350 → <strong>正しい</strong></p>
+                    <br>
+                    <p>(3) 太陽光の増加: 150 - 75 = <strong>75万kWh</strong>、風力の増加: 90 - 50 = <strong>40万kWh</strong></p>
+                    <p>75 ≠ 40 × 2 = 80 → 2倍ではない → <strong>誤り</strong></p>
+                    <br>
+                    <p>(4) 2025年の水力+風力: 120 + 90 = <strong>210万kWh</strong>、2023年の火力: <strong>200万kWh</strong></p>
+                    <p>210 ≠ 200 → 等しくない → <strong>誤り</strong></p>
+                    <br>
+                    <p>(5) 原子力: 50 → 60万kWh（<strong>10万kWh増加</strong>）→ <strong>誤り</strong></p>
+                    <p>構成比は同じ10%だが、総発電量が増加しているため発電量も増加している。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考69/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
