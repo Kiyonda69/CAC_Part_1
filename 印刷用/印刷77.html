@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、ある自治体のスポーツ施設における年間利用者の年代の内訳を性別に示したものである。30代の利用者数は、利用者数全体のおよそ何%か。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x460px
+                - viewBox: 0 0 620 460
+                - 余白: 上下左右20px
+
+                円グラフ:
+                - 男性(左): 中心(160, 250), 半径120
+                - 女性(右): 中心(460, 250), 半径90
+                - 年代別の扇形で構成（座標はPython計算済み）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【性別・年代別スポーツ施設利用者数】</div>
+                    <div class="figure-content">
+                        <svg width="620" height="460" viewBox="0 0 620 460">
+                            <defs>
+                                <pattern id="hatch1" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                                    <line x1="0" y1="0" x2="0" y2="6" stroke="black" stroke-width="1"/>
+                                </pattern>
+                                <pattern id="hatch2" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(-45)">
+                                    <line x1="0" y1="0" x2="0" y2="8" stroke="black" stroke-width="1"/>
+                                </pattern>
+                                <pattern id="dots1" patternUnits="userSpaceOnUse" width="8" height="8">
+                                    <circle cx="4" cy="4" r="1.5" fill="black"/>
+                                </pattern>
+                                <pattern id="cross1" patternUnits="userSpaceOnUse" width="8" height="8">
+                                    <line x1="0" y1="0" x2="8" y2="8" stroke="black" stroke-width="0.8"/>
+                                    <line x1="8" y1="0" x2="0" y2="8" stroke="black" stroke-width="0.8"/>
+                                </pattern>
+                                <pattern id="hatch3" patternUnits="userSpaceOnUse" width="6" height="6">
+                                    <line x1="0" y1="3" x2="6" y2="3" stroke="black" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+
+                            <!-- タイトル部分 - 男性 -->
+                            <text x="160" y="55" class="svg-text" text-anchor="middle" font-size="13">男性</text>
+                            <text x="160" y="75" class="svg-text" text-anchor="middle" font-size="13">8,640人</text>
+                            <text x="160" y="95" class="svg-text" text-anchor="middle" font-size="13">72%</text>
+
+                            <!-- タイトル部分 - 女性 -->
+                            <text x="460" y="55" class="svg-text" text-anchor="middle" font-size="13">女性</text>
+                            <text x="460" y="75" class="svg-text" text-anchor="middle" font-size="13">3,360人</text>
+                            <text x="460" y="95" class="svg-text" text-anchor="middle" font-size="13">28%</text>
+
+                            <!-- 男性円グラフ (中心160,250 半径120) -->
+                            <!-- 10代以下: 8% (0-8%) -->
+                            <path d="M160,250 L160.0,130.0 A120,120 0 0,1 217.8,144.8 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="180.9" y="172.6" class="svg-text" font-size="11" text-anchor="middle">8%</text>
+
+                            <!-- 20代: 23% (8-31%) -->
+                            <path d="M160,250 L217.8,144.8 A120,120 0 0,1 271.6,294.2 Z" fill="url(#hatch1)" stroke="black" stroke-width="1.5"/>
+                            <text x="239.0" y="225.5" class="svg-text" font-size="11" text-anchor="middle">23%</text>
+
+                            <!-- 30代: 32% (31-63%) -->
+                            <path d="M160,250 L271.6,294.2 A120,120 0 0,1 72.5,332.1 Z" fill="url(#hatch2)" stroke="black" stroke-width="1.5"/>
+                            <text x="175.7" y="336.5" class="svg-text" font-size="11" text-anchor="middle">32%</text>
+
+                            <!-- 40代: 21% (63-84%) -->
+                            <path d="M160,250 L72.5,332.1 A120,120 0 0,1 58.7,185.7 Z" fill="url(#dots1)" stroke="black" stroke-width="1.5"/>
+                            <text x="76.4" y="261.9" class="svg-text" font-size="11" text-anchor="middle">21%</text>
+
+                            <!-- 50代: 11% (84-95%) -->
+                            <path d="M160,250 L58.7,185.7 A120,120 0 0,1 122.9,135.9 Z" fill="url(#cross1)" stroke="black" stroke-width="1.5"/>
+                            <text x="108.5" y="187.6" class="svg-text" font-size="11" text-anchor="middle">11%</text>
+
+                            <!-- 60代以上: 5% (95-100%) -->
+                            <path d="M160,250 L122.9,135.9 A120,120 0 0,1 160.0,130.0 Z" fill="url(#hatch3)" stroke="black" stroke-width="1.5"/>
+                            <text x="146.9" y="156.0" class="svg-text" font-size="11" text-anchor="middle">5%</text>
+
+                            <!-- 女性円グラフ (中心460,250 半径90) -->
+                            <!-- 10代以下: 12% (0-12%) -->
+                            <path d="M460,250 L460.0,160.0 A90,90 0 0,1 521.6,184.4 Z" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="483.2" y="195.4" class="svg-text" font-size="11" text-anchor="middle">12%</text>
+
+                            <!-- 20代: 28% (12-40%) -->
+                            <path d="M460,250 L521.6,184.4 A90,90 0 0,1 512.9,322.8 Z" fill="url(#hatch1)" stroke="black" stroke-width="1.5"/>
+                            <text x="522.9" y="258.0" class="svg-text" font-size="11" text-anchor="middle">28%</text>
+
+                            <!-- 30代: 27% (40-67%) -->
+                            <path d="M460,250 L512.9,322.8 A90,90 0 0,1 381.1,293.4 Z" fill="url(#hatch2)" stroke="black" stroke-width="1.5"/>
+                            <text x="446.3" y="315.5" class="svg-text" font-size="11" text-anchor="middle">27%</text>
+
+                            <!-- 40代: 18% (67-85%) -->
+                            <path d="M460,250 L381.1,293.4 A90,90 0 0,1 387.2,197.1 Z" fill="url(#dots1)" stroke="black" stroke-width="1.5"/>
+                            <text x="397.1" y="250.0" class="svg-text" font-size="11" text-anchor="middle">18%</text>
+
+                            <!-- 50代: 10% (85-95%) -->
+                            <path d="M460,250 L387.2,197.1 A90,90 0 0,1 432.2,164.4 Z" fill="url(#cross1)" stroke="black" stroke-width="1.5"/>
+                            <text x="423.0" y="203.0" class="svg-text" font-size="11" text-anchor="middle">10%</text>
+
+                            <!-- 60代以上: 5% (95-100%) -->
+                            <path d="M460,250 L432.2,164.4 A90,90 0 0,1 460.0,160.0 Z" fill="url(#hatch3)" stroke="black" stroke-width="1.5"/>
+                            <text x="450.1" y="181.8" class="svg-text" font-size="11" text-anchor="middle">5%</text>
+
+                            <!-- 凡例 -->
+                            <rect x="145" y="400" width="15" height="15" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="165" y="413" class="svg-text" font-size="12">10代以下</text>
+
+                            <rect x="245" y="400" width="15" height="15" fill="url(#hatch1)" stroke="black" stroke-width="1"/>
+                            <text x="265" y="413" class="svg-text" font-size="12">20代</text>
+
+                            <rect x="310" y="400" width="15" height="15" fill="url(#hatch2)" stroke="black" stroke-width="1"/>
+                            <text x="330" y="413" class="svg-text" font-size="12">30代</text>
+
+                            <rect x="375" y="400" width="15" height="15" fill="url(#dots1)" stroke="black" stroke-width="1"/>
+                            <text x="395" y="413" class="svg-text" font-size="12">40代</text>
+
+                            <rect x="145" y="425" width="15" height="15" fill="url(#cross1)" stroke="black" stroke-width="1"/>
+                            <text x="165" y="438" class="svg-text" font-size="12">50代</text>
+
+                            <rect x="245" y="425" width="15" height="15" fill="url(#hatch3)" stroke="black" stroke-width="1"/>
+                            <text x="265" y="438" class="svg-text" font-size="12">60代以上</text>
+                        </svg>
+                    </div>
+                    <div style="font-size: 13px; margin-top: 5px;">（架空の自治体統計データより作成）</div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 27.3%　　(2) 28.9%　　(3) 29.5%　　(4) 30.6%　　(5) 33.8%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                30代の利用者数を男女それぞれ計算し、合計する。<br><br>
+
+                <strong>【計算過程】</strong><br>
+                ・男性の30代: 8,640 x 32% = 8,640 x 0.32 = 2,764.8人<br>
+                ・女性の30代: 3,360 x 27% = 3,360 x 0.27 = 907.2人<br>
+                ・30代合計: 2,764.8 + 907.2 = 3,672人<br><br>
+
+                ・全体に占める割合: 3,672 / 12,000 x 100 = 30.6%<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 27.3% → 不正解<br>
+                ・(2) 28.9% → 不正解<br>
+                ・(3) 29.5% → 不正解<br>
+                ・(4) 30.6% → 正解<br>
+                ・(5) 33.8% → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表は、5つの地域（P～T）における3種類の農作物（米、野菜、果物）の出荷額を示したものである。次の記述ア～オのうち、正しいものの組み合わせを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【地域別農作物出荷額】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>地域</th>
+                                <th>米（億円）</th>
+                                <th>野菜（億円）</th>
+                                <th>果物（億円）</th>
+                                <th>合計（億円）</th>
+                            </tr>
+                            <tr>
+                                <td>P</td>
+                                <td>85</td>
+                                <td>120</td>
+                                <td>45</td>
+                                <td>250</td>
+                            </tr>
+                            <tr>
+                                <td>Q</td>
+                                <td>150</td>
+                                <td>90</td>
+                                <td>60</td>
+                                <td>300</td>
+                            </tr>
+                            <tr>
+                                <td>R</td>
+                                <td>70</td>
+                                <td>200</td>
+                                <td>80</td>
+                                <td>350</td>
+                            </tr>
+                            <tr>
+                                <td>S</td>
+                                <td>110</td>
+                                <td>75</td>
+                                <td>165</td>
+                                <td>350</td>
+                            </tr>
+                            <tr>
+                                <td>T</td>
+                                <td>95</td>
+                                <td>140</td>
+                                <td>65</td>
+                                <td>300</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="font-size: 13px; margin-top: 10px;">（架空の統計データより作成）</div>
+                </div>
+
+                <div class="question-text" style="margin-top: 15px;">
+                    ア．米の出荷額が最も大きい地域は、合計出荷額でも最大である。<br>
+                    イ．果物の出荷額が合計出荷額の40%を超える地域がある。<br>
+                    ウ．野菜の出荷額の5地域合計は、米の出荷額の5地域合計より大きい。<br>
+                    エ．合計出荷額に占める米の割合は、どの地域でも30%以上である。<br>
+                    オ．果物の出荷額が最も小さい地域は、野菜の出荷額も最も小さい。
+                </div>
+
+                <div class="options">
+                    (1) ア、エ　　(2) ア、オ　　(3) イ、エ　　(4) ウ、オ　　(5) イ、ウ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                <strong>【各記述の検討】</strong><br><br>
+
+                <strong>ア．米の出荷額が最も大きい地域は、合計出荷額でも最大である。</strong><br>
+                ・米の最大: Q（150億円）<br>
+                ・合計の最大: R、S（ともに350億円）<br>
+                ・一致しないため、<strong>正しくない</strong><br><br>
+
+                <strong>イ．果物の出荷額が合計出荷額の40%を超える地域がある。</strong><br>
+                ・P: 45/250 = 18.0%<br>
+                ・Q: 60/300 = 20.0%<br>
+                ・R: 80/350 = 22.9%<br>
+                ・S: 165/350 = 47.1% → 40%を超える<br>
+                ・T: 65/300 = 21.7%<br>
+                ・Sが40%を超えるため、<strong>正しい</strong><br><br>
+
+                <strong>ウ．野菜の出荷額の5地域合計は、米の出荷額の5地域合計より大きい。</strong><br>
+                ・野菜合計: 120 + 90 + 200 + 75 + 140 = 625億円<br>
+                ・米合計: 85 + 150 + 70 + 110 + 95 = 510億円<br>
+                ・625 > 510 のため、<strong>正しい</strong><br><br>
+
+                <strong>エ．合計出荷額に占める米の割合は、どの地域でも30%以上である。</strong><br>
+                ・R: 70/350 = 20.0% → 30%未満<br>
+                ・30%未満の地域があるため、<strong>正しくない</strong><br><br>
+
+                <strong>オ．果物の出荷額が最も小さい地域は、野菜の出荷額も最も小さい。</strong><br>
+                ・果物最小: P（45億円）<br>
+                ・Pの野菜: 120億円（最小はSの75億円）<br>
+                ・一致しないため、<strong>正しくない</strong><br><br>
+
+                正しい記述はイとウであるから、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
