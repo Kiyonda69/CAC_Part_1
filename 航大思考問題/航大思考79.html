@@ -1,0 +1,766 @@
+<!--
+================================================================================
+航大思考79.html - 資料読み取り問題（積み上げ棒グラフ・表計算）
+================================================================================
+問1: 品目別消費支出額と国産品購入割合のグラフから国産品支出額の合計を求める
+問2: 4部門の四半期別売上高と経費率の表から年間利益額が2番目に大きい部門を特定する
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                図は、ある年における1世帯あたりの年間消費支出額（品目別、単位：千円）とその構成割合、および品目別の国産品購入割合を示したものである。1世帯あたりの年間国産品購入額の合計はいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x400px
+            - viewBox: 0 0 620 400
+            - チャート領域: (60, 40) - (590, 310)
+
+            データ:
+            - 食料: 480千円(32%), 国産品75%
+            - 衣類: 210千円(14%), 国産品20%
+            - 家具・家電: 300千円(20%), 国産品35%
+            - 交通・通信: 240千円(16%), 国産品60%
+            - その他: 270千円(18%), 国産品40%
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【品目別消費支出と国産品購入割合】</div>
+                <div class="figure-content">
+                    <svg width="620" height="400" viewBox="0 0 620 400">
+                        <!-- Y軸ラベル -->
+                        <text x="15" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                        <!-- 品目ラベルと支出額 -->
+                        <text x="145" y="25" class="svg-text" text-anchor="middle" font-size="12">480</text>
+                        <text x="145" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                        <text x="267" y="25" class="svg-text" text-anchor="middle" font-size="12">210</text>
+                        <text x="267" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                        <text x="357" y="25" class="svg-text" text-anchor="middle" font-size="12">300</text>
+                        <text x="357" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                        <text x="452" y="25" class="svg-text" text-anchor="middle" font-size="12">240</text>
+                        <text x="452" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                        <text x="542" y="25" class="svg-text" text-anchor="middle" font-size="12">270</text>
+                        <text x="542" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+
+                        <!-- Y軸目盛り -->
+                        <text x="50" y="44" class="svg-text" text-anchor="end" font-size="12">100</text>
+                        <text x="50" y="98" class="svg-text" text-anchor="end" font-size="12">80</text>
+                        <text x="50" y="152" class="svg-text" text-anchor="end" font-size="12">60</text>
+                        <text x="50" y="206" class="svg-text" text-anchor="end" font-size="12">40</text>
+                        <text x="50" y="260" class="svg-text" text-anchor="end" font-size="12">20</text>
+                        <text x="50" y="314" class="svg-text" text-anchor="end" font-size="12">0</text>
+
+                        <!-- Y軸グリッド線 -->
+                        <line x1="60" y1="40" x2="590" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="60" y1="94" x2="590" y2="94" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="60" y1="148" x2="590" y2="148" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="60" y1="202" x2="590" y2="202" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="60" y1="256" x2="590" y2="256" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- チャート外枠 -->
+                        <rect x="60" y="40" width="530" height="270" fill="none" stroke="black" stroke-width="1.5"/>
+
+                        <!-- 食料 (x=60, w=170, 国産75%) -->
+                        <rect x="60" y="40" width="170" height="68" fill="white" stroke="black" stroke-width="0.5"/>
+                        <rect x="60" y="108" width="170" height="202" fill="#999" stroke="black" stroke-width="0.5"/>
+                        <text x="145" y="200" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">食料</text>
+                        <text x="145" y="218" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">75%</text>
+
+                        <!-- 衣類 (x=230, w=74, 国産20%) -->
+                        <rect x="230" y="40" width="74" height="216" fill="white" stroke="black" stroke-width="0.5"/>
+                        <rect x="230" y="256" width="74" height="54" fill="#999" stroke="black" stroke-width="0.5"/>
+                        <text x="267" y="180" class="svg-text" text-anchor="middle" font-size="11">衣類</text>
+                        <text x="267" y="196" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">20%</text>
+
+                        <!-- 家具・家電 (x=304, w=106, 国産35%) -->
+                        <rect x="304" y="40" width="106" height="176" fill="white" stroke="black" stroke-width="0.5"/>
+                        <rect x="304" y="216" width="106" height="94" fill="#999" stroke="black" stroke-width="0.5"/>
+                        <text x="357" y="250" class="svg-text" text-anchor="middle" font-size="11">家具・家電</text>
+                        <text x="357" y="266" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">35%</text>
+
+                        <!-- 交通・通信 (x=410, w=85, 国産60%) -->
+                        <rect x="410" y="40" width="85" height="108" fill="white" stroke="black" stroke-width="0.5"/>
+                        <rect x="410" y="148" width="85" height="162" fill="#999" stroke="black" stroke-width="0.5"/>
+                        <text x="452" y="230" class="svg-text" text-anchor="middle" font-size="10">交通・通信</text>
+                        <text x="452" y="246" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">60%</text>
+
+                        <!-- その他 (x=495, w=95, 国産40%) -->
+                        <rect x="495" y="40" width="95" height="162" fill="white" stroke="black" stroke-width="0.5"/>
+                        <rect x="495" y="202" width="95" height="108" fill="#999" stroke="black" stroke-width="0.5"/>
+                        <text x="542" y="250" class="svg-text" text-anchor="middle" font-size="11">その他</text>
+                        <text x="542" y="266" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">40%</text>
+
+                        <!-- 区切り線 -->
+                        <line x1="230" y1="40" x2="230" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="304" y1="40" x2="304" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="410" y1="40" x2="410" y2="310" stroke="black" stroke-width="1"/>
+                        <line x1="495" y1="40" x2="495" y2="310" stroke="black" stroke-width="1"/>
+
+                        <!-- X軸目盛り -->
+                        <text x="60" y="330" class="svg-text" text-anchor="middle" font-size="12">0</text>
+                        <text x="113" y="330" class="svg-text" text-anchor="middle" font-size="12">10</text>
+                        <text x="166" y="330" class="svg-text" text-anchor="middle" font-size="12">20</text>
+                        <text x="219" y="330" class="svg-text" text-anchor="middle" font-size="12">30</text>
+                        <text x="272" y="330" class="svg-text" text-anchor="middle" font-size="12">40</text>
+                        <text x="325" y="330" class="svg-text" text-anchor="middle" font-size="12">50</text>
+                        <text x="378" y="330" class="svg-text" text-anchor="middle" font-size="12">60</text>
+                        <text x="431" y="330" class="svg-text" text-anchor="middle" font-size="12">70</text>
+                        <text x="484" y="330" class="svg-text" text-anchor="middle" font-size="12">80</text>
+                        <text x="537" y="330" class="svg-text" text-anchor="middle" font-size="12">90</text>
+                        <text x="590" y="330" class="svg-text" text-anchor="middle" font-size="12">100</text>
+
+                        <!-- X軸ラベル -->
+                        <text x="325" y="352" class="svg-text" text-anchor="middle" font-size="13">消費支出構成割合（%）</text>
+
+                        <!-- 凡例 -->
+                        <rect x="430" y="355" width="20" height="14" fill="white" stroke="black" stroke-width="1"/>
+                        <text x="455" y="367" class="svg-text" font-size="11">輸入品部分</text>
+                        <rect x="430" y="375" width="20" height="14" fill="#999" stroke="black" stroke-width="1"/>
+                        <text x="455" y="387" class="svg-text" font-size="11">国産品部分</text>
+
+                        <!-- 出典 -->
+                        <text x="325" y="397" class="svg-text" text-anchor="middle" font-size="10">（架空のデータにより作成）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>759千円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>774千円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>801千円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>825千円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>843千円
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>各品目の国産品購入額は、品目別支出額に国産品購入割合を掛けて求める。</p>
+                    <br>
+                    <p><strong>【各品目の国産品購入額】</strong></p>
+                    <p>・食料: 480 × 0.75 = 360千円</p>
+                    <p>・衣類: 210 × 0.20 = 42千円</p>
+                    <p>・家具・家電: 300 × 0.35 = 105千円</p>
+                    <p>・交通・通信: 240 × 0.60 = 144千円</p>
+                    <p>・その他: 270 × 0.40 = 108千円</p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>360 + 42 + 105 + 144 + 108 = <strong>759千円</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下の表1は、ある企業の4部門における四半期別売上高（単位：百万円）を示したものであり、表2は各部門の経費率（売上高に対する経費の割合）を示したものである。年間の利益額（＝年間売上高×（1－経費率））が2番目に大きい部門の年間利益額はいくらか。正しいものを1つ選べ。
+            </div>
+
+            <!-- 表1 -->
+            <div class="figure-container">
+                <div class="figure-title">【表1】部門別四半期売上高（百万円）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>部門</th>
+                            <th>第1四半期</th>
+                            <th>第2四半期</th>
+                            <th>第3四半期</th>
+                            <th>第4四半期</th>
+                        </tr>
+                        <tr>
+                            <td>営業</td>
+                            <td>150</td>
+                            <td>180</td>
+                            <td>160</td>
+                            <td>210</td>
+                        </tr>
+                        <tr>
+                            <td>開発</td>
+                            <td>80</td>
+                            <td>100</td>
+                            <td>110</td>
+                            <td>110</td>
+                        </tr>
+                        <tr>
+                            <td>製造</td>
+                            <td>200</td>
+                            <td>220</td>
+                            <td>180</td>
+                            <td>200</td>
+                        </tr>
+                        <tr>
+                            <td>サービス</td>
+                            <td>120</td>
+                            <td>140</td>
+                            <td>150</td>
+                            <td>190</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 表2 -->
+            <div class="figure-container">
+                <div class="figure-title">【表2】部門別経費率</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>部門</th>
+                            <th>営業</th>
+                            <th>開発</th>
+                            <th>製造</th>
+                            <th>サービス</th>
+                        </tr>
+                        <tr>
+                            <td>経費率</td>
+                            <td>70%</td>
+                            <td>85%</td>
+                            <td>65%</td>
+                            <td>60%</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>200百万円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>210百万円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>224百万円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>240百万円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>280百万円
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>各部門の年間売上高を求め、利益額（＝年間売上高×（1－経費率））を計算して順位を付ける。</p>
+                    <br>
+                    <p><strong>【各部門の年間売上高】</strong></p>
+                    <p>・営業: 150 + 180 + 160 + 210 = 700百万円</p>
+                    <p>・開発: 80 + 100 + 110 + 110 = 400百万円</p>
+                    <p>・製造: 200 + 220 + 180 + 200 = 800百万円</p>
+                    <p>・サービス: 120 + 140 + 150 + 190 = 600百万円</p>
+                    <br>
+                    <p><strong>【各部門の年間利益額】</strong></p>
+                    <p>・営業: 700 × (1 - 0.70) = 700 × 0.30 = 210百万円</p>
+                    <p>・開発: 400 × (1 - 0.85) = 400 × 0.15 = 60百万円</p>
+                    <p>・製造: 800 × (1 - 0.65) = 800 × 0.35 = 280百万円</p>
+                    <p>・サービス: 600 × (1 - 0.60) = 600 × 0.40 = 240百万円</p>
+                    <br>
+                    <p><strong>【利益額の順位】</strong></p>
+                    <p>1位: 製造（280百万円）</p>
+                    <p>2位: サービス（240百万円）</p>
+                    <p>3位: 営業（210百万円）</p>
+                    <p>4位: 開発（60百万円）</p>
+                    <br>
+                    <p>2番目に大きいのはサービス部門で、年間利益額は<strong>240百万円</strong>である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考79/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,507 @@
+<!--
+================================================================================
+印刷79.html - 資料読み取り問題（積み上げ棒グラフ・表計算）
+================================================================================
+問1: 品目別消費支出額と国産品購入割合のグラフから国産品支出額の合計を求める
+問2: 4部門の四半期別売上高と経費率の表から年間利益額が2番目に大きい部門を特定する
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、ある年における1世帯あたりの年間消費支出額（品目別、単位：千円）とその構成割合、および品目別の国産品購入割合を示したものである。1世帯あたりの年間国産品購入額の合計はいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x400px
+                - viewBox: 0 0 620 400
+                - チャート領域: (60, 40) - (590, 310)
+                - X軸: 消費支出構成割合 (%), 0-100
+                - Y軸: 国産品購入割合 (%), 0-100
+
+                データ:
+                - 食料: 480千円(32%), 国産品75%
+                - 衣類: 210千円(14%), 国産品20%
+                - 家具・家電: 300千円(20%), 国産品35%
+                - 交通・通信: 240千円(16%), 国産品60%
+                - その他: 270千円(18%), 国産品40%
+
+                座標系:
+                - チャート幅: 530px (5.3px/%)
+                - チャート高さ: 270px (2.7px/%)
+                - 食料: x=60, w=170
+                - 衣類: x=230, w=74
+                - 家具: x=304, w=106
+                - 交通: x=410, w=85
+                - その他: x=495, w=95
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【品目別消費支出と国産品購入割合】</div>
+                    <div class="figure-content">
+                        <svg width="620" height="400" viewBox="0 0 620 400">
+                            <!-- Y軸ラベル (%) -->
+                            <text x="15" y="20" class="svg-text" text-anchor="middle">(%)</text>
+
+                            <!-- 品目ラベルと支出額（各バーの上） -->
+                            <text x="145" y="25" class="svg-text" text-anchor="middle" font-size="12">480</text>
+                            <text x="145" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                            <text x="267" y="25" class="svg-text" text-anchor="middle" font-size="12">210</text>
+                            <text x="267" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                            <text x="357" y="25" class="svg-text" text-anchor="middle" font-size="12">300</text>
+                            <text x="357" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                            <text x="452" y="25" class="svg-text" text-anchor="middle" font-size="12">240</text>
+                            <text x="452" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+                            <text x="542" y="25" class="svg-text" text-anchor="middle" font-size="12">270</text>
+                            <text x="542" y="37" class="svg-text" text-anchor="middle" font-size="12">千円</text>
+
+                            <!-- Y軸目盛り -->
+                            <text x="50" y="44" class="svg-text" text-anchor="end" font-size="12">100</text>
+                            <text x="50" y="98" class="svg-text" text-anchor="end" font-size="12">80</text>
+                            <text x="50" y="152" class="svg-text" text-anchor="end" font-size="12">60</text>
+                            <text x="50" y="206" class="svg-text" text-anchor="end" font-size="12">40</text>
+                            <text x="50" y="260" class="svg-text" text-anchor="end" font-size="12">20</text>
+                            <text x="50" y="314" class="svg-text" text-anchor="end" font-size="12">0</text>
+
+                            <!-- Y軸グリッド線 -->
+                            <line x1="60" y1="40" x2="590" y2="40" stroke="#ccc" stroke-width="0.5"/>
+                            <line x1="60" y1="94" x2="590" y2="94" stroke="#ccc" stroke-width="0.5"/>
+                            <line x1="60" y1="148" x2="590" y2="148" stroke="#ccc" stroke-width="0.5"/>
+                            <line x1="60" y1="202" x2="590" y2="202" stroke="#ccc" stroke-width="0.5"/>
+                            <line x1="60" y1="256" x2="590" y2="256" stroke="#ccc" stroke-width="0.5"/>
+
+                            <!-- チャート外枠 -->
+                            <rect x="60" y="40" width="530" height="270" fill="none" stroke="black" stroke-width="1.5"/>
+
+                            <!-- 食料 (x=60, w=170, 国産75%: 白y=40-108, 灰y=108-310) -->
+                            <rect x="60" y="40" width="170" height="68" fill="white" stroke="black" stroke-width="0.5"/>
+                            <rect x="60" y="108" width="170" height="202" fill="#999" stroke="black" stroke-width="0.5"/>
+                            <text x="145" y="200" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">食料</text>
+                            <text x="145" y="218" class="svg-text" text-anchor="middle" font-size="13" font-weight="bold">75%</text>
+
+                            <!-- 衣類 (x=230, w=74, 国産20%: 白y=40-256, 灰y=256-310) -->
+                            <rect x="230" y="40" width="74" height="216" fill="white" stroke="black" stroke-width="0.5"/>
+                            <rect x="230" y="256" width="74" height="54" fill="#999" stroke="black" stroke-width="0.5"/>
+                            <text x="267" y="180" class="svg-text" text-anchor="middle" font-size="11">衣類</text>
+                            <text x="267" y="196" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">20%</text>
+
+                            <!-- 家具・家電 (x=304, w=106, 国産35%: 白y=40-216, 灰y=216-310) -->
+                            <rect x="304" y="40" width="106" height="176" fill="white" stroke="black" stroke-width="0.5"/>
+                            <rect x="304" y="216" width="106" height="94" fill="#999" stroke="black" stroke-width="0.5"/>
+                            <text x="357" y="250" class="svg-text" text-anchor="middle" font-size="11">家具・家電</text>
+                            <text x="357" y="266" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">35%</text>
+
+                            <!-- 交通・通信 (x=410, w=85, 国産60%: 白y=40-148, 灰y=148-310) -->
+                            <rect x="410" y="40" width="85" height="108" fill="white" stroke="black" stroke-width="0.5"/>
+                            <rect x="410" y="148" width="85" height="162" fill="#999" stroke="black" stroke-width="0.5"/>
+                            <text x="452" y="230" class="svg-text" text-anchor="middle" font-size="10">交通・通信</text>
+                            <text x="452" y="246" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">60%</text>
+
+                            <!-- その他 (x=495, w=95, 国産40%: 白y=40-202, 灰y=202-310) -->
+                            <rect x="495" y="40" width="95" height="162" fill="white" stroke="black" stroke-width="0.5"/>
+                            <rect x="495" y="202" width="95" height="108" fill="#999" stroke="black" stroke-width="0.5"/>
+                            <text x="542" y="250" class="svg-text" text-anchor="middle" font-size="11">その他</text>
+                            <text x="542" y="266" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">40%</text>
+
+                            <!-- 区切り線（各品目間） -->
+                            <line x1="230" y1="40" x2="230" y2="310" stroke="black" stroke-width="1"/>
+                            <line x1="304" y1="40" x2="304" y2="310" stroke="black" stroke-width="1"/>
+                            <line x1="410" y1="40" x2="410" y2="310" stroke="black" stroke-width="1"/>
+                            <line x1="495" y1="40" x2="495" y2="310" stroke="black" stroke-width="1"/>
+
+                            <!-- X軸目盛り -->
+                            <text x="60" y="330" class="svg-text" text-anchor="middle" font-size="12">0</text>
+                            <text x="113" y="330" class="svg-text" text-anchor="middle" font-size="12">10</text>
+                            <text x="166" y="330" class="svg-text" text-anchor="middle" font-size="12">20</text>
+                            <text x="219" y="330" class="svg-text" text-anchor="middle" font-size="12">30</text>
+                            <text x="272" y="330" class="svg-text" text-anchor="middle" font-size="12">40</text>
+                            <text x="325" y="330" class="svg-text" text-anchor="middle" font-size="12">50</text>
+                            <text x="378" y="330" class="svg-text" text-anchor="middle" font-size="12">60</text>
+                            <text x="431" y="330" class="svg-text" text-anchor="middle" font-size="12">70</text>
+                            <text x="484" y="330" class="svg-text" text-anchor="middle" font-size="12">80</text>
+                            <text x="537" y="330" class="svg-text" text-anchor="middle" font-size="12">90</text>
+                            <text x="590" y="330" class="svg-text" text-anchor="middle" font-size="12">100</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="325" y="352" class="svg-text" text-anchor="middle" font-size="13">消費支出構成割合（%）</text>
+
+                            <!-- 凡例 -->
+                            <rect x="430" y="355" width="20" height="14" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="455" y="367" class="svg-text" font-size="11">輸入品部分</text>
+                            <rect x="430" y="375" width="20" height="14" fill="#999" stroke="black" stroke-width="1"/>
+                            <text x="455" y="387" class="svg-text" font-size="11">国産品部分</text>
+
+                            <!-- 出典 -->
+                            <text x="325" y="397" class="svg-text" text-anchor="middle" font-size="10">（架空のデータにより作成）</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 759千円　　(2) 774千円　　(3) 801千円　　(4) 825千円　　(5) 843千円
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br><br>
+
+                各品目の国産品購入額は、品目別支出額に国産品購入割合を掛けて求める。<br><br>
+
+                <strong>【各品目の国産品購入額】</strong><br>
+                ・食料: 480 × 0.75 = 360千円<br>
+                ・衣類: 210 × 0.20 = 42千円<br>
+                ・家具・家電: 300 × 0.35 = 105千円<br>
+                ・交通・通信: 240 × 0.60 = 144千円<br>
+                ・その他: 270 × 0.40 = 108千円<br><br>
+
+                <strong>【合計】</strong><br>
+                360 + 42 + 105 + 144 + 108 = <strong>759千円</strong><br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表1は、ある企業の4部門における四半期別売上高（単位：百万円）を示したものであり、表2は各部門の経費率（売上高に対する経費の割合）を示したものである。年間の利益額（＝年間売上高×（1－経費率））が2番目に大きい部門の年間利益額はいくらか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!-- 表1: 四半期別売上高 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】部門別四半期売上高（百万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部門</th>
+                                <th>第1四半期</th>
+                                <th>第2四半期</th>
+                                <th>第3四半期</th>
+                                <th>第4四半期</th>
+                            </tr>
+                            <tr>
+                                <td>営業</td>
+                                <td>150</td>
+                                <td>180</td>
+                                <td>160</td>
+                                <td>210</td>
+                            </tr>
+                            <tr>
+                                <td>開発</td>
+                                <td>80</td>
+                                <td>100</td>
+                                <td>110</td>
+                                <td>110</td>
+                            </tr>
+                            <tr>
+                                <td>製造</td>
+                                <td>200</td>
+                                <td>220</td>
+                                <td>180</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td>サービス</td>
+                                <td>120</td>
+                                <td>140</td>
+                                <td>150</td>
+                                <td>190</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 表2: 経費率 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】部門別経費率</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部門</th>
+                                <th>営業</th>
+                                <th>開発</th>
+                                <th>製造</th>
+                                <th>サービス</th>
+                            </tr>
+                            <tr>
+                                <td>経費率</td>
+                                <td>70%</td>
+                                <td>85%</td>
+                                <td>65%</td>
+                                <td>60%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 200百万円　　(2) 210百万円　　(3) 224百万円　　(4) 240百万円　　(5) 280百万円
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                各部門の年間売上高を求め、利益額（＝年間売上高×（1－経費率））を計算して順位を付ける。<br><br>
+
+                <strong>【各部門の年間売上高】</strong><br>
+                ・営業: 150 + 180 + 160 + 210 = 700百万円<br>
+                ・開発: 80 + 100 + 110 + 110 = 400百万円<br>
+                ・製造: 200 + 220 + 180 + 200 = 800百万円<br>
+                ・サービス: 120 + 140 + 150 + 190 = 600百万円<br><br>
+
+                <strong>【各部門の年間利益額】</strong><br>
+                ・営業: 700 × (1 - 0.70) = 700 × 0.30 = 210百万円<br>
+                ・開発: 400 × (1 - 0.85) = 400 × 0.15 = 60百万円<br>
+                ・製造: 800 × (1 - 0.65) = 800 × 0.35 = 280百万円<br>
+                ・サービス: 600 × (1 - 0.60) = 600 × 0.40 = 240百万円<br><br>
+
+                <strong>【利益額の順位】</strong><br>
+                1位: 製造（280百万円）<br>
+                2位: サービス（240百万円）<br>
+                3位: 営業（210百万円）<br>
+                4位: 開発（60百万円）<br><br>
+
+                2番目に大きいのはサービス部門で、年間利益額は<strong>240百万円</strong>である。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
