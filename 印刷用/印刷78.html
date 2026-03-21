@@ -1,0 +1,473 @@
+<!--
+================================================================================
+印刷78.html - 資料読み取り問題（散布図・割合表）
+================================================================================
+問1: 散布図から国内出荷量と輸出量の合計が前回比で減少した年を読み取る
+問2: 割合表から職種別人数を連立方程式で求め、個別人数の差を計算する
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図は、1995年から2020年までの25年間におけるある地域の農産物の国内出荷量および輸出量の推移を5年ごとに示したものである。国内出荷量と輸出量の合計が、前回の調査時点（5年前）と比較して減少した年はいつか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 600x450px
+                - viewBox: 0 0 600 450
+                - 余白: 上下左右適宜
+
+                座標系定義:
+                - プロット領域: x=[80,560], y=[50,380]
+                - X軸: 国内出荷量(万トン) 0～4000, scale=480/4000=0.12
+                - Y軸: 輸出量(万トン) 0～3000, scale=330/3000=0.11
+                - plotX(v) = 80 + v*0.12
+                - plotY(v) = 380 - v*0.11
+
+                データポイント:
+                - 1995年: (2200, 600) → px(344, 314)
+                - 2000年: (2800, 900) → px(416, 281)
+                - 2005年: (3500, 1400) → px(500, 226)
+                - 2010年: (3800, 1800) → px(536, 182)
+                - 2015年: (3200, 2300) → px(464, 127)
+                - 2020年: (3600, 2800) → px(512, 72)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【農産物出荷量の推移】</div>
+                    <div class="figure-content">
+                        <svg width="600" height="450" viewBox="0 0 600 450">
+                            <!-- Y軸ラベル（縦書き） -->
+                            <text x="15" y="160" class="svg-text" font-size="13" text-anchor="middle">輸</text>
+                            <text x="15" y="180" class="svg-text" font-size="13" text-anchor="middle">出</text>
+                            <text x="15" y="200" class="svg-text" font-size="13" text-anchor="middle">量</text>
+
+                            <!-- Y軸単位 -->
+                            <text x="45" y="45" class="svg-text" font-size="12">（万トン）</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="320" y="420" class="svg-text" font-size="13" text-anchor="middle">国内出荷量</text>
+
+                            <!-- X軸単位 -->
+                            <text x="530" y="400" class="svg-text" font-size="12">（万トン）</text>
+
+                            <!-- グリッド線（点線） -->
+                            <!-- 水平グリッド -->
+                            <line x1="80" y1="325" x2="560" y2="325" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="270" x2="560" y2="270" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="215" x2="560" y2="215" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="160" x2="560" y2="160" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="105" x2="560" y2="105" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="50" x2="560" y2="50" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+                            <!-- 垂直グリッド -->
+                            <line x1="200" y1="50" x2="200" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="320" y1="50" x2="320" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="440" y1="50" x2="440" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+                            <line x1="560" y1="50" x2="560" y2="380" stroke="#ccc" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+                            <!-- 軸線 -->
+                            <line x1="80" y1="380" x2="560" y2="380" stroke="black" stroke-width="1.5"/>
+                            <line x1="80" y1="50" x2="80" y2="380" stroke="black" stroke-width="1.5"/>
+
+                            <!-- X軸目盛り -->
+                            <text x="80" y="398" class="svg-text" font-size="12" text-anchor="middle">0</text>
+                            <text x="200" y="398" class="svg-text" font-size="12" text-anchor="middle">1000</text>
+                            <text x="320" y="398" class="svg-text" font-size="12" text-anchor="middle">2000</text>
+                            <text x="440" y="398" class="svg-text" font-size="12" text-anchor="middle">3000</text>
+                            <text x="560" y="398" class="svg-text" font-size="12" text-anchor="middle">4000</text>
+
+                            <!-- Y軸目盛り -->
+                            <text x="72" y="384" class="svg-text" font-size="12" text-anchor="end">0</text>
+                            <text x="72" y="329" class="svg-text" font-size="12" text-anchor="end">500</text>
+                            <text x="72" y="274" class="svg-text" font-size="12" text-anchor="end">1000</text>
+                            <text x="72" y="219" class="svg-text" font-size="12" text-anchor="end">1500</text>
+                            <text x="72" y="164" class="svg-text" font-size="12" text-anchor="end">2000</text>
+                            <text x="72" y="109" class="svg-text" font-size="12" text-anchor="end">2500</text>
+                            <text x="72" y="54" class="svg-text" font-size="12" text-anchor="end">3000</text>
+
+                            <!-- データポイントとラベル -->
+                            <!-- 1995年: (2200, 600) → px(344, 314) -->
+                            <circle cx="344" cy="314" r="5" fill="black"/>
+                            <text x="290" y="330" class="svg-text" font-size="11" font-style="italic">1995年：2200, 600</text>
+
+                            <!-- 2000年: (2800, 900) → px(416, 281) -->
+                            <circle cx="416" cy="281" r="5" fill="black"/>
+                            <text x="360" y="297" class="svg-text" font-size="11" font-style="italic">2000年：2800, 900</text>
+
+                            <!-- 2005年: (3500, 1400) → px(500, 226) -->
+                            <circle cx="500" cy="226" r="5" fill="black"/>
+                            <text x="430" y="246" class="svg-text" font-size="11" font-style="italic">2005年：3500, 1400</text>
+
+                            <!-- 2010年: (3800, 1800) → px(536, 182) -->
+                            <circle cx="536" cy="182" r="5" fill="black"/>
+                            <text x="440" y="175" class="svg-text" font-size="11" font-style="italic">2010年：3800, 1800</text>
+
+                            <!-- 2015年: (3200, 2300) → px(464, 127) -->
+                            <circle cx="464" cy="127" r="5" fill="black"/>
+                            <text x="370" y="120" class="svg-text" font-size="11" font-style="italic">2015年：3200, 2300</text>
+
+                            <!-- 2020年: (3600, 2800) → px(512, 72) -->
+                            <circle cx="512" cy="72" r="5" fill="black"/>
+                            <text x="420" y="65" class="svg-text" font-size="11" font-style="italic">2020年：3600, 2800</text>
+                        </svg>
+                    </div>
+                    <div style="font-size: 13px; margin-top: 5px;">（農林水産省「農産物流通統計」より作成）</div>
+                </div>
+
+                <div class="options">
+                    (1) 2000年　　(2) 2005年　　(3) 2010年　　(4) 2015年　　(5) 2020年
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                各年の国内出荷量と輸出量の合計を計算し、前回（5年前）と比較する。<br><br>
+
+                <strong>【各年の合計】</strong><br>
+                ・1995年: 2200 + 600 = 2800万トン<br>
+                ・2000年: 2800 + 900 = 3700万トン<br>
+                ・2005年: 3500 + 1400 = 4900万トン<br>
+                ・2010年: 3800 + 1800 = 5600万トン<br>
+                ・2015年: 3200 + 2300 = 5500万トン<br>
+                ・2020年: 3600 + 2800 = 6400万トン<br><br>
+
+                <strong>【前回比の変化】</strong><br>
+                ・2000年: 3700 - 2800 = +900（増加）<br>
+                ・2005年: 4900 - 3700 = +1200（増加）<br>
+                ・2010年: 5600 - 4900 = +700（増加）<br>
+                ・2015年: 5500 - 5600 = -100（<strong>減少</strong>）<br>
+                ・2020年: 6400 - 5500 = +900（増加）<br><br>
+
+                2015年は輸出量が2010年より500万トン増加したが、国内出荷量が600万トン減少したため、合計では100万トンの減少となった。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．表は、ある会社の従業員3000人について、職種（営業・技術）と勤務地（東京・大阪・名古屋・福岡・札幌）別の人数の割合を示したものである。技術職のうち名古屋勤務の人数と、営業職のうち福岡勤務の人数の差は何人か。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【従業員の勤務地別内訳（計3000人）】</div>
+                    <div class="figure-content">
+                        <table class="figure-table" style="font-size: 15px;">
+                            <tr>
+                                <th colspan="7" style="text-align: right; background-color: white; border: none; padding: 5px 15px; font-weight: normal; font-size: 13px;">（単位：%）</th>
+                            </tr>
+                            <tr>
+                                <th style="min-width: 60px;">勤務地<br>職種</th>
+                                <th style="min-width: 70px;">東京</th>
+                                <th style="min-width: 70px;">大阪</th>
+                                <th style="min-width: 70px;">名古屋</th>
+                                <th style="min-width: 70px;">福岡</th>
+                                <th style="min-width: 70px;">札幌</th>
+                                <th style="min-width: 60px;">合計</th>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">営　業</td>
+                                <td>40.0</td>
+                                <td>25.0</td>
+                                <td>10.0</td>
+                                <td>15.0</td>
+                                <td>10.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">技　術</td>
+                                <td>30.0</td>
+                                <td>20.0</td>
+                                <td>20.0</td>
+                                <td>20.0</td>
+                                <td>10.0</td>
+                                <td>100.0</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold;">全　体</td>
+                                <td>34.0</td>
+                                <td>22.0</td>
+                                <td>16.0</td>
+                                <td>18.0</td>
+                                <td>10.0</td>
+                                <td>100.0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 120人　　(2) 150人　　(3) 160人　　(4) 180人　　(5) 200人
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                まず、営業職と技術職それぞれの人数を求める。<br><br>
+
+                <strong>【職種別人数の算出】</strong><br>
+                営業職の人数をS人、技術職の人数をT人とすると、<br>
+                ・S + T = 3000 ……(i)<br><br>
+
+                東京の全体人数に着目すると、<br>
+                ・営業の東京勤務: S × 40.0% = 0.40S<br>
+                ・技術の東京勤務: T × 30.0% = 0.30T<br>
+                ・全体の東京勤務: 3000 × 34.0% = 1020人<br><br>
+
+                したがって、0.40S + 0.30T = 1020 ……(ii)<br><br>
+
+                (i)より T = 3000 - S を(ii)に代入すると、<br>
+                0.40S + 0.30(3000 - S) = 1020<br>
+                0.40S + 900 - 0.30S = 1020<br>
+                0.10S = 120<br>
+                <strong>S = 1200人（営業職）、T = 1800人（技術職）</strong><br><br>
+
+                <strong>【求める差の計算】</strong><br>
+                ・技術職の名古屋勤務: 1800 × 20.0% = 360人<br>
+                ・営業職の福岡勤務: 1200 × 15.0% = 180人<br>
+                ・差: 360 - 180 = <strong>180人</strong><br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
