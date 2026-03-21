@@ -1,0 +1,743 @@
+<!--
+================================================================================
+航大思考81.html - 透明シート重ね合わせ問題
+================================================================================
+問1: 透明シートの重ね合わせ（回転なし・空間視覚化）
+問2: 透明シートの重ね合わせ（回転あり・空間視覚化・高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                9個のマス目がついた透明なシートがある。マス目の中には記号がかかれている。下の例のように、2枚のシートを重ねると、両方の記号が見える。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【例】2枚のシートの重ね合わせ</div>
+                <div class="figure-content">
+                    <svg width="500" height="140" viewBox="0 0 500 140">
+<text x="64" y="20" text-anchor="middle" class="svg-text" font-size="14">シート1</text>
+<rect x="10" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="46" y1="25" x2="46" y2="133" stroke="black" stroke-width="1"/>
+<line x1="10" y1="61" x2="118" y2="61" stroke="black" stroke-width="1"/>
+<line x1="82" y1="25" x2="82" y2="133" stroke="black" stroke-width="1"/>
+<line x1="10" y1="97" x2="118" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="28" cy="43" r="10" fill="none" stroke="black" stroke-width="2"/>
+<rect x="52" y="67" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<text x="140" y="75" class="svg-text" font-size="20" text-anchor="middle">+</text>
+<text x="214" y="20" text-anchor="middle" class="svg-text" font-size="14">シート2</text>
+<rect x="160" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="196" y1="25" x2="196" y2="133" stroke="black" stroke-width="1"/>
+<line x1="160" y1="61" x2="268" y2="61" stroke="black" stroke-width="1"/>
+<line x1="232" y1="25" x2="232" y2="133" stroke="black" stroke-width="1"/>
+<line x1="160" y1="97" x2="268" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="250,30 237,56 263,56" fill="black"/>
+<circle cx="214" cy="115" r="10" fill="black"/>
+<text x="295" y="75" class="svg-text" font-size="20" text-anchor="middle">=</text>
+<text x="374" y="20" text-anchor="middle" class="svg-text" font-size="14">重ね合わせ</text>
+<rect x="320" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="356" y1="25" x2="356" y2="133" stroke="black" stroke-width="1"/>
+<line x1="320" y1="61" x2="428" y2="61" stroke="black" stroke-width="1"/>
+<line x1="392" y1="25" x2="392" y2="133" stroke="black" stroke-width="1"/>
+<line x1="320" y1="97" x2="428" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="338" cy="43" r="10" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="410,30 397,56 423,56" fill="black"/>
+<rect x="362" y="67" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="374" cy="115" r="10" fill="black"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="question-text">
+                次のアからオまでのシートのうち3枚を重ねたところ、下の目標パターンのように見えた。重ねたシートの組み合わせは次のうちどれか。正しいものを1つ選べ。ただし、シートは回転させないものとする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【シート一覧】</div>
+                <div class="figure-content">
+                    <svg width="620" height="140" viewBox="0 0 620 140">
+<text x="59" y="20" text-anchor="middle" class="svg-text" font-size="14">ア</text>
+<rect x="5" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="41" y1="25" x2="41" y2="133" stroke="black" stroke-width="1"/>
+<line x1="5" y1="61" x2="113" y2="61" stroke="black" stroke-width="1"/>
+<line x1="77" y1="25" x2="77" y2="133" stroke="black" stroke-width="1"/>
+<line x1="5" y1="97" x2="113" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="23" cy="43" r="10" fill="black"/>
+<circle cx="59" cy="79" r="10" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="95" cy="115" r="10" fill="black"/>
+<text x="183" y="20" text-anchor="middle" class="svg-text" font-size="14">イ</text>
+<rect x="129" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="165" y1="25" x2="165" y2="133" stroke="black" stroke-width="1"/>
+<line x1="129" y1="61" x2="237" y2="61" stroke="black" stroke-width="1"/>
+<line x1="201" y1="25" x2="201" y2="133" stroke="black" stroke-width="1"/>
+<line x1="129" y1="97" x2="237" y2="97" stroke="black" stroke-width="1"/>
+<rect x="171" y="31" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="147,64 162,79 147,94 132,79" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="147,102 134,128 160,128" fill="none" stroke="black" stroke-width="2"/>
+<text x="307" y="20" text-anchor="middle" class="svg-text" font-size="14">ウ</text>
+<rect x="253" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="289" y1="25" x2="289" y2="133" stroke="black" stroke-width="1"/>
+<line x1="253" y1="61" x2="361" y2="61" stroke="black" stroke-width="1"/>
+<line x1="325" y1="25" x2="325" y2="133" stroke="black" stroke-width="1"/>
+<line x1="253" y1="97" x2="361" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="343,30 330,56 356,56" fill="black"/>
+<rect x="331" y="67" width="24" height="24" fill="black"/>
+<polygon points="307,128 294,102 320,102" fill="black"/>
+<text x="431" y="20" text-anchor="middle" class="svg-text" font-size="14">エ</text>
+<rect x="377" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="413" y1="25" x2="413" y2="133" stroke="black" stroke-width="1"/>
+<line x1="377" y1="61" x2="485" y2="61" stroke="black" stroke-width="1"/>
+<line x1="449" y1="25" x2="449" y2="133" stroke="black" stroke-width="1"/>
+<line x1="377" y1="97" x2="485" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="467,30 454,56 480,56" fill="black"/>
+<circle cx="431" cy="79" r="10" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="395,102 382,128 408,128" fill="none" stroke="black" stroke-width="2"/>
+<text x="555" y="20" text-anchor="middle" class="svg-text" font-size="14">オ</text>
+<rect x="501" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="537" y1="25" x2="537" y2="133" stroke="black" stroke-width="1"/>
+<line x1="501" y1="61" x2="609" y2="61" stroke="black" stroke-width="1"/>
+<line x1="573" y1="25" x2="573" y2="133" stroke="black" stroke-width="1"/>
+<line x1="501" y1="97" x2="609" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="519" cy="43" r="10" fill="black"/>
+<rect x="543" y="31" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<rect x="579" y="67" width="24" height="24" fill="black"/>
+<polygon points="555,128 542,102 568,102" fill="black"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="figure-container" style="border: none; background: none;">
+                <div class="figure-title">【目標パターン】</div>
+                <div class="figure-content">
+                    <svg width="200" height="150" viewBox="0 0 200 150">
+<text x="99" y="20" text-anchor="middle" class="svg-text" font-size="14">目標パターン</text>
+<rect x="45" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="81" y1="25" x2="81" y2="133" stroke="black" stroke-width="1"/>
+<line x1="45" y1="61" x2="153" y2="61" stroke="black" stroke-width="1"/>
+<line x1="117" y1="25" x2="117" y2="133" stroke="black" stroke-width="1"/>
+<line x1="45" y1="97" x2="153" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="63" cy="43" r="10" fill="black"/>
+<rect x="87" y="31" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="135,30 122,56 148,56" fill="black"/>
+<polygon points="63,64 78,79 63,94 48,79" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="99" cy="79" r="10" fill="none" stroke="black" stroke-width="2"/>
+<rect x="123" y="67" width="24" height="24" fill="black"/>
+<polygon points="63,102 50,128 76,128" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="99,128 86,102 112,102" fill="black"/>
+<circle cx="135" cy="115" r="10" fill="black"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>アとイとウ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>アとウとエ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>イとウとオ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>アとエとオ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>イとエとオ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p><strong>【目標パターンの分析】</strong></p>
+                    <p>目標パターンには9つの記号がある：</p>
+                    <p>・1行目：●（黒丸）、□（白四角）、▲（黒三角）</p>
+                    <p>・2行目：◇（白ひし形）、○（白丸）、■（黒四角）</p>
+                    <p>・3行目：△（白三角）、▼（逆黒三角）、●（黒丸）</p>
+                    <br>
+                    <p><strong>【検証：ア＋イ＋ウ】</strong></p>
+                    <p>・アの●(左上) + イの□(上中) + ウの▲(右上) → 1行目完成</p>
+                    <p>・イの◇(左中) + アの○(中央) + ウの■(右中) → 2行目完成</p>
+                    <p>・イの△(左下) + ウの▼(下中) + アの●(右下) → 3行目完成</p>
+                    <p>すべてのセルが一致し、記号の衝突もない。</p>
+                    <br>
+                    <p>他の選択肢は目標パターンの全記号を再現できないか、同じセルに異なる記号が重なる。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                9個のマス目がついた透明なシートがある。マス目の中には記号がかかれている。下の例のように、シートは回転させることができ、回転後に重ねると異なるパターンが得られる。ただし、裏返すことはできないものとする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【例】回転と重ね合わせ</div>
+                <div class="figure-content">
+                    <svg width="600" height="320" viewBox="0 0 600 320">
+<text x="64" y="20" text-anchor="middle" class="svg-text" font-size="14">シート1</text>
+<rect x="10" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="46" y1="25" x2="46" y2="133" stroke="black" stroke-width="1"/>
+<line x1="10" y1="61" x2="118" y2="61" stroke="black" stroke-width="1"/>
+<line x1="82" y1="25" x2="82" y2="133" stroke="black" stroke-width="1"/>
+<line x1="10" y1="97" x2="118" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="28" cy="43" r="10" fill="none" stroke="black" stroke-width="2"/>
+<rect x="52" y="67" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<text x="140" y="75" class="svg-text" font-size="20" text-anchor="middle">+</text>
+<text x="214" y="20" text-anchor="middle" class="svg-text" font-size="14">シート2</text>
+<rect x="160" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="196" y1="25" x2="196" y2="133" stroke="black" stroke-width="1"/>
+<line x1="160" y1="61" x2="268" y2="61" stroke="black" stroke-width="1"/>
+<line x1="232" y1="25" x2="232" y2="133" stroke="black" stroke-width="1"/>
+<line x1="160" y1="97" x2="268" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="250,30 237,56 263,56" fill="black"/>
+<circle cx="214" cy="115" r="10" fill="black"/>
+<text x="295" y="75" class="svg-text" font-size="20" text-anchor="middle">=</text>
+<text x="374" y="20" text-anchor="middle" class="svg-text" font-size="14">図1</text>
+<rect x="320" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="356" y1="25" x2="356" y2="133" stroke="black" stroke-width="1"/>
+<line x1="320" y1="61" x2="428" y2="61" stroke="black" stroke-width="1"/>
+<line x1="392" y1="25" x2="392" y2="133" stroke="black" stroke-width="1"/>
+<line x1="320" y1="97" x2="428" y2="97" stroke="black" stroke-width="1"/>
+<circle cx="338" cy="43" r="10" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="410,30 397,56 423,56" fill="black"/>
+<rect x="362" y="67" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="374" cy="115" r="10" fill="black"/>
+<text x="64" y="180" text-anchor="middle" class="svg-text" font-size="14">シート1</text>
+<rect x="10" y="185" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="46" y1="185" x2="46" y2="293" stroke="black" stroke-width="1"/>
+<line x1="10" y1="221" x2="118" y2="221" stroke="black" stroke-width="1"/>
+<line x1="82" y1="185" x2="82" y2="293" stroke="black" stroke-width="1"/>
+<line x1="10" y1="257" x2="118" y2="257" stroke="black" stroke-width="1"/>
+<circle cx="28" cy="203" r="10" fill="none" stroke="black" stroke-width="2"/>
+<rect x="52" y="227" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<text x="140" y="235" class="svg-text" font-size="20" text-anchor="middle">+</text>
+<text x="214" y="180" text-anchor="middle" class="svg-text" font-size="14">シート2(90°回転)</text>
+<rect x="160" y="185" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="196" y1="185" x2="196" y2="293" stroke="black" stroke-width="1"/>
+<line x1="160" y1="221" x2="268" y2="221" stroke="black" stroke-width="1"/>
+<line x1="232" y1="185" x2="232" y2="293" stroke="black" stroke-width="1"/>
+<line x1="160" y1="257" x2="268" y2="257" stroke="black" stroke-width="1"/>
+<circle cx="178" cy="239" r="10" fill="black"/>
+<polygon points="250,262 237,288 263,288" fill="black"/>
+<text x="295" y="235" class="svg-text" font-size="20" text-anchor="middle">=</text>
+<text x="374" y="180" text-anchor="middle" class="svg-text" font-size="14">図2</text>
+<rect x="320" y="185" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="356" y1="185" x2="356" y2="293" stroke="black" stroke-width="1"/>
+<line x1="320" y1="221" x2="428" y2="221" stroke="black" stroke-width="1"/>
+<line x1="392" y1="185" x2="392" y2="293" stroke="black" stroke-width="1"/>
+<line x1="320" y1="257" x2="428" y2="257" stroke="black" stroke-width="1"/>
+<circle cx="338" cy="203" r="10" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="338" cy="239" r="10" fill="black"/>
+<rect x="362" y="227" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="410,262 397,288 423,288" fill="black"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="question-text">
+                次のアからオまでのシートのうち3枚を選び、必要に応じて回転させて重ねたところ、下の目標パターンのように見えた。重ねたシートの組み合わせは次のうちどれか。正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【シート一覧】</div>
+                <div class="figure-content">
+                    <svg width="620" height="140" viewBox="0 0 620 140">
+<text x="59" y="20" text-anchor="middle" class="svg-text" font-size="14">ア</text>
+<rect x="5" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="41" y1="25" x2="41" y2="133" stroke="black" stroke-width="1"/>
+<line x1="5" y1="61" x2="113" y2="61" stroke="black" stroke-width="1"/>
+<line x1="77" y1="25" x2="77" y2="133" stroke="black" stroke-width="1"/>
+<line x1="5" y1="97" x2="113" y2="97" stroke="black" stroke-width="1"/>
+<rect x="11" y="31" width="24" height="24" fill="black"/>
+<circle cx="95" cy="79" r="10" fill="none" stroke="black" stroke-width="2"/>
+<text x="183" y="20" text-anchor="middle" class="svg-text" font-size="14">イ</text>
+<rect x="129" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="165" y1="25" x2="165" y2="133" stroke="black" stroke-width="1"/>
+<line x1="129" y1="61" x2="237" y2="61" stroke="black" stroke-width="1"/>
+<line x1="201" y1="25" x2="201" y2="133" stroke="black" stroke-width="1"/>
+<line x1="129" y1="97" x2="237" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="147,66 134,92 160,92" fill="black"/>
+<circle cx="219" cy="115" r="10" fill="black"/>
+<text x="307" y="20" text-anchor="middle" class="svg-text" font-size="14">ウ</text>
+<rect x="253" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="289" y1="25" x2="289" y2="133" stroke="black" stroke-width="1"/>
+<line x1="253" y1="61" x2="361" y2="61" stroke="black" stroke-width="1"/>
+<line x1="325" y1="25" x2="325" y2="133" stroke="black" stroke-width="1"/>
+<line x1="253" y1="97" x2="361" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="343,28 358,43 343,58 328,43" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="271,66 258,92 284,92" fill="none" stroke="black" stroke-width="2"/>
+<rect x="295" y="103" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+<text x="431" y="20" text-anchor="middle" class="svg-text" font-size="14">エ</text>
+<rect x="377" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="413" y1="25" x2="413" y2="133" stroke="black" stroke-width="1"/>
+<line x1="377" y1="61" x2="485" y2="61" stroke="black" stroke-width="1"/>
+<line x1="449" y1="25" x2="449" y2="133" stroke="black" stroke-width="1"/>
+<line x1="377" y1="97" x2="485" y2="97" stroke="black" stroke-width="1"/>
+<polygon points="431,30 418,56 444,56" fill="black"/>
+<circle cx="395" cy="115" r="10" fill="black"/>
+<polygon points="467,100 482,115 467,130 452,115" fill="none" stroke="black" stroke-width="2"/>
+<text x="555" y="20" text-anchor="middle" class="svg-text" font-size="14">オ</text>
+<rect x="501" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="537" y1="25" x2="537" y2="133" stroke="black" stroke-width="1"/>
+<line x1="501" y1="61" x2="609" y2="61" stroke="black" stroke-width="1"/>
+<line x1="573" y1="25" x2="573" y2="133" stroke="black" stroke-width="1"/>
+<line x1="501" y1="97" x2="609" y2="97" stroke="black" stroke-width="1"/>
+<rect x="507" y="31" width="24" height="24" fill="black"/>
+<polygon points="591,28 606,43 591,58 576,43" fill="none" stroke="black" stroke-width="2"/>
+<rect x="543" y="103" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="figure-container" style="border: none; background: none;">
+                <div class="figure-title">【目標パターン】</div>
+                <div class="figure-content">
+                    <svg width="200" height="150" viewBox="0 0 200 150">
+<text x="99" y="20" text-anchor="middle" class="svg-text" font-size="14">目標パターン</text>
+<rect x="45" y="25" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+<line x1="81" y1="25" x2="81" y2="133" stroke="black" stroke-width="1"/>
+<line x1="45" y1="61" x2="153" y2="61" stroke="black" stroke-width="1"/>
+<line x1="117" y1="25" x2="117" y2="133" stroke="black" stroke-width="1"/>
+<line x1="45" y1="97" x2="153" y2="97" stroke="black" stroke-width="1"/>
+<rect x="51" y="31" width="24" height="24" fill="black"/>
+<polygon points="99,30 86,56 112,56" fill="black"/>
+<polygon points="135,28 150,43 135,58 120,43" fill="none" stroke="black" stroke-width="2"/>
+<polygon points="63,66 50,92 76,92" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="135" cy="79" r="10" fill="none" stroke="black" stroke-width="2"/>
+<circle cx="63" cy="115" r="10" fill="black"/>
+<rect x="87" y="103" width="24" height="24" fill="none" stroke="black" stroke-width="2"/>
+</svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>アとウとエ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>イとウとオ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>アとエとオ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>ウとエとオ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>アとイとウ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【目標パターンの分析】</strong></p>
+                    <p>・1行目：■（黒四角）、▲（黒三角）、◇（白ひし形）</p>
+                    <p>・2行目：△（白三角）、空白、○（白丸）</p>
+                    <p>・3行目：●（黒丸）、□（白四角）、空白</p>
+                    <br>
+                    <p><strong>【各シートの検討】</strong></p>
+                    <p>・シートア（回転なし）：■(左上)、○(右中) → 目標の位置に一致</p>
+                    <p>・シートイ（回転なし）：▲(左中)、●(右下)</p>
+                    <p>　→ 90°時計回り回転すると：▲(上中)、●(左下) → 目標の位置に一致</p>
+                    <p>・シートウ（回転なし）：◇(右上)、△(左中)、□(下中) → 目標の位置に一致</p>
+                    <br>
+                    <p><strong>【検証：ア(0°) ＋ イ(90°回転) ＋ ウ(0°)】</strong></p>
+                    <p>・アの■(左上) + イ(90°)の▲(上中) + ウの◇(右上) → 1行目完成</p>
+                    <p>・ウの△(左中) + 空白(中央) + アの○(右中) → 2行目完成</p>
+                    <p>・イ(90°)の●(左下) + ウの□(下中) + 空白(右下) → 3行目完成</p>
+                    <p>すべてのセルが一致し、衝突もない。</p>
+                    <br>
+                    <p>他の選択肢はいかなる回転の組み合わせでも目標パターンを再現できない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考81/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
