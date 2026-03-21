@@ -1,0 +1,404 @@
+<!--
+================================================================================
+印刷80.html - 空間図形・幾何変換問題
+================================================================================
+問1: 正方形の中点と対角線交点を用いた三角形の移動（対称移動・回転移動）
+問2: 空間における3点から等距離にある点の個数
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図のように、正方形ABCDの各辺AB、BC、CD、DAの中点をそれぞれE、F、G、Hとし、対角線AC、BDの交点をOとする。正方形ABCDは、対角線と中点を結ぶ線分EG、FHによって8個の合同な直角二等辺三角形に分けられる。次のアからカのうち、三角形EOFを1回の移動で三角形GOHに重ね合わせることができるものはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 400x400px
+                - viewBox: 0 0 400 400
+                - 正方形の頂点: A(60,60), B(340,60), C(340,340), D(60,340)
+                - 中心O: (200,200)
+                - 中点: E(200,60), F(340,200), G(200,340), H(60,200)
+                - 三角形EOF: 灰色で塗りつぶし
+                - 三角形GOH: 斜線パターンで表示
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="340" height="340" viewBox="0 0 400 400">
+                            <defs>
+                                <pattern id="hatch" patternUnits="userSpaceOnUse" width="8" height="8">
+                                    <path d="M0,8 L8,0" stroke="black" stroke-width="1"/>
+                                </pattern>
+                            </defs>
+
+                            <!-- 三角形EOF（灰色） -->
+                            <polygon points="200,60 200,200 340,200" fill="#ccc" stroke="none"/>
+                            <!-- 三角形GOH（斜線） -->
+                            <polygon points="200,340 200,200 60,200" fill="url(#hatch)" stroke="none"/>
+
+                            <!-- 正方形ABCD -->
+                            <polygon points="60,60 340,60 340,340 60,340" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- 対角線 -->
+                            <line x1="60" y1="60" x2="340" y2="340" stroke="black" stroke-width="1.5"/>
+                            <line x1="340" y1="60" x2="60" y2="340" stroke="black" stroke-width="1.5"/>
+
+                            <!-- 中点を結ぶ線 EG, FH -->
+                            <line x1="200" y1="60" x2="200" y2="340" stroke="black" stroke-width="1.5"/>
+                            <line x1="340" y1="200" x2="60" y2="200" stroke="black" stroke-width="1.5"/>
+
+                            <!-- 頂点ラベル -->
+                            <text x="48" y="50" class="svg-text" text-anchor="middle" font-weight="bold">A</text>
+                            <text x="352" y="50" class="svg-text" text-anchor="middle" font-weight="bold">B</text>
+                            <text x="355" y="358" class="svg-text" text-anchor="middle" font-weight="bold">C</text>
+                            <text x="48" y="358" class="svg-text" text-anchor="middle" font-weight="bold">D</text>
+
+                            <!-- 中点ラベル -->
+                            <text x="200" y="45" class="svg-text" text-anchor="middle" font-weight="bold">E</text>
+                            <text x="360" y="205" class="svg-text" text-anchor="start" font-weight="bold">F</text>
+                            <text x="200" y="370" class="svg-text" text-anchor="middle" font-weight="bold">G</text>
+                            <text x="38" y="205" class="svg-text" text-anchor="end" font-weight="bold">H</text>
+
+                            <!-- 中心ラベル -->
+                            <text x="215" y="218" class="svg-text" text-anchor="start" font-weight="bold">O</text>
+
+                            <!-- 頂点の点 -->
+                            <circle cx="60" cy="60" r="3" fill="black"/>
+                            <circle cx="340" cy="60" r="3" fill="black"/>
+                            <circle cx="340" cy="340" r="3" fill="black"/>
+                            <circle cx="60" cy="340" r="3" fill="black"/>
+                            <circle cx="200" cy="60" r="3" fill="black"/>
+                            <circle cx="340" cy="200" r="3" fill="black"/>
+                            <circle cx="200" cy="340" r="3" fill="black"/>
+                            <circle cx="60" cy="200" r="3" fill="black"/>
+                            <circle cx="200" cy="200" r="3" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 変換の候補 -->
+                <div class="question-text" style="margin-left: 30px;">
+                    ア　直線ACを対称軸とした対称移動<br>
+                    イ　直線BDを対称軸とした対称移動<br>
+                    ウ　直線EGを対称軸とした対称移動<br>
+                    エ　直線FHを対称軸とした対称移動<br>
+                    オ　点Oを回転の中心とした回転移動<br>
+                    カ　点Eを回転の中心とした回転移動
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) アとウ　　(2) イとエ　　(3) ウとカ　　(4) エとオ　　(5) アとオ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                三角形EOFの頂点はE(上辺の中点)、O(中心)、F(右辺の中点)であり、三角形GOHの頂点はG(下辺の中点)、O(中心)、H(左辺の中点)である。EOFをGOHに重ねる変換を各候補について検証する。<br><br>
+
+                <strong>【ア 直線ACを対称軸とした対称移動】</strong><br>
+                対角線ACは左上のAから右下のCを結ぶ直線である。この直線に関する対称移動では、E(上辺の中点)はH(左辺の中点)に、F(右辺の中点)はG(下辺の中点)に、Oは直線AC上にあるのでOに移る。したがって、三角形EOF → 三角形HOG = 三角形GOHとなり、<strong>重ね合わせることができる</strong>。<br><br>
+
+                <strong>【イ 直線BDを対称軸とした対称移動】</strong><br>
+                対角線BDは右上のBから左下のDを結ぶ直線である。この対称移動ではE→F、F→Eとなり、三角形EOF → 三角形FOE = 三角形EOF自身に戻る。GOHには重ならない。<br><br>
+
+                <strong>【ウ 直線EGを対称軸とした対称移動】</strong><br>
+                直線EGは縦の直線である。Eは直線EG上にあるのでE→E、Fは左右反転してH→Hの位置に移るが、E→Eなので三角形EOH（三角形GOHではない）が得られる。不可。<br><br>
+
+                <strong>【エ 直線FHを対称軸とした対称移動】</strong><br>
+                直線FHは横の直線である。Fは直線FH上にあるのでF→F、Eは上下反転してGに移るが、F→FなのでGOHではなくGOFが得られる。不可。<br><br>
+
+                <strong>【オ 点Oを回転の中心とした回転移動】</strong><br>
+                Oを中心に180度回転すると、E(上)→G(下)、F(右)→H(左)、O→Oとなる。三角形EOF → 三角形GOHとなり、<strong>重ね合わせることができる</strong>。<br><br>
+
+                <strong>【カ 点Eを回転の中心とした回転移動】</strong><br>
+                Eを中心に回転すると、E自身は動かない。EはGOHの頂点ではないため、EOFをGOHに重ね合わせることはできない。<br><br>
+
+                したがって、正解は<strong>(5) アとオ</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．空間における点と平面の関係に関する次の問(ⅰ)と(ⅱ)の答えの組み合わせはどれか。正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="question-text" style="margin-top: 20px;">
+                　空間において、同一直線上にない3点A、B、Cが与えられている。
+                </div>
+
+                <div class="question-text" style="margin-left: 30px;">
+                    (ⅰ)　3点A、B、Cから等距離にある点は空間にいくつあるか<br>
+                    (ⅱ)　3点A、B、Cから等距離にあり、かつ3点A、B、Cを含む平面上にある点はいくつあるか
+                </div>
+
+                <div class="question-text" style="margin-left: 50px; margin-top: 15px;">
+                    ア　1つある<br>
+                    イ　2つある<br>
+                    ウ　無数にある
+                </div>
+
+                <div class="options" style="margin-top: 25px;">
+                    (1) (ⅰ):ア　(ⅱ):ア　　　(2) (ⅰ):ウ　(ⅱ):ア　　　(3) (ⅰ):イ　(ⅱ):ウ<br>
+                    (4) (ⅰ):ウ　(ⅱ):ウ　　　(5) (ⅰ):ア　(ⅱ):ウ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【(ⅰ) 3点A、B、Cから等距離にある空間内の点】</strong><br><br>
+
+                AとBから等距離にある点の集合は、線分ABの垂直二等分面（平面）である。同様にBとCから等距離にある点の集合は、線分BCの垂直二等分面である。<br><br>
+
+                A、B、Cは同一直線上にないため、線分ABの方向と線分BCの方向は平行でない。したがって、2つの垂直二等分面は平行でなく、1つの直線で交わる。この交線上の点はすべてA、B、Cから等距離にある。<br><br>
+
+                この直線は、三角形ABCの外接円の中心（外心）を通り、平面ABCに垂直な直線である。直線上には無数の点があるため、答えは<strong>ウ（無数にある）</strong>。<br><br>
+
+                <strong>【(ⅱ) さらに平面ABC上にある点】</strong><br><br>
+
+                (ⅰ)で求めた直線は平面ABCに垂直であるから、この直線と平面ABCとの交点はただ1つである。この交点が三角形ABCの外心であり、A、B、Cから等距離にある平面ABC上の唯一の点である。<br><br>
+
+                したがって、答えは<strong>ア（1つある）</strong>。<br><br>
+
+                以上より、(ⅰ):ウ、(ⅱ):アの組み合わせが正しく、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
