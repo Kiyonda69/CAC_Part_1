@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #dddddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 15px 20px; min-width: 80px; min-height: 60px; text-align: center; vertical-align: middle; font-size: 28px; font-weight: bold; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図形ア～オのうち、一筆書きできるものをすべて選んだものはどれか。ただし、一筆書きとは、筆を紙から離さずに図形のすべての辺をちょうど一度ずつ通って描くことをいう。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 640x150px
+                - viewBox: 0 0 640 150
+                - 5つの図形を横一列に配置
+                - 各図形エリア: 約120x120px、間隔8px
+
+                図形一覧:
+                ア: 正五角形（全頂点次数2、一筆書き可）
+                イ: 五角形＋対角線1本（2頂点が奇数次、一筆書き可）
+                ウ: K5完全グラフ（全頂点次数4、一筆書き可）
+                エ: 正方形＋両対角線（全頂点次数3、一筆書き不可）
+                オ: 家形（2頂点が奇数次、一筆書き可）
+
+                正五角形の頂点座標（中心(60,75), 半径38）:
+                - 頂点1(上): (60, 37)
+                - 頂点2(右上): (96, 63)
+                - 頂点3(右下): (82, 106)
+                - 頂点4(左下): (38, 106)
+                - 頂点5(左上): (24, 63)
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="640" height="150" viewBox="0 0 640 150">
+                            <!-- ア: 正五角形 -->
+                            <g transform="translate(0, 0)">
+                                <text x="60" y="16" class="svg-text" text-anchor="middle" font-weight="bold">ア</text>
+                                <polygon points="60,37 96,63 82,106 38,106 24,63" fill="none" stroke="black" stroke-width="2"/>
+                                <circle cx="60" cy="37" r="3" fill="black"/>
+                                <circle cx="96" cy="63" r="3" fill="black"/>
+                                <circle cx="82" cy="106" r="3" fill="black"/>
+                                <circle cx="38" cy="106" r="3" fill="black"/>
+                                <circle cx="24" cy="63" r="3" fill="black"/>
+                            </g>
+
+                            <!-- イ: 五角形＋対角線1本 -->
+                            <g transform="translate(128, 0)">
+                                <text x="60" y="16" class="svg-text" text-anchor="middle" font-weight="bold">イ</text>
+                                <polygon points="60,37 96,63 82,106 38,106 24,63" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 対角線: 頂点1→頂点3 -->
+                                <line x1="60" y1="37" x2="82" y2="106" stroke="black" stroke-width="2"/>
+                                <circle cx="60" cy="37" r="3" fill="black"/>
+                                <circle cx="96" cy="63" r="3" fill="black"/>
+                                <circle cx="82" cy="106" r="3" fill="black"/>
+                                <circle cx="38" cy="106" r="3" fill="black"/>
+                                <circle cx="24" cy="63" r="3" fill="black"/>
+                            </g>
+
+                            <!-- ウ: K5（完全グラフ） -->
+                            <g transform="translate(256, 0)">
+                                <text x="60" y="16" class="svg-text" text-anchor="middle" font-weight="bold">ウ</text>
+                                <!-- 五角形の辺 -->
+                                <polygon points="60,37 96,63 82,106 38,106 24,63" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 対角線（星形） -->
+                                <line x1="60" y1="37" x2="82" y2="106" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="37" x2="38" y2="106" stroke="black" stroke-width="2"/>
+                                <line x1="96" y1="63" x2="38" y2="106" stroke="black" stroke-width="2"/>
+                                <line x1="96" y1="63" x2="24" y2="63" stroke="black" stroke-width="2"/>
+                                <line x1="82" y1="106" x2="24" y2="63" stroke="black" stroke-width="2"/>
+                                <circle cx="60" cy="37" r="3" fill="black"/>
+                                <circle cx="96" cy="63" r="3" fill="black"/>
+                                <circle cx="82" cy="106" r="3" fill="black"/>
+                                <circle cx="38" cy="106" r="3" fill="black"/>
+                                <circle cx="24" cy="63" r="3" fill="black"/>
+                            </g>
+
+                            <!-- エ: 正方形＋両対角線 -->
+                            <g transform="translate(384, 0)">
+                                <text x="60" y="16" class="svg-text" text-anchor="middle" font-weight="bold">エ</text>
+                                <rect x="25" y="35" width="70" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <!-- 対角線 -->
+                                <line x1="25" y1="35" x2="95" y2="105" stroke="black" stroke-width="2"/>
+                                <line x1="95" y1="35" x2="25" y2="105" stroke="black" stroke-width="2"/>
+                                <circle cx="25" cy="35" r="3" fill="black"/>
+                                <circle cx="95" cy="35" r="3" fill="black"/>
+                                <circle cx="95" cy="105" r="3" fill="black"/>
+                                <circle cx="25" cy="105" r="3" fill="black"/>
+                            </g>
+
+                            <!-- オ: 家形（四角形＋三角屋根） -->
+                            <g transform="translate(512, 0)">
+                                <text x="60" y="16" class="svg-text" text-anchor="middle" font-weight="bold">オ</text>
+                                <!-- 四角形部分 -->
+                                <line x1="25" y1="105" x2="95" y2="105" stroke="black" stroke-width="2"/>
+                                <line x1="95" y1="105" x2="95" y2="60" stroke="black" stroke-width="2"/>
+                                <line x1="25" y1="60" x2="25" y2="105" stroke="black" stroke-width="2"/>
+                                <!-- 三角屋根 -->
+                                <line x1="95" y1="60" x2="60" y2="32" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="32" x2="25" y2="60" stroke="black" stroke-width="2"/>
+                                <!-- 屋根の底辺（TL-TR） -->
+                                <line x1="25" y1="60" x2="95" y2="60" stroke="black" stroke-width="2"/>
+                                <circle cx="25" cy="105" r="3" fill="black"/>
+                                <circle cx="95" cy="105" r="3" fill="black"/>
+                                <circle cx="95" cy="60" r="3" fill="black"/>
+                                <circle cx="60" cy="32" r="3" fill="black"/>
+                                <circle cx="25" cy="60" r="3" fill="black"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options" style="margin-top: 20px; font-size: 16px;">
+                    (1) ア、ウ、オ　　(2) ア、イ、エ、オ　　(3) イ、ウ、オ　　(4) ア、イ、ウ、オ　　(5) ア、イ、ウ、エ、オ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【一筆書きの条件】</strong><br>
+                グラフ理論において、一筆書きが可能な条件は次の通りである。<br>
+                ・すべての頂点の次数（その頂点につながる辺の数）が偶数 → 一筆書き可能（閉路）<br>
+                ・奇数次の頂点がちょうど2個 → 一筆書き可能（その2頂点が始点と終点）<br>
+                ・奇数次の頂点が3個以上 → 一筆書き不可<br><br>
+
+                <strong>【各図形の判定】</strong><br>
+                ・ア（正五角形）: 全5頂点の次数は2（偶数） → 一筆書き可能<br>
+                ・イ（五角形＋対角線1本）: 対角線の両端の2頂点が次数3（奇数）、他3頂点は次数2 → 奇数次頂点2個 → 一筆書き可能<br>
+                ・ウ（完全グラフK5）: 全5頂点の次数は4（偶数） → 一筆書き可能<br>
+                ・エ（正方形＋両対角線）: 全4頂点の次数は3（奇数） → 奇数次頂点4個 → <strong>一筆書き不可</strong><br>
+                ・オ（家形）: 左上と右上の2頂点が次数3（奇数）、他3頂点は次数2 → 奇数次頂点2個 → 一筆書き可能<br><br>
+
+                一筆書きできるのは<strong>ア、イ、ウ、オ</strong>の4つである。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図は立方体の各辺をグラフとして表したものである。8個の頂点A～Hはすべて次数3（各頂点に3本の辺が接続）であり、辺は全部で12本ある。この図形を一筆書きできるようにするためには、既存の頂点間に新たに辺を最低何本追加すればよいか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 400x300px
+                - viewBox: 0 0 400 300
+
+                立方体の2D投影図:
+                前面（大きい四角形）:
+                  A=(70,260), B=(250,260), C=(250,110), D=(70,110)
+                背面（小さい四角形、右上にオフセット）:
+                  E=(160,210), F=(340,210), G=(340,60), H=(160,60)
+                接続辺: A-E, B-F, C-G, D-H
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="400" height="300" viewBox="0 0 400 300">
+                            <!-- 前面の四角形 A-B-C-D -->
+                            <line x1="70" y1="260" x2="250" y2="260" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="260" x2="250" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="110" x2="70" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="110" x2="70" y2="260" stroke="black" stroke-width="2"/>
+
+                            <!-- 背面の四角形 E-F-G-H -->
+                            <line x1="160" y1="210" x2="340" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="340" y1="210" x2="340" y2="60" stroke="black" stroke-width="2"/>
+                            <line x1="340" y1="60" x2="160" y2="60" stroke="black" stroke-width="2"/>
+                            <line x1="160" y1="60" x2="160" y2="210" stroke="black" stroke-width="2"/>
+
+                            <!-- 接続辺 A-E, B-F, C-G, D-H -->
+                            <line x1="70" y1="260" x2="160" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="260" x2="340" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="110" x2="340" y2="60" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="110" x2="160" y2="60" stroke="black" stroke-width="2"/>
+
+                            <!-- 頂点（黒丸） -->
+                            <circle cx="70" cy="260" r="4" fill="black"/>
+                            <circle cx="250" cy="260" r="4" fill="black"/>
+                            <circle cx="250" cy="110" r="4" fill="black"/>
+                            <circle cx="70" cy="110" r="4" fill="black"/>
+                            <circle cx="160" cy="210" r="4" fill="black"/>
+                            <circle cx="340" cy="210" r="4" fill="black"/>
+                            <circle cx="340" cy="60" r="4" fill="black"/>
+                            <circle cx="160" cy="60" r="4" fill="black"/>
+
+                            <!-- 頂点ラベル -->
+                            <text x="55" y="278" class="svg-text" font-weight="bold">A</text>
+                            <text x="255" y="278" class="svg-text" font-weight="bold">B</text>
+                            <text x="255" y="105" class="svg-text" font-weight="bold">C</text>
+                            <text x="45" y="108" class="svg-text" font-weight="bold">D</text>
+                            <text x="140" y="225" class="svg-text" font-weight="bold">E</text>
+                            <text x="345" y="225" class="svg-text" font-weight="bold">F</text>
+                            <text x="345" y="55" class="svg-text" font-weight="bold">G</text>
+                            <text x="140" y="55" class="svg-text" font-weight="bold">H</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options" style="margin-top: 20px; font-size: 18px;">
+                    (1) 1本　　(2) 2本　　(3) 3本　　(4) 4本　　(5) 5本
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【一筆書きの条件の確認】</strong><br>
+                一筆書きが可能であるためには、奇数次の頂点が0個（閉路）または2個（始点と終点が異なる経路）でなければならない。<br><br>
+
+                <strong>【立方体グラフの分析】</strong><br>
+                立方体グラフでは、全8頂点の次数はすべて3（奇数）である。<br>
+                ・A: B, D, E に接続 → 次数3<br>
+                ・B: A, C, F に接続 → 次数3<br>
+                ・C: B, D, G に接続 → 次数3<br>
+                ・D: A, C, H に接続 → 次数3<br>
+                ・E: A, F, H に接続 → 次数3<br>
+                ・F: B, E, G に接続 → 次数3<br>
+                ・G: C, F, H に接続 → 次数3<br>
+                ・H: D, E, G に接続 → 次数3<br><br>
+
+                奇数次の頂点が8個あるため、このままでは一筆書きできない。<br><br>
+
+                <strong>【最小追加辺数の計算】</strong><br>
+                辺を1本追加すると、その両端の頂点の次数が1ずつ増え、奇数→偶数に変わる。<br>
+                つまり、1本の辺追加で奇数次頂点を2個減らせる。<br><br>
+
+                一筆書きには奇数次頂点を最大2個まで減らす必要がある。<br>
+                現在8個の奇数次頂点を2個にするには: (8 - 2) / 2 = <strong>3本</strong>の追加が必要。<br><br>
+
+                <strong>【具体例】</strong><br>
+                例えば、辺A-C、B-D、E-Gを追加すると:<br>
+                ・A: 次数4（偶数）、B: 次数4（偶数）、C: 次数4（偶数）、D: 次数4（偶数）<br>
+                ・E: 次数4（偶数）、G: 次数4（偶数）<br>
+                ・F: 次数3（奇数）、H: 次数3（奇数）<br>
+                奇数次頂点が2個（FとH）となり、FからHへの一筆書きが可能になる。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
