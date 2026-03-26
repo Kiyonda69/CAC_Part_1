@@ -1,0 +1,856 @@
+<!--
+================================================================================
+航大思考86.html - 航大思考86 インタラクティブ版
+================================================================================
+問1: 格子パターンの変換操作（90°右回転→左右反転の合成結果を推定）- 標準難度
+問2: 積み木の右側面図（高さマップと正面図から右側面図を推定）- 高難度
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 60px;
+            min-height: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、4×4の格子パターン（黒マスと白マス）に対して、次の2つの操作を順に行う。操作後のパターンとして正しいものを(1)～(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【操作の流れ】</div>
+                <div class="figure-content">
+                    <svg width="540" height="180" viewBox="0 0 540 180">
+                        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="black"/></marker></defs>
+                        <text x="96" y="18" class="svg-text" text-anchor="middle" font-size="13">元のパターン</text>
+                        <rect x="40" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="68" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="96" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="124" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="40" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="68" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="96" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="124" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="40" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="68" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="96" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="124" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="40" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="68" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="96" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="124" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <line x1="160" y1="90" x2="200" y2="90" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <text x="180" y="78" class="svg-text" text-anchor="middle" font-size="11">操作1</text>
+                        <text x="180" y="112" class="svg-text" text-anchor="middle" font-size="10">90°右回転</text>
+                        <text x="278" y="18" class="svg-text" text-anchor="middle" font-size="13">中間結果</text>
+                        <rect x="222" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="250" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="278" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="306" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="222" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="250" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="278" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="306" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="222" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="250" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="278" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="306" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="222" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="250" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="278" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="306" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                        <line x1="340" y1="90" x2="380" y2="90" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                        <text x="360" y="78" class="svg-text" text-anchor="middle" font-size="11">操作2</text>
+                        <text x="360" y="112" class="svg-text" text-anchor="middle" font-size="10">左右反転</text>
+                        <rect x="395" y="40" width="100" height="100" fill="none" stroke="black" stroke-width="2" stroke-dasharray="6,3"/>
+                        <text x="445" y="100" class="svg-text" text-anchor="middle" font-size="30" font-weight="bold">?</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-figure" id="q1-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <svg width="90" height="105" viewBox="0 0 90 105">
+                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
+                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <svg width="90" height="105" viewBox="0 0 90 105">
+                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
+                        <rect x="5" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <svg width="90" height="105" viewBox="0 0 90 105">
+                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
+                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <svg width="90" height="105" viewBox="0 0 90 105">
+                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
+                        <rect x="5" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <svg width="90" height="105" viewBox="0 0 90 105">
+                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
+                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="65" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【解法】</strong></p>
+                    <p>2つの操作を順に追跡する。</p>
+                    <br>
+                    <p><strong>操作1: 90°右回転（時計回り）</strong></p>
+                    <p>元パターンの各列を下から読み取り、回転後の各行に対応させる。</p>
+                    <br>
+                    <p><strong>操作2: 左右反転</strong></p>
+                    <p>中間結果の各行の左右を入れ替える。</p>
+                    <br>
+                    <p><strong>【合成操作の性質】</strong></p>
+                    <p>90°右回転＋左右反転 = 主対角線に関する転置（行と列の入れ替え）と同じ結果になる。つまり、元パターンの(i行, j列)のマスが、結果の(j行, i列)に移る。</p>
+                    <br>
+                    <p><strong>【検証】</strong></p>
+                    <p>元(0,0)=黒 → 結果(0,0)=黒、元(0,3)=黒 → 結果(3,0)=黒、元(1,0)=黒 → 結果(0,1)=黒</p>
+                    <p>選択肢(3)がすべての条件を満たす。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下の表は、3×3のマス目の各位置に積み上げた単位立方体の個数を示している。この立体を右側面（右列側）から見たとき、正しい側面図を(1)～(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【各位置の積み上げ個数】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th></th>
+                            <th>左列</th>
+                            <th>中列</th>
+                            <th>右列</th>
+                        </tr>
+                        <tr>
+                            <th>奥</th>
+                            <td>1</td>
+                            <td>0</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <th>中</th>
+                            <td>0</td>
+                            <td>3</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <th>手前</th>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>0</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">※ 数値はその位置に積まれた単位立方体の個数（0は立方体なし）</div>
+                    <div class="legend-item">※ 正面は「手前」の側、右側面は「右列」の側から見た図</div>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【参考: 正面図】</div>
+                <div class="figure-content">
+                    <svg width="200" height="120" viewBox="0 0 200 120">
+                        <text x="100" y="16" class="svg-text" text-anchor="middle" font-size="13">正面図</text>
+                        <text x="71" y="112" class="svg-text" text-anchor="middle" font-size="10">左</text>
+                        <text x="99" y="112" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="127" y="112" class="svg-text" text-anchor="middle" font-size="10">右</text>
+                        <rect x="57" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="57" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="57" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="85" y="22" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="85" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="85" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="113" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="113" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="113" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-figure" id="q2-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <svg width="70" height="100" viewBox="0 0 70 100">
+                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
+                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
+                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
+                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <svg width="70" height="100" viewBox="0 0 70 100">
+                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
+                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
+                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
+                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <svg width="70" height="100" viewBox="0 0 70 100">
+                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
+                        <rect x="5" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
+                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
+                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <svg width="70" height="100" viewBox="0 0 70 100">
+                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
+                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
+                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
+                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <svg width="70" height="100" viewBox="0 0 70 100">
+                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
+                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
+                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
+                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    </svg>
+                </button>
+
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【右側面図の求め方】</strong></p>
+                    <p>右側面（右列側）から立体を見ると、各行（手前・中・奥）の断面が見える。各行について、左列・中列・右列の中で最も高い積み上げ数が、その行の見える高さになる。</p>
+                    <br>
+                    <p><strong>【各行の計算】</strong></p>
+                    <p>手前行: max(2, 1, 0) = <strong>2</strong></p>
+                    <p>中行: max(0, 3, 2) = <strong>3</strong></p>
+                    <p>奥行: max(1, 0, 1) = <strong>1</strong></p>
+                    <br>
+                    <p>右側面図では、左側が手前、右側が奥になる。</p>
+                    <p>よって、左から順に高さ 2, 3, 1 の図になる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>(1) [2,3,2]: 奥行の高さが2 → 実際はmax=1なので誤り</p>
+                    <p>(2) [2,3,1]: 全行の最大値と一致 → 正解</p>
+                    <p>(3) [3,2,1]: 手前の高さが3 → 実際はmax=2なので誤り</p>
+                    <p>(4) [1,3,2]: 手前と奥が逆 → 誤り</p>
+                    <p>(5) [2,2,1]: 中行の高さが2 → 実際はmax=3なので誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_03/航大思考86/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
