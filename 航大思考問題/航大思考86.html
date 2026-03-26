@@ -15,344 +15,107 @@
     <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
-            font-size: 16px;
-            line-height: 1.8;
-            background-color: #f5f5f5;
-            min-height: 100vh;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
         }
 
-        .main-content {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px 20px 40px;
-        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
 
         .screen {
-            display: none;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-
-        .screen.active {
-            display: block;
-        }
+        .screen.active { display: block; }
 
         .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
         }
-
-        .question-number {
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .question-meta {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .question-text {
-            margin-bottom: 20px;
-            text-align: justify;
-        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
 
         .figure-container {
-            margin: 20px 0;
-            padding: 20px;
-            background-color: #fafafa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
+            margin: 20px 0; padding: 20px;
+            background-color: #fafafa; border: 1px solid #ddd;
+            border-radius: 4px; text-align: center;
         }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
 
-        .figure-title {
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 15px;
-        }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
 
-        .figure-content {
-            display: inline-block;
-            margin: 10px auto;
-        }
-
-        svg {
-            max-width: 100%;
-            height: auto;
-        }
-
-        .svg-text {
-            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
-            font-size: 14px;
-        }
-
-        .figure-table {
-            margin: 0 auto;
-            border-collapse: collapse;
-            background-color: white;
-        }
-
-        .figure-table td {
-            border: 2px solid #333;
-            padding: 15px 20px;
-            min-width: 60px;
-            min-height: 50px;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        .figure-table th {
-            border: 2px solid #333;
-            padding: 10px 15px;
-            background-color: #e8e8e8;
-            font-weight: bold;
-        }
-
-        .options-container {
-            margin: 20px 0;
-        }
-
-        .option-button {
-            display: block;
-            width: 100%;
-            padding: 15px 20px;
-            margin: 10px 0;
-            background-color: white;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-family: inherit;
-            font-size: 16px;
-        }
-
-        .option-button:hover:not(.disabled) {
-            border-color: #666;
-            background-color: #f9f9f9;
-        }
-
-        .option-button.selected {
-            border-color: #2196F3;
-            background-color: #e3f2fd;
-        }
-
-        .option-button.correct {
-            border-color: #4CAF50;
-            background-color: #e8f5e9;
-        }
-
-        .option-button.incorrect {
-            border-color: #f44336;
-            background-color: #ffebee;
-        }
-
-        .option-button.disabled {
-            cursor: default;
-            opacity: 0.8;
-        }
-
-        .option-button .option-label {
-            font-weight: bold;
-            margin-right: 10px;
-        }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 12px 18px; min-width: 50px; text-align: center; vertical-align: middle; }
+        .figure-table th { border: 2px solid #333; padding: 8px 14px; background-color: #e8e8e8; font-weight: bold; }
 
         .options-figure {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 2%;
-            margin: 20px 0;
-            width: 100%;
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 3%; margin: 20px 0; width: 100%;
         }
 
         .option-figure-button {
-            flex: 0 1 calc(20% - 2%);
-            min-width: 80px;
-            max-width: 120px;
-            padding: 8px;
-            background-color: white;
-            border: 3px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            flex: 0 1 calc(20% - 3%); min-width: 90px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
         }
-
-        .option-figure-button svg {
-            width: 100%;
-            height: auto;
-        }
-
-        .option-figure-button:hover:not(.disabled) {
-            border-color: #666;
-            background-color: #f9f9f9;
-        }
-
-        .option-figure-button.selected {
-            border-color: #2196F3;
-            background-color: #e3f2fd;
-        }
-
-        .option-figure-button.correct {
-            border-color: #4CAF50;
-            background-color: #e8f5e9;
-        }
-
-        .option-figure-button.incorrect {
-            border-color: #f44336;
-            background-color: #ffebee;
-        }
-
-        .option-figure-button.disabled {
-            cursor: default;
-        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
 
         @media (max-width: 600px) {
-            .option-figure-button {
-                flex: 0 1 calc(33% - 2%);
-                min-width: 60px;
-            }
+            .option-figure-button { flex: 0 1 calc(33% - 3%); min-width: 70px; }
         }
 
         .btn {
-            padding: 12px 30px;
-            font-size: 16px;
-            font-family: inherit;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
         }
-
-        .btn-primary {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #1976D2;
-        }
-
-        .btn-secondary {
-            background-color: #666;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #555;
-        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
 
         .explanation-section {
-            display: none;
-            margin-top: 30px;
-            padding: 25px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
         }
-
-        .explanation-section.show {
-            display: block;
-        }
-
+        .explanation-section.show { display: block; }
         .explanation-header {
-            font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #333;
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
         }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
 
-        .explanation-content {
-            line-height: 2;
-        }
-
-        .explanation-content strong {
-            color: #333;
-        }
-
-        .progress-bar {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .progress-dot {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: #ddd;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #666;
-            transition: all 0.2s ease;
+            width: 32px; height: 32px; border-radius: 50%; background-color: #ddd;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
         }
-
-        .progress-dot:hover {
-            transform: scale(1.1);
-        }
-
-        .progress-dot.active {
-            background-color: #2196F3;
-            color: white;
-        }
-
-        .progress-dot.completed {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .progress-dot.incorrect-dot {
-            background-color: #f44336;
-            color: white;
-        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
 
         .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
         }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
 
-        .nav-buttons .btn {
-            min-width: 120px;
-        }
-
-        .nav-buttons .btn.hidden {
-            visibility: hidden;
-        }
-
-        .legend {
-            margin-top: 15px;
-            font-size: 14px;
-            text-align: left;
-            display: inline-block;
-        }
-
-        .legend-item {
-            margin: 5px 0;
-        }
+        .legend { margin-top: 10px; font-size: 13px; text-align: left; display: inline-block; }
+        .legend-item { margin: 3px 0; }
     </style>
 </head>
 <body>
@@ -376,158 +139,158 @@
             <div class="figure-container">
                 <div class="figure-title">【操作の流れ】</div>
                 <div class="figure-content">
-                    <svg width="540" height="180" viewBox="0 0 540 180">
-                        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="black"/></marker></defs>
-                        <text x="96" y="18" class="svg-text" text-anchor="middle" font-size="13">元のパターン</text>
-                        <rect x="40" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="68" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="96" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="124" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="40" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="68" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="96" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="124" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="40" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="68" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="96" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="124" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="40" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="68" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="96" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="124" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <line x1="160" y1="90" x2="200" y2="90" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
-                        <text x="180" y="78" class="svg-text" text-anchor="middle" font-size="11">操作1</text>
-                        <text x="180" y="112" class="svg-text" text-anchor="middle" font-size="10">90°右回転</text>
-                        <text x="278" y="18" class="svg-text" text-anchor="middle" font-size="13">中間結果</text>
-                        <rect x="222" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="250" y="28" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="278" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="306" y="28" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="222" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="250" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="278" y="56" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="306" y="56" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="222" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="250" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="278" y="84" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="306" y="84" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="222" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="250" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="278" y="112" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="306" y="112" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
-                        <line x1="340" y1="90" x2="380" y2="90" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
-                        <text x="360" y="78" class="svg-text" text-anchor="middle" font-size="11">操作2</text>
-                        <text x="360" y="112" class="svg-text" text-anchor="middle" font-size="10">左右反転</text>
-                        <rect x="395" y="40" width="100" height="100" fill="none" stroke="black" stroke-width="2" stroke-dasharray="6,3"/>
-                        <text x="445" y="100" class="svg-text" text-anchor="middle" font-size="30" font-weight="bold">?</text>
-                    </svg>
+                        <svg width="522" height="165" viewBox="0 0 522 165">
+                            <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="black"/></marker></defs>
+                            <text x="86" y="22" class="svg-text" text-anchor="middle" font-size="13">元のパターン</text>
+                            <rect x="30" y="38" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="58" y="38" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="86" y="38" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="114" y="38" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="30" y="66" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="58" y="66" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="86" y="66" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="114" y="66" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="30" y="94" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="58" y="94" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="86" y="94" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="114" y="94" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="30" y="122" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="58" y="122" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="86" y="122" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="114" y="122" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <line x1="150" y1="94" x2="200" y2="94" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                            <text x="175" y="80" class="svg-text" text-anchor="middle" font-size="11">操作1</text>
+                            <text x="175" y="112" class="svg-text" text-anchor="middle" font-size="10">90°右回転</text>
+                            <text x="266" y="22" class="svg-text" text-anchor="middle" font-size="13">中間結果</text>
+                            <rect x="210" y="38" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="238" y="38" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="266" y="38" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="294" y="38" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="210" y="66" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="238" y="66" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="266" y="66" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="294" y="66" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="210" y="94" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="238" y="94" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="266" y="94" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="294" y="94" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="210" y="122" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <rect x="238" y="122" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="266" y="122" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="294" y="122" width="28" height="28" fill="black" stroke="black" stroke-width="1.5"/>
+                            <line x1="330" y1="94" x2="380" y2="94" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                            <text x="355" y="80" class="svg-text" text-anchor="middle" font-size="11">操作2</text>
+                            <text x="355" y="112" class="svg-text" text-anchor="middle" font-size="10">左右反転</text>
+                            <rect x="390" y="66" width="112" height="56" fill="none" stroke="black" stroke-width="2" stroke-dasharray="6,3"/>
+                            <text x="446" y="94" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">?</text>
+                        </svg>
                 </div>
             </div>
 
             <div class="options-figure" id="q1-options">
                 <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
-                    <svg width="90" height="105" viewBox="0 0 90 105">
-                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
-                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    <svg width="100" height="122" viewBox="0 0 100 122">
+                        <text x="50" y="16" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
-                    <svg width="90" height="105" viewBox="0 0 90 105">
-                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
-                        <rect x="5" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    <svg width="100" height="122" viewBox="0 0 100 122">
+                        <text x="50" y="16" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
-                    <svg width="90" height="105" viewBox="0 0 90 105">
-                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
-                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    <svg width="100" height="122" viewBox="0 0 100 122">
+                        <text x="50" y="16" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
-                    <svg width="90" height="105" viewBox="0 0 90 105">
-                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
-                        <rect x="5" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
+                    <svg width="100" height="122" viewBox="0 0 100 122">
+                        <text x="50" y="16" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
-                    <svg width="90" height="105" viewBox="0 0 90 105">
-                        <text x="45" y="14" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
-                        <rect x="5" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="20" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="20" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="40" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="40" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="60" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="60" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="80" width="20" height="20" fill="black" stroke="black" stroke-width="1.5"/>
-                        <rect x="65" y="80" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
+                    <svg width="100" height="122" viewBox="0 0 100 122">
+                        <text x="50" y="16" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="28" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="50" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="72" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="94" width="22" height="22" fill="black" stroke="black" stroke-width="1.5"/>
+                        <rect x="72" y="94" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
                     </svg>
                 </button>
 
@@ -540,10 +303,10 @@
                     <p>2つの操作を順に追跡する。</p>
                     <br>
                     <p><strong>操作1: 90°右回転（時計回り）</strong></p>
-                    <p>元パターンの各列を下から読み取り、回転後の各行に対応させる。</p>
+                    <p>元パターンの各列を下から上に読み取り、回転後の各行にする。</p>
                     <br>
                     <p><strong>操作2: 左右反転</strong></p>
-                    <p>中間結果の各行の左右を入れ替える。</p>
+                    <p>中間結果の各行を左右入れ替える。</p>
                     <br>
                     <p><strong>【合成操作の性質】</strong></p>
                     <p>90°右回転＋左右反転 = 主対角線に関する転置（行と列の入れ替え）と同じ結果になる。つまり、元パターンの(i行, j列)のマスが、結果の(j行, i列)に移る。</p>
@@ -612,108 +375,108 @@
             <div class="figure-container">
                 <div class="figure-title">【参考: 正面図】</div>
                 <div class="figure-content">
-                    <svg width="200" height="120" viewBox="0 0 200 120">
-                        <text x="100" y="16" class="svg-text" text-anchor="middle" font-size="13">正面図</text>
-                        <text x="71" y="112" class="svg-text" text-anchor="middle" font-size="10">左</text>
-                        <text x="99" y="112" class="svg-text" text-anchor="middle" font-size="10">中</text>
-                        <text x="127" y="112" class="svg-text" text-anchor="middle" font-size="10">右</text>
-                        <rect x="57" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="57" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="57" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="85" y="22" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="85" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="85" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="113" y="22" width="28" height="28" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="113" y="50" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="113" y="78" width="28" height="28" fill="#333" stroke="black" stroke-width="1.5"/>
-                    </svg>
+                        <svg width="170" height="150" viewBox="0 0 170 150">
+                            <text x="85" y="18" class="svg-text" text-anchor="middle" font-size="13">正面図</text>
+                            <rect x="40" y="34" width="30" height="30" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="40" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="40" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="70" y="34" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="70" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="70" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="100" y="34" width="30" height="30" fill="white" stroke="black" stroke-width="1.5"/>
+                            <rect x="100" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <rect x="100" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                            <text x="55" y="142" class="svg-text" text-anchor="middle" font-size="11">左</text>
+                            <text x="85" y="142" class="svg-text" text-anchor="middle" font-size="11">中</text>
+                            <text x="115" y="142" class="svg-text" text-anchor="middle" font-size="11">右</text>
+                        </svg>
                 </div>
             </div>
 
             <div class="options-figure" id="q2-options">
                 <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
-                    <svg width="70" height="100" viewBox="0 0 70 100">
-                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
-                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
-                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
-                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    <svg width="78" height="116" viewBox="0 0 78 116">
+                        <text x="39" y="16" class="svg-text" text-anchor="middle" font-size="13">(1)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="17" y="110" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                        <text x="39" y="110" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="61" y="110" class="svg-text" text-anchor="middle" font-size="10">奥</text>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
-                    <svg width="70" height="100" viewBox="0 0 70 100">
-                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
-                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
-                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
-                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    <svg width="78" height="116" viewBox="0 0 78 116">
+                        <text x="39" y="16" class="svg-text" text-anchor="middle" font-size="13">(2)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="17" y="110" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                        <text x="39" y="110" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="61" y="110" class="svg-text" text-anchor="middle" font-size="10">奥</text>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
-                    <svg width="70" height="100" viewBox="0 0 70 100">
-                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
-                        <rect x="5" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
-                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
-                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    <svg width="78" height="116" viewBox="0 0 78 116">
+                        <text x="39" y="16" class="svg-text" text-anchor="middle" font-size="13">(3)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="17" y="110" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                        <text x="39" y="110" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="61" y="110" class="svg-text" text-anchor="middle" font-size="10">奥</text>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
-                    <svg width="70" height="100" viewBox="0 0 70 100">
-                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
-                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="22" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
-                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
-                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    <svg width="78" height="116" viewBox="0 0 78 116">
+                        <text x="39" y="16" class="svg-text" text-anchor="middle" font-size="13">(4)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="17" y="110" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                        <text x="39" y="110" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="61" y="110" class="svg-text" text-anchor="middle" font-size="10">奥</text>
                     </svg>
                 </button>
                 <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
-                    <svg width="70" height="100" viewBox="0 0 70 100">
-                        <text x="35" y="14" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
-                        <rect x="5" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="5" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="42" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="25" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="22" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="42" width="20" height="20" fill="white" stroke="black" stroke-width="1.5"/>
-                        <rect x="45" y="62" width="20" height="20" fill="#333" stroke="black" stroke-width="1.5"/>
-                        <text x="15" y="94" class="svg-text" text-anchor="middle" font-size="9">前</text>
-                        <text x="35" y="94" class="svg-text" text-anchor="middle" font-size="9">中</text>
-                        <text x="55" y="94" class="svg-text" text-anchor="middle" font-size="9">奥</text>
+                    <svg width="78" height="116" viewBox="0 0 78 116">
+                        <text x="39" y="16" class="svg-text" text-anchor="middle" font-size="13">(5)</text>
+                        <rect x="6" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="6" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="50" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="28" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="28" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="50" width="22" height="22" fill="white" stroke="black" stroke-width="1.5"/>
+                        <rect x="50" y="72" width="22" height="22" fill="#333" stroke="black" stroke-width="1.5"/>
+                        <text x="17" y="110" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                        <text x="39" y="110" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                        <text x="61" y="110" class="svg-text" text-anchor="middle" font-size="10">奥</text>
                     </svg>
                 </button>
 
@@ -723,15 +486,14 @@
                 <div class="explanation-header">解説（正解: (2)）</div>
                 <div class="explanation-content">
                     <p><strong>【右側面図の求め方】</strong></p>
-                    <p>右側面（右列側）から立体を見ると、各行（手前・中・奥）の断面が見える。各行について、左列・中列・右列の中で最も高い積み上げ数が、その行の見える高さになる。</p>
+                    <p>右側面（右列側）から立体を見ると、各行（手前・中・奥）の断面が見える。各行について、全列の中で最も高い積み上げ数が、その行の見える高さになる。</p>
                     <br>
                     <p><strong>【各行の計算】</strong></p>
                     <p>手前行: max(2, 1, 0) = <strong>2</strong></p>
                     <p>中行: max(0, 3, 2) = <strong>3</strong></p>
                     <p>奥行: max(1, 0, 1) = <strong>1</strong></p>
                     <br>
-                    <p>右側面図では、左側が手前、右側が奥になる。</p>
-                    <p>よって、左から順に高さ 2, 3, 1 の図になる。</p>
+                    <p>右側面図では、左側が手前、右側が奥になる。よって、左から順に高さ 2, 3, 1 の図になる。</p>
                     <br>
                     <p><strong>【選択肢の検討】</strong></p>
                     <p>(1) [2,3,2]: 奥行の高さが2 → 実際はmax=1なので誤り</p>
@@ -752,10 +514,7 @@
     </main>
 
     <script>
-        const state = {
-            currentQuestion: 1,
-            answers: {}
-        };
+        const state = { currentQuestion: 1, answers: {} };
 
         function showScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -766,20 +525,13 @@
         function goToQuestion(questionNum) {
             state.currentQuestion = questionNum;
             showScreen(`q${questionNum}-question`);
-
             if (state.answers[questionNum] === undefined) {
                 document.querySelectorAll('.progress-dot').forEach(dot => {
                     const dotNum = parseInt(dot.textContent);
-                    if (state.answers[dotNum] === undefined) {
-                        dot.classList.remove('active');
-                    }
+                    if (state.answers[dotNum] === undefined) { dot.classList.remove('active'); }
                 });
                 document.getElementById(`progress-${questionNum}`).classList.add('active');
             }
-        }
-
-        function startQuestion(questionNum) {
-            goToQuestion(questionNum);
         }
 
         function selectAnswer(questionNum, selectedOption, correctOption) {
@@ -788,20 +540,12 @@
 
             if (state.answers[questionNum] !== undefined) {
                 state.answers[questionNum] = undefined;
-
-                buttons.forEach(btn => {
-                    btn.classList.remove('selected', 'correct', 'incorrect');
-                });
-
-                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
-                explanationSection.classList.remove('show');
-
+                buttons.forEach(btn => { btn.classList.remove('selected', 'correct', 'incorrect'); });
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
                 document.getElementById(`q${questionNum}-nav`).style.display = 'none';
-
                 const progressDot = document.getElementById(`progress-${questionNum}`);
                 progressDot.classList.remove('completed', 'incorrect-dot');
                 progressDot.classList.add('active');
-
                 return;
             }
 
@@ -812,9 +556,7 @@
                 if (window.parent && window.parent.recordAnswer) {
                     window.parent.recordAnswer(
                         `2026_03/航大思考86/問${questionNum}`,
-                        selectedOption,
-                        correctOption,
-                        isCorrect
+                        selectedOption, correctOption, isCorrect
                     );
                 }
             } catch (e) {}
@@ -822,16 +564,11 @@
             buttons.forEach(btn => {
                 btn.classList.remove('selected', 'correct', 'incorrect');
                 const option = parseInt(btn.dataset.option);
-
                 if (option === selectedOption) {
                     btn.classList.add('selected');
-                    if (!isCorrect) {
-                        btn.classList.add('incorrect');
-                    }
+                    if (!isCorrect) { btn.classList.add('incorrect'); }
                 }
-                if (option === correctOption) {
-                    btn.classList.add('correct');
-                }
+                if (option === correctOption) { btn.classList.add('correct'); }
             });
 
             const progressDot = document.getElementById(`progress-${questionNum}`);
@@ -840,7 +577,6 @@
 
             const explanationSection = document.getElementById(`q${questionNum}-explanation`);
             explanationSection.classList.add('show');
-
             document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
 
             setTimeout(() => {
