@@ -1,0 +1,442 @@
+<!--
+================================================================================
+印刷86.html - 航大思考86 印刷用
+================================================================================
+問1: 格子パターンの変換操作（90°右回転→左右反転の合成結果を推定）- 標準難度
+問2: 積み木の右側面図（高さマップと正面図から右側面図を推定）- 高難度
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+
+        .figure-container {
+            margin: 15px 0; padding: 15px;
+            background-color: white; border: 1px solid #dddddd; text-align: center;
+        }
+
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 12px 18px; min-width: 50px; text-align: center; vertical-align: middle; }
+        .figure-table th { border: 2px solid #333; padding: 8px 14px; background-color: #e8e8e8; font-weight: bold; }
+        .legend { margin-top: 10px; font-size: 13px; text-align: left; display: inline-block; }
+        .legend-item { margin: 3px 0; }
+
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図のように、4×4の格子パターン（黒マスと白マス）に対して、次の2つの操作を順に行う。操作後のパターンとして正しいものを(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【操作の流れ】</div>
+                    <div class="figure-content">
+                            <svg width="500" height="144" viewBox="0 0 500 144">
+                                <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="black"/></marker></defs>
+                                <text x="68" y="20" class="svg-text" text-anchor="middle" font-size="12">元のパターン</text>
+                                <rect x="20" y="36" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="36" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="68" y="36" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="92" y="36" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="20" y="60" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="60" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="68" y="60" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="92" y="60" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="20" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="68" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="92" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="20" y="108" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="44" y="108" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="68" y="108" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="92" y="108" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="159" y="70" class="svg-text" text-anchor="middle" font-size="10">操作1</text>
+                                <line x1="126" y1="84" x2="192" y2="84" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                                <text x="159" y="106" class="svg-text" text-anchor="middle" font-size="10">90°右回転</text>
+                                <text x="250" y="20" class="svg-text" text-anchor="middle" font-size="12">中間結果</text>
+                                <rect x="202" y="36" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="226" y="36" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="250" y="36" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="274" y="36" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="202" y="60" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="226" y="60" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="250" y="60" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="274" y="60" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="202" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="226" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="250" y="84" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="274" y="84" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="202" y="108" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="226" y="108" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="250" y="108" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="274" y="108" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="341" y="70" class="svg-text" text-anchor="middle" font-size="10">操作2</text>
+                                <line x1="308" y1="84" x2="374" y2="84" stroke="black" stroke-width="2" marker-end="url(#arrowhead)"/>
+                                <text x="341" y="106" class="svg-text" text-anchor="middle" font-size="10">左右反転</text>
+                                <rect x="384" y="60" width="96" height="48" fill="none" stroke="black" stroke-width="2" stroke-dasharray="6,3"/>
+                                <text x="432" y="94" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">?</text>
+                            </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                            <svg width="612" height="138" viewBox="0 0 612 138">
+                                <text x="58" y="18" class="svg-text" text-anchor="middle" font-size="14">(1)</text>
+                                <rect x="10" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="82" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="10" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="82" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="10" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="82" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="10" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="82" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="182" y="18" class="svg-text" text-anchor="middle" font-size="14">(2)</text>
+                                <rect x="134" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="158" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="182" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="206" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="134" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="158" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="182" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="206" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="134" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="158" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="182" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="206" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="134" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="158" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="182" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="206" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="306" y="18" class="svg-text" text-anchor="middle" font-size="14">(3)</text>
+                                <rect x="258" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="282" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="306" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="330" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="258" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="282" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="306" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="330" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="258" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="282" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="306" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="330" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="258" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="282" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="306" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="330" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="430" y="18" class="svg-text" text-anchor="middle" font-size="14">(4)</text>
+                                <rect x="382" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="406" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="430" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="454" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="382" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="406" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="430" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="454" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="382" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="406" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="430" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="454" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="382" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="406" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="430" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="454" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <text x="554" y="18" class="svg-text" text-anchor="middle" font-size="14">(5)</text>
+                                <rect x="506" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="530" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="554" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="578" y="32" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="506" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="530" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="554" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="578" y="56" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="506" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="530" y="80" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="554" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="578" y="80" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="506" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="530" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="554" y="104" width="24" height="24" fill="black" stroke="black" stroke-width="1.5"/>
+                                <rect x="578" y="104" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                            </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【解法】</strong><br>
+                2つの操作を順に追跡する。<br><br>
+
+                <strong>操作1: 90°右回転（時計回り）</strong><br>
+                ・元パターンの各列を下から上に読み取り、回転後の各行にする<br>
+                ・例: 元の第1列（上→下: 黒黒白白）→ 回転後の第1行（下→上: 白白黒黒）<br><br>
+
+                <strong>操作2: 左右反転</strong><br>
+                ・中間結果の各行を左右入れ替える<br><br>
+
+                <strong>【合成操作の性質】</strong><br>
+                ・90°右回転＋左右反転 = 主対角線に関する転置と同じ結果<br>
+                ・元パターンの(i行, j列)が結果の(j行, i列)に移る<br><br>
+
+                <strong>【検証】</strong><br>
+                ・元(0,0)=黒 → 結果(0,0)=黒、元(0,3)=黒 → 結果(3,0)=黒<br>
+                ・元(1,0)=黒 → 結果(0,1)=黒<br>
+                ・選択肢(3)がこの条件をすべて満たす<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の表は、3×3のマス目の各位置に積み上げた単位立方体の個数を示している。この立体を右側面（右列側）から見たとき、正しい側面図を(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【各位置の積み上げ個数】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th></th>
+                                <th>左列</th>
+                                <th>中列</th>
+                                <th>右列</th>
+                            </tr>
+                            <tr>
+                                <th>奥</th>
+                                <td>1</td>
+                                <td>0</td>
+                                <td>1</td>
+                            </tr>
+                            <tr>
+                                <th>中</th>
+                                <td>0</td>
+                                <td>3</td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <th>手前</th>
+                                <td>2</td>
+                                <td>1</td>
+                                <td>0</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※ 数値はその位置に積まれた単位立方体の個数（0は立方体なし）</div>
+                        <div class="legend-item">※ 正面は「手前」の側、右側面は「右列」の側から見た図</div>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【参考: 正面図】</div>
+                    <div class="figure-content">
+                            <svg width="170" height="150" viewBox="0 0 170 150">
+                                <text x="85" y="18" class="svg-text" text-anchor="middle" font-size="13">正面図</text>
+                                <rect x="40" y="34" width="30" height="30" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="40" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="40" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="70" y="34" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="70" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="70" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="100" y="34" width="30" height="30" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="100" y="64" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="100" y="94" width="30" height="30" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="55" y="142" class="svg-text" text-anchor="middle" font-size="11">左</text>
+                                <text x="85" y="142" class="svg-text" text-anchor="middle" font-size="11">中</text>
+                                <text x="115" y="142" class="svg-text" text-anchor="middle" font-size="11">右</text>
+                            </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-title">【選択肢: 右側面図】</div>
+                    <div class="figure-content">
+                            <svg width="508" height="130" viewBox="0 0 508 130">
+                                <text x="46" y="18" class="svg-text" text-anchor="middle" font-size="14">(1)</text>
+                                <rect x="10" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="10" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="10" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="32" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="34" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="58" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="22" y="122" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                                <text x="46" y="122" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                                <text x="70" y="122" class="svg-text" text-anchor="middle" font-size="10">奥</text>
+                                <text x="150" y="18" class="svg-text" text-anchor="middle" font-size="14">(2)</text>
+                                <rect x="114" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="114" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="114" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="138" y="32" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="138" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="138" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="162" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="162" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="162" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="126" y="122" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                                <text x="150" y="122" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                                <text x="174" y="122" class="svg-text" text-anchor="middle" font-size="10">奥</text>
+                                <text x="254" y="18" class="svg-text" text-anchor="middle" font-size="14">(3)</text>
+                                <rect x="218" y="32" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="218" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="218" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="242" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="242" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="242" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="266" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="266" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="266" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="230" y="122" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                                <text x="254" y="122" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                                <text x="278" y="122" class="svg-text" text-anchor="middle" font-size="10">奥</text>
+                                <text x="358" y="18" class="svg-text" text-anchor="middle" font-size="14">(4)</text>
+                                <rect x="322" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="322" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="322" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="346" y="32" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="346" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="346" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="370" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="370" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="370" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="334" y="122" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                                <text x="358" y="122" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                                <text x="382" y="122" class="svg-text" text-anchor="middle" font-size="10">奥</text>
+                                <text x="462" y="18" class="svg-text" text-anchor="middle" font-size="14">(5)</text>
+                                <rect x="426" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="426" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="426" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="450" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="450" y="56" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="450" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <rect x="474" y="32" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="474" y="56" width="24" height="24" fill="white" stroke="black" stroke-width="1.5"/>
+                                <rect x="474" y="80" width="24" height="24" fill="#333" stroke="black" stroke-width="1.5"/>
+                                <text x="438" y="122" class="svg-text" text-anchor="middle" font-size="10">前</text>
+                                <text x="462" y="122" class="svg-text" text-anchor="middle" font-size="10">中</text>
+                                <text x="486" y="122" class="svg-text" text-anchor="middle" font-size="10">奥</text>
+                            </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                <strong>【右側面図の求め方】</strong><br>
+                右側面（右列側）から立体を見ると、各行（手前・中・奥）の断面が見える。<br>
+                各行について、全列の中で最も高い積み上げ数が、その行の見える高さになる。<br><br>
+
+                <strong>【各行の計算】</strong><br>
+                ・手前行: max(2, 1, 0) = <strong>2</strong><br>
+                ・中行: max(0, 3, 2) = <strong>3</strong><br>
+                ・奥行: max(1, 0, 1) = <strong>1</strong><br><br>
+
+                右側面図では、左側が手前、右側が奥になる。<br>
+                よって、左から順に高さ 2, 3, 1 の図になる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) [2,3,2]: 奥行の高さが2 → 奥行max=1なので誤り<br>
+                ・(2) [2,3,1]: 全行の最大値と一致 → 正解<br>
+                ・(3) [3,2,1]: 手前の高さが3 → 手前max=2なので誤り<br>
+                ・(4) [1,3,2]: 手前と奥が逆 → 誤り<br>
+                ・(5) [2,2,1]: 中行の高さが2 → 中行max=3なので誤り<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
