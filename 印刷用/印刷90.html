@@ -1,0 +1,500 @@
+<!--
+================================================================================
+印刷90.html - セット90: 資料読み取り問題（印刷用）
+================================================================================
+問1（標準）: 5空港の旅客・貨物データの空欄穴埋め（3条件から3空欄を連鎖的に特定）
+問2（高難度）: 5空港の旅客・貨物データと前年比増減率から5記述の正誤組み合わせ判定
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある地域の5つの空港（A～E空港）について、2024年度の旅客数と貨物量のデータを下表にまとめた。ただし、表中のア～ウは不明な値である。次の〔条件〕がすべて成り立つとき、ア＋イ＋ウの値として正しいものを、下の(1)～(5)のうちから一つ選べ。（6点）</div>
+
+                <!-- データ表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】5空港の2024年度旅客・貨物データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>空港</th>
+                                <th>国内旅客数（万人）</th>
+                                <th>国際旅客数（万人）</th>
+                                <th>貨物量（千トン）</th>
+                            </tr>
+                            <tr>
+                                <td>A空港</td>
+                                <td>ア</td>
+                                <td>80</td>
+                                <td>45</td>
+                            </tr>
+                            <tr>
+                                <td>B空港</td>
+                                <td>350</td>
+                                <td>50</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>C空港</td>
+                                <td>イ</td>
+                                <td>60</td>
+                                <td>55</td>
+                            </tr>
+                            <tr>
+                                <td>D空港</td>
+                                <td>120</td>
+                                <td>30</td>
+                                <td>20</td>
+                            </tr>
+                            <tr>
+                                <td>E空港</td>
+                                <td>ウ</td>
+                                <td>40</td>
+                                <td>25</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 条件 -->
+                <div class="question-text" style="margin-top: 5px;">
+                    〔条件〕<br>
+                    (I)　A空港の国際旅客比率（国際旅客数÷総旅客数）は25%である。<br>
+                    (II)　C空港の総旅客数（国内＋国際）はD空港の総旅客数の1.5倍である。<br>
+                    (III)　5空港の国内旅客数の合計は1,000万人である。
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　510　　(2)　520　　(3)　540　　(4)　550　　(5)　530
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                <strong>【Step 1: 条件(I)からアを求める】</strong><br>
+                A空港の国際旅客比率が25%なので：<br>
+                80 ÷（ア ＋ 80）= 0.25<br>
+                ア ＋ 80 = 320<br>
+                <strong>ア = 240</strong><br><br>
+
+                <strong>【Step 2: 条件(II)からイを求める】</strong><br>
+                D空港の総旅客数 = 120 ＋ 30 = 150（万人）<br>
+                C空港の総旅客数 = 150 × 1.5 = 225（万人）<br>
+                イ ＋ 60 = 225<br>
+                <strong>イ = 165</strong><br><br>
+
+                <strong>【Step 3: 条件(III)からウを求める】</strong><br>
+                5空港の国内旅客数合計 = 1,000<br>
+                240 ＋ 350 ＋ 165 ＋ 120 ＋ ウ = 1,000<br>
+                875 ＋ ウ = 1,000<br>
+                <strong>ウ = 125</strong><br><br>
+
+                <strong>【答え】</strong><br>
+                ア ＋ イ ＋ ウ = 240 ＋ 165 ＋ 125 = <strong>530</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ（1/2: 問題文と表） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある地域の5つの空港（P～T空港）について、2024年度の旅客数・貨物量と前年比増減率のデータを下の表1・表2にまとめた。次ページのア～オの記述のうち、正しいもののみをすべて挙げている組み合わせを、次ページの(1)～(5)のうちから一つ選べ。（6点）</div>
+
+                <!-- 表1: 旅客・貨物データ -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】2024年度 旅客・貨物データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>空港</th>
+                                <th>国内旅客数（千人）</th>
+                                <th>国際旅客数（千人）</th>
+                                <th>貨物量（トン）</th>
+                            </tr>
+                            <tr>
+                                <td>P空港</td>
+                                <td>8,500</td>
+                                <td>3,200</td>
+                                <td>42,000</td>
+                            </tr>
+                            <tr>
+                                <td>Q空港</td>
+                                <td>6,300</td>
+                                <td>1,800</td>
+                                <td>28,000</td>
+                            </tr>
+                            <tr>
+                                <td>R空港</td>
+                                <td>5,100</td>
+                                <td>2,400</td>
+                                <td>45,000</td>
+                            </tr>
+                            <tr>
+                                <td>S空港</td>
+                                <td>3,700</td>
+                                <td>900</td>
+                                <td>18,000</td>
+                            </tr>
+                            <tr>
+                                <td>T空港</td>
+                                <td>2,400</td>
+                                <td>500</td>
+                                <td>12,000</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 表2: 前年比増減率 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】前年比増減率（%）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>空港</th>
+                                <th>国内旅客数</th>
+                                <th>国際旅客数</th>
+                                <th>貨物量</th>
+                            </tr>
+                            <tr>
+                                <td>P空港</td>
+                                <td>+5.0</td>
+                                <td>+12.0</td>
+                                <td>-2.0</td>
+                            </tr>
+                            <tr>
+                                <td>Q空港</td>
+                                <td>-2.0</td>
+                                <td>+8.0</td>
+                                <td>+6.0</td>
+                            </tr>
+                            <tr>
+                                <td>R空港</td>
+                                <td>+3.0</td>
+                                <td>+15.0</td>
+                                <td>+4.0</td>
+                            </tr>
+                            <tr>
+                                <td>S空港</td>
+                                <td>+7.0</td>
+                                <td>-5.0</td>
+                                <td>+10.0</td>
+                            </tr>
+                            <tr>
+                                <td>T空港</td>
+                                <td>+4.0</td>
+                                <td>+20.0</td>
+                                <td>-8.0</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ（2/2: 記述と選択肢） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．（続き）</div>
+
+                <div class="question-text" style="margin-top: 5px; font-size: 15px;">
+                    ア　P空港の総旅客数（国内＋国際）は、5空港の総旅客数合計の30%以上を占めている。<br><br>
+                    イ　国際旅客数の前年からの増加数（実数）が最も多いのはP空港である。<br><br>
+                    ウ　前年の貨物量が最も多かったのはP空港である。<br><br>
+                    エ　T空港の国際旅客比率（国際旅客数÷総旅客数）は20%を超えている。<br><br>
+                    オ　前年の国内旅客数が最も少なかったのはT空港である。
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　ア、イ、ウ　　(2)　ア、ウ、オ　　(3)　イ、ウ、エ<br>
+                    (4)　ア、イ、オ　　(5)　ア、イ、エ、オ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【ア: P空港の総旅客数比率】</strong><br>
+                P空港の総旅客数 = 8,500 + 3,200 = 11,700（千人）<br>
+                5空港合計 = (8,500+6,300+5,100+3,700+2,400) + (3,200+1,800+2,400+900+500)<br>
+                = 26,000 + 8,800 = 34,800（千人）<br>
+                比率 = 11,700 ÷ 34,800 = 33.6% → <strong>30%以上 → 正しい</strong><br><br>
+
+                <strong>【イ: 国際旅客の前年比増加数】</strong><br>
+                前年値 = 今年値 ÷（1 + 増減率）、増加数 = 今年値 − 前年値<br>
+                ・P: 3,200 - 3,200÷1.12 = 3,200 - 2,857 = <strong>343</strong><br>
+                ・Q: 1,800 - 1,800÷1.08 = 1,800 - 1,667 = 133<br>
+                ・R: 2,400 - 2,400÷1.15 = 2,400 - 2,087 = 313<br>
+                ・S: 減少（-5.0%）<br>
+                ・T: 500 - 500÷1.20 = 500 - 417 = 83<br>
+                → P空港が最多 → <strong>正しい</strong><br><br>
+
+                <strong>【ウ: 前年の貨物量】</strong><br>
+                前年値 = 今年値 ÷（1 + 増減率）<br>
+                ・P: 42,000 ÷ 0.98 = <strong>42,857</strong><br>
+                ・Q: 28,000 ÷ 1.06 = 26,415<br>
+                ・R: 45,000 ÷ 1.04 = <strong>43,269</strong><br>
+                ・S: 18,000 ÷ 1.10 = 16,364<br>
+                ・T: 12,000 ÷ 0.92 = 13,043<br>
+                → 最多はR空港（43,269）であり、P空港（42,857）ではない → <strong>誤り</strong><br>
+                ※今年はR空港が45,000で最多だが、前年もR空港が上回る点がポイント<br><br>
+
+                <strong>【エ: T空港の国際旅客比率】</strong><br>
+                500 ÷（2,400 + 500）= 500 ÷ 2,900 = 17.2% → <strong>20%未満 → 誤り</strong><br><br>
+
+                <strong>【オ: 前年の国内旅客数】</strong><br>
+                ・P: 8,500 ÷ 1.05 = 8,095<br>
+                ・Q: 6,300 ÷ 0.98 = 6,429<br>
+                ・R: 5,100 ÷ 1.03 = 4,951<br>
+                ・S: 3,700 ÷ 1.07 = 3,458<br>
+                ・T: 2,400 ÷ 1.04 = <strong>2,308</strong><br>
+                → T空港が最少 → <strong>正しい</strong><br><br>
+
+                したがって、正しい記述はア、イ、オであり、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
