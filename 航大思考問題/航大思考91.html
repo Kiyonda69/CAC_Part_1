@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 16px; line-height: 1.8; background-color: #f5f5f5; min-height: 100vh; }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 16px; text-align: justify; }
+        .figure-container { margin: 16px 0; padding: 16px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .options-container { margin: 16px 0; }
+        .option-button { display: block; width: 100%; padding: 12px 16px; margin: 8px 0; background-color: white; border: 2px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s ease; font-family: inherit; font-size: 15px; line-height: 1.5; }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.85; }
+        .option-label { font-weight: bold; margin-right: 8px; }
+        .explanation-section { display: none; margin-top: 24px; padding: 20px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; min-width: 120px; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .btn.hidden { visibility: hidden; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 10px 14px; min-width: 60px; text-align: center; vertical-align: middle; }
+        .figure-table th { border: 2px solid #333; padding: 8px 12px; background-color: #e8e8e8; font-weight: bold; }
+        .op-list { text-align: left; display: inline-block; margin: 8px 0; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            APAIとはApproach Path Angle Indicator（進入経路角度指示装置）の略で、着陸する航空機に対して降下角度が適切かどうかを光の色で知らせる装置である。その外見は、滑走路の脇の平らな地面に横一列に並んだ4つの箱型ユニットである。それぞれのユニットは金属製の頑丈な筐体に収められており、大きさは一つあたりおおよそ小型のスーツケース程度である。各ユニットの前面には横長のレンズ窓があり、そこから滑走路に進入してくる航空機に向かって強い光を放っている。4つのユニットは数メートルずつ間隔をあけて一直線に設置されており、遠くから見ると滑走路の脇にぽつぽつと低い構造物が並んでいるように見える。このライトの最大の特徴は、見る角度によって色が変わることである。各ユニットには特殊なレンズが組み込まれており、一定の角度より上から見ると明色（白色）に、下から見ると暗色（黒色）に見える仕組みになっている。電気的に色を切り替えているのではなく、光の屈折を利用した光学的な構造である。4つのユニットはそれぞれ明暗が切り替わる境界の角度が少しずつずらして設定されており、パイロットの目線の角度に応じて明暗の組み合わせが自然に変化する。パイロットから見て左2つが明色、右2つが暗色という「○○●●」の状態が適正降下角度であり、多くの空港では3度に設定されている。パイロットはこの「○○●●」を維持しながら降下していくのである。なお、推力の増減は主に速度に影響し、降下角度を直接変えるには操縦桿の操作が必要である。
+        </div>
+
+        <div class="figure-container" style="border: none; padding: 8px 16px;">
+            <div class="op-list">
+                <strong>【操縦操作】</strong><br>
+                ア：操縦桿を引き、推力を上げる<br>
+                イ：操縦桿と推力を維持する<br>
+                ウ：推力を上げる<br>
+                エ：操縦桿を押す<br>
+                オ：推力を下げる
+            </div>
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【状況】</div>
+            <div class="figure-content">
+                <svg width="500" height="180" viewBox="0 0 500 180">
+                    <rect x="70" y="25" width="55" height="35" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="133" y="25" width="55" height="35" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="196" y="25" width="55" height="35" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="259" y="25" width="55" height="35" fill="black" stroke="black" stroke-width="2"/>
+                    <defs><marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#333"/></marker></defs>
+                    <line x1="192" y1="70" x2="192" y2="100" stroke="#333" stroke-width="2" marker-end="url(#arrow1)"/>
+                    <rect x="70" y="110" width="55" height="35" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="133" y="110" width="55" height="35" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="196" y="110" width="55" height="35" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="259" y="110" width="55" height="35" fill="black" stroke="black" stroke-width="2"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)"><span class="option-label">(1)</span>ア、ウ</button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)"><span class="option-label">(2)</span>イ</button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)"><span class="option-label">(3)</span>ア</button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)"><span class="option-label">(4)</span>ウ</button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)"><span class="option-label">(5)</span>オ</button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p><strong>【表示の読み取り】</strong></p>
+                <p>・4つのユニットは境界角度が少しずつ異なる。進入角度が低いほど暗色（●）に見えるユニットが増える</p>
+                <p>・正常状態「○○●●」は適正降下角度（約3度）にいることを示す</p>
+                <p>・変化後「○●●●」は進入角度が低下し、やや低い位置にいることを示す</p>
+                <br>
+                <p><strong>【必要な操作の分析】</strong></p>
+                <p>・進入角度を上げて正常な降下経路に戻る必要がある</p>
+                <p>・操縦桿を引いて機首を上げることで降下角度を浅くし、高度を回復できる</p>
+                <p>・しかし、機首上げだけでは速度が低下し失速の危険がある</p>
+                <p>・そのため、推力も同時に上げて速度を維持する必要がある</p>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) ア、ウ → アは機首上げ+推力増で適切だが、ウ（さらに推力増）を重ねると速度超過となる → 不正解</p>
+                <p>・(2) イ → 現状維持では低角度のまま地面に接近し危険 → 不正解</p>
+                <p>・(3) ア → 操縦桿を引いて機首上げ、同時に推力を上げて速度を維持。安全に角度を回復できる → <strong>正解</strong></p>
+                <p>・(4) ウ → 推力を上げるだけでは速度は増すが降下角度はほぼ変わらない → 不正解</p>
+                <p>・(5) オ → 推力を下げるとさらに降下し、危険が増す → 不正解</p>
+                <br>
+                <p>したがって、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            問1のAPAI（進入角度指示灯）に加え、滑走路手前には進入速度指示灯が設置されている。これも4つの箱型ユニットが横一列に並ぶ構造であるが、こちらは航空機の接近速度に応じて表示が変わる。速度が各ユニットの閾値を超えると明色（○）から暗色（●）に変わり、速度が高いほど左から順に暗色のユニットが増える。適正速度範囲では「●●○○」が正常な表示状態である。
+        </div>
+        <div class="question-text">
+            パイロットは以下の5つの操作を使用できる。同時に2つまでの操作を行うことができ、その効果は加算される。進入角度と速度がともに正常な表示に戻る操作の組み合わせを選べ。
+        </div>
+
+        <div class="figure-container" style="padding: 10px;">
+            <table class="figure-table" style="font-size: 14px;">
+                <tr><th style="min-width:40px;">操作</th><th>内容</th><th style="min-width:100px;">進入角度への影響</th><th style="min-width:100px;">速度への影響</th></tr>
+                <tr><td>ア</td><td style="text-align:left;padding-left:10px;">推力を上げる</td><td>1段階上昇</td><td>1段階上昇</td></tr>
+                <tr><td>イ</td><td style="text-align:left;padding-left:10px;">推力を下げる</td><td>1段階下降</td><td>1段階下降</td></tr>
+                <tr><td>ウ</td><td style="text-align:left;padding-left:10px;">操縦桿を引く</td><td>1段階上昇</td><td>変化なし</td></tr>
+                <tr><td>エ</td><td style="text-align:left;padding-left:10px;">スピードブレーキを展開する</td><td>変化なし</td><td>1段階下降</td></tr>
+                <tr><td>オ</td><td style="text-align:left;padding-left:10px;">スピードブレーキを格納する</td><td>変化なし</td><td>1段階上昇</td></tr>
+            </table>
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【状況】</div>
+            <div class="figure-content">
+                <svg width="600" height="200" viewBox="0 0 600 200">
+                    <text x="165" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化前</text>
+                    <text x="465" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化後</text>
+                    <text x="15" y="52" class="svg-text" font-size="11">角度</text>
+                    <rect x="55" y="35" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="110" y="35" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="165" y="35" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="220" y="35" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <text x="15" y="97" class="svg-text" font-size="11">速度</text>
+                    <rect x="55" y="80" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="110" y="80" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="165" y="80" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="220" y="80" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L0,8 L8,4 z" fill="#333"/></marker></defs>
+                    <line x1="285" y1="68" x2="340" y2="68" stroke="#333" stroke-width="2" marker-end="url(#arrow2)"/>
+                    <text x="315" y="52" class="svg-text" font-size="11">角度</text>
+                    <rect x="355" y="35" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <rect x="410" y="35" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="465" y="35" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="520" y="35" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <text x="315" y="97" class="svg-text" font-size="11">速度</text>
+                    <rect x="355" y="80" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="410" y="80" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="465" y="80" width="50" height="28" fill="black" stroke="black" stroke-width="2"/>
+                    <rect x="520" y="80" width="50" height="28" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="300" y="148" class="svg-text" text-anchor="middle" font-size="12">角度: 正常(○○●●) → やや低い(○●●●)　…角度を1段階上げる必要あり</text>
+                    <text x="300" y="170" class="svg-text" text-anchor="middle" font-size="12">速度: 正常(●●○○) → やや速い(●●●○)　…速度を1段階下げる必要あり</text>
+                </svg>
+            </div>
+        </div>
+
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)"><span class="option-label">(1)</span>ア、エ</button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)"><span class="option-label">(2)</span>イ、オ</button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)"><span class="option-label">(3)</span>ア、ウ</button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)"><span class="option-label">(4)</span>ウ、エ</button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)"><span class="option-label">(5)</span>イ、ア</button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p><strong>【状況の分析】</strong></p>
+                <p>・進入角度: ○○●● → ○●●●（1段階低下、低い側に逸脱）→ 角度を1段階上げる必要がある</p>
+                <p>・速度: ●●○○ → ●●●○（1段階上昇、速い側に逸脱）→ 速度を1段階下げる必要がある</p>
+                <p>・必要な変化: (角度 +1, 速度 -1)</p>
+                <br>
+                <p><strong>【各選択肢の効果】</strong></p>
+                <p>・(1) ア、エ → ア(角度+1, 速度+1) + エ(角度±0, 速度-1) = (角度+1, 速度±0) → 速度が戻らない → 不正解</p>
+                <p>・(2) イ、オ → イ(角度-1, 速度-1) + オ(角度±0, 速度+1) = (角度-1, 速度±0) → 角度がさらに低下 → 不正解</p>
+                <p>・(3) ア、ウ → ア(角度+1, 速度+1) + ウ(角度+1, 速度±0) = (角度+2, 速度+1) → 両方過剰 → 不正解</p>
+                <p>・(4) ウ、エ → ウ(角度+1, 速度±0) + エ(角度±0, 速度-1) = <strong>(角度+1, 速度-1)</strong> → 両方正常に戻る → <strong>正解</strong></p>
+                <p>・(5) イ、ア → イ(角度-1, 速度-1) + ア(角度+1, 速度+1) = (角度±0, 速度±0) → 何も変わらない → 不正解</p>
+                <br>
+                <p><strong>【ポイント】</strong></p>
+                <p>・角度と速度で逆方向の補正が必要な場合、推力の操作（ア・イ）は両方に同時に影響するため使えない</p>
+                <p>・操縦桿（ウ）は角度のみ、スピードブレーキ（エ）は速度のみに影響するため、これらを組み合わせることで独立に制御できる</p>
+                <br>
+                <p>したがって、正解は<strong>(4)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+    function startQuestion(questionNum) { goToQuestion(questionNum); }
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('completed', 'incorrect-dot');
+            progressDot.classList.add('active');
+            return;
+        }
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(`2026_04/航大思考91/問${questionNum}`, selectedOption, correctOption, isCorrect);
+            }
+        } catch (e) {}
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) { btn.classList.add('selected'); if (!isCorrect) btn.classList.add('incorrect'); }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('active');
+        progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+        const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+        explanationSection.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+        setTimeout(() => { explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    }
+    document.addEventListener('DOMContentLoaded', () => { document.getElementById('progress-1').classList.add('active'); });
+</script>
+</body>
+</html>
