@@ -1,0 +1,487 @@
+<!--
+================================================================================
+印刷88.html - セット88: 資料読み取り問題（印刷用）
+================================================================================
+問1（標準）: 4工場×3製品の粗利益計算（2表の交差参照で粗利単価を算出し最大工場を特定）
+問2（高難度）: 5市の人口・面積・産業別就業者データの5記述正誤判定（構成比×実数の罠）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある製造会社の4つの工場（P、Q、R、S）で3種類の製品（甲、乙、丙）を生産している。表1に各工場の月間生産量を、表2に各製品の販売単価と材料費単価を示す。各工場の粗利益（万円）を「粗利益 =（販売単価 − 材料費単価）× 生産量」の合計として計算するとき、粗利益が最も大きい工場の粗利益額（万円）として正しいものを、次の(1)～(5)のうちから一つ選べ。（6点）</div>
+
+                <!-- 表1: 月間生産量 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】月間生産量（個）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th></th>
+                                <th>製品甲</th>
+                                <th>製品乙</th>
+                                <th>製品丙</th>
+                            </tr>
+                            <tr>
+                                <th>P工場</th>
+                                <td>200</td>
+                                <td>100</td>
+                                <td>100</td>
+                            </tr>
+                            <tr>
+                                <th>Q工場</th>
+                                <td>100</td>
+                                <td>200</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>R工場</th>
+                                <td>150</td>
+                                <td>100</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <th>S工場</th>
+                                <td>250</td>
+                                <td>50</td>
+                                <td>150</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 表2: 製品別単価 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】製品別単価（円/個）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>製品</th>
+                                <th>販売単価</th>
+                                <th>材料費単価</th>
+                            </tr>
+                            <tr>
+                                <td>甲</td>
+                                <td>5,000</td>
+                                <td>3,000</td>
+                            </tr>
+                            <tr>
+                                <td>乙</td>
+                                <td>4,000</td>
+                                <td>2,000</td>
+                            </tr>
+                            <tr>
+                                <td>丙</td>
+                                <td>8,000</td>
+                                <td>3,000</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　110　　(2)　135　　(3)　85　　(4)　120　　(5)　150
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                <strong>【Step 1: 各製品の粗利単価を求める】</strong><br>
+                ・製品甲: 5,000 - 3,000 = <strong>2,000</strong>（円/個）<br>
+                ・製品乙: 4,000 - 2,000 = <strong>2,000</strong>（円/個）<br>
+                ・製品丙: 8,000 - 3,000 = <strong>5,000</strong>（円/個）<br><br>
+
+                <strong>【Step 2: 各工場の粗利益を計算する】</strong><br>
+                ・P工場: 200×2,000 + 100×2,000 + 100×5,000 = 40万 + 20万 + 50万 = <strong>110万円</strong><br>
+                ・Q工場: 100×2,000 + 200×2,000 + 50×5,000 = 20万 + 40万 + 25万 = <strong>85万円</strong><br>
+                ・R工場: 150×2,000 + 100×2,000 + 200×5,000 = 30万 + 20万 + 100万 = <strong>150万円</strong><br>
+                ・S工場: 250×2,000 + 50×2,000 + 150×5,000 = 50万 + 10万 + 75万 = <strong>135万円</strong><br><br>
+
+                <strong>【ポイント】</strong><br>
+                甲と乙の粗利単価は同じ2,000円だが、丙の粗利単価は5,000円と突出して高い。<br>
+                S工場は甲の生産量が最多（250個）だが、丙の生産量が最多のR工場（200個）が粗利益で上回る。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある県の5つの市（A～E市）の人口と面積に関するデータを表1に、各市の産業別就業者構成比を表2に示す。次のア～オの記述のうち、正しいもののみをすべて挙げている組み合わせを、下の(1)～(5)のうちから一つ選べ。（6点）</div>
+
+                <!-- 表1: 人口・面積データ -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】人口・面積データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>市</th>
+                                <th>人口（千人）</th>
+                                <th>面積（km<sup>2</sup>）</th>
+                            </tr>
+                            <tr>
+                                <td>A市</td>
+                                <td>180</td>
+                                <td>120</td>
+                            </tr>
+                            <tr>
+                                <td>B市</td>
+                                <td>250</td>
+                                <td>400</td>
+                            </tr>
+                            <tr>
+                                <td>C市</td>
+                                <td>75</td>
+                                <td>150</td>
+                            </tr>
+                            <tr>
+                                <td>D市</td>
+                                <td>320</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td>E市</td>
+                                <td>150</td>
+                                <td>250</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 表2: 産業別就業者構成比 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表2】産業別就業者データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>市</th>
+                                <th>就業者数（千人）</th>
+                                <th>第一次（%）</th>
+                                <th>第二次（%）</th>
+                                <th>第三次（%）</th>
+                            </tr>
+                            <tr>
+                                <td>A市</td>
+                                <td>80</td>
+                                <td>5</td>
+                                <td>30</td>
+                                <td>65</td>
+                            </tr>
+                            <tr>
+                                <td>B市</td>
+                                <td>120</td>
+                                <td>15</td>
+                                <td>35</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>C市</td>
+                                <td>40</td>
+                                <td>25</td>
+                                <td>25</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>D市</td>
+                                <td>160</td>
+                                <td>5</td>
+                                <td>40</td>
+                                <td>55</td>
+                            </tr>
+                            <tr>
+                                <td>E市</td>
+                                <td>60</td>
+                                <td>20</td>
+                                <td>30</td>
+                                <td>50</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-text" style="margin-top: 5px; font-size: 15px;">
+                    ア　5市の人口の合計は100万人未満である。<br>
+                    イ　人口密度（人口÷面積）が最も高い市は、就業者数が最も多い市と同じである。<br>
+                    ウ　第一次産業の就業者数が最も多いのはB市である。<br>
+                    エ　第三次産業の就業者数が最も多いのはA市である。<br>
+                    オ　すべての市で就業率（就業者数÷人口）は50%を超えている。
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　ア、イ、エ　　(2)　ア、ウ、オ　　(3)　ア、イ、ウ<br>
+                    (4)　イ、ウ、エ　　(5)　ア、ウ、エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【ア: 人口合計】</strong><br>
+                180 + 250 + 75 + 320 + 150 = 975千人 = 97.5万人 → <strong>100万人未満 → 正しい</strong><br><br>
+
+                <strong>【イ: 人口密度と就業者数】</strong><br>
+                人口密度（人/km<sup>2</sup>）：A=1,500、B=625、C=500、D=1,600、E=600<br>
+                → 最高はD市（1,600）<br>
+                就業者数（千人）：A=80、B=120、C=40、D=160、E=60<br>
+                → 最多はD市（160千人）<br>
+                → <strong>一致する → 正しい</strong><br><br>
+
+                <strong>【ウ: 第一次産業就業者数】</strong><br>
+                A=80×0.05=4、B=120×0.15=18、C=40×0.25=10、D=160×0.05=8、E=60×0.20=12<br>
+                → 最多はB市（18千人） → <strong>正しい</strong><br><br>
+
+                <strong>【エ: 第三次産業就業者数】</strong><br>
+                A=80×0.65=52、B=120×0.50=60、C=40×0.50=20、D=160×0.55=88、E=60×0.50=30<br>
+                → 最多はD市（88千人）であり、A市（52千人）ではない → <strong>誤り</strong><br>
+                ※A市は構成比65%で最高だが、就業者数の実数ではD市が上回る<br><br>
+
+                <strong>【オ: 就業率】</strong><br>
+                A=80/180=44.4%、B=120/250=48.0%、C=40/75=53.3%、D=160/320=50.0%、E=60/150=40.0%<br>
+                → A市、B市、E市は50%未満、D市はちょうど50%で「超えて」いない → <strong>誤り</strong><br><br>
+
+                したがって、正しい記述はア、イ、ウであり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
