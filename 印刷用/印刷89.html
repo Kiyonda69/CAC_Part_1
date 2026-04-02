@@ -1,0 +1,574 @@
+<!--
+================================================================================
+印刷89.html - グラフ読み取り問題（セット89）
+================================================================================
+問1（標準）: 5都市の人口・高齢者比率の複合グラフから高齢者人口が最多の都市を特定
+問2（高難度）: 5空港の旅客数・国際線比率・増加率から4つの記述の正誤組み合わせ判定
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下のグラフは、ある県内の5つの都市（A〜E）における人口（棒グラフ、単位：千人）と高齢者比率（折れ線グラフ、単位：%）を示したものである。「高齢者人口」を「人口 × 高齢者比率 ÷ 100」で求めるとき、高齢者人口が最も多い都市はどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x360px
+                - viewBox: 0 0 620 360
+                - 余白: 上下左右20px
+                座標系定義:
+                - グラフ原点: (80, 280)
+                - X軸: 右方向, 都市間隔=100px
+                - Y軸(左): 人口(千人), 上方向, 1千人=1.6px (0〜160)
+                - Y軸(右): 高齢者比率(%), 上方向, 1%=4px (0〜60%)
+                棒グラフ幅: 50px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】5都市の人口と高齢者比率</div>
+                    <div class="figure-content">
+                        <svg width="620" height="360" viewBox="0 0 620 360">
+                            <!-- 左Y軸ラベル（人口） -->
+                            <text x="15" y="25" class="svg-text" text-anchor="middle" font-size="12">人口</text>
+                            <text x="15" y="40" class="svg-text" text-anchor="middle" font-size="12">(千人)</text>
+
+                            <!-- 左Y軸目盛り -->
+                            <text x="70" y="284" class="svg-text" text-anchor="end" font-size="12">0</text>
+                            <text x="70" y="220" class="svg-text" text-anchor="end" font-size="12">40</text>
+                            <text x="70" y="156" class="svg-text" text-anchor="end" font-size="12">80</text>
+                            <text x="70" y="92" class="svg-text" text-anchor="end" font-size="12">120</text>
+                            <text x="70" y="28" class="svg-text" text-anchor="end" font-size="12">160</text>
+
+                            <!-- 右Y軸ラベル（高齢者比率） -->
+                            <text x="590" y="25" class="svg-text" text-anchor="middle" font-size="12">高齢者</text>
+                            <text x="590" y="40" class="svg-text" text-anchor="middle" font-size="12">比率(%)</text>
+
+                            <!-- 右Y軸目盛り -->
+                            <text x="570" y="284" class="svg-text" text-anchor="start" font-size="12">0</text>
+                            <text x="570" y="204" class="svg-text" text-anchor="start" font-size="12">20</text>
+                            <text x="570" y="124" class="svg-text" text-anchor="start" font-size="12">40</text>
+                            <text x="570" y="44" class="svg-text" text-anchor="start" font-size="12">60</text>
+
+                            <!-- グリッド線（横） -->
+                            <line x1="80" y1="216" x2="560" y2="216" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="152" x2="560" y2="152" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="88" x2="560" y2="88" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="24" x2="560" y2="24" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+
+                            <!-- 軸 -->
+                            <line x1="80" y1="280" x2="560" y2="280" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="24" x2="80" y2="280" stroke="black" stroke-width="2"/>
+                            <line x1="560" y1="24" x2="560" y2="280" stroke="black" stroke-width="2"/>
+
+                            <!-- 棒グラフ: A=80千人, B=120千人, C=95千人, D=140千人, E=105千人 -->
+                            <!-- A: 80千人 → 高さ=80*1.6=128px, y=280-128=152 -->
+                            <rect x="105" y="152" width="50" height="128" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- B: 120千人 → 高さ=120*1.6=192px, y=280-192=88 -->
+                            <rect x="205" y="88" width="50" height="192" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- C: 95千人 → 高さ=95*1.6=152px, y=280-152=128 -->
+                            <rect x="305" y="128" width="50" height="152" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- D: 140千人 → 高さ=140*1.6=224px, y=280-224=56 -->
+                            <rect x="405" y="56" width="50" height="224" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- E: 105千人 → 高さ=105*1.6=168px, y=280-168=112 -->
+                            <rect x="505" y="112" width="50" height="168" fill="#999" stroke="black" stroke-width="1"/>
+
+                            <!-- 棒グラフの値ラベル -->
+                            <text x="130" y="145" class="svg-text" text-anchor="middle" font-size="12" font-weight="bold">80</text>
+                            <text x="230" y="81" class="svg-text" text-anchor="middle" font-size="12" font-weight="bold">120</text>
+                            <text x="330" y="121" class="svg-text" text-anchor="middle" font-size="12" font-weight="bold">95</text>
+                            <text x="430" y="49" class="svg-text" text-anchor="middle" font-size="12" font-weight="bold">140</text>
+                            <text x="530" y="105" class="svg-text" text-anchor="middle" font-size="12" font-weight="bold">105</text>
+
+                            <!-- 折れ線グラフ: A=35%, B=22%, C=30%, D=18%, E=26% -->
+                            <!-- 右Y軸: 0%→y=280, 20%→y=200, 40%→y=120, 60%→y=40 -->
+                            <!-- 1%=4px -->
+                            <!-- A: 35% → y=280-35*4=140 -->
+                            <!-- B: 22% → y=280-22*4=192 -->
+                            <!-- C: 30% → y=280-30*4=160 -->
+                            <!-- D: 18% → y=280-18*4=208 -->
+                            <!-- E: 26% → y=280-26*4=176 -->
+                            <polyline points="130,140 230,192 330,160 430,208 530,176"
+                                      fill="none" stroke="black" stroke-width="2.5"/>
+                            <circle cx="130" cy="140" r="5" fill="black"/>
+                            <circle cx="230" cy="192" r="5" fill="black"/>
+                            <circle cx="330" cy="160" r="5" fill="black"/>
+                            <circle cx="430" cy="208" r="5" fill="black"/>
+                            <circle cx="530" cy="176" r="5" fill="black"/>
+
+                            <!-- 折れ線の値ラベル -->
+                            <text x="130" y="130" class="svg-text" text-anchor="middle" font-size="12">35%</text>
+                            <text x="230" y="186" class="svg-text" text-anchor="end" font-size="12">22%</text>
+                            <text x="330" y="153" class="svg-text" text-anchor="middle" font-size="12">30%</text>
+                            <text x="430" y="202" class="svg-text" text-anchor="end" font-size="12">18%</text>
+                            <text x="530" y="170" class="svg-text" text-anchor="middle" font-size="12">26%</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="130" y="300" class="svg-text" text-anchor="middle" font-size="13">都市A</text>
+                            <text x="230" y="300" class="svg-text" text-anchor="middle" font-size="13">都市B</text>
+                            <text x="330" y="300" class="svg-text" text-anchor="middle" font-size="13">都市C</text>
+                            <text x="430" y="300" class="svg-text" text-anchor="middle" font-size="13">都市D</text>
+                            <text x="530" y="300" class="svg-text" text-anchor="middle" font-size="13">都市E</text>
+
+                            <!-- 凡例 -->
+                            <rect x="180" y="320" width="20" height="12" fill="#999" stroke="black" stroke-width="1"/>
+                            <text x="205" y="331" class="svg-text" font-size="12">人口（千人）</text>
+                            <line x1="350" y1="326" x2="380" y2="326" stroke="black" stroke-width="2.5"/>
+                            <circle cx="365" cy="326" r="4" fill="black"/>
+                            <text x="385" y="331" class="svg-text" font-size="12">高齢者比率（%）</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 都市A<br>
+                    (2) 都市B<br>
+                    (3) 都市C<br>
+                    (4) 都市D<br>
+                    (5) 都市E
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                各都市の高齢者人口を「人口 × 高齢者比率 ÷ 100」で計算する。<br><br>
+
+                <strong>【各都市の高齢者人口】</strong><br>
+                ・都市A: 80千人 × 35% ÷ 100 = 28.0千人<br>
+                ・都市B: 120千人 × 22% ÷ 100 = 26.4千人<br>
+                ・都市C: 95千人 × 30% ÷ 100 = <strong>28.5千人</strong><br>
+                ・都市D: 140千人 × 18% ÷ 100 = 25.2千人<br>
+                ・都市E: 105千人 × 26% ÷ 100 = 27.3千人<br><br>
+
+                <strong>【ポイント】</strong><br>
+                人口が最も多い都市D（140千人）は高齢者比率が18%と最も低く、高齢者人口は25.2千人にとどまる。一方、人口が最も少ない都市A（80千人）は高齢者比率が35%と最も高いが、高齢者人口は28.0千人である。都市C（95千人、30%）は人口も比率も中程度だが、両者の積が最大となり28.5千人で最多となる。<br><br>
+
+                したがって、正解は<strong>(3) 都市C</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下のグラフは、5つの空港（A〜E）における年間旅客数（棒グラフ、単位：万人）と国際線比率（折れ線グラフ、単位：%）を示したものである。また、表は各空港の前年からの旅客数増加率を示している。次のア〜エの記述のうち、正しいものの組み合わせはどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x320px
+                - viewBox: 0 0 620 320
+                座標系定義:
+                - グラフ原点: (80, 250)
+                - X軸: 右方向, 空港間隔=90px
+                - Y軸(左): 旅客数(万人), 上方向, 1万人=0.4px (0〜600)
+                - Y軸(右): 国際線比率(%), 上方向, 1%=3.33px (0〜60%)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】5空港の年間旅客数と国際線比率</div>
+                    <div class="figure-content">
+                        <svg width="620" height="320" viewBox="0 0 620 320">
+                            <!-- 左Y軸ラベル -->
+                            <text x="15" y="20" class="svg-text" text-anchor="middle" font-size="11">旅客数</text>
+                            <text x="15" y="33" class="svg-text" text-anchor="middle" font-size="11">(万人)</text>
+
+                            <!-- 左Y軸目盛り: 0〜600, 間隔200 -->
+                            <!-- 1万人=0.4px -->
+                            <text x="70" y="254" class="svg-text" text-anchor="end" font-size="11">0</text>
+                            <text x="70" y="174" class="svg-text" text-anchor="end" font-size="11">200</text>
+                            <text x="70" y="94" class="svg-text" text-anchor="end" font-size="11">400</text>
+                            <text x="70" y="14" class="svg-text" text-anchor="end" font-size="11">600</text>
+
+                            <!-- 右Y軸ラベル -->
+                            <text x="590" y="20" class="svg-text" text-anchor="middle" font-size="11">国際線</text>
+                            <text x="590" y="33" class="svg-text" text-anchor="middle" font-size="11">比率(%)</text>
+
+                            <!-- 右Y軸目盛り: 0〜60%, 間隔20% -->
+                            <!-- 1%=3.33px, 20%=66.7px -->
+                            <text x="570" y="254" class="svg-text" text-anchor="start" font-size="11">0</text>
+                            <text x="570" y="187" class="svg-text" text-anchor="start" font-size="11">20</text>
+                            <text x="570" y="120" class="svg-text" text-anchor="start" font-size="11">40</text>
+                            <text x="570" y="54" class="svg-text" text-anchor="start" font-size="11">60</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="80" y1="170" x2="560" y2="170" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="90" x2="560" y2="90" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+                            <line x1="80" y1="10" x2="560" y2="10" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+
+                            <!-- 軸 -->
+                            <line x1="80" y1="250" x2="560" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="10" x2="80" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="560" y1="10" x2="560" y2="250" stroke="black" stroke-width="2"/>
+
+                            <!-- 棒グラフ: A=500, B=380, C=420, D=300, E=350 -->
+                            <!-- A: 500万人 → 高さ=500*0.4=200px, y=250-200=50 -->
+                            <rect x="105" y="50" width="45" height="200" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- B: 380万人 → 高さ=380*0.4=152px, y=250-152=98 -->
+                            <rect x="195" y="98" width="45" height="152" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- C: 420万人 → 高さ=420*0.4=168px, y=250-168=82 -->
+                            <rect x="285" y="82" width="45" height="168" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- D: 300万人 → 高さ=300*0.4=120px, y=250-120=130 -->
+                            <rect x="375" y="130" width="45" height="120" fill="#999" stroke="black" stroke-width="1"/>
+                            <!-- E: 350万人 → 高さ=350*0.4=140px, y=250-140=110 -->
+                            <rect x="465" y="110" width="45" height="140" fill="#999" stroke="black" stroke-width="1"/>
+
+                            <!-- 棒グラフの値ラベル -->
+                            <text x="127" y="44" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">500</text>
+                            <text x="217" y="92" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">380</text>
+                            <text x="307" y="76" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">420</text>
+                            <text x="397" y="124" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">300</text>
+                            <text x="487" y="104" class="svg-text" text-anchor="middle" font-size="11" font-weight="bold">350</text>
+
+                            <!-- 折れ線グラフ: A=30%, B=45%, C=40%, D=55%, E=50% -->
+                            <!-- 1%=3.33px, y = 250 - rate*3.33 -->
+                            <!-- A: 30% → y=250-100=150 -->
+                            <!-- B: 45% → y=250-150=100 -->
+                            <!-- C: 40% → y=250-133=117 -->
+                            <!-- D: 55% → y=250-183=67 -->
+                            <!-- E: 50% → y=250-167=83 -->
+                            <polyline points="127,150 217,100 307,117 397,67 487,83"
+                                      fill="none" stroke="black" stroke-width="2.5"/>
+                            <circle cx="127" cy="150" r="5" fill="black"/>
+                            <circle cx="217" cy="100" r="5" fill="black"/>
+                            <circle cx="307" cy="117" r="5" fill="black"/>
+                            <circle cx="397" cy="67" r="5" fill="black"/>
+                            <circle cx="487" cy="83" r="5" fill="black"/>
+
+                            <!-- 折れ線の値ラベル -->
+                            <text x="127" y="145" class="svg-text" text-anchor="middle" font-size="11">30%</text>
+                            <text x="217" y="94" class="svg-text" text-anchor="end" font-size="11">45%</text>
+                            <text x="307" y="112" class="svg-text" text-anchor="middle" font-size="11">40%</text>
+                            <text x="397" y="61" class="svg-text" text-anchor="middle" font-size="11">55%</text>
+                            <text x="487" y="78" class="svg-text" text-anchor="middle" font-size="11">50%</text>
+
+                            <!-- X軸ラベル -->
+                            <text x="127" y="268" class="svg-text" text-anchor="middle" font-size="12">空港A</text>
+                            <text x="217" y="268" class="svg-text" text-anchor="middle" font-size="12">空港B</text>
+                            <text x="307" y="268" class="svg-text" text-anchor="middle" font-size="12">空港C</text>
+                            <text x="397" y="268" class="svg-text" text-anchor="middle" font-size="12">空港D</text>
+                            <text x="487" y="268" class="svg-text" text-anchor="middle" font-size="12">空港E</text>
+
+                            <!-- 凡例 -->
+                            <rect x="160" y="286" width="16" height="10" fill="#999" stroke="black" stroke-width="1"/>
+                            <text x="180" y="296" class="svg-text" font-size="11">旅客数（万人）</text>
+                            <line x1="340" y1="291" x2="365" y2="291" stroke="black" stroke-width="2.5"/>
+                            <circle cx="352" cy="291" r="3.5" fill="black"/>
+                            <text x="370" y="296" class="svg-text" font-size="11">国際線比率（%）</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 増加率の表 -->
+                <div class="figure-container" style="border: 1px solid #ddd; padding: 10px;">
+                    <div class="figure-title">【表】各空港の前年からの旅客数増加率</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 6px 12px;">空港</th>
+                            <th style="padding: 6px 12px;">A</th>
+                            <th style="padding: 6px 12px;">B</th>
+                            <th style="padding: 6px 12px;">C</th>
+                            <th style="padding: 6px 12px;">D</th>
+                            <th style="padding: 6px 12px;">E</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 12px; font-weight: bold;">増加率</td>
+                            <td style="padding: 6px 12px;">8%</td>
+                            <td style="padding: 6px 12px;">12%</td>
+                            <td style="padding: 6px 12px;">5%</td>
+                            <td style="padding: 6px 12px;">15%</td>
+                            <td style="padding: 6px 12px;">10%</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- 記述 -->
+                <div class="question-text" style="margin-top: 15px; font-size: 15px;">
+                    ア: 国際線旅客数が最も多いのは空港Cである<br>
+                    イ: 国内線旅客数が最も多いのは空港Aである<br>
+                    ウ: 前年の旅客数が最も少なかったのは空港Dである<br>
+                    エ: 空港Bの国際線旅客数は空港Eの国際線旅客数より多い
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) ア・イ<br>
+                    (2) ア・ウ<br>
+                    (3) イ・ウ<br>
+                    (4) イ・エ<br>
+                    (5) ウ・エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                グラフと表から各空港の値を読み取り、各記述を検証する。<br><br>
+
+                <strong>【国際線旅客数の計算】</strong><br>
+                ・空港A: 500万 × 30% = 150万人<br>
+                ・空港B: 380万 × 45% = 171万人<br>
+                ・空港C: 420万 × 40% = 168万人<br>
+                ・空港D: 300万 × 55% = 165万人<br>
+                ・空港E: 350万 × 50% = <strong>175万人</strong>（最多）<br><br>
+
+                <strong>【国内線旅客数の計算】</strong><br>
+                ・空港A: 500万 × 70% = <strong>350万人</strong>（最多）<br>
+                ・空港B: 380万 × 55% = 209万人<br>
+                ・空港C: 420万 × 60% = 252万人<br>
+                ・空港D: 300万 × 45% = 135万人<br>
+                ・空港E: 350万 × 50% = 175万人<br><br>
+
+                <strong>【前年の旅客数の計算】</strong><br>
+                前年の旅客数 = 今年の旅客数 ÷ (1 + 増加率/100)<br>
+                ・空港A: 500 ÷ 1.08 ≒ 463万人<br>
+                ・空港B: 380 ÷ 1.12 ≒ 339万人<br>
+                ・空港C: 420 ÷ 1.05 = 400万人<br>
+                ・空港D: 300 ÷ 1.15 ≒ <strong>261万人</strong>（最少）<br>
+                ・空港E: 350 ÷ 1.10 ≒ 318万人<br><br>
+
+                <strong>【各記述の検証】</strong><br>
+                ・ア: 国際線最多は空港E（175万人）であり空港Cではない → <strong>誤り</strong><br>
+                ・イ: 国内線最多は空港A（350万人）→ <strong>正しい</strong><br>
+                ・ウ: 前年旅客数が最少は空港D（約261万人）→ <strong>正しい</strong><br>
+                ・エ: 空港B(171万) < 空港E(175万)なので、BはEより少ない → <strong>誤り</strong><br><br>
+
+                したがって、正しい記述はイとウであり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
