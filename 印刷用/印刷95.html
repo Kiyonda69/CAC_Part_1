@@ -1,0 +1,597 @@
+<!--
+================================================================================
+印刷95.html - セット95（印刷用）
+================================================================================
+問1: 棒グラフ式数値符号化（パターン認識 / 標準難度）
+問2: マンション階数配置（制約充足 / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図のように、4本の棒の高さを低・中・高の3段階で表すことによって整数を表す規則がある。1から12までの整数とそれに対応する図形が示されている。この規則に従うとき、整数65を表す図形として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 640x380px
+                - viewBox: 0 0 640 380
+                - 各棒グラフセット: 幅60px、高さ80px領域
+                - 棒の高さ: 低=20px, 中=40px, 高=60px
+                - 4本の棒: 各幅10px、間隔5px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【整数と図形の対応表】</div>
+                    <div class="figure-content">
+                        <svg width="640" height="360" viewBox="0 0 640 360">
+                            <!-- 凡例 -->
+                            <text x="320" y="18" class="svg-text" text-anchor="middle" font-size="13">棒の高さ: 低 / 中 / 高　の3段階</text>
+
+                            <!-- 行1: 1〜4 -->
+                            <!-- 1: (0,0,0,0) = 低低低低 -->
+                            <g transform="translate(30, 40)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">1</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 2: (0,0,0,1) = 低低低中 -->
+                            <g transform="translate(170, 40)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">2</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 3: (0,0,0,2) = 低低低高 -->
+                            <g transform="translate(310, 40)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">3</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 4: (0,0,1,0) = 低低中低 -->
+                            <g transform="translate(450, 40)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">4</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 行2: 5〜8 -->
+                            <!-- 5: (0,0,1,1) = 低低中中 -->
+                            <g transform="translate(30, 150)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">5</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 6: (0,0,1,2) = 低低中高 -->
+                            <g transform="translate(170, 150)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">6</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 7: (0,0,2,0) = 低低高低 -->
+                            <g transform="translate(310, 150)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">7</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 8: (0,0,2,1) = 低低高中 -->
+                            <g transform="translate(450, 150)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">8</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 行3: 9〜12 -->
+                            <!-- 9: (0,0,2,2) = 低低高高 -->
+                            <g transform="translate(30, 260)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">9</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 10: (0,1,0,0) = 低中低低 -->
+                            <g transform="translate(170, 260)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">10</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 11: (0,1,0,1) = 低中低中 -->
+                            <g transform="translate(310, 260)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">11</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 12: (0,1,0,2) = 低中低高 -->
+                            <g transform="translate(450, 260)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle" font-weight="bold">12</text>
+                                <rect x="5" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢:
+                (1) 高中低低 = (2,1,0,0) → 64
+                (2) 中高低中 = (1,2,0,1) → 47
+                (3) 高中低中 = (2,1,0,1) → 65 ← 正解
+                (4) 高低中中 = (2,0,1,1) → 59
+                (5) 高中中低 = (2,1,1,0) → 67
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="620" height="130" viewBox="0 0 620 130">
+                            <!-- 選択肢(1): 高中低低 -->
+                            <g transform="translate(10, 10)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="5" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(2): 中高低中 -->
+                            <g transform="translate(130, 10)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="5" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(3): 高中低中 ← 正解 -->
+                            <g transform="translate(250, 10)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="5" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(4): 高低中中 -->
+                            <g transform="translate(370, 10)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="5" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+
+                            <!-- 選択肢(5): 高中中低 -->
+                            <g transform="translate(490, 10)">
+                                <text x="30" y="0" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="5" y="25" width="10" height="60" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="20" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="35" y="45" width="10" height="40" fill="black" stroke="black" stroke-width="1"/>
+                                <rect x="50" y="65" width="10" height="20" fill="black" stroke="black" stroke-width="1"/>
+                                <line x1="0" y1="85" x2="65" y2="85" stroke="black" stroke-width="1.5"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【規則の発見】</strong><br>
+                4本の棒はそれぞれ「低」「中」「高」の3段階の高さをとる。これは3進法（基数3）の各桁に対応している。<br><br>
+
+                棒の高さを数値に置き換える:<br>
+                ・低 = 0　・中 = 1　・高 = 2<br><br>
+
+                左から順に、27の位、9の位、3の位、1の位を表す:<br>
+                ・整数 n = (左の棒) x 27 + (左中の棒) x 9 + (右中の棒) x 3 + (右の棒) x 1 + 1<br><br>
+
+                <strong>【検証】</strong><br>
+                ・1 = 0x27 + 0x9 + 0x3 + 0 + 1（全て低）<br>
+                ・2 = 0x27 + 0x9 + 0x3 + 1 + 1（右のみ中）<br>
+                ・4 = 0x27 + 0x9 + 1x3 + 0 + 1（右中のみ中）<br>
+                ・10 = 0x27 + 1x9 + 0x3 + 0 + 1（左中のみ中）<br><br>
+
+                <strong>【整数65の計算】</strong><br>
+                65 - 1 = 64 を3進法で表す:<br>
+                ・64 = 2x27 + 1x9 + 0x3 + 1<br>
+                ・各桁: 2, 1, 0, 1 → 高, 中, 低, 中<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 高中低低 → 2x27+1x9+0x3+0+1 = 64 → 不正解<br>
+                ・(2) 中高低中 → 1x27+2x9+0x3+1+1 = 47 → 不正解<br>
+                ・(3) 高中低中 → 2x27+1x9+0x3+1+1 = 65 → 正解<br>
+                ・(4) 高低中中 → 2x27+0x9+1x3+1+1 = 59 → 不正解<br>
+                ・(5) 高中中低 → 2x27+1x9+1x3+0+1 = 67 → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．A、B、C、D、Eの5人が、5階建てマンションの1階から5階にそれぞれ1人ずつ住んでいる。次の条件がすべて成り立つとき、Dが住んでいる階として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【条件】</div>
+                    <div class="figure-content" style="text-align: left;">
+                        <div style="line-height: 2.2; font-size: 16px;">
+                            I．BはAより上の階に住んでいる。<br>
+                            II．DはCのちょうど2階上に住んでいる。<br>
+                            III．Eは偶数階に住んでいる。<br>
+                            IV．Aは1階に住んでいない。<br>
+                            V．BとEは隣の階に住んでいない。
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 200x280px
+                - viewBox: 0 0 200 280
+                - マンション5階建てのイメージ図
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【マンション】</div>
+                    <div class="figure-content">
+                        <svg width="200" height="260" viewBox="0 0 200 260">
+                            <!-- 建物の外枠 -->
+                            <rect x="40" y="10" width="120" height="240" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- 各階の区切り線と階数表示 -->
+                            <line x1="40" y1="58" x2="160" y2="58" stroke="black" stroke-width="1"/>
+                            <text x="25" y="42" class="svg-text" text-anchor="end" font-size="13">5F</text>
+                            <text x="100" y="42" class="svg-text" text-anchor="middle" font-size="13">?</text>
+
+                            <line x1="40" y1="106" x2="160" y2="106" stroke="black" stroke-width="1"/>
+                            <text x="25" y="90" class="svg-text" text-anchor="end" font-size="13">4F</text>
+                            <text x="100" y="90" class="svg-text" text-anchor="middle" font-size="13">?</text>
+
+                            <line x1="40" y1="154" x2="160" y2="154" stroke="black" stroke-width="1"/>
+                            <text x="25" y="138" class="svg-text" text-anchor="end" font-size="13">3F</text>
+                            <text x="100" y="138" class="svg-text" text-anchor="middle" font-size="13">?</text>
+
+                            <line x1="40" y1="202" x2="160" y2="202" stroke="black" stroke-width="1"/>
+                            <text x="25" y="186" class="svg-text" text-anchor="end" font-size="13">2F</text>
+                            <text x="100" y="186" class="svg-text" text-anchor="middle" font-size="13">?</text>
+
+                            <text x="25" y="234" class="svg-text" text-anchor="end" font-size="13">1F</text>
+                            <text x="100" y="234" class="svg-text" text-anchor="middle" font-size="13">?</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 1階<br>
+                    (2) 2階<br>
+                    (3) 3階<br>
+                    (4) 4階<br>
+                    (5) 5階
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【条件の整理】</strong><br>
+                条件II「DはCのちょうど2階上」より、(C, D)の組み合わせは:<br>
+                ・C=1階, D=3階<br>
+                ・C=2階, D=4階<br>
+                ・C=3階, D=5階<br><br>
+
+                <strong>【場合分け】</strong><br><br>
+
+                <strong>場合1: C=1階, D=3階のとき</strong><br>
+                残りA, B, Eは2階, 4階, 5階に住む。<br>
+                条件III「Eは偶数階」より、E=2階またはE=4階。<br><br>
+
+                (a) E=2階: A, Bは4階と5階。条件I「B>A」よりA=4階, B=5階。<br>
+                　　条件IV: A=4階 (1階でない) → 適合<br>
+                　　条件V: |B-E|=|5-2|=3 (隣でない) → 適合 → <strong>有効</strong><br><br>
+
+                (b) E=4階: A, Bは2階と5階。条件I「B>A」よりA=2階, B=5階。<br>
+                　　条件V: |B-E|=|5-4|=1 (隣の階) → <strong>不適合</strong><br><br>
+
+                <strong>場合2: C=2階, D=4階のとき</strong><br>
+                残りA, B, Eは1階, 3階, 5階。<br>
+                条件III「Eは偶数階」→ 1, 3, 5はすべて奇数 → <strong>不適合</strong><br><br>
+
+                <strong>場合3: C=3階, D=5階のとき</strong><br>
+                残りA, B, Eは1階, 2階, 4階。<br>
+                条件III「Eは偶数階」より、E=2階またはE=4階。<br>
+                条件IV「A=1階でない」→ Aは2階または4階。<br><br>
+
+                (a) E=2階: A, Bは1階と4階。条件IV「A=1階でない」→ A=4階, B=1階。<br>
+                　　条件I: B(1) > A(4) → <strong>不適合</strong><br><br>
+
+                (b) E=4階: A, Bは1階と2階。条件IV「A=1階でない」→ A=2階, B=1階。<br>
+                　　条件I: B(1) > A(2) → <strong>不適合</strong><br><br>
+
+                <strong>【結論】</strong><br>
+                有効な配置は場合1(a)のみ: A=4階, B=5階, C=1階, <strong>D=3階</strong>, E=2階<br><br>
+
+                したがって、Dが住んでいる階は<strong>(3) 3階</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
