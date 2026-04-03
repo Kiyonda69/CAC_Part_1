@@ -1,0 +1,775 @@
+<!--
+================================================================================
+航大思考92.html - サイコロ転がし問題（インタラクティブ版）
+================================================================================
+問1: 標準難度 - サイコロの転がし（8回、上面を問う）正解:(5)
+問2: 高難度 - サイコロの転がし（13回、底面を問う）正解:(1)
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .step-table {
+            margin: 10px auto;
+            border-collapse: collapse;
+            font-size: 13px;
+            width: 100%;
+        }
+        .step-table th, .step-table td {
+            border: 1px solid #999;
+            padding: 4px 8px;
+            text-align: center;
+        }
+        .step-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                1～6の目があり、向かい合う面の数の和がすべて7である標準的なサイコロがある。下図のように、このサイコロを上面が1、正面（奥に向く面）が2、手前から見た右面が3の状態でスタート地点Sに置き、矢印に沿って隣のマスへ1マスずつ倒しながら転がしていく。ゴール地点Gに到着したとき、上面の数はいくつか。
+            </div>
+
+            <!-- 問1 図表 -->
+            <!--
+            図表仕様:
+            - SVGサイズ: 300x400px
+            - viewBox: 0 0 300 400
+            - グリッド: 3列(0-2) × 5行(0-4)、セルサイズ55px
+            - 座標: x = 95+col*55, y = 345-row*55
+
+            経路: S(0,0) →N→E→E→N→W→N→W→N G(0,4)
+            -->
+            <div class="figure-container">
+                <div class="figure-content">
+                    <svg width="300" height="400" viewBox="0 0 300 400">
+                        <!-- 方向ラベル -->
+                        <text x="150" y="25" text-anchor="middle" class="svg-text" font-size="13">奥（正面が向く方向）</text>
+
+                        <!-- グリッド枠 -->
+                        <rect x="62" y="40" width="176" height="330" fill="none" stroke="#333" stroke-width="1.5"/>
+
+                        <!-- グリッド線（縦） -->
+                        <line x1="95" y1="40" x2="95" y2="370" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="150" y1="40" x2="150" y2="370" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="205" y1="40" x2="205" y2="370" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- グリッド線（横） -->
+                        <line x1="62" y1="70" x2="238" y2="70" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="62" y1="125" x2="238" y2="125" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="62" y1="180" x2="238" y2="180" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="62" y1="235" x2="238" y2="235" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="62" y1="290" x2="238" y2="290" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="62" y1="345" x2="238" y2="345" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- 経路の接続線 -->
+                        <line x1="95" y1="345" x2="95" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="95" y1="290" x2="150" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="290" x2="205" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="205" y1="290" x2="205" y2="235" stroke="black" stroke-width="2"/>
+                        <line x1="205" y1="235" x2="150" y2="235" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="235" x2="150" y2="180" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="180" x2="95" y2="180" stroke="black" stroke-width="2"/>
+                        <line x1="95" y1="180" x2="95" y2="125" stroke="black" stroke-width="2"/>
+
+                        <!-- 矢印 -->
+                        <polygon points="95,310 89,322 101,322" fill="black"/>
+                        <polygon points="130,290 118,284 118,296" fill="black"/>
+                        <polygon points="185,290 173,284 173,296" fill="black"/>
+                        <polygon points="205,255 199,267 211,267" fill="black"/>
+                        <polygon points="170,235 182,229 182,241" fill="black"/>
+                        <polygon points="150,200 144,212 156,212" fill="black"/>
+                        <polygon points="115,180 127,174 127,186" fill="black"/>
+                        <polygon points="95,145 89,157 101,157" fill="black"/>
+
+                        <!-- ドット -->
+                        <circle cx="95" cy="345" r="6" fill="black"/>
+                        <circle cx="95" cy="290" r="6" fill="black"/>
+                        <circle cx="150" cy="290" r="6" fill="black"/>
+                        <circle cx="205" cy="290" r="6" fill="black"/>
+                        <circle cx="205" cy="235" r="6" fill="black"/>
+                        <circle cx="150" cy="235" r="6" fill="black"/>
+                        <circle cx="150" cy="180" r="6" fill="black"/>
+                        <circle cx="95" cy="180" r="6" fill="black"/>
+                        <circle cx="95" cy="125" r="6" fill="black"/>
+
+                        <!-- ラベル -->
+                        <text x="78" y="350" class="svg-text" font-weight="bold" font-size="15">S</text>
+                        <text x="78" y="120" class="svg-text" font-weight="bold" font-size="15">G</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 問1 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>5
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>2
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>6
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>4
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>3
+                </button>
+            </div>
+
+            <!-- 問1 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【基本事項】</strong></p>
+                    <p>標準的なサイコロでは、向かい合う面の和が7である（1と6、2と5、3と4）。</p>
+                    <br>
+                    <p><strong>【初期状態】</strong></p>
+                    <p>上面=1、底面=6、正面(奥)=2、背面(手前)=5、右面=3、左面=4</p>
+                    <br>
+                    <p><strong>【転がし方のルール】</strong></p>
+                    <p>・北（奥）へ転がす: 上→正面、正面→底、底→背面、背面→上</p>
+                    <p>・東（右）へ転がす: 上→右、右→底、底→左、左→上</p>
+                    <p>・西（左）へ転がす: 上→左、左→底、底→右、右→上</p>
+                    <br>
+                    <p><strong>【各ステップの状態】</strong></p>
+                    <table class="step-table">
+                        <tr><th>ステップ</th><th>方向</th><th>上</th><th>底</th><th>正面</th><th>背面</th><th>右</th><th>左</th></tr>
+                        <tr><td>S</td><td>-</td><td>1</td><td>6</td><td>2</td><td>5</td><td>3</td><td>4</td></tr>
+                        <tr><td>1</td><td>北</td><td>5</td><td>2</td><td>1</td><td>6</td><td>3</td><td>4</td></tr>
+                        <tr><td>2</td><td>東</td><td>4</td><td>3</td><td>1</td><td>6</td><td>5</td><td>2</td></tr>
+                        <tr><td>3</td><td>東</td><td>2</td><td>5</td><td>1</td><td>6</td><td>4</td><td>3</td></tr>
+                        <tr><td>4</td><td>北</td><td>6</td><td>1</td><td>2</td><td>5</td><td>4</td><td>3</td></tr>
+                        <tr><td>5</td><td>西</td><td>4</td><td>3</td><td>2</td><td>5</td><td>1</td><td>6</td></tr>
+                        <tr><td>6</td><td>北</td><td>5</td><td>2</td><td>4</td><td>3</td><td>1</td><td>6</td></tr>
+                        <tr><td>7</td><td>西</td><td>1</td><td>6</td><td>4</td><td>3</td><td>2</td><td>5</td></tr>
+                        <tr><td>G</td><td>北</td><td><strong>3</strong></td><td>4</td><td>1</td><td>6</td><td>2</td><td>5</td></tr>
+                    </table>
+                    <br>
+                    <p>ゴール地点Gに到着したとき、上面の数は<strong>3</strong>である。</p>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- 問1 ナビゲーション -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                1～6の目があり、向かい合う面の数の和がすべて7である標準的なサイコロがある。下図のように、このサイコロを上面が3、正面（奥に向く面）が1、手前から見た右面が2の状態でスタート地点Sに置き、矢印に沿って隣のマスへ1マスずつ倒しながら転がしていく。ゴール地点Gに到着したとき、地面に接している面の数はいくつか。
+            </div>
+
+            <!-- 問2 図表 -->
+            <!--
+            図表仕様:
+            - SVGサイズ: 340x400px
+            - viewBox: 0 0 340 400
+            - グリッド: 4列(0-3) × 5行(0-4)、セルサイズ55px
+            - 座標: x = 65+col*55, y = 345-row*55
+
+            経路: S(0,0) →E→E→E→N→W→W→N→N→E→E→N→W→W G(1,4)
+            -->
+            <div class="figure-container">
+                <div class="figure-content">
+                    <svg width="340" height="400" viewBox="0 0 340 400">
+                        <!-- 方向ラベル -->
+                        <text x="170" y="25" text-anchor="middle" class="svg-text" font-size="13">奥（正面が向く方向）</text>
+
+                        <!-- グリッド枠 -->
+                        <rect x="35" y="40" width="270" height="330" fill="none" stroke="#333" stroke-width="1.5"/>
+
+                        <!-- グリッド線（縦） -->
+                        <line x1="65" y1="40" x2="65" y2="370" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="120" y1="40" x2="120" y2="370" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="175" y1="40" x2="175" y2="370" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="230" y1="40" x2="230" y2="370" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- グリッド線（横） -->
+                        <line x1="35" y1="70" x2="305" y2="70" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="35" y1="125" x2="305" y2="125" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="35" y1="180" x2="305" y2="180" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="35" y1="235" x2="305" y2="235" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="35" y1="290" x2="305" y2="290" stroke="#ccc" stroke-width="0.5"/>
+                        <line x1="35" y1="345" x2="305" y2="345" stroke="#ccc" stroke-width="0.5"/>
+
+                        <!-- 経路の接続線 -->
+                        <line x1="65" y1="345" x2="120" y2="345" stroke="black" stroke-width="2"/>
+                        <line x1="120" y1="345" x2="175" y2="345" stroke="black" stroke-width="2"/>
+                        <line x1="175" y1="345" x2="230" y2="345" stroke="black" stroke-width="2"/>
+                        <line x1="230" y1="345" x2="230" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="230" y1="290" x2="175" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="175" y1="290" x2="120" y2="290" stroke="black" stroke-width="2"/>
+                        <line x1="120" y1="290" x2="120" y2="235" stroke="black" stroke-width="2"/>
+                        <line x1="120" y1="235" x2="120" y2="180" stroke="black" stroke-width="2"/>
+                        <line x1="120" y1="180" x2="175" y2="180" stroke="black" stroke-width="2"/>
+                        <line x1="175" y1="180" x2="230" y2="180" stroke="black" stroke-width="2"/>
+                        <line x1="230" y1="180" x2="230" y2="125" stroke="black" stroke-width="2"/>
+                        <line x1="230" y1="125" x2="175" y2="125" stroke="black" stroke-width="2"/>
+                        <line x1="175" y1="125" x2="120" y2="125" stroke="black" stroke-width="2"/>
+
+                        <!-- 矢印 -->
+                        <polygon points="100,345 88,339 88,351" fill="black"/>
+                        <polygon points="155,345 143,339 143,351" fill="black"/>
+                        <polygon points="210,345 198,339 198,351" fill="black"/>
+                        <polygon points="230,310 224,322 236,322" fill="black"/>
+                        <polygon points="195,290 207,284 207,296" fill="black"/>
+                        <polygon points="140,290 152,284 152,296" fill="black"/>
+                        <polygon points="120,255 114,267 126,267" fill="black"/>
+                        <polygon points="120,200 114,212 126,212" fill="black"/>
+                        <polygon points="155,180 143,174 143,186" fill="black"/>
+                        <polygon points="210,180 198,174 198,186" fill="black"/>
+                        <polygon points="230,145 224,157 236,157" fill="black"/>
+                        <polygon points="195,125 207,119 207,131" fill="black"/>
+                        <polygon points="140,125 152,119 152,131" fill="black"/>
+
+                        <!-- ドット -->
+                        <circle cx="65" cy="345" r="6" fill="black"/>
+                        <circle cx="120" cy="345" r="6" fill="black"/>
+                        <circle cx="175" cy="345" r="6" fill="black"/>
+                        <circle cx="230" cy="345" r="6" fill="black"/>
+                        <circle cx="230" cy="290" r="6" fill="black"/>
+                        <circle cx="175" cy="290" r="6" fill="black"/>
+                        <circle cx="120" cy="290" r="6" fill="black"/>
+                        <circle cx="120" cy="235" r="6" fill="black"/>
+                        <circle cx="120" cy="180" r="6" fill="black"/>
+                        <circle cx="175" cy="180" r="6" fill="black"/>
+                        <circle cx="230" cy="180" r="6" fill="black"/>
+                        <circle cx="230" cy="125" r="6" fill="black"/>
+                        <circle cx="175" cy="125" r="6" fill="black"/>
+                        <circle cx="120" cy="125" r="6" fill="black"/>
+
+                        <!-- ラベル -->
+                        <text x="48" y="350" class="svg-text" font-weight="bold" font-size="15">S</text>
+                        <text x="103" y="115" class="svg-text" font-weight="bold" font-size="15">G</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 問2 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>2
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>5
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>4
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>1
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>6
+                </button>
+            </div>
+
+            <!-- 問2 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p><strong>【初期状態】</strong></p>
+                    <p>上面=3、底面=4、正面(奥)=1、背面(手前)=6、右面=2、左面=5</p>
+                    <br>
+                    <p><strong>【各ステップの状態】</strong></p>
+                    <table class="step-table">
+                        <tr><th>ステップ</th><th>方向</th><th>上</th><th>底</th><th>正面</th><th>背面</th><th>右</th><th>左</th></tr>
+                        <tr><td>S</td><td>-</td><td>3</td><td>4</td><td>1</td><td>6</td><td>2</td><td>5</td></tr>
+                        <tr><td>1</td><td>東</td><td>5</td><td>2</td><td>1</td><td>6</td><td>3</td><td>4</td></tr>
+                        <tr><td>2</td><td>東</td><td>4</td><td>3</td><td>1</td><td>6</td><td>5</td><td>2</td></tr>
+                        <tr><td>3</td><td>東</td><td>2</td><td>5</td><td>1</td><td>6</td><td>4</td><td>3</td></tr>
+                        <tr><td>4</td><td>北</td><td>6</td><td>1</td><td>2</td><td>5</td><td>4</td><td>3</td></tr>
+                        <tr><td>5</td><td>西</td><td>4</td><td>3</td><td>2</td><td>5</td><td>1</td><td>6</td></tr>
+                        <tr><td>6</td><td>西</td><td>1</td><td>6</td><td>2</td><td>5</td><td>3</td><td>4</td></tr>
+                        <tr><td>7</td><td>北</td><td>5</td><td>2</td><td>1</td><td>6</td><td>3</td><td>4</td></tr>
+                        <tr><td>8</td><td>北</td><td>6</td><td>1</td><td>5</td><td>2</td><td>3</td><td>4</td></tr>
+                        <tr><td>9</td><td>東</td><td>4</td><td>3</td><td>5</td><td>2</td><td>6</td><td>1</td></tr>
+                        <tr><td>10</td><td>東</td><td>1</td><td>6</td><td>5</td><td>2</td><td>4</td><td>3</td></tr>
+                        <tr><td>11</td><td>北</td><td>2</td><td>5</td><td>1</td><td>6</td><td>4</td><td>3</td></tr>
+                        <tr><td>12</td><td>西</td><td>4</td><td>3</td><td>1</td><td>6</td><td>5</td><td>2</td></tr>
+                        <tr><td>G</td><td>西</td><td>5</td><td><strong>2</strong></td><td>1</td><td>6</td><td>3</td><td>4</td></tr>
+                    </table>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>この問題では「地面に接している面の数」、すなわち<strong>底面</strong>の値を問われている。</p>
+                    <p>ゴール地点Gでの上面は5であるが、底面は7－5＝<strong>2</strong>である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- 問2 ナビゲーション -->
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考92/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
