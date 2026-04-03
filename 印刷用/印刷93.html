@@ -1,0 +1,410 @@
+<!--
+================================================================================
+印刷93.html - 制約充足・論理推論問題（印刷用）
+================================================================================
+問1: 標準難度 - 管制空域の航空機位置特定（制約充足）
+問2: 高難度 - 嘘つき推論問題（論理推論）
+正解: 問1=(2) ア、ウが正しい、問2=(4) ア、イが正しい
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある管制空域において、5機の航空機A機～E機がレーダーに映っている。各機体は4方角（北・東・南・西）と3距離圏（第1圏・第2圏・第3圏）のすべて異なる交点に存在する。各パイロットから管制官への報告を下表に示す。ただしB機のみ通信不良のため報告が不明（?）である。次のア～ウについて、正しいものの組み合わせを選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th style="width: 60px;"></th>
+                                <th>報告内容</th>
+                            </tr>
+                            <tr>
+                                <td>A機</td>
+                                <td style="text-align: left; padding-left: 20px;">「私は東方向の第2圏にいる。第2圏には私を含めて2機がいる。」</td>
+                            </tr>
+                            <tr>
+                                <td>B機</td>
+                                <td style="text-align: left; padding-left: 20px;">？（通信不良）</td>
+                            </tr>
+                            <tr>
+                                <td>C機</td>
+                                <td style="text-align: left; padding-left: 20px;">「私は東方向の第1圏にいる。第1圏には私を含めて2機がいる。」</td>
+                            </tr>
+                            <tr>
+                                <td>D機</td>
+                                <td style="text-align: left; padding-left: 20px;">「私は南方向の第3圏にいる。」</td>
+                            </tr>
+                            <tr>
+                                <td>E機</td>
+                                <td style="text-align: left; padding-left: 20px;">「私は西方向の第2圏にいる。西方向には私を含めて1機がいる。」</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-text">
+                    ア．B機の報告がない場合、B機の位置として2通りが考えられる。<br>
+                    イ．B機の報告がない場合、B機の位置として3通りが考えられる。<br>
+                    ウ．B機が「私は北方向にいる」とのみ報告した場合、B機の位置が確定する。
+                </div>
+
+                <div class="options">
+                    (1)　アのみ正しい<br>
+                    (2)　ア、ウが正しい<br>
+                    (3)　イのみ正しい<br>
+                    (4)　イ、ウが正しい<br>
+                    (5)　ウのみ正しい
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【確定情報の整理】</strong><br>
+                各報告から確定する位置:<br>
+                ・A機: 東方向・第2圏<br>
+                ・C機: 東方向・第1圏<br>
+                ・D機: 南方向・第3圏<br>
+                ・E機: 西方向・第2圏<br><br>
+
+                <strong>【制約条件の適用】</strong><br>
+                ・A機の報告: 第2圏には2機 → A機(東・第2圏)とE機(西・第2圏)で2機。B機は第2圏にいない。<br>
+                ・C機の報告: 第1圏には2機 → C機(東・第1圏)ともう1機。B機は第1圏の可能性あり。<br>
+                ・E機の報告: 西方向には1機 → E機のみ。B機は西方向にいない。<br><br>
+
+                B機が第2圏でなく、西方向でもない位置で、第1圏にもう1機必要:<br>
+                → B機は第1圏にいなければならない（第1圏を2機にするため）<br>
+                → 第1圏で空いている方向: 北・南（東はC機、西は除外）<br>
+                → B機の候補: 北方向・第1圏、南方向・第1圏 の2通り<br><br>
+
+                <strong>【各選択肢の検討】</strong><br>
+                ・ア: 2通り → 正しい<br>
+                ・イ: 3通り → 誤り（2通り）<br>
+                ・ウ: 「北方向にいる」→ 北方向・第1圏に確定 → 正しい<br><br>
+
+                したがって、ア、ウが正しく、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．5人の生徒A～Eのうち、ちょうど2人が嘘つきで、残りの3人は正直者である。正直者は常に真実を述べ、嘘つきは常に嘘を述べる。5人はそれぞれ以下のように発言した。次のア～ウについて、正しいものの組み合わせを選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th style="width: 60px;"></th>
+                                <th>発言内容</th>
+                            </tr>
+                            <tr>
+                                <td>A</td>
+                                <td style="text-align: left; padding-left: 20px;">「CとEは両方とも正直者だ。」</td>
+                            </tr>
+                            <tr>
+                                <td>B</td>
+                                <td style="text-align: left; padding-left: 20px;">「Aは嘘つきだ。」</td>
+                            </tr>
+                            <tr>
+                                <td>C</td>
+                                <td style="text-align: left; padding-left: 20px;">「BとDのうち、少なくとも1人は嘘つきだ。」</td>
+                            </tr>
+                            <tr>
+                                <td>D</td>
+                                <td style="text-align: left; padding-left: 20px;">「Eは嘘つきだ。」</td>
+                            </tr>
+                            <tr>
+                                <td>E</td>
+                                <td style="text-align: left; padding-left: 20px;">「Aは正直者だ。」</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-text">
+                    ア．Aは正直者である。<br>
+                    イ．Bは嘘つきである。<br>
+                    ウ．Cは嘘つきである。
+                </div>
+
+                <div class="options">
+                    (1)　アのみ正しい<br>
+                    (2)　イのみ正しい<br>
+                    (3)　ウのみ正しい<br>
+                    (4)　ア、イが正しい<br>
+                    (5)　イ、ウが正しい
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                <strong>【場合分けによる推論】</strong><br>
+                嘘つきはちょうど2人。AとEの発言に注目する。<br>
+                ・E:「Aは正直者だ」、B:「Aは嘘つきだ」→ BとEは矛盾するため、一方が正直者で他方が嘘つき。<br><br>
+
+                <strong>【場合1: Aが嘘つきの場合】</strong><br>
+                ・A(嘘つき):「CとEは両方正直者」→ 嘘 → CまたはEの少なくとも1人が嘘つき<br>
+                ・B(?)：「Aは嘘つき」→ 真 → Bは正直者<br>
+                ・E(?)：「Aは正直者」→ 偽 → Eは嘘つき<br>
+                ・嘘つき: A, E（2人）→ B, C, Dは正直者<br>
+                ・C(正直者):「BとDのうち少なくとも1人は嘘つき」→ B,D共に正直者なので偽。矛盾。<br>
+                → 場合1は不成立<br><br>
+
+                <strong>【場合2: Aが正直者の場合】</strong><br>
+                ・A(正直者):「CとEは両方正直者」→ 真 → C, E共に正直者<br>
+                ・E(正直者):「Aは正直者」→ 真 ✓<br>
+                ・嘘つき2人はB, Dの中から選ぶ。A, C, Eが正直者なので、B, Dが嘘つき。<br>
+                ・B(嘘つき):「Aは嘘つき」→ 嘘 → Aは正直者 ✓<br>
+                ・C(正直者):「BとDのうち少なくとも1人は嘘つき」→ B,D共に嘘つきなので真 ✓<br>
+                ・D(嘘つき):「Eは嘘つき」→ 嘘 → Eは正直者 ✓<br>
+                → 場合2は成立。嘘つきはBとD。<br><br>
+
+                <strong>【結論】</strong><br>
+                ・ア: Aは正直者 → 正しい<br>
+                ・イ: Bは嘘つき → 正しい<br>
+                ・ウ: Cは嘘つき → 誤り（Cは正直者）<br><br>
+
+                したがって、ア、イが正しく、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
