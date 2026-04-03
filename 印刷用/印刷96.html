@@ -1,0 +1,434 @@
+<!--
+================================================================================
+印刷96.html - セット96（印刷用）
+================================================================================
+問1: 立方体の展開図の判別（空間視覚化 / 標準難度）
+問2: 嘘つき問題（論理推論 / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        /* ==================== 問題番号 ==================== */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．以下のア～クの8つの図は、6つの正方形をつなげた図形（ヘキソミノ）である。これらのうち、折り曲げて立方体を作ることができないものはいくつあるか。次の(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="620" height="280" viewBox="0 0 620 280">
+<text x="77" y="15" class="svg-text" text-anchor="middle" font-weight="bold">ア</text>
+<rect x="66" y="36" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="44" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="66" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="88" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="66" y="80" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="66" y="102" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="232" y="15" class="svg-text" text-anchor="middle" font-weight="bold">イ</text>
+<rect x="188" y="47" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="210" y="47" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="210" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="232" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="232" y="91" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="254" y="91" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="387" y="15" class="svg-text" text-anchor="middle" font-weight="bold">ウ</text>
+<rect x="354" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="376" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="398" y="58" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="354" y="80" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="376" y="80" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="398" y="80" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="542" y="15" class="svg-text" text-anchor="middle" font-weight="bold">エ</text>
+<rect x="498" y="47" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="498" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="520" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="542" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="564" y="69" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="564" y="91" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="77" y="155" class="svg-text" text-anchor="middle" font-weight="bold">オ</text>
+<rect x="55" y="187" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="77" y="187" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="55" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="77" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="55" y="231" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="77" y="231" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="232" y="155" class="svg-text" text-anchor="middle" font-weight="bold">カ</text>
+<rect x="210" y="187" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="188" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="210" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="232" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="254" y="209" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="232" y="231" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="387" y="155" class="svg-text" text-anchor="middle" font-weight="bold">キ</text>
+<rect x="343" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="365" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="387" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="409" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="343" y="220" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="409" y="220" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<text x="542" y="155" class="svg-text" text-anchor="middle" font-weight="bold">ク</text>
+<rect x="520" y="176" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="542" y="176" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="520" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="542" y="198" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="520" y="220" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+<rect x="520" y="242" width="22" height="22" fill="none" stroke="black" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 1個<br>
+                    (2) 2個<br>
+                    (3) 3個<br>
+                    (4) 4個<br>
+                    (5) 5個
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                立方体の展開図（ヘキソミノ）の判別問題である。立方体の展開図は全部で11種類存在する。<br><br>
+
+                <strong>【判別のポイント】</strong><br>
+                立方体の展開図には以下の条件が必要である:<br>
+                ・6つの正方形が辺でつながっている<br>
+                ・折り曲げたとき、どの面も重ならない<br>
+                ・2×2以上の正方形ブロックがないこと（ただし一部例外あり）<br><br>
+
+                <strong>【各図形の検証】</strong><br>
+                ・ア（十字型）: 中央の列に4つ、左右に1つずつ突出。折り曲げると上下左右と前後の面を形成。→ 有効<br>
+                ・イ（S階段型）: 2つずつずれながら3段に並ぶ。折り曲げると全面が重なることなく立方体になる。→ 有効<br>
+                ・ウ（2×3長方形）: 折り曲げると対向する面が重なる。→ 無効<br>
+                ・エ（1-4-1型）: 上に1つ、横4つの列、下に1つ。全面が独立して折り畳める。→ 有効<br>
+                ・オ（2×3縦長方形）: ウを90度回転したもの。同様に折り曲げると重なりが生じる。→ 無効<br>
+                ・カ（1-4-1型B）: エと同じタイプの展開図の変形。→ 有効<br>
+                ・キ（コの字型）: 4つ横並びの両端から下に1つずつ。折り曲げると対向する面が重なる。→ 無効<br>
+                ・ク（P字型）: 2×2のブロックに2つの正方形が直線状に延びる。折り曲げると重なりが生じる。→ 無効<br><br>
+
+                無効なものはウ、オ、キ、クの4個である。<br>
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．A、B、C、D、Eの5人がそれぞれ1つずつ発言している。この中には正直者と嘘つきがおり、正直者は必ず真実を述べ、嘘つきは必ず嘘を述べる。以下の発言から、嘘つきは何人いるか。次の(1)～(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-content" style="text-align: left;">
+                        A：「Bは正直者だ」<br>
+                        B：「Cは嘘つきだ」<br>
+                        C：「Dは正直者だ」<br>
+                        D：「嘘つきはちょうど2人いる」<br>
+                        E：「嘘つきは2人以上いる」
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 1人<br>
+                    (2) 2人<br>
+                    (3) 3人<br>
+                    (4) 4人<br>
+                    (5) 5人
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                正直者と嘘つきの論理推論問題である。<br><br>
+
+                <strong>【解法の手順】</strong><br>
+                まず、Dの発言「嘘つきはちょうど2人いる」に注目する。<br><br>
+
+                <strong>■ Dが正直者の場合:</strong><br>
+                嘘つきはちょうど2人。Eの発言「嘘つきは2人以上」も真となり、Eも正直者。<br>
+                → 正直者: D, E + 残りから1人 = 3人正直、2人嘘つき。<br><br>
+
+                Cの発言「Dは正直者」。Dは正直者と仮定しているため、Cの発言は真。Cも正直者。<br>
+                → 正直者: C, D, E (3人)、嘘つき: A, B (2人) となるか検証。<br><br>
+
+                Bの発言「Cは嘘つき」。Cは正直者なので、Bの発言は嘘。Bは嘘つき。→ 整合。<br>
+                Aの発言「Bは正直者」。Bは嘘つきなので、Aの発言は嘘。Aは嘘つき。→ 整合。<br><br>
+
+                結果: A(嘘つき)、B(嘘つき)、C(正直)、D(正直)、E(正直)、嘘つき2人。<br>
+                Dの発言「ちょうど2人」→ 真、Eの発言「2人以上」→ 真。全て整合。<br><br>
+
+                <strong>■ Dが嘘つきの場合:</strong><br>
+                嘘つきはちょうど2人ではない（1人、3人、4人、5人のいずれか）。<br>
+                Cの発言「Dは正直者」は嘘となるため、Cも嘘つき。<br>
+                すでに嘘つきがC, Dの2人 → 嘘つきは2人ではないという仮定に反するか確認が必要。<br>
+                嘘つきが3人以上なら、もう1人嘘つきが必要。<br><br>
+
+                Eの発言「嘘つきは2人以上」: 嘘つきが3人以上なら真で、Eは正直者。<br>
+                Bの発言「Cは嘘つき」: Cは嘘つきなので真。Bは正直者。<br>
+                Aの発言「Bは正直者」: Bは正直者なので真。Aは正直者。<br>
+                結果: A(正直)、B(正直)、C(嘘つき)、D(嘘つき)、E(正直)、嘘つき2人。<br>
+                しかしDの発言は「ちょうど2人」で、実際に2人 → Dの発言は真。Dは正直者でなければならないが、嘘つきと仮定しているため矛盾。<br><br>
+
+                したがって、Dが嘘つきの場合は矛盾が生じ、Dは正直者と確定する。<br><br>
+
+                正解は嘘つき2人で、<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
