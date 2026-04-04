@@ -1,0 +1,497 @@
+<!--
+================================================================================
+印刷97.html - セット97（印刷用）
+================================================================================
+問1: 配送トラックの燃料計算（資料読み取り / 標準難度）
+問2: 登山遠征隊の水の携行量計算（資料読み取り / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        /* ==================== 問題番号 ==================== */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．配送トラックが倉庫Pから中継地点Qを経由して配送先Rへ向かう2区間の配送を計画している。中継地点Qでは給油ができないため、倉庫Pで全区間分の燃料を搭載する必要がある。下表の条件に基づき、倉庫P出発時に搭載すべき最低搭載燃料の合計として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】区間別燃料データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>項目</th>
+                                <th>P→Q区間</th>
+                                <th>Q→R区間</th>
+                            </tr>
+                            <tr>
+                                <td>走行距離</td>
+                                <td>600 km</td>
+                                <td>400 km</td>
+                            </tr>
+                            <tr>
+                                <td>基本燃費<br>(※1)</td>
+                                <td>2.0 L/km</td>
+                                <td>2.0 L/km</td>
+                            </tr>
+                            <tr>
+                                <td>道路勾配の影響<br>(※2)</td>
+                                <td>上り坂:<br>+20%</td>
+                                <td>下り坂:<br>-10%</td>
+                            </tr>
+                            <tr>
+                                <td>発進追加燃料</td>
+                                <td>120 L</td>
+                                <td>120 L</td>
+                            </tr>
+                            <tr>
+                                <td>惰行節約量</td>
+                                <td>40 L</td>
+                                <td>40 L</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】共通条件</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>項目</th>
+                                <th>値</th>
+                            </tr>
+                            <tr>
+                                <td>構内走行燃料<br>(P出発)</td>
+                                <td>30 L</td>
+                            </tr>
+                            <tr>
+                                <td>構内走行燃料<br>(Q出発)</td>
+                                <td>20 L</td>
+                            </tr>
+                            <tr>
+                                <td>不測事態燃料</td>
+                                <td>全区間の走行燃<br>料合計の5%</td>
+                            </tr>
+                            <tr>
+                                <td>予備燃料<br>(R到着時)</td>
+                                <td>200 L</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-text" style="font-size: 14px;">
+                    最低搭載燃料 = 構内走行燃料(P+Q) + 全走行燃料 + 不測事態燃料 + 予備燃料<br><br>
+                    【用語の説明】<br>
+                    ※1 基本燃費: 平坦路走行中の1 kmあたりの燃料消費量<br>
+                    ※2 道路勾配の影響: 上り坂では基本燃費より消費が増加し、下り坂では減少する割合<br>
+                    ※3 発進追加燃料: 停車から巡航速度に達するまでに余分に消費する燃料<br>
+                    ※4 惰行節約量: 到着手前でエンジン出力を下げることで節約できる燃料量<br>
+                    ※5 不測事態燃料: 渋滞や迂回（道路工事など）に備えた燃料<br>
+                    ※6 予備燃料: 予定外の遅延等に備えて確保する最低限の燃料
+                </div>
+
+                <div class="options">
+                    (1) 2,686 L&emsp;&emsp;(2) 2,518 L&emsp;&emsp;(3) 2,636 L&emsp;&emsp;(4) 2,570 L&emsp;&emsp;(5) 2,938 L
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br><br>
+
+                配送トラックの燃料計算問題である。各区間の走行燃料を求め、共通条件を加算して最低搭載燃料を算出する。<br><br>
+
+                <strong>【P→Q区間の走行燃料】</strong><br>
+                ・基本消費: 600 km × 2.0 L/km = 1,200 L<br>
+                ・上り坂補正(+20%): 1,200 × 1.20 = 1,440 L<br>
+                ・発進追加: +120 L<br>
+                ・惰行節約: -40 L<br>
+                ・P→Q走行燃料: 1,440 + 120 - 40 = <strong>1,520 L</strong><br><br>
+
+                <strong>【Q→R区間の走行燃料】</strong><br>
+                ・基本消費: 400 km × 2.0 L/km = 800 L<br>
+                ・下り坂補正(-10%): 800 × 0.90 = 720 L<br>
+                ・発進追加: +120 L<br>
+                ・惰行節約: -40 L<br>
+                ・Q→R走行燃料: 720 + 120 - 40 = <strong>800 L</strong><br><br>
+
+                <strong>【合計計算】</strong><br>
+                ・全区間走行燃料: 1,520 + 800 = 2,320 L<br>
+                ・構内走行燃料: 30 + 20 = 50 L<br>
+                ・不測事態燃料: 2,320 × 0.05 = 116 L<br>
+                ・予備燃料: 200 L<br>
+                ・最低搭載燃料: 50 + 2,320 + 116 + 200 = <strong>2,686 L</strong><br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．5人の登山チームがベースキャンプ(BC)からキャンプ1(C1)、キャンプ2(C2)を経由して山頂(S)に向かう遠征を計画している。各キャンプには水の補給設備がないため、ベースキャンプ出発時に全行程分の水を携行する必要がある。下表の条件に基づき、出発時に携行すべき最低限の水の総量として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】区間別データ</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>項目</th>
+                                <th>BC→C1</th>
+                                <th>C1→C2</th>
+                                <th>C2→S</th>
+                            </tr>
+                            <tr>
+                                <td>所要日数</td>
+                                <td>3日</td>
+                                <td>2日</td>
+                                <td>1日</td>
+                            </tr>
+                            <tr>
+                                <td>基本水消費量<br>(※1)</td>
+                                <td>4 L/人/日</td>
+                                <td>4 L/人/日</td>
+                                <td>4 L/人/日</td>
+                            </tr>
+                            <tr>
+                                <td>高度補正<br>(※2)</td>
+                                <td>標準</td>
+                                <td>+25%</td>
+                                <td>+50%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】共通条件</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>項目</th>
+                                <th>値</th>
+                            </tr>
+                            <tr>
+                                <td>チーム人数</td>
+                                <td>5人</td>
+                            </tr>
+                            <tr>
+                                <td>設営用水(※3)</td>
+                                <td>各キャンプ 20 L</td>
+                            </tr>
+                            <tr>
+                                <td>設営キャンプ数</td>
+                                <td>2か所(C1, C2)</td>
+                            </tr>
+                            <tr>
+                                <td>ロス率(※4)</td>
+                                <td>全消費量(設営用<br>水含む)の10%</td>
+                            </tr>
+                            <tr>
+                                <td>予備水(※5)</td>
+                                <td>基本2日分<br>(高度補正なし)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="question-text" style="font-size: 14px;">
+                    最低携行量 = 全区間消費量 + 設営用水 + ロス分 + 予備水<br><br>
+                    【用語の説明】<br>
+                    ※1 基本水消費量: 標準高度での1人1日あたりの水消費量<br>
+                    ※2 高度補正: 高所では脱水リスクが高まるため、消費量が増加する割合<br>
+                    ※3 設営用水: 各キャンプ地の設営作業（テント設営、調理準備等）に使用する水<br>
+                    ※4 ロス率: 運搬中のこぼれ・蒸発等による損失割合<br>
+                    ※5 予備水: 天候不良による停滞等に備えた予備の水（高度補正を適用しない基本量で計算）
+                </div>
+
+                <div class="options">
+                    (1) 220 L&emsp;&emsp;(2) 238 L&emsp;&emsp;(3) 194 L&emsp;&emsp;(4) 258 L&emsp;&emsp;(5) 216 L
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br><br>
+
+                登山遠征隊の水の携行量を求める資料読み取り問題である。3区間それぞれの消費量を計算し、共通条件を加算する。<br><br>
+
+                <strong>【各区間の水消費量】</strong><br>
+                ・BC→C1: 3日 × 5人 × 4 L × 1.00(標準) = <strong>60 L</strong><br>
+                ・C1→C2: 2日 × 5人 × 4 L × 1.25(+25%) = <strong>50 L</strong><br>
+                ・C2→S: 1日 × 5人 × 4 L × 1.50(+50%) = <strong>30 L</strong><br>
+                ・全区間消費量合計: 60 + 50 + 30 = <strong>140 L</strong><br><br>
+
+                <strong>【設営用水】</strong><br>
+                ・2か所 × 20 L = <strong>40 L</strong><br><br>
+
+                <strong>【小計とロス】</strong><br>
+                ・小計: 140 + 40 = 180 L<br>
+                ・ロス(10%): 180 × 0.10 = <strong>18 L</strong><br><br>
+
+                <strong>【予備水】</strong><br>
+                ・基本2日分(高度補正なし): 2日 × 5人 × 4 L = <strong>40 L</strong><br><br>
+
+                <strong>【合計】</strong><br>
+                ・最低携行量: 180 + 18 + 40 = <strong>238 L</strong><br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

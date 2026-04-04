@@ -1,0 +1,761 @@
+<!--
+================================================================================
+航大思考97.html - セット97（インタラクティブ版）
+問1: 配送トラックの燃料計算（資料読み取り / 標準難度）
+問2: 登山遠征隊の水の携行量計算（資料読み取り / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                配送トラックが倉庫Pから中継地点Qを経由して配送先Rへ向かう2区間の配送を計画している。中継地点Qでは給油ができないため、倉庫Pで全区間分の燃料を搭載する必要がある。下表の条件に基づき、倉庫P出発時に搭載すべき最低搭載燃料の合計として正しいものを(1)～(5)から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】区間別燃料データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>項目</th>
+                            <th>P→Q区間</th>
+                            <th>Q→R区間</th>
+                        </tr>
+                        <tr>
+                            <td>走行距離</td>
+                            <td>600 km</td>
+                            <td>400 km</td>
+                        </tr>
+                        <tr>
+                            <td>基本燃費<br>(※1)</td>
+                            <td>2.0 L/km</td>
+                            <td>2.0 L/km</td>
+                        </tr>
+                        <tr>
+                            <td>道路勾配の影響<br>(※2)</td>
+                            <td>上り坂:<br>+20%</td>
+                            <td>下り坂:<br>-10%</td>
+                        </tr>
+                        <tr>
+                            <td>発進追加燃料</td>
+                            <td>120 L</td>
+                            <td>120 L</td>
+                        </tr>
+                        <tr>
+                            <td>惰行節約量</td>
+                            <td>40 L</td>
+                            <td>40 L</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】共通条件</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>項目</th>
+                            <th>値</th>
+                        </tr>
+                        <tr>
+                            <td>構内走行燃料<br>(P出発)</td>
+                            <td>30 L</td>
+                        </tr>
+                        <tr>
+                            <td>構内走行燃料<br>(Q出発)</td>
+                            <td>20 L</td>
+                        </tr>
+                        <tr>
+                            <td>不測事態燃料</td>
+                            <td>全区間の走行燃<br>料合計の5%</td>
+                        </tr>
+                        <tr>
+                            <td>予備燃料<br>(R到着時)</td>
+                            <td>200 L</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="question-text" style="font-size: 14px;">
+                最低搭載燃料 = 構内走行燃料(P+Q) + 全走行燃料 + 不測事態燃料 + 予備燃料<br><br>
+                【用語の説明】<br>
+                ※1 基本燃費: 平坦路走行中の1 kmあたりの燃料消費量<br>
+                ※2 道路勾配の影響: 上り坂では基本燃費より消費が増加し、下り坂では減少する割合<br>
+                ※3 発進追加燃料: 停車から巡航速度に達するまでに余分に消費する燃料<br>
+                ※4 惰行節約量: 到着手前でエンジン出力を下げることで節約できる燃料量<br>
+                ※5 不測事態燃料: 渋滞や迂回（道路工事など）に備えた燃料<br>
+                ※6 予備燃料: 予定外の遅延等に備えて確保する最低限の燃料
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>2,686 L
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>2,518 L
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>2,636 L
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>2,570 L
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>2,938 L
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>配送トラックの燃料計算問題である。各区間の走行燃料を求め、共通条件を加算して最低搭載燃料を算出する。</p>
+                    <br>
+                    <p><strong>【P→Q区間の走行燃料】</strong></p>
+                    <p>・基本消費: 600 km × 2.0 L/km = 1,200 L</p>
+                    <p>・上り坂補正(+20%): 1,200 × 1.20 = 1,440 L</p>
+                    <p>・発進追加: +120 L、惰行節約: -40 L</p>
+                    <p>・P→Q走行燃料: 1,440 + 120 - 40 = <strong>1,520 L</strong></p>
+                    <br>
+                    <p><strong>【Q→R区間の走行燃料】</strong></p>
+                    <p>・基本消費: 400 km × 2.0 L/km = 800 L</p>
+                    <p>・下り坂補正(-10%): 800 × 0.90 = 720 L</p>
+                    <p>・発進追加: +120 L、惰行節約: -40 L</p>
+                    <p>・Q→R走行燃料: 720 + 120 - 40 = <strong>800 L</strong></p>
+                    <br>
+                    <p><strong>【合計計算】</strong></p>
+                    <p>・全区間走行燃料: 1,520 + 800 = 2,320 L</p>
+                    <p>・構内走行燃料: 30 + 20 = 50 L</p>
+                    <p>・不測事態燃料: 2,320 × 0.05 = 116 L</p>
+                    <p>・予備燃料: 200 L</p>
+                    <p>・最低搭載燃料: 50 + 2,320 + 116 + 200 = <strong>2,686 L</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                5人の登山チームがベースキャンプ(BC)からキャンプ1(C1)、キャンプ2(C2)を経由して山頂(S)に向かう遠征を計画している。各キャンプには水の補給設備がないため、ベースキャンプ出発時に全行程分の水を携行する必要がある。下表の条件に基づき、出発時に携行すべき最低限の水の総量として正しいものを(1)～(5)から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】区間別データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>項目</th>
+                            <th>BC→C1</th>
+                            <th>C1→C2</th>
+                            <th>C2→S</th>
+                        </tr>
+                        <tr>
+                            <td>所要日数</td>
+                            <td>3日</td>
+                            <td>2日</td>
+                            <td>1日</td>
+                        </tr>
+                        <tr>
+                            <td>基本水消費量<br>(※1)</td>
+                            <td>4 L/人/日</td>
+                            <td>4 L/人/日</td>
+                            <td>4 L/人/日</td>
+                        </tr>
+                        <tr>
+                            <td>高度補正<br>(※2)</td>
+                            <td>標準</td>
+                            <td>+25%</td>
+                            <td>+50%</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】共通条件</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>項目</th>
+                            <th>値</th>
+                        </tr>
+                        <tr>
+                            <td>チーム人数</td>
+                            <td>5人</td>
+                        </tr>
+                        <tr>
+                            <td>設営用水(※3)</td>
+                            <td>各キャンプ 20 L</td>
+                        </tr>
+                        <tr>
+                            <td>設営キャンプ数</td>
+                            <td>2か所(C1, C2)</td>
+                        </tr>
+                        <tr>
+                            <td>ロス率(※4)</td>
+                            <td>全消費量(設営用<br>水含む)の10%</td>
+                        </tr>
+                        <tr>
+                            <td>予備水(※5)</td>
+                            <td>基本2日分<br>(高度補正なし)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="question-text" style="font-size: 14px;">
+                最低携行量 = 全区間消費量 + 設営用水 + ロス分 + 予備水<br><br>
+                【用語の説明】<br>
+                ※1 基本水消費量: 標準高度での1人1日あたりの水消費量<br>
+                ※2 高度補正: 高所では脱水リスクが高まるため、消費量が増加する割合<br>
+                ※3 設営用水: 各キャンプ地の設営作業（テント設営、調理準備等）に使用する水<br>
+                ※4 ロス率: 運搬中のこぼれ・蒸発等による損失割合<br>
+                ※5 予備水: 天候不良による停滞等に備えた予備の水（高度補正を適用しない基本量で計算）
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>220 L
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>238 L
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>194 L
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>258 L
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>216 L
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>登山遠征隊の水の携行量を求める資料読み取り問題である。3区間それぞれの消費量を計算し、共通条件を加算する。</p>
+                    <br>
+                    <p><strong>【各区間の水消費量】</strong></p>
+                    <p>・BC→C1: 3日 × 5人 × 4 L × 1.00(標準) = <strong>60 L</strong></p>
+                    <p>・C1→C2: 2日 × 5人 × 4 L × 1.25(+25%) = <strong>50 L</strong></p>
+                    <p>・C2→S: 1日 × 5人 × 4 L × 1.50(+50%) = <strong>30 L</strong></p>
+                    <p>・全区間消費量合計: 60 + 50 + 30 = <strong>140 L</strong></p>
+                    <br>
+                    <p><strong>【設営用水】</strong></p>
+                    <p>・2か所 × 20 L = <strong>40 L</strong></p>
+                    <br>
+                    <p><strong>【小計とロス】</strong></p>
+                    <p>・小計: 140 + 40 = 180 L</p>
+                    <p>・ロス(10%): 180 × 0.10 = <strong>18 L</strong></p>
+                    <br>
+                    <p><strong>【予備水】</strong></p>
+                    <p>・基本2日分(高度補正なし): 2日 × 5人 × 4 L = <strong>40 L</strong></p>
+                    <br>
+                    <p><strong>【合計】</strong></p>
+                    <p>・最低携行量: 180 + 18 + 40 = <strong>238 L</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考97/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
