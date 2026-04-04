@@ -1,0 +1,644 @@
+<!--
+================================================================================
+航大思考99.html - セット99（インタラクティブ版）
+問1: 市立図書館5館の月間利用レポートから1日あたり平均貸出冊数が最多の館を特定（資料読み取り / 標準難度）
+問2: 食品工場5ラインの品質検査報告書から出荷基準を満たすラインの組み合わせを特定（資料読み取り / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 10px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+
+        .report-text {
+            font-size: 14px;
+            line-height: 1.7;
+            text-align: justify;
+            margin: 15px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の「月間図書館利用レポート」を読み、1日あたりの平均貸出冊数が最も多い図書館として正しいものを(1)～(5)から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                <strong>A市立図書館 月間利用レポート（2025年10月分）</strong><br><br>
+                A市には中央・北・南・東・西の5つの市立図書館がある。本レポートでは、各館の2025年10月における利用実績を報告する。<br><br>
+                <strong>1. 中央図書館</strong><br>
+                中央図書館は市内最大の蔵書数を誇り、当月は24日間開館した。月間来館者数は9,600人であり、前年同月比で8%の増加となった。貸出冊数は14,400冊で、来館者1人あたり平均1.5冊の貸出であった。なお、返却冊数は12,800冊であり、蔵書の回転率は良好である。<br><br>
+                <strong>2. 北図書館</strong><br>
+                北図書館は10月に施設点検のため4日間の臨時休館があり、開館日数は20日であった。月間来館者数は4,200人で、前年同月比では12%の減少であった。貸出冊数は8,400冊であった。来館者1人あたりの貸出冊数は2.0冊と、5館のなかで最も高い値を示した。<br><br>
+                <strong>3. 南図書館</strong><br>
+                南図書館は当月22日間開館し、月間来館者数は5,500人であった。新設された児童書コーナーが好評で、貸出冊数は9,900冊に達した。前年同月比では貸出冊数が15%増加している。返却冊数は9,200冊であった。<br><br>
+                <strong>4. 東図書館</strong><br>
+                東図書館は24日間開館した。月間来館者数は3,800人と5館のなかで最も少なかったが、来館者1人あたりの貸出冊数は2.4冊と高い。月間貸出冊数は9,120冊であった。なお、東図書館は地域の学習スペースとしての利用も多く、閲覧のみの利用者が約35%を占める。<br><br>
+                <strong>5. 西図書館</strong><br>
+                西図書館は施設改修工事のため4日間休館し、開館日数は20日であった。月間来館者数は6,000人であり、貸出冊数は10,500冊であった。前年同月比で来館者数は5%増加し、貸出冊数も10%増加した。
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>東図書館
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>北図書館
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>南図書館
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>西図書館
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>中央図書館
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>各図書館の月間貸出冊数と開館日数を文章中から抽出し、1日あたりの平均貸出冊数を算出する。</p>
+                    <br>
+                    <p><strong>【データの抽出と計算】</strong></p>
+                    <p>・中央館: 14,400冊 / 24日 = <strong>600 冊/日</strong></p>
+                    <p>・北館: 8,400冊 / 20日 = <strong>420 冊/日</strong></p>
+                    <p>・南館: 9,900冊 / 22日 = <strong>450 冊/日</strong></p>
+                    <p>・東館: 9,120冊 / 24日 = <strong>380 冊/日</strong></p>
+                    <p>・西館: 10,500冊 / 20日 = <strong>525 冊/日</strong></p>
+                    <br>
+                    <p><strong>【順位】</strong></p>
+                    <p>1位: 中央館(600) > 2位: 西館(525) > 3位: 南館(450) > 4位: 北館(420) > 5位: 東館(380)</p>
+                    <br>
+                    <p><strong>【注意点】</strong></p>
+                    <p>・月間貸出冊数の総数では中央館(14,400)が最多であるが、問われているのは「1日あたりの平均」である。</p>
+                    <p>・来館者1人あたりの貸出冊数（東館が最大）と混同しないよう注意が必要である。</p>
+                    <p>・開館日数が各館で異なる（20～24日）ため、単純な月間合計では比較できない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>の中央図書館である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の「品質検査報告書」と「出荷判定基準」を読み、出荷可能と判定される製造ラインの組み合わせとして正しいものを(1)～(5)から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                <strong>S食品工場 品質検査報告書（2025年10月度）</strong><br><br>
+                S食品工場では5つの製造ライン（A～E）で同一製品を製造しており、毎月の品質検査結果に基づいて各ラインの出荷可否を判定している。以下に、2025年10月度の検査結果を報告する。<br><br>
+                <strong>【出荷判定基準】</strong><br>
+                出荷可能と判定されるためには、次の3条件をすべて満たす必要がある。<br>
+                条件I: 不良品率が2.0%以下であること<br>
+                条件II: 製品重量の標準偏差が基準値5.0g以下であること<br>
+                条件III: 細菌検査において全ロット合格であること<br><br>
+                <strong>ラインA</strong><br>
+                当月の検査総数は2,000個であった。このうち不良品として判定されたものは35個であり、不良品率は前月の2.1%から改善した。製品重量の平均値は250.3gで、標準偏差は4.2gであった。細菌検査は全12ロットすべてで合格であった。<br><br>
+                <strong>ラインB</strong><br>
+                当月の検査総数は1,500個であった。不良品数は36個であった。製品重量の平均値は249.8gで、標準偏差は3.8gと5ライン中最小であった。細菌検査は全10ロットすべてで合格であった。前月は不良品率が1.5%であったため、今月はやや悪化した。<br><br>
+                <strong>ラインC</strong><br>
+                当月の検査総数は2,500個で、5ライン中最多であった。不良品数は45個であった。製品重量の平均値は250.1gで、標準偏差は5.3gであった。前月の標準偏差は4.8gであったため、ばらつきがやや増加した。細菌検査は全15ロットすべてで合格であった。<br><br>
+                <strong>ラインD</strong><br>
+                当月の検査総数は1,800個であった。不良品数は32個であった。製品重量の平均値は250.5gで、標準偏差は4.9gであった。ただし、細菌検査において全11ロット中1ロットで基準値を超える菌数が検出され、不合格となった。再検査を実施したが、当月の判定には再検査結果は反映されない。<br><br>
+                <strong>ラインE</strong><br>
+                当月の検査総数は3,000個で、不良品数は54個であった。製品重量の平均値は250.0gで、標準偏差は4.5gであった。細菌検査は全18ロットすべてで合格であった。なお、ラインEは先月新設されたラインであり、稼働2か月目にしては安定した数値を示している。
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>AとE
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>AとCとE
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>AとDとE
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>AとB
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>A、D、E
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>各製造ラインの検査数値を文章中から抽出し、3つの出荷基準それぞれについて判定する。</p>
+                    <br>
+                    <p><strong>【条件I: 不良品率（基準: 2.0%以下）】</strong></p>
+                    <p>・ラインA: 35 / 2,000 = 1.75% → 適合</p>
+                    <p>・ラインB: 36 / 1,500 = 2.40% → <strong>不適合</strong></p>
+                    <p>・ラインC: 45 / 2,500 = 1.80% → 適合</p>
+                    <p>・ラインD: 32 / 1,800 ≒ 1.78% → 適合</p>
+                    <p>・ラインE: 54 / 3,000 = 1.80% → 適合</p>
+                    <br>
+                    <p><strong>【条件II: 標準偏差（基準: 5.0g以下）】</strong></p>
+                    <p>・ラインA: 4.2g → 適合</p>
+                    <p>・ラインB: 3.8g → 適合</p>
+                    <p>・ラインC: 5.3g → <strong>不適合</strong></p>
+                    <p>・ラインD: 4.9g → 適合</p>
+                    <p>・ラインE: 4.5g → 適合</p>
+                    <br>
+                    <p><strong>【条件III: 細菌検査（基準: 全ロット合格）】</strong></p>
+                    <p>・ラインA: 全合格 → 適合</p>
+                    <p>・ラインB: 全合格 → 適合</p>
+                    <p>・ラインC: 全合格 → 適合</p>
+                    <p>・ラインD: 1ロット不合格 → <strong>不適合</strong></p>
+                    <p>・ラインE: 全合格 → 適合</p>
+                    <br>
+                    <p><strong>【総合判定】</strong></p>
+                    <p>・ラインA: 3条件すべて適合 → <strong>出荷可</strong></p>
+                    <p>・ラインB: 条件I不適合（不良品率2.40%） → 出荷不可</p>
+                    <p>・ラインC: 条件II不適合（SD 5.3g） → 出荷不可</p>
+                    <p>・ラインD: 条件III不適合（細菌検査不合格） → 出荷不可</p>
+                    <p>・ラインE: 3条件すべて適合 → <strong>出荷可</strong></p>
+                    <br>
+                    <p><strong>【ポイント】</strong></p>
+                    <p>・ラインBは標準偏差が最小(3.8g)で一見優秀に見えるが、不良品率が2.40%で基準超過。</p>
+                    <p>・ラインCは不良品率が基準内だが、標準偏差が5.3gで基準超過。</p>
+                    <p>・ラインDは再検査の記述があるが、「当月の判定には反映されない」と明記されている。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>のAとEである。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考99/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
