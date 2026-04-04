@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .options-container { margin: 20px 0; }
+        .option-button { display: block; width: 100%; padding: 15px 20px; margin: 10px 0; background-color: white; border: 2px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s ease; font-family: inherit; font-size: 16px; }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section { display: none; margin-top: 30px; padding: 25px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 15px 20px; min-width: 80px; min-height: 60px; text-align: center; vertical-align: middle; }
+        .figure-table th { border: 2px solid #333; padding: 10px 15px; background-color: #e8e8e8; font-weight: bold; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                大型貨物船の船橋（ブリッジ）には、船体の前後方向の傾き（トリム）を監視するための機械式傾斜指示装置が設置されている。この装置は、横一列に並んだ4つの円形パネルで構成されている。各パネルの内部には錘のついた振り子が収められており、船首が沈む方向に傾くと振り子が動いてパネルの表面に暗色の印が現れ（表示：●）、傾きが解消されると明色に戻る（表示：○）仕組みである。この装置は純粋に機械的な構造で動作し、電力を必要としない。4つのパネルはそれぞれ反応する傾斜角度の閾値が異なっており、左端のパネルが最も敏感でわずかな船首沈下でも暗色を示し、右に行くほど閾値が高くなるため、大きく傾かないと暗色にならない。したがって、船首が沈む方向に傾くほど、左から順に暗色のパネルが増えていく。貨物船はプロペラ効率と操舵性能の観点から、船首がわずかに沈んだ状態で航行するのが最適とされており、左から2つが暗色の「●●○○」が適正トリムの表示である。「○○○○」は船尾が沈みすぎた状態、「●●●●」は船首が沈みすぎた状態を意味する。パネルの各表示は1段階の変化に対応しており、バラストタンク（船体に海水を注排水する区画）の1回の操作で1段階のトリム変化が生じる。以下の状況の表示変化の直後に実施する適切な操作として正しいものを1つ選べ。
+            </div>
+
+            <!-- 状況図と操作リストを横並び -->
+            <div style="display: flex; align-items: flex-start; gap: 15px; margin: 10px 0;">
+                <div style="flex: 0 0 auto;">
+                    <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">【状況】</div>
+                    <svg width="280" height="155" viewBox="0 0 280 155">
+                        <!-- 上段: ●●○○ -->
+                        <circle cx="45" cy="30" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="103" cy="30" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="161" cy="30" r="18" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="219" cy="30" r="18" fill="white" stroke="black" stroke-width="2"/>
+                        <defs>
+                            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L0,8 L8,4 z" fill="#333"/>
+                            </marker>
+                        </defs>
+                        <line x1="132" y1="58" x2="132" y2="83" stroke="#333" stroke-width="2" marker-end="url(#arrow1)"/>
+                        <!-- 下段: ●●●● -->
+                        <circle cx="45" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="103" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="161" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="219" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div style="flex: 1; font-size: 15px; line-height: 1.9; padding-top: 5px;">
+                    <strong>【バラスト操作】</strong><br>
+                    ア：船首バラストタンクから排水する<br>
+                    イ：船尾バラストタンクから排水する<br>
+                    ウ：船首・船尾の両方のバラストタンクに注水する<br>
+                    エ：船首バラストタンクに注水し、船尾バラストタンクから排水する<br>
+                    オ：船尾バラストタンクに注水し、船首バラストタンクから排水する
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>ア
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>エ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>オ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>ウ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>イ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p><strong>【表示の読み取り】</strong></p>
+                    <p>・4つのパネルは左端が最も敏感で、船首沈下が大きくなるほど左から順に暗色（●）が増える</p>
+                    <p>・適正トリム「●●○○」はレベル2（左2つが暗色）</p>
+                    <p>・変化後「●●●●」はレベル4（全て暗色）で、船首が大きく沈んだ危険な状態</p>
+                    <p>・適正に戻すにはトリムを2段階改善する必要がある</p>
+                    <br>
+                    <p><strong>【各操作の効果】</strong></p>
+                    <p>・ア：船首バラスト排水 → 船首が軽くなり1段階改善 → ●●●○（不十分）</p>
+                    <p>・イ：船尾バラスト排水 → 船尾が軽くなりさらに船首側へ傾く → 悪化</p>
+                    <p>・ウ：両方注水 → 全体が重くなるが前後バランスは変わらない → 変化なし</p>
+                    <p>・エ：船首注水＋船尾排水 → 船首がさらに重く → 大幅悪化</p>
+                    <p>・オ：船尾注水＋船首排水 → 2段階改善 → ●●○○（適正）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある化学プラントの反応炉には、炉内の温度と圧力をそれぞれ監視する指示灯が設置されている。温度指示灯と圧力指示灯はそれぞれ4つの円形パネルが横一列に並んだ構造で、いずれも測定値が各パネルの閾値を超えると暗色（●）を示し、下回ると明色（○）を示す。左端のパネルが最も閾値が低く、右に行くほど閾値が高い。温度・圧力ともに「●●○○」が適正範囲である。オペレーターは以下の5つの操作から同時に2つまで実行でき、効果は加算される。温度と圧力がともに適正表示に戻る操作の組み合わせを選べ。
+            </div>
+
+            <!-- 操作と効果の表 -->
+            <div class="figure-container" style="border: none; padding: 10px;">
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="min-width: 40px;">操作</th>
+                        <th>内容</th>
+                        <th style="min-width: 110px;">温度への影響</th>
+                        <th style="min-width: 110px;">圧力への影響</th>
+                    </tr>
+                    <tr><td>ア</td><td style="text-align: left; padding-left: 10px;">加熱ヒーターを起動する</td><td>1段階上昇</td><td>1段階上昇</td></tr>
+                    <tr><td>イ</td><td style="text-align: left; padding-left: 10px;">冷却水を注入する</td><td>1段階下降</td><td>1段階下降</td></tr>
+                    <tr><td>ウ</td><td style="text-align: left; padding-left: 10px;">排気弁を開く</td><td>変化なし</td><td>1段階下降</td></tr>
+                    <tr><td>エ</td><td style="text-align: left; padding-left: 10px;">触媒を追加投入する</td><td>1段階上昇</td><td>変化なし</td></tr>
+                    <tr><td>オ</td><td style="text-align: left; padding-left: 10px;">撹拌速度を上げる</td><td>1段階下降</td><td>1段階上昇</td></tr>
+                </table>
+            </div>
+
+            <!-- 状態変化の図 -->
+            <div class="figure-container">
+                <div class="figure-title">【状況】</div>
+                <div class="figure-content">
+                    <svg width="600" height="200" viewBox="0 0 600 200">
+                        <text x="165" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化前</text>
+                        <text x="465" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化後</text>
+
+                        <!-- 変化前: 温度 ●●○○ -->
+                        <text x="15" y="52" class="svg-text" font-size="11">温度</text>
+                        <circle cx="80" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="130" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="180" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="230" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                        <!-- 変化前: 圧力 ●●○○ -->
+                        <text x="15" y="102" class="svg-text" font-size="11">圧力</text>
+                        <circle cx="80" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="130" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="180" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="230" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                        <defs>
+                            <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L0,8 L8,4 z" fill="#333"/>
+                            </marker>
+                        </defs>
+                        <line x1="265" y1="72" x2="330" y2="72" stroke="#333" stroke-width="2" marker-end="url(#arrow2)"/>
+
+                        <!-- 変化後: 温度 ●○○○ -->
+                        <text x="315" y="52" class="svg-text" font-size="11">温度</text>
+                        <circle cx="380" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="430" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="480" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                        <circle cx="530" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                        <!-- 変化後: 圧力 ●●●○ -->
+                        <text x="315" y="102" class="svg-text" font-size="11">圧力</text>
+                        <circle cx="380" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="430" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="480" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                        <circle cx="530" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                        <text x="300" y="148" class="svg-text" text-anchor="middle" font-size="12">温度: 適正(●●○○) → やや低い(●○○○)　…温度を1段階上げる必要あり</text>
+                        <text x="300" y="170" class="svg-text" text-anchor="middle" font-size="12">圧力: 適正(●●○○) → やや高い(●●●○)　…圧力を1段階下げる必要あり</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>ア、ウ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>イ、オ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>ア、エ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>エ、イ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>エ、ウ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>【状況の分析】</strong></p>
+                    <p>・温度: ●●○○ → ●○○○（1段階低下）→ 温度を1段階上げる必要がある</p>
+                    <p>・圧力: ●●○○ → ●●●○（1段階上昇）→ 圧力を1段階下げる必要がある</p>
+                    <p>・必要な変化: (温度 +1, 圧力 -1)</p>
+                    <br>
+                    <p><strong>【各選択肢の効果】</strong></p>
+                    <p>・(1) ア、ウ → ア(+1,+1) + ウ(0,-1) = (+1, 0) → 圧力が戻らない → 不正解</p>
+                    <p>・(2) イ、オ → イ(-1,-1) + オ(-1,+1) = (-2, 0) → 温度がさらに低下 → 不正解</p>
+                    <p>・(3) ア、エ → ア(+1,+1) + エ(+1,0) = (+2, +1) → 両方過剰 → 不正解</p>
+                    <p>・(4) エ、イ → エ(+1,0) + イ(-1,-1) = (0, -1) → 温度が戻らない → 不正解</p>
+                    <p>・(5) エ、ウ → エ(+1,0) + ウ(0,-1) = (+1, -1) → 温度・圧力ともに適正に復帰 → <strong>正解</strong></p>
+                    <br>
+                    <p><strong>【ポイント】</strong></p>
+                    <p>・エ（温度のみ+1）とウ（圧力のみ-1）はそれぞれ独立に1つのパラメータだけを変化させる</p>
+                    <p>・逆方向の補正が必要な場合、両パラメータに同時に影響する操作（ア・イ・オ）は使えない</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考98/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td { border: 2px solid #333; padding: 15px 20px; min-width: 80px; min-height: 60px; text-align: center; vertical-align: middle; }
+        .figure-table th { border: 2px solid #333; padding: 10px 15px; background-color: #e8e8e8; font-weight: bold; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．以下の説明を読み、与えられた状況の表示の変化の直後に実施する適切な操作として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="question-text">
+                    大型貨物船の船橋（ブリッジ）には、船体の前後方向の傾き（トリム）を監視するための機械式傾斜指示装置が設置されている。この装置は、横一列に並んだ4つの円形パネルで構成されている。各パネルの内部には錘のついた振り子が収められており、船首が沈む方向に傾くと振り子が動いてパネルの表面に暗色の印が現れ（表示：●）、傾きが解消されると明色に戻る（表示：○）仕組みである。この装置は純粋に機械的な構造で動作し、電力を必要としない。4つのパネルはそれぞれ反応する傾斜角度の閾値が異なっており、左端のパネルが最も敏感でわずかな船首沈下でも暗色を示し、右に行くほど閾値が高くなるため、大きく傾かないと暗色にならない。したがって、船首が沈む方向に傾くほど、左から順に暗色のパネルが増えていく。貨物船はプロペラ効率と操舵性能の観点から、船首がわずかに沈んだ状態で航行するのが最適とされており、左から2つが暗色の「●●○○」が適正トリムの表示である。「○○○○」は船尾が沈みすぎた状態、「●●●●」は船首が沈みすぎた状態を意味する。パネルの各表示は1段階の変化に対応しており、バラストタンク（船体に海水を注排水する区画）の1回の操作で1段階のトリム変化が生じる。
+                </div>
+
+                <!-- 状況図と操作リストを横並び -->
+                <div style="display: flex; align-items: flex-start; gap: 15px; margin: 10px 0;">
+                    <!-- 左: 状況図 -->
+                    <div style="flex: 0 0 auto;">
+                        <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">【状況】</div>
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 280x155px
+                        - viewBox: 0 0 280 155
+                        - パネル: 各50x30px、間隔8px
+                        -->
+                        <svg width="280" height="155" viewBox="0 0 280 155">
+                            <!-- 上段: ●●○○（適正トリム） -->
+                            <circle cx="45" cy="30" r="18" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="103" cy="30" r="18" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="161" cy="30" r="18" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="219" cy="30" r="18" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 矢印 -->
+                            <defs>
+                                <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                    <path d="M0,0 L0,8 L8,4 z" fill="#333"/>
+                                </marker>
+                            </defs>
+                            <line x1="132" y1="58" x2="132" y2="83" stroke="#333" stroke-width="2" marker-end="url(#arrow1)"/>
+
+                            <!-- 下段: ●●●●（船首過重） -->
+                            <circle cx="45" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="103" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="161" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="219" cy="115" r="18" fill="black" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+
+                    <!-- 右: 操作リスト -->
+                    <div style="flex: 1; font-size: 15px; line-height: 1.9; padding-top: 5px;">
+                        <strong>【バラスト操作】</strong><br>
+                        ア：船首バラストタンクから排水する<br>
+                        イ：船尾バラストタンクから排水する<br>
+                        ウ：船首・船尾の両方のバラストタンクに注水する<br>
+                        エ：船首バラストタンクに注水し、船尾バラストタンクから排水する<br>
+                        オ：船尾バラストタンクに注水し、船首バラストタンクから排水する
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div style="margin-left: 20px; line-height: 2.2; margin-top: 15px;">
+                    (1) ア　　　　(2) エ　　　　(3) オ　　　　(4) ウ　　　　(5) イ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                <strong>【表示の読み取り】</strong><br>
+                ・4つのパネルは左端が最も敏感で、船首沈下が大きくなるほど左から順に暗色（●）が増える<br>
+                ・適正トリム「●●○○」はレベル2（左2つが暗色）<br>
+                ・変化後「●●●●」はレベル4（全て暗色）で、船首が大きく沈んだ危険な状態<br>
+                ・適正に戻すにはトリムを2段階改善する（船首を浮かせる方向へ）必要がある<br><br>
+
+                <strong>【各操作の効果】</strong><br>
+                ・ア：船首バラスト排水 → 船首が軽くなり1段階改善 → ●●●○（不十分）<br>
+                ・イ：船尾バラスト排水 → 船尾が軽くなりさらに船首側へ傾く → 悪化<br>
+                ・ウ：両方注水 → 全体が重くなるが前後バランスは変わらない → ●●●●のまま<br>
+                ・エ：船首注水＋船尾排水 → 船首がさらに重く、船尾がさらに軽く → 大幅悪化<br>
+                ・オ：船尾注水＋船首排水 → 船首が軽く（−1）かつ船尾が重く（−1）で合計2段階改善 → ●●○○<br><br>
+
+                <strong>【ポイント】</strong><br>
+                ・2段階の補正が必要なため、1方向のみの操作（ア：−1段階）では不十分<br>
+                ・オは「排水」と「注水」を逆方向に同時に行うため2段階分の効果がある<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．以下の説明を読み、与えられた状況の表示の変化の直後に実施する適切な操作の組み合わせとして正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+                <div class="question-text">
+                    ある化学プラントの反応炉には、炉内の温度と圧力をそれぞれ監視する指示灯が設置されている。温度指示灯と圧力指示灯はそれぞれ4つの円形パネルが横一列に並んだ構造で、いずれも測定値が各パネルの閾値を超えると暗色（●）を示し、下回ると明色（○）を示す。左端のパネルが最も閾値が低く、右に行くほど閾値が高い。温度・圧力ともに「●●○○」が適正範囲である。オペレーターは以下の5つの操作から同時に2つまで実行でき、効果は加算される。温度と圧力がともに適正表示に戻る操作の組み合わせを選べ。
+                </div>
+
+                <!-- 操作と効果の表 -->
+                <div class="figure-container" style="border: none; padding: 10px;">
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="min-width: 40px;">操作</th>
+                            <th>内容</th>
+                            <th style="min-width: 110px;">温度への影響</th>
+                            <th style="min-width: 110px;">圧力への影響</th>
+                        </tr>
+                        <tr>
+                            <td>ア</td>
+                            <td style="text-align: left; padding-left: 10px;">加熱ヒーターを起動する</td>
+                            <td>1段階上昇</td>
+                            <td>1段階上昇</td>
+                        </tr>
+                        <tr>
+                            <td>イ</td>
+                            <td style="text-align: left; padding-left: 10px;">冷却水を注入する</td>
+                            <td>1段階下降</td>
+                            <td>1段階下降</td>
+                        </tr>
+                        <tr>
+                            <td>ウ</td>
+                            <td style="text-align: left; padding-left: 10px;">排気弁を開く</td>
+                            <td>変化なし</td>
+                            <td>1段階下降</td>
+                        </tr>
+                        <tr>
+                            <td>エ</td>
+                            <td style="text-align: left; padding-left: 10px;">触媒を追加投入する</td>
+                            <td>1段階上昇</td>
+                            <td>変化なし</td>
+                        </tr>
+                        <tr>
+                            <td>オ</td>
+                            <td style="text-align: left; padding-left: 10px;">撹拌速度を上げる</td>
+                            <td>1段階下降</td>
+                            <td>1段階上昇</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- 状態変化の図 -->
+                <div class="figure-container">
+                    <div class="figure-title">【状況】</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 600x200px
+                        - viewBox: 0 0 600 200
+                        -->
+                        <svg width="600" height="200" viewBox="0 0 600 200">
+                            <text x="165" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化前</text>
+                            <text x="465" y="18" class="svg-text" text-anchor="middle" font-weight="bold" font-size="13">変化後</text>
+
+                            <!-- 変化前: 温度 ●●○○ -->
+                            <text x="15" y="52" class="svg-text" font-size="11">温度</text>
+                            <circle cx="80" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="130" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="180" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="230" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 変化前: 圧力 ●●○○ -->
+                            <text x="15" y="102" class="svg-text" font-size="11">圧力</text>
+                            <circle cx="80" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="130" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="180" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="230" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 矢印 -->
+                            <defs>
+                                <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                    <path d="M0,0 L0,8 L8,4 z" fill="#333"/>
+                                </marker>
+                            </defs>
+                            <line x1="265" y1="72" x2="330" y2="72" stroke="#333" stroke-width="2" marker-end="url(#arrow2)"/>
+
+                            <!-- 変化後: 温度 ●○○○ -->
+                            <text x="315" y="52" class="svg-text" font-size="11">温度</text>
+                            <circle cx="380" cy="47" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="430" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="480" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="530" cy="47" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 変化後: 圧力 ●●●○ -->
+                            <text x="315" y="102" class="svg-text" font-size="11">圧力</text>
+                            <circle cx="380" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="430" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="480" cy="97" r="16" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="530" cy="97" r="16" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 注釈 -->
+                            <text x="300" y="148" class="svg-text" text-anchor="middle" font-size="12">温度: 適正(●●○○) → やや低い(●○○○)　…温度を1段階上げる必要あり</text>
+                            <text x="300" y="170" class="svg-text" text-anchor="middle" font-size="12">圧力: 適正(●●○○) → やや高い(●●●○)　…圧力を1段階下げる必要あり</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div style="margin-left: 20px; line-height: 2.2;">
+                    (1) ア、ウ　　　(2) イ、オ　　　(3) ア、エ　　　(4) エ、イ　　　(5) エ、ウ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                <strong>【状況の分析】</strong><br>
+                ・温度: ●●○○ → ●○○○（1段階低下、低い側に逸脱）→ 温度を1段階上げる必要がある<br>
+                ・圧力: ●●○○ → ●●●○（1段階上昇、高い側に逸脱）→ 圧力を1段階下げる必要がある<br>
+                ・必要な変化: (温度 +1, 圧力 -1)<br><br>
+
+                <strong>【単独操作の検討】</strong><br>
+                ・ア(温度+1, 圧力+1)、イ(温度-1, 圧力-1)、オ(温度-1, 圧力+1) → 温度と圧力が同方向または逆方向に連動し、片方だけ補正できない<br>
+                ・ウ(温度±0, 圧力-1) → 圧力は下がるが温度が戻らない<br>
+                ・エ(温度+1, 圧力±0) → 温度は上がるが圧力が戻らない<br>
+                ・単独操作では両方を同時に適正に戻せない<br><br>
+
+                <strong>【各選択肢の効果】</strong><br>
+                ・(1) ア、ウ → ア(+1,+1) + ウ(0,-1) = (+1, 0) → 圧力が戻らない → 不正解<br>
+                ・(2) イ、オ → イ(-1,-1) + オ(-1,+1) = (-2, 0) → 温度がさらに低下 → 不正解<br>
+                ・(3) ア、エ → ア(+1,+1) + エ(+1,0) = (+2, +1) → 両方過剰 → 不正解<br>
+                ・(4) エ、イ → エ(+1,0) + イ(-1,-1) = (0, -1) → 温度が戻らない → 不正解<br>
+                ・(5) エ、ウ → エ(+1,0) + ウ(0,-1) = (+1, -1) → 温度・圧力ともに適正に復帰 → <strong>正解</strong><br><br>
+
+                <strong>【ポイント】</strong><br>
+                ・温度と圧力で逆方向の補正が必要な場合、ア（両方+1）やイ（両方-1）は使えない<br>
+                ・エ（温度のみ+1）とウ（圧力のみ-1）はそれぞれ独立に1つのパラメータだけを変化させるため、組み合わせることで逆方向の補正が実現できる<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
