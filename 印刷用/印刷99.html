@@ -1,0 +1,360 @@
+<!--
+================================================================================
+印刷99.html - セット99（印刷用）
+================================================================================
+問1: 市立図書館5館の月間利用レポートから1日あたり平均貸出冊数が最多の館を特定（資料読み取り / 標準難度）
+問2: 食品工場5ラインの品質検査報告書から出荷基準を満たすラインの組み合わせを特定（資料読み取り / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .report-text {
+            font-size: 13.5px;
+            line-height: 1.7;
+            text-align: justify;
+            margin: 10px 0;
+            padding: 12px;
+            border: 1px solid #ccc;
+            background-color: #fafafa;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の「月間図書館利用レポート」を読み、1日あたりの平均貸出冊数が最も多い図書館として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <div class="report-text">
+                    <strong>A市立図書館 月間利用レポート（2025年10月分）</strong><br><br>
+                    A市には中央・北・南・東・西の5つの市立図書館がある。本レポートでは、各館の2025年10月における利用実績を報告する。<br><br>
+                    <strong>1. 中央図書館</strong><br>
+                    中央図書館は市内最大の蔵書数を誇り、当月は24日間開館した。月間来館者数は9,600人であり、前年同月比で8%の増加となった。貸出冊数は14,400冊で、来館者1人あたり平均1.5冊の貸出であった。なお、返却冊数は12,800冊であり、蔵書の回転率は良好である。<br><br>
+                    <strong>2. 北図書館</strong><br>
+                    北図書館は10月に施設点検のため4日間の臨時休館があり、開館日数は20日であった。月間来館者数は4,200人で、前年同月比では12%の減少であった。貸出冊数は8,400冊であった。来館者1人あたりの貸出冊数は2.0冊と、5館のなかで最も高い値を示した。<br><br>
+                    <strong>3. 南図書館</strong><br>
+                    南図書館は当月22日間開館し、月間来館者数は5,500人であった。新設された児童書コーナーが好評で、貸出冊数は9,900冊に達した。前年同月比では貸出冊数が15%増加している。返却冊数は9,200冊であった。<br><br>
+                    <strong>4. 東図書館</strong><br>
+                    東図書館は24日間開館した。月間来館者数は3,800人と5館のなかで最も少なかったが、来館者1人あたりの貸出冊数は2.4冊と高い。月間貸出冊数は9,120冊であった。なお、東図書館は地域の学習スペースとしての利用も多く、閲覧のみの利用者が約35%を占める。<br><br>
+                    <strong>5. 西図書館</strong><br>
+                    西図書館は施設改修工事のため4日間休館し、開館日数は20日であった。月間来館者数は6,000人であり、貸出冊数は10,500冊であった。前年同月比で来館者数は5%増加し、貸出冊数も10%増加した。
+                </div>
+
+                <div class="options">
+                    (1) 東図書館<br>
+                    (2) 北図書館<br>
+                    (3) 南図書館<br>
+                    (4) 西図書館<br>
+                    (5) 中央図書館
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                各図書館の月間貸出冊数と開館日数を文章中から抽出し、1日あたりの平均貸出冊数を算出する。<br><br>
+
+                <strong>【データの抽出と計算】</strong><br>
+                ・中央館: 14,400冊 / 24日 = 600 冊/日<br>
+                ・北館: 8,400冊 / 20日 = 420 冊/日<br>
+                ・南館: 9,900冊 / 22日 = 450 冊/日<br>
+                ・東館: 9,120冊 / 24日 = 380 冊/日<br>
+                ・西館: 10,500冊 / 20日 = 525 冊/日<br><br>
+
+                <strong>【順位】</strong><br>
+                1位: 中央館(600) > 2位: 西館(525) > 3位: 南館(450) > 4位: 北館(420) > 5位: 東館(380)<br><br>
+
+                <strong>【注意点】</strong><br>
+                ・月間貸出冊数の総数では中央館(14,400)が最多であるが、問われているのは「1日あたりの平均」である。<br>
+                ・来館者1人あたりの貸出冊数（東館が最大）と混同しないよう注意が必要である。<br>
+                ・開館日数が各館で異なる（20～24日）ため、単純な月間合計では比較できない。<br><br>
+
+                したがって、正解は<strong>(5)</strong>の中央図書館である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の「品質検査報告書」と「出荷判定基準」を読み、出荷可能と判定される製造ラインの組み合わせとして正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <div class="report-text">
+                    <strong>S食品工場 品質検査報告書（2025年10月度）</strong><br><br>
+                    S食品工場では5つの製造ライン（A～E）で同一製品を製造しており、毎月の品質検査結果に基づいて各ラインの出荷可否を判定している。以下に、2025年10月度の検査結果を報告する。<br><br>
+                    <strong>【出荷判定基準】</strong><br>
+                    出荷可能と判定されるためには、次の3条件をすべて満たす必要がある。<br>
+                    条件I: 不良品率が2.0%以下であること<br>
+                    条件II: 製品重量の標準偏差が基準値5.0g以下であること<br>
+                    条件III: 細菌検査において全ロット合格であること<br><br>
+                    <strong>ラインA</strong><br>
+                    当月の検査総数は2,000個であった。このうち不良品として判定されたものは35個であり、不良品率は前月の2.1%から改善した。製品重量の平均値は250.3gで、標準偏差は4.2gであった。細菌検査は全12ロットすべてで合格であった。<br><br>
+                    <strong>ラインB</strong><br>
+                    当月の検査総数は1,500個であった。不良品数は36個であった。製品重量の平均値は249.8gで、標準偏差は3.8gと5ライン中最小であった。細菌検査は全10ロットすべてで合格であった。前月は不良品率が1.5%であったため、今月はやや悪化した。<br><br>
+                    <strong>ラインC</strong><br>
+                    当月の検査総数は2,500個で、5ライン中最多であった。不良品数は45個であった。製品重量の平均値は250.1gで、標準偏差は5.3gであった。前月の標準偏差は4.8gであったため、ばらつきがやや増加した。細菌検査は全15ロットすべてで合格であった。<br><br>
+                    <strong>ラインD</strong><br>
+                    当月の検査総数は1,800個であった。不良品数は32個であった。製品重量の平均値は250.5gで、標準偏差は4.9gであった。ただし、細菌検査において全11ロット中1ロットで基準値を超える菌数が検出され、不合格となった。再検査を実施したが、当月の判定には再検査結果は反映されない。<br><br>
+                    <strong>ラインE</strong><br>
+                    当月の検査総数は3,000個で、不良品数は54個であった。製品重量の平均値は250.0gで、標準偏差は4.5gであった。細菌検査は全18ロットすべてで合格であった。なお、ラインEは先月新設されたラインであり、稼働2か月目にしては安定した数値を示している。
+                </div>
+
+                <div class="options">
+                    (1) AとE<br>
+                    (2) AとCとE<br>
+                    (3) AとDとE<br>
+                    (4) AのみとBのみ<br>
+                    (5) A、D、E
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                各製造ラインの検査数値を文章中から抽出し、3つの出荷基準それぞれについて判定する。<br><br>
+
+                <strong>【各ラインの不良品率計算】</strong><br>
+                ・ラインA: 35 / 2,000 = 1.75% (2.0%以下 → 適合)<br>
+                ・ラインB: 36 / 1,500 = 2.40% (2.0%超 → 不適合)<br>
+                ・ラインC: 45 / 2,500 = 1.80% (2.0%以下 → 適合)<br>
+                ・ラインD: 32 / 1,800 ≒ 1.78% (2.0%以下 → 適合)<br>
+                ・ラインE: 54 / 3,000 = 1.80% (2.0%以下 → 適合)<br><br>
+
+                <strong>【条件II: 標準偏差（基準: 5.0g以下）】</strong><br>
+                ・ラインA: 4.2g → 適合<br>
+                ・ラインB: 3.8g → 適合<br>
+                ・ラインC: 5.3g → 不適合<br>
+                ・ラインD: 4.9g → 適合<br>
+                ・ラインE: 4.5g → 適合<br><br>
+
+                <strong>【条件III: 細菌検査】</strong><br>
+                ・ラインA: 全合格 → 適合<br>
+                ・ラインB: 全合格 → 適合<br>
+                ・ラインC: 全合格 → 適合<br>
+                ・ラインD: 1ロット不合格 → 不適合<br>
+                ・ラインE: 全合格 → 適合<br><br>
+
+                <strong>【総合判定】</strong><br>
+                ・ラインA: 3条件すべて適合 → 出荷可<br>
+                ・ラインB: 条件I不適合(不良品率2.40%) → 出荷不可<br>
+                ・ラインC: 条件II不適合(SD 5.3g) → 出荷不可<br>
+                ・ラインD: 条件III不適合(細菌検査不合格) → 出荷不可<br>
+                ・ラインE: 3条件すべて適合 → 出荷可<br><br>
+
+                <strong>【ポイント】</strong><br>
+                ・ラインBは標準偏差が最小(3.8g)で一見優秀に見えるが、不良品率が2.40%で基準超過。<br>
+                ・ラインCは不良品率が基準内だが、標準偏差が5.3gで基準超過。<br>
+                ・ラインDは再検査の記述があるが、「当月の判定には反映されない」と明記されている。<br><br>
+
+                したがって、正解は<strong>(1)</strong>のAとEである。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
