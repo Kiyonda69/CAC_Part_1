@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+
+        .report-box {
+            border: 1px solid #999;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            line-height: 1.9;
+            background-color: #fafafa;
+            border-radius: 4px;
+        }
+
+        .report-box .report-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14.5px;
+        }
+
+        .report-box p {
+            text-indent: 1em;
+            text-align: justify;
+            margin-bottom: 6px;
+        }
+
+        .formula-box {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の報告書を読み、住民1人あたりの年間施設利用回数が最も多い地区を選べ。
+            </div>
+
+            <div class="report-box">
+                <div class="report-title">令和7年度 市内公共施設利用状況報告書（概要版）</div>
+
+                <p>本報告書は、当市における5地区の公共施設（図書館、体育館、公民館）の昨年度利用実績を取りまとめたものである。各地区の施設整備状況および利用動向を概観し、今後の施設運営方針の策定に資することを目的とする。</p>
+
+                <p>A地区は市の北部に位置し、人口約25,000人を擁する住宅密集地域である。地区内には図書館1館、体育館2館、公民館3館の計6施設が設置されており、昨年度の年間運営予算は4,800万円であった。各施設の利用者を合算した年間延べ利用者数は187,500人で、特に図書館の利用が活発である。近年、高齢者向け健康プログラムの充実により利用者数は増加傾向にあり、前年度比で約3%の伸びを示した。</p>
+
+                <p>B地区は市の東部に位置し、人口約18,000人の地区である。新興住宅地として発展が続いており、図書館1館、体育館1館、公民館2館の計4施設を有する。運営予算は3,200万円、年間延べ利用者数は144,000人であった。子育て世代の流入に伴い児童向け施設の需要が高まっており、公民館での親子教室は定員を超える申込みが続いている。施設数が他地区に比べて少ないため、新規施設の建設要望が住民から寄せられている。</p>
+
+                <p>C地区は市の中心部に位置する商業・住宅混合地域で、人口約32,000人と5地区中最大である。図書館2館、体育館2館、公民館4館の計8施設が設置されており、運営予算は6,400万円と最も高い。年間延べ利用者数は224,000人で、絶対数では5地区中最多であるものの、平日昼間の利用率に課題がある。商業施設との競合により、特に若年層の施設離れが指摘されている。</p>
+
+                <p>D地区は市の南西部に位置し、人口約15,000人と5地区中最も少ない。図書館1館、体育館1館、公民館2館の計4施設を有し、運営予算は2,800万円である。年間延べ利用者数は127,500人で、地域コミュニティの結束力が強く、施設を拠点とした自主活動が盛んである。特に公民館では週末に地域サークルが定期的に活動しており、住民の参加意欲は高い。ボランティアによる施設運営補助も行われており、運営コストの抑制に寄与している。</p>
+
+                <p>E地区は市の西部に位置し、人口約22,000人の地区である。図書館1館、体育館2館、公民館3館の計6施設が設置されている。運営予算は4,200万円、年間延べ利用者数は176,000人であった。近年、スポーツ施設の利用者が増加傾向にあり、体育館の稼働率は5地区中最も高い。今年度は新たにフィットネスプログラムの導入を予定している。</p>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>A地区
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>B地区
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>C地区
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>D地区
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>E地区
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>報告書から各地区の人口と年間延べ利用者数を抽出し、住民1人あたりの利用回数を計算する。</p>
+                    <br>
+                    <p><strong>【データ抽出と計算】</strong></p>
+                    <p>・A地区: 187,500 / 25,000 = 7.50回</p>
+                    <p>・B地区: 144,000 / 18,000 = 8.00回</p>
+                    <p>・C地区: 224,000 / 32,000 = 7.00回</p>
+                    <p>・D地区: 127,500 / 15,000 = <strong>8.50回</strong></p>
+                    <p>・E地区: 176,000 / 22,000 = 8.00回</p>
+                    <br>
+                    <p><strong>【判定】</strong></p>
+                    <p>C地区は延べ利用者数の絶対数では最多（224,000人）だが、人口も最大（32,000人）のため、1人あたりでは7.00回と最少。D地区は人口・延べ利用者数ともに少ないが、1人あたり8.50回と最も高い。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の報告書を読み、下の問いに答えよ。
+            </div>
+
+            <div class="report-box">
+                <div class="report-title">品質管理部 月次検査報告書（4月度）</div>
+
+                <p>本報告書は、当社食品製造工場における5つの製造ラインの先月度品質検査結果を取りまとめたものである。当社の品質管理規定では、初回検査で不良と判定された製品についても検査員による目視再検査を実施し、軽微な外観不良等で出荷基準を満たすものは「再検査合格」として出荷対象に含めている。以下、各ラインの検査状況を報告する。</p>
+
+                <p>製造ラインPは主力製品Aの専用ラインで、3交代制により月間12,000個を生産した。検査員4名体制で全数検査を実施し、不良品として360個が検出された。このうち再検査により180個が出荷基準を満たすと判定され、最終的な廃棄対象は180個となった。先月実施した充填機のノズル交換後の調整期間中に内容量のばらつきがやや大きくなったことが不良増加の一因と考えられる。設備保全チームと連携し、次回のノズル交換時には事前に試験運転を行う手順を導入する予定である。</p>
+
+                <p>製造ラインQは製品Bおよび製品Cの兼用ラインであり、製品切替に伴うロスを含め月間9,500個の生産実績であった。検査員3名で対応し、228個の不良品が検出された。再検査の結果114個が合格となり、残り114個が廃棄された。製品切替時のライン洗浄に平均45分を要しており、洗浄手順の効率化が継続課題である。なお、今月は製品Bの受注増に伴い切替回数が前月の8回から12回に増加したが、不良率に大きな変化は見られなかった。</p>
+
+                <p>製造ラインRは大型製品D専用のラインで、月間15,000個と5ライン中最大の生産量を記録した。検査員5名を配置し、525個の不良品を検出した。再検査では225個が合格し、300個が廃棄となった。今月より自動外観検査装置を試験導入しているが、検出精度の調整段階にあり、人手による検査との並行運用を継続している。自動化が完了すれば検査員の配置を3名に削減できる見込みである。</p>
+
+                <p>製造ラインSは少量多品種対応の特殊ラインで、月間8,000個を生産した。検査員2名体制ながら、いずれも勤続15年以上の熟練者を配置することで、不良品検出は200個にとどまった。再検査では120個が合格し、廃棄は80個であった。製品の入れ替え頻度が高いものの、作業者の技能水準が高く安定した品質を維持している。今後は若手検査員の育成が課題であり、来月よりOJT研修を開始する計画である。</p>
+
+                <p>製造ラインTは今期新設されたラインで、製品Eの量産に向けて稼働を開始した。月間11,000個を生産し、検査員3名で385個の不良品を検出した。再検査により165個が合格し、220個が廃棄となった。新規ラインのため設備の微調整が継続中であり、特に包装工程での封止不良が目立っている。封止温度の最適化を進めており、来月には改善が見込まれる。</p>
+
+                <p>以上の各ラインの検査データを踏まえ、次月度の品質改善計画を策定する予定である。全社的な品質目標として実効不良率1.5%以下を掲げており、各ラインの改善状況を引き続き注視していく。</p>
+            </div>
+
+            <div class="question-text">
+                各製造ラインの「実効不良率」を次の式で定義する。
+            </div>
+
+            <div class="formula-box">
+                実効不良率（%）＝（不良品数 − 再検査合格数）÷ 生産数 × 100
+            </div>
+
+            <div class="question-text">
+                実効不良率を低い順に並べたとき、2番目に低いラインと3番目に低いラインの実効不良率の差は何ポイントか。
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>0.10ポイント
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>0.20ポイント
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>0.25ポイント
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>0.35ポイント
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>0.30ポイント
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>報告書から各ラインの生産数、不良品数、再検査合格数を抽出し、実効不良率を計算する。</p>
+                    <br>
+                    <p><strong>【データ抽出と計算】</strong></p>
+                    <p>・ラインP: (360 − 180) / 12,000 × 100 = 180 / 12,000 × 100 = 1.50%</p>
+                    <p>・ラインQ: (228 − 114) / 9,500 × 100 = 114 / 9,500 × 100 = 1.20%</p>
+                    <p>・ラインR: (525 − 225) / 15,000 × 100 = 300 / 15,000 × 100 = 2.00%</p>
+                    <p>・ラインS: (200 − 120) / 8,000 × 100 = 80 / 8,000 × 100 = 1.00%</p>
+                    <p>・ラインT: (385 − 165) / 11,000 × 100 = 220 / 11,000 × 100 = 2.00%</p>
+                    <br>
+                    <p><strong>【順位付け（低い順）】</strong></p>
+                    <p>1位: ラインS = 1.00%</p>
+                    <p>2位: ラインQ = 1.20%</p>
+                    <p>3位: ラインP = 1.50%</p>
+                    <p>4位: ラインR = 2.00%（同率）</p>
+                    <p>4位: ラインT = 2.00%（同率）</p>
+                    <br>
+                    <p><strong>【差の計算】</strong></p>
+                    <p>2番目（ラインQ: 1.20%）と3番目（ラインP: 1.50%）の差 = 1.50 − 1.20 = <strong>0.30ポイント</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考101/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
