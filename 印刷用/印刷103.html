@@ -1,0 +1,497 @@
+<!--
+================================================================================
+印刷103.html - セット103（印刷用）
+================================================================================
+問1: 立方体の十字型展開図の頂点Pに集まる3面の特定（空間視覚化 / 標準難度）
+問2: T字型展開図の4頂点マークの一致判定（空間視覚化 / 高難度）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        /* ==================== 問題番号 ==================== */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図は立方体の展開図であり、各面にア〜カの記号が書かれている。展開図上の頂点Pに黒丸（●）の印がつけられている。この展開図を折り曲げて立方体を組み立てたとき、頂点Pに集まる3つの面の記号の組み合わせとして正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!-- 展開図 -->
+                <!--
+                図表仕様:
+                - SVGサイズ: 400x310px
+                - viewBox: 0 0 400 310
+                - セルサイズ: 80x80px
+                - 余白: 上下左右30px
+
+                展開図レイアウト (十字型):
+                         [イ]
+                [ア][ウ][エ][オ]
+                         [カ]
+
+                グリッド座標 (col, row):
+                イ: (2,0), ア: (0,1), ウ: (1,1), エ: (2,1), オ: (3,1), カ: (2,2)
+
+                P: イの左上角 = (190, 30) pixel座標
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【展開図】</div>
+                    <div class="figure-content">
+                        <svg width="400" height="310" viewBox="0 0 400 310">
+                            <!-- イ: col=2, row=0 → (190,30) -->
+                            <rect x="190" y="30" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="230" y="78" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">イ</text>
+
+                            <!-- ア: col=0, row=1 → (30,110) -->
+                            <rect x="30" y="110" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="70" y="158" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">ア</text>
+
+                            <!-- ウ: col=1, row=1 → (110,110) -->
+                            <rect x="110" y="110" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="158" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">ウ</text>
+
+                            <!-- エ: col=2, row=1 → (190,110) -->
+                            <rect x="190" y="110" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="230" y="158" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">エ</text>
+
+                            <!-- オ: col=3, row=1 → (270,110) -->
+                            <rect x="270" y="110" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="310" y="158" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">オ</text>
+
+                            <!-- カ: col=2, row=2 → (190,190) -->
+                            <rect x="190" y="190" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="230" y="238" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">カ</text>
+
+                            <!-- 頂点P: イの左上角 (190, 30) -->
+                            <circle cx="190" cy="30" r="6" fill="black"/>
+                            <text x="176" y="24" class="svg-text" text-anchor="end" font-size="16" font-weight="bold">P</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　ア, オ, イ<br>
+                    (2)　ウ, エ, イ<br>
+                    (3)　ア, エ, イ<br>
+                    (4)　ア, ウ, イ<br>
+                    (5)　ア, ウ, カ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【展開図の折り畳み分析】</strong><br>
+                展開図の中心にある「エ」を正面として立方体を組み立てると、各面の配置は次のようになる。<br><br>
+
+                ・エ → 正面<br>
+                ・イ（エの上） → 上面<br>
+                ・カ（エの下） → 底面<br>
+                ・ウ（エの左） → 左側面<br>
+                ・オ（エの右） → 右側面<br>
+                ・ア（ウの左） → 背面<br><br>
+
+                <strong>【対面関係】</strong><br>
+                ・エ ↔ ア（正面 ↔ 背面）<br>
+                ・イ ↔ カ（上面 ↔ 底面）<br>
+                ・ウ ↔ オ（左側面 ↔ 右側面）<br><br>
+
+                <strong>【頂点Pの追跡】</strong><br>
+                展開図上でPはイの左上角にある。イが上面に折り畳まれるとき、イの下辺（エとの境界）が上面の手前側になり、イの上辺が上面の奥側になる。またイの左辺がウ側（左側面側）になる。<br><br>
+
+                したがって、Pはイの左上角 → 上面の奥・左の頂点 → 背面・左側面・上面が集まる頂点に対応する。<br><br>
+
+                よって、頂点Pに集まる3面は「ア（背面）、ウ（左側面）、イ（上面）」である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア, オ, イ → 背面・右側面・上面が集まる頂点（奥・右・上の角）。Pとは異なる頂点。<br>
+                ・(2) ウ, エ, イ → 左側面・正面・上面が集まる頂点（手前・左・上の角）。Pとは異なる頂点。<br>
+                ・(3) ア, エ, イ → アとエは対面関係にあり、同じ頂点に集まることは不可能。<br>
+                ・(4) ア, ウ, イ → 背面・左側面・上面が集まる頂点。Pと一致する。<strong>正解</strong>。<br>
+                ・(5) ア, ウ, カ → 背面・左側面・底面が集まる頂点（奥・左・下の角）。Pとは異なる頂点。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図は立方体の展開図であり、各面にア〜カの記号が書かれている。展開図上の4つの頂点にP, Q, R, Sの印がつけられている。この展開図を折り曲げて立方体を組み立てたとき、Pと同じ頂点に重なる印として正しいものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <!-- 展開図 -->
+                <!--
+                図表仕様:
+                - SVGサイズ: 340x420px
+                - viewBox: 0 0 340 420
+                - セルサイズ: 80x80px
+                - 余白: 上下左右30px
+
+                展開図レイアウト (T字型):
+                [ア][イ][ウ]
+                    [エ]
+                    [オ]
+                    [カ]
+
+                グリッド座標 (col, row):
+                ア: (0,0), イ: (1,0), ウ: (2,0), エ: (1,1), オ: (1,2), カ: (1,3)
+
+                P: アの左上角 = (30, 30)
+                Q: イの右上角 = ウの左上角 = (190, 30)
+                R: オの左下角 = カの左上角 = (110, 270)
+                S: カの右下角 = (190, 350)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【展開図】</div>
+                    <div class="figure-content">
+                        <svg width="340" height="420" viewBox="0 0 340 420">
+                            <!-- ア: col=0, row=0 → (30,30) -->
+                            <rect x="30" y="30" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="70" y="78" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">ア</text>
+
+                            <!-- イ: col=1, row=0 → (110,30) -->
+                            <rect x="110" y="30" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="78" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">イ</text>
+
+                            <!-- ウ: col=2, row=0 → (190,30) -->
+                            <rect x="190" y="30" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="230" y="78" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">ウ</text>
+
+                            <!-- エ: col=1, row=1 → (110,110) -->
+                            <rect x="110" y="110" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="158" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">エ</text>
+
+                            <!-- オ: col=1, row=2 → (110,190) -->
+                            <rect x="110" y="190" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="238" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">オ</text>
+
+                            <!-- カ: col=1, row=3 → (110,270) -->
+                            <rect x="110" y="270" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="318" class="svg-text" text-anchor="middle" font-size="20" font-weight="bold">カ</text>
+
+                            <!-- P: アの左上角 (30, 30) -->
+                            <circle cx="30" cy="30" r="6" fill="black"/>
+                            <text x="18" y="22" class="svg-text" text-anchor="end" font-size="16" font-weight="bold">P</text>
+
+                            <!-- Q: ウの左上角 = イの右上角 (190, 30) -->
+                            <circle cx="190" cy="30" r="6" fill="black"/>
+                            <text x="202" y="22" class="svg-text" text-anchor="start" font-size="16" font-weight="bold">Q</text>
+
+                            <!-- R: カの左上角 = オの左下角 (110, 270) -->
+                            <circle cx="110" cy="270" r="6" fill="black"/>
+                            <text x="96" y="278" class="svg-text" text-anchor="end" font-size="16" font-weight="bold">R</text>
+
+                            <!-- S: カの右下角 (190, 350) -->
+                            <circle cx="190" cy="350" r="6" fill="black"/>
+                            <text x="202" y="358" class="svg-text" text-anchor="start" font-size="16" font-weight="bold">S</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　Qのみ<br>
+                    (2)　Sのみ<br>
+                    (3)　Rのみ<br>
+                    (4)　QとR<br>
+                    (5)　RとS
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【展開図の折り畳み分析】</strong><br>
+                このT字型展開図を「エ」を正面として組み立てると、各面の配置は次のようになる。<br><br>
+
+                ・エ → 正面<br>
+                ・イ（エの上） → 上面<br>
+                ・ア（イの左） → 左側面（上面の左辺から折り下げ）<br>
+                ・ウ（イの右） → 右側面（上面の右辺から折り下げ）<br>
+                ・オ（エの下） → 底面<br>
+                ・カ（オの下） → 背面（底面の奥辺から折り上げ）<br><br>
+
+                <strong>【対面関係】</strong><br>
+                ・エ ↔ カ（正面 ↔ 背面）<br>
+                ・イ ↔ オ（上面 ↔ 底面）<br>
+                ・ア ↔ ウ（左側面 ↔ 右側面）<br><br>
+
+                <strong>【各マークの追跡】</strong><br><br>
+
+                <strong>P（アの左上角）:</strong><br>
+                アは上面（イ）の左辺から折り下げて左側面になる。アの左上角は、折り畳み後に背面・左側面・底面が集まる頂点（奥・左・下の角）に移動する。<br>
+                → 3D座標: (0, 1, 0)<br><br>
+
+                <strong>Q（イの右上角 = ウの左上角）:</strong><br>
+                イは上面。イの右上角は上面の奥・右の頂点。これは背面・右側面・上面が集まる頂点に対応する。<br>
+                → 3D座標: (1, 1, 1)<br><br>
+
+                <strong>R（オの左下角 = カの左上角）:</strong><br>
+                オは底面。オの下辺（カとの境界）が背面側になるため、オの左下角は背面・左側面・底面が集まる頂点に移動する。<br>
+                → 3D座標: (0, 1, 0) → <strong>Pと同じ頂点!</strong><br><br>
+
+                <strong>S（カの右下角）:</strong><br>
+                カは背面。カの下辺は底面から折り上げた奥側。カの右下角は背面・右側面・上面が集まる頂点に対応する。<br>
+                → 3D座標: (1, 1, 1) → Qと同じ頂点（Pとは異なる）<br><br>
+
+                <strong>【結論】</strong><br>
+                PとRは同じ頂点(0,1,0)に集まり、QとSは別の頂点(1,1,1)に集まる。<br>
+                Pと同じ頂点に重なるのは<strong>Rのみ</strong>。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
