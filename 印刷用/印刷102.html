@@ -1,0 +1,476 @@
+<!--
+================================================================================
+印刷102.html - 航大思考102 印刷用
+================================================================================
+問1: 数表の規則性（★★★★★）正解: (4) 15
+問2: 図形マトリックスの規則（★★★★★★★★）正解: (3)
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の表の数は、ある規則に従って並べられている。この規則に従うとき、?に入る数として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - HTML表で数表を表示
+                - 4行×4列 + ヘッダー行・列
+                - ?はエ行2列目
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th></th>
+                                <th style="min-width:60px;">1列</th>
+                                <th style="min-width:60px;">2列</th>
+                                <th style="min-width:60px;">3列</th>
+                                <th style="min-width:60px;">4列</th>
+                            </tr>
+                            <tr>
+                                <th>ア</th>
+                                <td>1</td>
+                                <td>3</td>
+                                <td>9</td>
+                                <td>27</td>
+                            </tr>
+                            <tr>
+                                <th>イ</th>
+                                <td>2</td>
+                                <td>7</td>
+                                <td>22</td>
+                                <td>67</td>
+                            </tr>
+                            <tr>
+                                <th>ウ</th>
+                                <td>3</td>
+                                <td>11</td>
+                                <td>35</td>
+                                <td>107</td>
+                            </tr>
+                            <tr>
+                                <th>エ</th>
+                                <td>4</td>
+                                <td style="font-weight:bold; font-size:22px; color:#333;">?</td>
+                                <td>48</td>
+                                <td>147</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　12　　　(2)　13　　　(3)　14　　　(4)　15　　　(5)　18
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br><br>
+
+                <strong>【横方向の規則】</strong><br>
+                各行は「前の数×3＋加算値」の規則に従っている。<br><br>
+
+                ・ア行（加算値0）: 1 → 1×3+0=3 → 3×3+0=9 → 9×3+0=27<br>
+                ・イ行（加算値1）: 2 → 2×3+1=7 → 7×3+1=22 → 22×3+1=67<br>
+                ・ウ行（加算値2）: 3 → 3×3+2=11 → 11×3+2=35 → 35×3+2=107<br>
+                ・エ行（加算値3）: 4 → 4×3+3=<strong>15</strong> → 15×3+3=48 → 48×3+3=147<br><br>
+
+                加算値は行ごとに0, 1, 2, 3と1ずつ増加している。<br><br>
+
+                <strong>【縦方向の規則（別解）】</strong><br>
+                各列は等差数列になっている。<br>
+                ・1列: 1, 2, 3, 4（公差1）<br>
+                ・2列: 3, 7, 11, <strong>15</strong>（公差4）<br>
+                ・3列: 9, 22, 35, 48（公差13）<br>
+                ・4列: 27, 67, 107, 147（公差40）<br><br>
+
+                列の公差(1, 4, 13, 40)自体も「×3+1」の規則に従う。<br>
+                1×3+1=4, 4×3+1=13, 13×3+1=40<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 12 → 4×3+0=12（ア行の加算値0を誤って適用）<br>
+                ・(2) 13 → 4×3+1=13（イ行の加算値1を誤って適用）<br>
+                ・(3) 14 → 4×3+2=14（ウ行の加算値2を誤って適用）<br>
+                ・(4) 15 → 4×3+3=15（正しい加算値3を適用）<br>
+                ・(5) 18 → 根拠不明<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図の3×3のマトリックスには一定の規則がある。?に入る図形として正しいものを(1)～(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 340x340px
+                - viewBox: 0 0 340 340
+                - 3×3グリッド、セルサイズ100×100、間隔8px
+                - 各セル: 形(丸/三角/四角) × 大きさ(小/中/大) × 塗り(白/灰/黒) × 印位置(上/右/下)
+
+                マトリックス:
+                (0,0): 丸・小・白・上    (0,1): 三角・大・黒・右   (0,2): 四角・中・灰・下
+                (1,0): 三角・中・黒・下  (1,1): 四角・小・灰・上   (1,2): 丸・大・白・右
+                (2,0): 四角・大・灰・右  (2,1): 丸・中・白・下     (2,2): ?
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【マトリックス】</div>
+                    <div class="figure-content">
+                        <svg width="340" height="340" viewBox="0 0 340 340">
+                            <!-- グリッド背景の枠線 -->
+                            <!-- 行0 -->
+                            <!-- セル(0,0): 丸・小・白抜き・印上 -->
+                            <rect x="5" y="5" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="55" cy="55" r="16" fill="none" stroke="black" stroke-width="2"/>
+                            <circle cx="55" cy="31" r="3.5" fill="black"/>
+
+                            <!-- セル(0,1): 三角・大・黒塗り・印右 -->
+                            <rect x="113" y="5" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="163,27 139,69 187,69" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="199" cy="55" r="3.5" fill="black"/>
+
+                            <!-- セル(0,2): 四角・中・灰色・印下 -->
+                            <rect x="221" y="5" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="252" y="36" width="38" height="38" fill="#888" stroke="black" stroke-width="2"/>
+                            <circle cx="271" cy="85" r="3.5" fill="black"/>
+
+                            <!-- 行1 -->
+                            <!-- セル(1,0): 三角・中・黒塗り・印下 -->
+                            <rect x="5" y="113" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="55,141 36,174 74,174" fill="black" stroke="black" stroke-width="2"/>
+                            <circle cx="55" cy="193" r="3.5" fill="black"/>
+
+                            <!-- セル(1,1): 四角・小・灰色・印上 -->
+                            <rect x="113" y="113" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="149" y="149" width="28" height="28" fill="#888" stroke="black" stroke-width="2"/>
+                            <circle cx="163" cy="139" r="3.5" fill="black"/>
+
+                            <!-- セル(1,2): 丸・大・白抜き・印右 -->
+                            <rect x="221" y="113" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="271" cy="163" r="28" fill="none" stroke="black" stroke-width="2"/>
+                            <circle cx="307" cy="163" r="3.5" fill="black"/>
+
+                            <!-- 行2 -->
+                            <!-- セル(2,0): 四角・大・灰色・印右 -->
+                            <rect x="5" y="221" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="31" y="247" width="48" height="48" fill="#888" stroke="black" stroke-width="2"/>
+                            <circle cx="91" cy="271" r="3.5" fill="black"/>
+
+                            <!-- セル(2,1): 丸・中・白抜き・印下 -->
+                            <rect x="113" y="221" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="163" cy="271" r="22" fill="none" stroke="black" stroke-width="2"/>
+                            <circle cx="163" cy="301" r="3.5" fill="black"/>
+
+                            <!-- セル(2,2): ? -->
+                            <rect x="221" y="221" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="271" y="280" text-anchor="middle" font-size="36" font-weight="bold" fill="#333">?</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <!--
+                選択肢SVG:
+                - 5つの図形を横並びで表示
+                - 各選択肢: 90×90px
+                - (1) 三角・大・黒・上 (大きさ違い)
+                - (2) 三角・小・黒・右 (印位置違い)
+                - (3) 三角・小・黒・上 (正解)
+                - (4) 三角・小・灰・上 (塗り違い)
+                - (5) 丸・小・黒・上 (形違い)
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="120" viewBox="0 0 600 120">
+                            <!-- 選択肢(1): 三角・大・黒塗り・印上 -->
+                            <g transform="translate(10, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="0" y="18" width="90" height="90" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="45,35 21,77 69,77" fill="black" stroke="black" stroke-width="2"/>
+                                <circle cx="45" cy="29" r="3" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(2): 三角・小・黒塗り・印右 -->
+                            <g transform="translate(125, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="0" y="18" width="90" height="90" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="45,47 31,61 59,61" fill="black" stroke="black" stroke-width="2"/>
+                                <circle cx="69" cy="54" r="3" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(3): 三角・小・黒塗り・印上 (正解) -->
+                            <g transform="translate(240, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="0" y="18" width="90" height="90" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="45,47 31,61 59,61" fill="black" stroke="black" stroke-width="2"/>
+                                <circle cx="45" cy="39" r="3" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(4): 三角・小・灰色・印上 -->
+                            <g transform="translate(355, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="0" y="18" width="90" height="90" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="45,47 31,61 59,61" fill="#888" stroke="black" stroke-width="2"/>
+                                <circle cx="45" cy="39" r="3" fill="black"/>
+                            </g>
+
+                            <!-- 選択肢(5): 丸・小・黒塗り・印上 -->
+                            <g transform="translate(470, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="0" y="18" width="90" height="90" fill="white" stroke="black" stroke-width="1.5"/>
+                                <circle cx="45" cy="54" r="16" fill="black" stroke="black" stroke-width="2"/>
+                                <circle cx="45" cy="30" r="3" fill="black"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                <strong>【4つの性質の発見】</strong><br>
+                各セルの図形には4つの独立した性質がある:<br>
+                ・<strong>形</strong>: 丸、三角、四角<br>
+                ・<strong>大きさ</strong>: 小、中、大<br>
+                ・<strong>塗りつぶし</strong>: 白抜き、灰色、黒塗り<br>
+                ・<strong>印(小さい点)の位置</strong>: 上、右、下<br><br>
+
+                <strong>【ラテン方陣の規則】</strong><br>
+                各行・各列において、4つの性質がそれぞれ3種類全て揃う。<br><br>
+
+                第3行の既知セル:<br>
+                ・左: 四角・大・灰色・右<br>
+                ・中: 丸・中・白抜き・下<br><br>
+
+                ?に必要な性質（各行で不足しているもの）:<br>
+                ・形: 三角（丸と四角以外）<br>
+                ・大きさ: 小（中と大以外）<br>
+                ・塗り: 黒塗り（白抜きと灰色以外）<br>
+                ・印: 上（右と下以外）<br><br>
+
+                第3列でも同様に確認:<br>
+                ・上: 四角・中・灰色・下<br>
+                ・中: 丸・大・白抜き・右<br>
+                → 不足: 三角・小・黒塗り・上 → 一致 ✓<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 三角・大・黒・上 → 大きさが「大」で不正解（正しくは「小」）<br>
+                ・(2) 三角・小・黒・右 → 印位置が「右」で不正解（正しくは「上」）<br>
+                ・(3) 三角・小・黒・上 → 全4性質が正しい<br>
+                ・(4) 三角・小・灰・上 → 塗りが「灰色」で不正解（正しくは「黒」）<br>
+                ・(5) 丸・小・黒・上 → 形が「丸」で不正解（正しくは「三角」）<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
