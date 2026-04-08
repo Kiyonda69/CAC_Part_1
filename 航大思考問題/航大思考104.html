@@ -1,0 +1,710 @@
+<!--
+================================================================================
+航大思考104.html - 箱ひげ図の読解問題セット（2問は無関連）
+================================================================================
+問1: 4市立図書館の貸出冊数の箱ひげ図から正しい記述を選ぶ（標準）
+問2: マラソン年代別完走タイムの箱ひげ図から正しい記述の組合せを選ぶ（高難度）
+
+※2問は内容上まったく関連がない（図書館の貸出統計とマラソン完走時間）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                ある市の中央図書館区では、A館・B館・C館・D館という4つの市立図書館を運営している。市の生涯学習推進室では、各館の利用状況を比較するため、ある同じ平日30日間にわたり、各館における1日あたりの一般書籍の貸出冊数を記録した。下の【図1】は、その30日分のデータを各館ごとに箱ひげ図にまとめたものである。なお、この期間中、4館とも休館日はなかったものとする。<br>
+                次の(1)〜(5)の記述のうち、この箱ひげ図から読み取れる内容として正しいものを1つ選びなさい。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 520x340px
+            - viewBox: 0 0 520 340
+            - Y軸: 貸出冊数（冊）0〜125（25刻み）
+            - X軸: A館、B館、C館、D館
+
+            データ:
+            A館: Min=20, Q1=35, Med=50, Q3=65, Max=90
+            B館: Min=15, Q1=30, Med=55, Q3=80, Max=110
+            C館: Min=25, Q1=45, Med=60, Q3=75, Max=100
+            D館: Min=10, Q1=25, Med=40, Q3=60, Max=85
+
+            座標系:
+            - プロットエリア: x=80〜480, y=30〜280
+            - yPos(value) = 280 - value * 2
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】4つの市立図書館における1日あたりの貸出冊数</div>
+                <div class="figure-content">
+                    <svg width="520" height="340" viewBox="0 0 520 340">
+                        <!-- Y軸 -->
+                        <line x1="80" y1="30" x2="80" y2="280" stroke="black" stroke-width="1.5"/>
+                        <!-- X軸 -->
+                        <line x1="80" y1="280" x2="480" y2="280" stroke="black" stroke-width="1.5"/>
+
+                        <!-- Y軸ラベル -->
+                        <text x="70" y="284" class="svg-text" text-anchor="end">0</text>
+                        <line x1="78" y1="280" x2="82" y2="280" stroke="black" stroke-width="1"/>
+                        <text x="70" y="234" class="svg-text" text-anchor="end">25</text>
+                        <line x1="78" y1="230" x2="82" y2="230" stroke="black" stroke-width="1"/>
+                        <text x="70" y="184" class="svg-text" text-anchor="end">50</text>
+                        <line x1="78" y1="180" x2="82" y2="180" stroke="black" stroke-width="1"/>
+                        <text x="70" y="134" class="svg-text" text-anchor="end">75</text>
+                        <line x1="78" y1="130" x2="82" y2="130" stroke="black" stroke-width="1"/>
+                        <text x="70" y="84" class="svg-text" text-anchor="end">100</text>
+                        <line x1="78" y1="80" x2="82" y2="80" stroke="black" stroke-width="1"/>
+                        <text x="70" y="34" class="svg-text" text-anchor="end">125</text>
+                        <line x1="78" y1="30" x2="82" y2="30" stroke="black" stroke-width="1"/>
+
+                        <!-- Y軸単位 -->
+                        <text x="35" y="155" class="svg-text" text-anchor="middle" transform="rotate(-90,35,155)">貸出冊数（冊）</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="80" y1="230" x2="480" y2="230" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="180" x2="480" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="130" x2="480" y2="130" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="80" x2="480" y2="80" stroke="#ddd" stroke-width="0.5"/>
+
+                        <!-- A館 (center=160, box 135-185) -->
+                        <line x1="160" y1="240" x2="160" y2="210" stroke="black" stroke-width="1.5"/>
+                        <line x1="145" y1="240" x2="175" y2="240" stroke="black" stroke-width="1.5"/>
+                        <rect x="135" y="150" width="50" height="60" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="135" y1="180" x2="185" y2="180" stroke="black" stroke-width="2.5"/>
+                        <line x1="160" y1="150" x2="160" y2="100" stroke="black" stroke-width="1.5"/>
+                        <line x1="145" y1="100" x2="175" y2="100" stroke="black" stroke-width="1.5"/>
+                        <text x="160" y="305" class="svg-text" text-anchor="middle">A館</text>
+
+                        <!-- B館 (center=250, box 225-275) -->
+                        <line x1="250" y1="250" x2="250" y2="220" stroke="black" stroke-width="1.5"/>
+                        <line x1="235" y1="250" x2="265" y2="250" stroke="black" stroke-width="1.5"/>
+                        <rect x="225" y="120" width="50" height="100" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="225" y1="170" x2="275" y2="170" stroke="black" stroke-width="2.5"/>
+                        <line x1="250" y1="120" x2="250" y2="60" stroke="black" stroke-width="1.5"/>
+                        <line x1="235" y1="60" x2="265" y2="60" stroke="black" stroke-width="1.5"/>
+                        <text x="250" y="305" class="svg-text" text-anchor="middle">B館</text>
+
+                        <!-- C館 (center=340, box 315-365) -->
+                        <line x1="340" y1="230" x2="340" y2="190" stroke="black" stroke-width="1.5"/>
+                        <line x1="325" y1="230" x2="355" y2="230" stroke="black" stroke-width="1.5"/>
+                        <rect x="315" y="130" width="50" height="60" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="315" y1="160" x2="365" y2="160" stroke="black" stroke-width="2.5"/>
+                        <line x1="340" y1="130" x2="340" y2="80" stroke="black" stroke-width="1.5"/>
+                        <line x1="325" y1="80" x2="355" y2="80" stroke="black" stroke-width="1.5"/>
+                        <text x="340" y="305" class="svg-text" text-anchor="middle">C館</text>
+
+                        <!-- D館 (center=430, box 405-455) -->
+                        <line x1="430" y1="260" x2="430" y2="230" stroke="black" stroke-width="1.5"/>
+                        <line x1="415" y1="260" x2="445" y2="260" stroke="black" stroke-width="1.5"/>
+                        <rect x="405" y="160" width="50" height="70" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="405" y1="200" x2="455" y2="200" stroke="black" stroke-width="2.5"/>
+                        <line x1="430" y1="160" x2="430" y2="110" stroke="black" stroke-width="1.5"/>
+                        <line x1="415" y1="110" x2="445" y2="110" stroke="black" stroke-width="1.5"/>
+                        <text x="430" y="305" class="svg-text" text-anchor="middle">D館</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>4つの図書館の中で、貸出冊数の四分位範囲が最も大きいのはC館である
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>D館の貸出冊数は、調査期間中、すべての日において60冊以下であった
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>B館の貸出冊数の範囲（最大値と最小値の差）は、A館の貸出冊数の範囲よりちょうど25冊大きい
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>A館の第3四分位数とC館の第1四分位数は等しい
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>4つの図書館の中で、中央値が最も大きいのはB館である
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各館のデータを箱ひげ図から読み取る。</p>
+                    <br>
+                    <p><strong>【各館の統計量】</strong></p>
+                    <p>・A館: 最小値=20, Q1=35, 中央値=50, Q3=65, 最大値=90</p>
+                    <p>・B館: 最小値=15, Q1=30, 中央値=55, Q3=80, 最大値=110</p>
+                    <p>・C館: 最小値=25, Q1=45, 中央値=60, Q3=75, 最大値=100</p>
+                    <p>・D館: 最小値=10, Q1=25, 中央値=40, Q3=60, 最大値=85</p>
+                    <br>
+                    <p><strong>【四分位範囲（IQR = Q3 − Q1）】</strong></p>
+                    <p>・A館: 65 − 35 = 30 ／ B館: 80 − 30 = 50</p>
+                    <p>・C館: 75 − 45 = 30 ／ D館: 60 − 25 = 35</p>
+                    <br>
+                    <p><strong>【範囲（最大値 − 最小値）】</strong></p>
+                    <p>・A館: 90 − 20 = 70 ／ B館: 110 − 15 = 95</p>
+                    <p>・C館: 100 − 25 = 75 ／ D館: 85 − 10 = 75</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) IQRが最大なのはB館(50)であり、C館(30)ではない → <strong>誤り</strong></p>
+                    <p>・(2) D館の最大値は85冊。60冊を超える日も存在する → <strong>誤り</strong></p>
+                    <p>・(3) B館の範囲(95) − A館の範囲(70) = 25 → <strong>正しい</strong></p>
+                    <p>・(4) A館のQ3=65、C館のQ1=45。等しくない → <strong>誤り</strong></p>
+                    <p>・(5) 中央値が最大なのはC館(60)であり、B館(55)ではない → <strong>誤り</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある県の陸上競技協会では、毎年フルマラソン大会を開催している。今年の大会では、参加した一般ランナーを年代別（20代・30代・40代・50代・60代以上）の5つのグループに分け、各ランナーの完走タイム（分単位）を記録した。下の【図2】は、各年代のグループにおける完走タイムの分布を箱ひげ図にまとめたものである。なお、各年代の参加人数はいずれも同数であり、棄権者はいなかったものとする。<br>
+                次のア〜エの記述について、その正誤を考え、正しいものの組み合わせとして最も適切なものを下の(1)〜(5)から1つ選びなさい。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 540x400px
+            - viewBox: 0 0 540 400
+            - Y軸: 完走タイム（分）150〜450（50刻み）
+            - X軸: 20代、30代、40代、50代、60代以上
+
+            データ:
+            20代: Min=180, Q1=210, Med=240, Q3=275, Max=320
+            30代: Min=190, Q1=220, Med=255, Q3=290, Max=340
+            40代: Min=200, Q1=235, Med=270, Q3=310, Max=360
+            50代: Min=215, Q1=250, Med=290, Q3=330, Max=380
+            60代: Min=240, Q1=275, Med=320, Q3=360, Max=420
+
+            座標系:
+            - プロットエリア: x=80〜500, y=40〜340
+            - yPos(value) = 490 - value
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】年代別フルマラソン完走タイム</div>
+                <div class="figure-content">
+                    <svg width="540" height="400" viewBox="0 0 540 400">
+                        <!-- Y軸 -->
+                        <line x1="80" y1="40" x2="80" y2="340" stroke="black" stroke-width="1.5"/>
+                        <!-- X軸 -->
+                        <line x1="80" y1="340" x2="500" y2="340" stroke="black" stroke-width="1.5"/>
+
+                        <!-- Y軸ラベル（150〜450、50刻み） -->
+                        <text x="70" y="344" class="svg-text" text-anchor="end">150</text>
+                        <line x1="78" y1="340" x2="82" y2="340" stroke="black" stroke-width="1"/>
+                        <text x="70" y="294" class="svg-text" text-anchor="end">200</text>
+                        <line x1="78" y1="290" x2="82" y2="290" stroke="black" stroke-width="1"/>
+                        <text x="70" y="244" class="svg-text" text-anchor="end">250</text>
+                        <line x1="78" y1="240" x2="82" y2="240" stroke="black" stroke-width="1"/>
+                        <text x="70" y="194" class="svg-text" text-anchor="end">300</text>
+                        <line x1="78" y1="190" x2="82" y2="190" stroke="black" stroke-width="1"/>
+                        <text x="70" y="144" class="svg-text" text-anchor="end">350</text>
+                        <line x1="78" y1="140" x2="82" y2="140" stroke="black" stroke-width="1"/>
+                        <text x="70" y="94" class="svg-text" text-anchor="end">400</text>
+                        <line x1="78" y1="90" x2="82" y2="90" stroke="black" stroke-width="1"/>
+                        <text x="70" y="44" class="svg-text" text-anchor="end">450</text>
+                        <line x1="78" y1="40" x2="82" y2="40" stroke="black" stroke-width="1"/>
+
+                        <!-- Y軸単位 -->
+                        <text x="30" y="190" class="svg-text" text-anchor="middle" transform="rotate(-90,30,190)">完走タイム（分）</text>
+
+                        <!-- グリッド線 -->
+                        <line x1="80" y1="290" x2="500" y2="290" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="240" x2="500" y2="240" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="190" x2="500" y2="190" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="140" x2="500" y2="140" stroke="#ddd" stroke-width="0.5"/>
+                        <line x1="80" y1="90" x2="500" y2="90" stroke="#ddd" stroke-width="0.5"/>
+
+                        <!-- 20代 (center=140, box 115-165) -->
+                        <line x1="140" y1="310" x2="140" y2="280" stroke="black" stroke-width="1.5"/>
+                        <line x1="125" y1="310" x2="155" y2="310" stroke="black" stroke-width="1.5"/>
+                        <rect x="115" y="215" width="50" height="65" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="115" y1="250" x2="165" y2="250" stroke="black" stroke-width="2.5"/>
+                        <line x1="140" y1="215" x2="140" y2="170" stroke="black" stroke-width="1.5"/>
+                        <line x1="125" y1="170" x2="155" y2="170" stroke="black" stroke-width="1.5"/>
+                        <text x="140" y="365" class="svg-text" text-anchor="middle">20代</text>
+
+                        <!-- 30代 (center=215, box 190-240) -->
+                        <line x1="215" y1="300" x2="215" y2="270" stroke="black" stroke-width="1.5"/>
+                        <line x1="200" y1="300" x2="230" y2="300" stroke="black" stroke-width="1.5"/>
+                        <rect x="190" y="200" width="50" height="70" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="190" y1="235" x2="240" y2="235" stroke="black" stroke-width="2.5"/>
+                        <line x1="215" y1="200" x2="215" y2="150" stroke="black" stroke-width="1.5"/>
+                        <line x1="200" y1="150" x2="230" y2="150" stroke="black" stroke-width="1.5"/>
+                        <text x="215" y="365" class="svg-text" text-anchor="middle">30代</text>
+
+                        <!-- 40代 (center=290, box 265-315) -->
+                        <line x1="290" y1="290" x2="290" y2="255" stroke="black" stroke-width="1.5"/>
+                        <line x1="275" y1="290" x2="305" y2="290" stroke="black" stroke-width="1.5"/>
+                        <rect x="265" y="180" width="50" height="75" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="265" y1="220" x2="315" y2="220" stroke="black" stroke-width="2.5"/>
+                        <line x1="290" y1="180" x2="290" y2="130" stroke="black" stroke-width="1.5"/>
+                        <line x1="275" y1="130" x2="305" y2="130" stroke="black" stroke-width="1.5"/>
+                        <text x="290" y="365" class="svg-text" text-anchor="middle">40代</text>
+
+                        <!-- 50代 (center=365, box 340-390) -->
+                        <line x1="365" y1="275" x2="365" y2="240" stroke="black" stroke-width="1.5"/>
+                        <line x1="350" y1="275" x2="380" y2="275" stroke="black" stroke-width="1.5"/>
+                        <rect x="340" y="160" width="50" height="80" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="340" y1="200" x2="390" y2="200" stroke="black" stroke-width="2.5"/>
+                        <line x1="365" y1="160" x2="365" y2="110" stroke="black" stroke-width="1.5"/>
+                        <line x1="350" y1="110" x2="380" y2="110" stroke="black" stroke-width="1.5"/>
+                        <text x="365" y="365" class="svg-text" text-anchor="middle">50代</text>
+
+                        <!-- 60代以上 (center=440, box 415-465) -->
+                        <line x1="440" y1="250" x2="440" y2="215" stroke="black" stroke-width="1.5"/>
+                        <line x1="425" y1="250" x2="455" y2="250" stroke="black" stroke-width="1.5"/>
+                        <rect x="415" y="130" width="50" height="85" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="415" y1="170" x2="465" y2="170" stroke="black" stroke-width="2.5"/>
+                        <line x1="440" y1="130" x2="440" y2="70" stroke="black" stroke-width="1.5"/>
+                        <line x1="425" y1="70" x2="455" y2="70" stroke="black" stroke-width="1.5"/>
+                        <text x="440" y="365" class="svg-text" text-anchor="middle">60代以上</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="question-text">
+                ア．完走タイムの中央値は、20代から60代以上まで年代が上がるにつれて単調に増加している。<br>
+                イ．60代以上の第1四分位数は、20代の最大値より小さい。<br>
+                ウ．50代の四分位範囲は、20代の四分位範囲の1.5倍以上である。<br>
+                エ．30代の中央値と40代の中央値の差は、40代の中央値と50代の中央値の差より大きい。
+            </div>
+
+            <!-- テキスト選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>ア、イ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>ア、ウ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>イ、エ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>ウ、エ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>ア、エ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>各年代の完走タイムを箱ひげ図から読み取る。</p>
+                    <br>
+                    <p><strong>【各年代の統計量（単位：分）】</strong></p>
+                    <p>・20代: 最小値=180, Q1=210, 中央値=240, Q3=275, 最大値=320</p>
+                    <p>・30代: 最小値=190, Q1=220, 中央値=255, Q3=290, 最大値=340</p>
+                    <p>・40代: 最小値=200, Q1=235, 中央値=270, Q3=310, 最大値=360</p>
+                    <p>・50代: 最小値=215, Q1=250, 中央値=290, Q3=330, 最大値=380</p>
+                    <p>・60代以上: 最小値=240, Q1=275, 中央値=320, Q3=360, 最大値=420</p>
+                    <br>
+                    <p><strong>【四分位範囲（IQR）】</strong></p>
+                    <p>・20代: 65 ／ 30代: 70 ／ 40代: 75 ／ 50代: 80 ／ 60代以上: 85</p>
+                    <br>
+                    <p><strong>【記述の検討】</strong></p>
+                    <p>・ア: 中央値の系列は 240 &lt; 255 &lt; 270 &lt; 290 &lt; 320 と単調増加 → <strong>正しい</strong></p>
+                    <p>・イ: 60代以上のQ1=275、20代の最大値=320。275 &lt; 320 → <strong>正しい</strong></p>
+                    <p>・ウ: 50代のIQR=80、20代のIQR=65。80 ÷ 65 ≒ 1.23倍であり、1.5倍未満 → <strong>誤り</strong></p>
+                    <p>・エ: |255 − 270| = 15、|270 − 290| = 20。15 &lt; 20 なので、30代と40代の差の方が小さい → <strong>誤り</strong></p>
+                    <br>
+                    <p>正しい記述は <strong>ア</strong> と <strong>イ</strong> である。</p>
+                    <p>したがって、正解は<strong>(1) ア、イ</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考104/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!--
+================================================================================
+印刷104.html - 箱ひげ図の読解問題セット（2問は無関連）
+================================================================================
+問1: 4市立図書館の貸出冊数の箱ひげ図から正しい記述を選ぶ（標準）
+問2: マラソン年代別完走タイムの箱ひげ図から正しい記述の組合せを選ぶ（高難度）
+
+※2問は内容上まったく関連がない（図書館の貸出統計とマラソン完走時間）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある市の中央図書館区では、A館・B館・C館・D館という4つの市立図書館を運営している。市の生涯学習推進室では、各館の利用状況を比較するため、ある同じ平日30日間にわたり、各館における1日あたりの一般書籍の貸出冊数を記録した。下の【図1】は、その30日分のデータを各館ごとに箱ひげ図にまとめたものである。なお、この期間中、4館とも休館日はなかったものとする。次の(1)〜(5)の記述のうち、この箱ひげ図から読み取れる内容として正しいものを1つ選びなさい。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 520x340px
+                - viewBox: 0 0 520 340
+                - Y軸: 貸出冊数（冊）0〜125（25刻み）
+                - X軸: A館、B館、C館、D館
+
+                データ:
+                A館: Min=20, Q1=35, Med=50, Q3=65, Max=90
+                B館: Min=15, Q1=30, Med=55, Q3=80, Max=110
+                C館: Min=25, Q1=45, Med=60, Q3=75, Max=100
+                D館: Min=10, Q1=25, Med=40, Q3=60, Max=85
+
+                座標系:
+                - プロットエリア: x=80〜480, y=30〜280
+                - yPos(value) = 280 - value * 2  (Y range 0-125, 250px)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】4つの市立図書館における1日あたりの貸出冊数</div>
+                    <div class="figure-content">
+                        <svg width="520" height="340" viewBox="0 0 520 340">
+                            <!-- Y軸 -->
+                            <line x1="80" y1="30" x2="80" y2="280" stroke="black" stroke-width="1.5"/>
+                            <!-- X軸 -->
+                            <line x1="80" y1="280" x2="480" y2="280" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Y軸ラベル -->
+                            <text x="70" y="284" class="svg-text" text-anchor="end">0</text>
+                            <line x1="78" y1="280" x2="82" y2="280" stroke="black" stroke-width="1"/>
+                            <text x="70" y="234" class="svg-text" text-anchor="end">25</text>
+                            <line x1="78" y1="230" x2="82" y2="230" stroke="black" stroke-width="1"/>
+                            <text x="70" y="184" class="svg-text" text-anchor="end">50</text>
+                            <line x1="78" y1="180" x2="82" y2="180" stroke="black" stroke-width="1"/>
+                            <text x="70" y="134" class="svg-text" text-anchor="end">75</text>
+                            <line x1="78" y1="130" x2="82" y2="130" stroke="black" stroke-width="1"/>
+                            <text x="70" y="84" class="svg-text" text-anchor="end">100</text>
+                            <line x1="78" y1="80" x2="82" y2="80" stroke="black" stroke-width="1"/>
+                            <text x="70" y="34" class="svg-text" text-anchor="end">125</text>
+                            <line x1="78" y1="30" x2="82" y2="30" stroke="black" stroke-width="1"/>
+
+                            <!-- Y軸単位 -->
+                            <text x="35" y="155" class="svg-text" text-anchor="middle" transform="rotate(-90,35,155)">貸出冊数（冊）</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="80" y1="230" x2="480" y2="230" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="180" x2="480" y2="180" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="130" x2="480" y2="130" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="80" x2="480" y2="80" stroke="#ddd" stroke-width="0.5"/>
+
+                            <!-- A館 (center=160, box 135-185) -->
+                            <!-- Min=20→y=240, Q1=35→y=210, Med=50→y=180, Q3=65→y=150, Max=90→y=100 -->
+                            <line x1="160" y1="240" x2="160" y2="210" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="240" x2="175" y2="240" stroke="black" stroke-width="1.5"/>
+                            <rect x="135" y="150" width="50" height="60" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="135" y1="180" x2="185" y2="180" stroke="black" stroke-width="2.5"/>
+                            <line x1="160" y1="150" x2="160" y2="100" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="100" x2="175" y2="100" stroke="black" stroke-width="1.5"/>
+                            <text x="160" y="305" class="svg-text" text-anchor="middle">A館</text>
+
+                            <!-- B館 (center=250, box 225-275) -->
+                            <!-- Min=15→y=250, Q1=30→y=220, Med=55→y=170, Q3=80→y=120, Max=110→y=60 -->
+                            <line x1="250" y1="250" x2="250" y2="220" stroke="black" stroke-width="1.5"/>
+                            <line x1="235" y1="250" x2="265" y2="250" stroke="black" stroke-width="1.5"/>
+                            <rect x="225" y="120" width="50" height="100" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="225" y1="170" x2="275" y2="170" stroke="black" stroke-width="2.5"/>
+                            <line x1="250" y1="120" x2="250" y2="60" stroke="black" stroke-width="1.5"/>
+                            <line x1="235" y1="60" x2="265" y2="60" stroke="black" stroke-width="1.5"/>
+                            <text x="250" y="305" class="svg-text" text-anchor="middle">B館</text>
+
+                            <!-- C館 (center=340, box 315-365) -->
+                            <!-- Min=25→y=230, Q1=45→y=190, Med=60→y=160, Q3=75→y=130, Max=100→y=80 -->
+                            <line x1="340" y1="230" x2="340" y2="190" stroke="black" stroke-width="1.5"/>
+                            <line x1="325" y1="230" x2="355" y2="230" stroke="black" stroke-width="1.5"/>
+                            <rect x="315" y="130" width="50" height="60" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="315" y1="160" x2="365" y2="160" stroke="black" stroke-width="2.5"/>
+                            <line x1="340" y1="130" x2="340" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="325" y1="80" x2="355" y2="80" stroke="black" stroke-width="1.5"/>
+                            <text x="340" y="305" class="svg-text" text-anchor="middle">C館</text>
+
+                            <!-- D館 (center=430, box 405-455) -->
+                            <!-- Min=10→y=260, Q1=25→y=230, Med=40→y=200, Q3=60→y=160, Max=85→y=110 -->
+                            <line x1="430" y1="260" x2="430" y2="230" stroke="black" stroke-width="1.5"/>
+                            <line x1="415" y1="260" x2="445" y2="260" stroke="black" stroke-width="1.5"/>
+                            <rect x="405" y="160" width="50" height="70" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="405" y1="200" x2="455" y2="200" stroke="black" stroke-width="2.5"/>
+                            <line x1="430" y1="160" x2="430" y2="110" stroke="black" stroke-width="1.5"/>
+                            <line x1="415" y1="110" x2="445" y2="110" stroke="black" stroke-width="1.5"/>
+                            <text x="430" y="305" class="svg-text" text-anchor="middle">D館</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1) 4つの図書館の中で、貸出冊数の四分位範囲が最も大きいのはC館である<br>
+                    (2) D館の貸出冊数は、調査期間中、すべての日において60冊以下であった<br>
+                    (3) B館の貸出冊数の範囲（最大値と最小値の差）は、A館の貸出冊数の範囲よりちょうど25冊大きい<br>
+                    (4) A館の第3四分位数とC館の第1四分位数は等しい<br>
+                    (5) 4つの図書館の中で、中央値が最も大きいのはB館である
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                各館のデータを箱ひげ図から読み取る。<br><br>
+
+                <strong>【各館の統計量】</strong><br>
+                ・A館: 最小値=20, Q1=35, 中央値=50, Q3=65, 最大値=90<br>
+                ・B館: 最小値=15, Q1=30, 中央値=55, Q3=80, 最大値=110<br>
+                ・C館: 最小値=25, Q1=45, 中央値=60, Q3=75, 最大値=100<br>
+                ・D館: 最小値=10, Q1=25, 中央値=40, Q3=60, 最大値=85<br><br>
+
+                <strong>【四分位範囲（IQR = Q3 − Q1）】</strong><br>
+                ・A館: 65 − 35 = 30<br>
+                ・B館: 80 − 30 = 50<br>
+                ・C館: 75 − 45 = 30<br>
+                ・D館: 60 − 25 = 35<br><br>
+
+                <strong>【範囲（最大値 − 最小値）】</strong><br>
+                ・A館: 90 − 20 = 70<br>
+                ・B館: 110 − 15 = 95<br>
+                ・C館: 100 − 25 = 75<br>
+                ・D館: 85 − 10 = 75<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 四分位範囲が最も大きいのはB館(50)であり、C館(30)ではない → <strong>誤り</strong><br>
+                ・(2) D館の最大値は85冊なので、60冊を超える日も存在する → <strong>誤り</strong><br>
+                ・(3) B館の範囲(95) − A館の範囲(70) = 25 → <strong>正しい</strong><br>
+                ・(4) A館のQ3=65、C館のQ1=45。等しくない → <strong>誤り</strong><br>
+                ・(5) 中央値が最も大きいのはC館(60)であり、B館(55)ではない → <strong>誤り</strong><br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある県の陸上競技協会では、毎年フルマラソン大会を開催している。今年の大会では、参加した一般ランナーを年代別（20代・30代・40代・50代・60代以上）の5つのグループに分け、各ランナーの完走タイム（分単位）を記録した。下の【図2】は、各年代のグループにおける完走タイムの分布を箱ひげ図にまとめたものである。なお、各年代の参加人数はいずれも同数であり、棄権者はいなかったものとする。次のア〜エの記述について、その正誤を考え、正しいものの組み合わせとして最も適切なものを下の(1)〜(5)から1つ選びなさい。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 540x400px
+                - viewBox: 0 0 540 400
+                - Y軸: 完走タイム（分）150〜450（50刻み）
+                - X軸: 20代、30代、40代、50代、60代以上
+
+                データ:
+                20代: Min=180, Q1=210, Med=240, Q3=275, Max=320
+                30代: Min=190, Q1=220, Med=255, Q3=290, Max=340
+                40代: Min=200, Q1=235, Med=270, Q3=310, Max=360
+                50代: Min=215, Q1=250, Med=290, Q3=330, Max=380
+                60代: Min=240, Q1=275, Med=320, Q3=360, Max=420
+
+                座標系:
+                - プロットエリア: x=80〜500, y=40〜340
+                - yPos(value) = 490 - value  (Y range 150-450, 1px=1分)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】年代別フルマラソン完走タイム</div>
+                    <div class="figure-content">
+                        <svg width="540" height="400" viewBox="0 0 540 400">
+                            <!-- Y軸 -->
+                            <line x1="80" y1="40" x2="80" y2="340" stroke="black" stroke-width="1.5"/>
+                            <!-- X軸 -->
+                            <line x1="80" y1="340" x2="500" y2="340" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Y軸ラベル（150〜450、50刻み） -->
+                            <text x="70" y="344" class="svg-text" text-anchor="end">150</text>
+                            <line x1="78" y1="340" x2="82" y2="340" stroke="black" stroke-width="1"/>
+                            <text x="70" y="294" class="svg-text" text-anchor="end">200</text>
+                            <line x1="78" y1="290" x2="82" y2="290" stroke="black" stroke-width="1"/>
+                            <text x="70" y="244" class="svg-text" text-anchor="end">250</text>
+                            <line x1="78" y1="240" x2="82" y2="240" stroke="black" stroke-width="1"/>
+                            <text x="70" y="194" class="svg-text" text-anchor="end">300</text>
+                            <line x1="78" y1="190" x2="82" y2="190" stroke="black" stroke-width="1"/>
+                            <text x="70" y="144" class="svg-text" text-anchor="end">350</text>
+                            <line x1="78" y1="140" x2="82" y2="140" stroke="black" stroke-width="1"/>
+                            <text x="70" y="94" class="svg-text" text-anchor="end">400</text>
+                            <line x1="78" y1="90" x2="82" y2="90" stroke="black" stroke-width="1"/>
+                            <text x="70" y="44" class="svg-text" text-anchor="end">450</text>
+                            <line x1="78" y1="40" x2="82" y2="40" stroke="black" stroke-width="1"/>
+
+                            <!-- Y軸単位 -->
+                            <text x="30" y="190" class="svg-text" text-anchor="middle" transform="rotate(-90,30,190)">完走タイム（分）</text>
+
+                            <!-- グリッド線 -->
+                            <line x1="80" y1="290" x2="500" y2="290" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="240" x2="500" y2="240" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="190" x2="500" y2="190" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="140" x2="500" y2="140" stroke="#ddd" stroke-width="0.5"/>
+                            <line x1="80" y1="90" x2="500" y2="90" stroke="#ddd" stroke-width="0.5"/>
+
+                            <!-- 20代 (center=140, box 115-165) -->
+                            <!-- Min=180→y=310, Q1=210→y=280, Med=240→y=250, Q3=275→y=215, Max=320→y=170 -->
+                            <line x1="140" y1="310" x2="140" y2="280" stroke="black" stroke-width="1.5"/>
+                            <line x1="125" y1="310" x2="155" y2="310" stroke="black" stroke-width="1.5"/>
+                            <rect x="115" y="215" width="50" height="65" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="115" y1="250" x2="165" y2="250" stroke="black" stroke-width="2.5"/>
+                            <line x1="140" y1="215" x2="140" y2="170" stroke="black" stroke-width="1.5"/>
+                            <line x1="125" y1="170" x2="155" y2="170" stroke="black" stroke-width="1.5"/>
+                            <text x="140" y="365" class="svg-text" text-anchor="middle">20代</text>
+
+                            <!-- 30代 (center=215, box 190-240) -->
+                            <!-- Min=190→y=300, Q1=220→y=270, Med=255→y=235, Q3=290→y=200, Max=340→y=150 -->
+                            <line x1="215" y1="300" x2="215" y2="270" stroke="black" stroke-width="1.5"/>
+                            <line x1="200" y1="300" x2="230" y2="300" stroke="black" stroke-width="1.5"/>
+                            <rect x="190" y="200" width="50" height="70" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="190" y1="235" x2="240" y2="235" stroke="black" stroke-width="2.5"/>
+                            <line x1="215" y1="200" x2="215" y2="150" stroke="black" stroke-width="1.5"/>
+                            <line x1="200" y1="150" x2="230" y2="150" stroke="black" stroke-width="1.5"/>
+                            <text x="215" y="365" class="svg-text" text-anchor="middle">30代</text>
+
+                            <!-- 40代 (center=290, box 265-315) -->
+                            <!-- Min=200→y=290, Q1=235→y=255, Med=270→y=220, Q3=310→y=180, Max=360→y=130 -->
+                            <line x1="290" y1="290" x2="290" y2="255" stroke="black" stroke-width="1.5"/>
+                            <line x1="275" y1="290" x2="305" y2="290" stroke="black" stroke-width="1.5"/>
+                            <rect x="265" y="180" width="50" height="75" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="265" y1="220" x2="315" y2="220" stroke="black" stroke-width="2.5"/>
+                            <line x1="290" y1="180" x2="290" y2="130" stroke="black" stroke-width="1.5"/>
+                            <line x1="275" y1="130" x2="305" y2="130" stroke="black" stroke-width="1.5"/>
+                            <text x="290" y="365" class="svg-text" text-anchor="middle">40代</text>
+
+                            <!-- 50代 (center=365, box 340-390) -->
+                            <!-- Min=215→y=275, Q1=250→y=240, Med=290→y=200, Q3=330→y=160, Max=380→y=110 -->
+                            <line x1="365" y1="275" x2="365" y2="240" stroke="black" stroke-width="1.5"/>
+                            <line x1="350" y1="275" x2="380" y2="275" stroke="black" stroke-width="1.5"/>
+                            <rect x="340" y="160" width="50" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="340" y1="200" x2="390" y2="200" stroke="black" stroke-width="2.5"/>
+                            <line x1="365" y1="160" x2="365" y2="110" stroke="black" stroke-width="1.5"/>
+                            <line x1="350" y1="110" x2="380" y2="110" stroke="black" stroke-width="1.5"/>
+                            <text x="365" y="365" class="svg-text" text-anchor="middle">50代</text>
+
+                            <!-- 60代以上 (center=440, box 415-465) -->
+                            <!-- Min=240→y=250, Q1=275→y=215, Med=320→y=170, Q3=360→y=130, Max=420→y=70 -->
+                            <line x1="440" y1="250" x2="440" y2="215" stroke="black" stroke-width="1.5"/>
+                            <line x1="425" y1="250" x2="455" y2="250" stroke="black" stroke-width="1.5"/>
+                            <rect x="415" y="130" width="50" height="85" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="415" y1="170" x2="465" y2="170" stroke="black" stroke-width="2.5"/>
+                            <line x1="440" y1="130" x2="440" y2="70" stroke="black" stroke-width="1.5"/>
+                            <line x1="425" y1="70" x2="455" y2="70" stroke="black" stroke-width="1.5"/>
+                            <text x="440" y="365" class="svg-text" text-anchor="middle">60代以上</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="question-text">
+                    ア．完走タイムの中央値は、20代から60代以上まで年代が上がるにつれて単調に増加している。<br>
+                    イ．60代以上の第1四分位数は、20代の最大値より小さい。<br>
+                    ウ．50代の四分位範囲は、20代の四分位範囲の1.5倍以上である。<br>
+                    エ．30代の中央値と40代の中央値の差は、40代の中央値と50代の中央値の差より大きい。
+                </div>
+
+                <div class="options">
+                    (1) ア、イ<br>
+                    (2) ア、ウ<br>
+                    (3) イ、エ<br>
+                    (4) ウ、エ<br>
+                    (5) ア、エ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                各年代の完走タイムを箱ひげ図から読み取る。<br><br>
+
+                <strong>【各年代の統計量（単位：分）】</strong><br>
+                ・20代: 最小値=180, Q1=210, 中央値=240, Q3=275, 最大値=320<br>
+                ・30代: 最小値=190, Q1=220, 中央値=255, Q3=290, 最大値=340<br>
+                ・40代: 最小値=200, Q1=235, 中央値=270, Q3=310, 最大値=360<br>
+                ・50代: 最小値=215, Q1=250, 中央値=290, Q3=330, 最大値=380<br>
+                ・60代以上: 最小値=240, Q1=275, 中央値=320, Q3=360, 最大値=420<br><br>
+
+                <strong>【四分位範囲（IQR）】</strong><br>
+                ・20代: 275 − 210 = 65 ／ 30代: 290 − 220 = 70<br>
+                ・40代: 310 − 235 = 75 ／ 50代: 330 − 250 = 80<br>
+                ・60代以上: 360 − 275 = 85<br><br>
+
+                <strong>【記述の検討】</strong><br>
+                ・ア: 中央値の系列は 240 &lt; 255 &lt; 270 &lt; 290 &lt; 320 と単調増加 → <strong>正しい</strong><br>
+                ・イ: 60代以上のQ1=275、20代の最大値=320。275 &lt; 320 → <strong>正しい</strong><br>
+                ・ウ: 50代のIQR=80、20代のIQR=65。80 ÷ 65 ≒ 1.23倍であり、1.5倍未満 → <strong>誤り</strong><br>
+                ・エ: |255 − 270| = 15、|270 − 290| = 20。15 &lt; 20 なので、30代と40代の差の方が小さい → <strong>誤り</strong><br><br>
+
+                正しい記述は <strong>ア</strong> と <strong>イ</strong> である。<br>
+                したがって、正解は<strong>(1) ア、イ</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
