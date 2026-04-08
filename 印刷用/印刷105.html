@@ -1,0 +1,374 @@
+<!--
+================================================================================
+印刷105.html - セット105: 資料読み取り問題（印刷用）
+================================================================================
+問1（標準）: 市立図書館月次貸出報告書の長文読解＋表の空欄穴埋め
+問2（高難度）: 物流センター配送実績の長文読解＋3空欄＋合計の連鎖計算
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .passage {
+            margin: 15px 0;
+            padding: 15px 20px;
+            border: 1px solid #999;
+            background-color: #fafafa;
+            text-align: justify;
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 18px;
+            min-width: 80px;
+            min-height: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の文章は、ある市立図書館の館長による2025年9月の月次貸出報告である。この文章と下表をもとに、表中の空欄（ア）に入る数値として正しいものを、下の(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 長文資料 -->
+                <div class="passage">
+                    <div class="passage-title">【月次貸出報告（抜粋）】</div>
+                    みどり市立図書館の2025年9月の貸出状況についてご報告いたします。当館では蔵書を「文学」「実用書」「児童書」「専門書」の4分類で管理しております。<br>
+                    当月の総貸出冊数は2,400冊であり、前月（2,000冊）と比較して20%の増加となりました。これは夏休み明けの学習需要の高まりによるものと考えております。<br>
+                    分類別の内訳について、文学は当月の総貸出冊数の30%を占めました。実用書の貸出冊数は文学より96冊少ない結果となりました。一方、児童書は実用書のちょうど1.5倍の貸出があり、これは夏季読書感想文の課題図書需要が継続しているためと思われます。残る専門書は、総貸出冊数から文学・実用書・児童書を差し引いた冊数となります。
+                </div>
+
+                <!-- データ表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】みどり市立図書館 2025年9月 分類別貸出冊数</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>分類</th>
+                                <th>9月の貸出冊数（冊）</th>
+                                <th>前月比</th>
+                            </tr>
+                            <tr>
+                                <td>文学</td>
+                                <td class="blank-cell">（ア）</td>
+                                <td>＋5％</td>
+                            </tr>
+                            <tr>
+                                <td>実用書</td>
+                                <td>624</td>
+                                <td>＋30％</td>
+                            </tr>
+                            <tr>
+                                <td>児童書</td>
+                                <td>936</td>
+                                <td>＋50％</td>
+                            </tr>
+                            <tr>
+                                <td>専門書</td>
+                                <td>120</td>
+                                <td>－20％</td>
+                            </tr>
+                            <tr>
+                                <td>合計</td>
+                                <td>2,400</td>
+                                <td>＋20％</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　600　　(2)　660　　(3)　680　　(4)　700　　(5)　720
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                報告文中には、空欄（ア）「文学の貸出冊数」を求める手がかりが複数含まれている。最も直接的な情報を用いて求めればよい。<br><br>
+
+                <strong>【方針1: 「文学は総貸出冊数の30%を占める」を直接適用】</strong><br>
+                総貸出冊数 2,400冊 × 0.30 ＝ <strong>720冊</strong><br><br>
+
+                <strong>【方針2: 他項目との合計から逆算（検算）】</strong><br>
+                合計 2,400 ＝ 文学 ＋ 実用書 ＋ 児童書 ＋ 専門書<br>
+                文学 ＝ 2,400 －（624 ＋ 936 ＋ 120）<br>
+                文学 ＝ 2,400 － 1,680 ＝ <strong>720冊</strong><br><br>
+
+                <strong>【整合性の確認】</strong><br>
+                ・「実用書は文学より96冊少ない」 → 720 － 96 ＝ 624 ✓<br>
+                ・「児童書は実用書の1.5倍」 → 624 × 1.5 ＝ 936 ✓<br>
+                ・「専門書は残り」 → 2,400 －（720＋624＋936） ＝ 120 ✓<br><br>
+
+                すべての条件と整合するため、文学の貸出冊数は<strong>720冊</strong>。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の文章は、ある物流センターの2025年10月の配送実績に関する業務報告である。この文章と下表をもとに、表中の空欄（ア）（イ）（ウ）に入る数値の合計（ア＋イ＋ウ）として正しいものを、下の(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 長文資料 -->
+                <div class="passage">
+                    <div class="passage-title">【業務報告：2025年10月配送実績】</div>
+                    さくら物流センターの2025年10月の配送実績についてご報告いたします。当センターは「北部」「中部」「南部」の3ルートで配送業務を展開しており、各ルートに専属トラックを配備しています。<br><br>
+                    <strong>北部ルート：</strong>2台のトラックが配備されています。10月の配送日数は25日間で、両トラックとも全日稼働しました。1台あたりの1日平均配送個数は120個でした。<br><br>
+                    <strong>中部ルート：</strong>3台のトラックが配備されています。このうち1台は10月前半14日間のみの稼働で、後半は車両整備のため稼働を停止しました。残りの2台は通常通り月間28日間稼働しています。1台あたりの1日平均配送個数は150個でした。<br><br>
+                    <strong>南部ルート：</strong>2台のトラックが配備されています。10月は通常22日間の稼働を予定しておりましたが、月末の3日間（10月29日～31日）は台風の影響により1台が稼働を停止し、残る1台のみで配送を継続しました。1台あたりの1日平均配送個数は180個でした。
+                </div>
+
+                <!-- データ表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】さくら物流センター 2025年10月 配送実績</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>ルート</th>
+                                <th>配備台数</th>
+                                <th>月間配送個数（個）</th>
+                            </tr>
+                            <tr>
+                                <td>北部ルート</td>
+                                <td>2台</td>
+                                <td>6,000</td>
+                            </tr>
+                            <tr>
+                                <td>中部ルート</td>
+                                <td>3台</td>
+                                <td class="blank-cell">（ア）</td>
+                            </tr>
+                            <tr>
+                                <td>南部ルート</td>
+                                <td>2台</td>
+                                <td class="blank-cell">（イ）</td>
+                            </tr>
+                            <tr>
+                                <td>合計</td>
+                                <td>7台</td>
+                                <td class="blank-cell">（ウ）</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="options">
+                    (1)　41,260　　(2)　41,500　　(3)　41,760　　(4)　42,000　　(5)　42,260
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                各ルートの配送個数を、報告文の記述に従って計算する。<br><br>
+
+                <strong>【北部ルートの確認】</strong><br>
+                2台 × 25日 × 120個 ＝ <strong>6,000個</strong>（表の値と一致）<br><br>
+
+                <strong>【ア：中部ルートの月間配送個数】</strong><br>
+                ・1台目（前半14日のみ稼働）： 14日 × 150個 ＝ 2,100個<br>
+                ・残り2台（28日間稼働）： 2台 × 28日 × 150個 ＝ 8,400個<br>
+                ・中部ルート合計： 2,100 ＋ 8,400 ＝ <strong>ア ＝ 10,500個</strong><br><br>
+
+                <strong>【イ：南部ルートの月間配送個数】</strong><br>
+                ・1台目（22日全日稼働）： 22日 × 180個 ＝ 3,960個<br>
+                ・2台目（最後の3日間停止 → 22－3＝19日稼働）： 19日 × 180個 ＝ 3,420個<br>
+                ・南部ルート合計： 3,960 ＋ 3,420 ＝ <strong>イ ＝ 7,380個</strong><br><br>
+
+                <strong>【ウ：3ルートの月間配送個数合計】</strong><br>
+                6,000 ＋ 10,500 ＋ 7,380 ＝ <strong>ウ ＝ 23,880個</strong><br><br>
+
+                <strong>【ア＋イ＋ウ】</strong><br>
+                10,500 ＋ 7,380 ＋ 23,880 ＝ <strong>41,760</strong><br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
