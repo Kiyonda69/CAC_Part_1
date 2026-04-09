@@ -1,0 +1,664 @@
+<!--
+================================================================================
+航大思考106.html - セット106: 資料穴埋め問題（インタラクティブ版）
+================================================================================
+問1（標準）: K市の通勤手段に関する住民調査報告書の穴埋め（3空欄）
+問2（高難度）: B市の5地区の人口動態に関する報告書の穴埋め（3空欄・連鎖推論）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .passage {
+            margin: 20px 0;
+            padding: 20px 22px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 18px;
+            min-width: 80px;
+            min-height: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .blank-cell {
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章は、K市が実施した通勤・通学時の交通手段に関する住民調査の報告書である。この文章と下表をもとに、表中の空欄（ア）（イ）（ウ）に入る数値の組合せとして正しいものを、下の(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <!-- 長文資料 -->
+            <div class="passage">
+                <div class="passage-title">【住民調査報告書（抜粋）】</div>
+                K市は2025年度に、市内在住の通勤・通学者2,000人を対象とした交通手段の利用状況に関するアンケート調査を実施した。<br><br>
+                調査の結果、鉄道の利用者は全体の34%を占め、5つの交通手段のなかで最も多かった。次に多かったのは自家用車で、520人が利用していると回答した。自転車の利用者は全体の18%であり、バスの利用者は全体の15%であった。残りが徒歩による通勤・通学者である。<br><br>
+                利用者の満足度を5段階で評価したところ、自家用車が4.1で最も高く、次いで鉄道が3.8であった。自転車は3.5、バスは2.9で最も低い評価となった。なお、徒歩の利用者の満足度は鉄道の利用者と同じ値であった。
+            </div>
+
+            <!-- データ表 -->
+            <div class="figure-container">
+                <div class="figure-title">【表】K市 交通手段別利用状況</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>交通手段</th>
+                            <th>利用者数（人）</th>
+                            <th>割合（%）</th>
+                            <th>満足度（5段階）</th>
+                        </tr>
+                        <tr>
+                            <td>鉄道</td>
+                            <td class="blank-cell">（ア）</td>
+                            <td>34.0</td>
+                            <td>3.8</td>
+                        </tr>
+                        <tr>
+                            <td>バス</td>
+                            <td>300</td>
+                            <td>15.0</td>
+                            <td>2.9</td>
+                        </tr>
+                        <tr>
+                            <td>自家用車</td>
+                            <td>520</td>
+                            <td>26.0</td>
+                            <td>4.1</td>
+                        </tr>
+                        <tr>
+                            <td>自転車</td>
+                            <td>360</td>
+                            <td>18.0</td>
+                            <td>3.5</td>
+                        </tr>
+                        <tr>
+                            <td>徒歩</td>
+                            <td class="blank-cell">（イ）</td>
+                            <td>7.0</td>
+                            <td class="blank-cell">（ウ）</td>
+                        </tr>
+                        <tr>
+                            <td>合計</td>
+                            <td>2,000</td>
+                            <td>100.0</td>
+                            <td>－</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>ア＝680　イ＝140　ウ＝3.5
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>ア＝680　イ＝140　ウ＝3.8
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>ア＝680　イ＝160　ウ＝3.8
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>ア＝660　イ＝140　ウ＝3.8
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>ア＝680　イ＝140　ウ＝2.9
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>報告文と表を照合しながら、3つの空欄を順に求める。</p>
+                    <br>
+                    <p><strong>【ア：鉄道の利用者数】</strong></p>
+                    <p>報告文に「鉄道の利用者は全体の34%」とあり、調査対象は2,000人である。</p>
+                    <p>ア ＝ 2,000 × 0.34 ＝ <strong>680人</strong></p>
+                    <br>
+                    <p><strong>【イ：徒歩の利用者数】</strong></p>
+                    <p>「残りが徒歩」とあるため、合計から他の交通手段を差し引く。</p>
+                    <p>イ ＝ 2,000 − 680 − 300 − 520 − 360 ＝ <strong>140人</strong></p>
+                    <p>（検算: 割合で確認 → 100 − 34 − 15 − 26 − 18 ＝ 7.0% → 2,000 × 0.07 ＝ 140人）</p>
+                    <br>
+                    <p><strong>【ウ：徒歩の満足度】</strong></p>
+                    <p>報告文に「徒歩の利用者の満足度は鉄道の利用者と同じ値であった」とあり、鉄道の満足度は表より3.8である。</p>
+                    <p>ウ ＝ <strong>3.8</strong></p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) ウ＝3.5 → 自転車の満足度と混同</p>
+                    <p>・(3) イ＝160 → 割合の計算で8%と誤算</p>
+                    <p>・(4) ア＝660 → 33%で計算（1/3と概算した誤り）</p>
+                    <p>・(5) ウ＝2.9 → バスの満足度と混同</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章は、B市の統計課がまとめた市内5地区の人口動態調査の結果に関する報告書である。この文章と下表をもとに、表中の空欄（ア）（イ）（ウ）に入る数値の組合せとして正しいものを、下の(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <!-- 長文資料 -->
+            <div class="passage">
+                <div class="passage-title">【人口動態調査報告書（抜粋）】</div>
+                B市の統計課は、市内5地区（甲、乙、丙、丁、戊）の2024年度人口動態調査の結果を以下のとおりまとめた。<br><br>
+                5地区の人口合計は12,960人であった。1世帯あたりの人口については、乙地区と丁地区が等しく、また丙地区と甲地区も等しかった。丙地区の世帯数は甲地区より少なく、戊地区より多い。<br><br>
+                高齢化率について、5地区の平均はちょうど28.0%であった。最も高齢化率が高いのは戊地区であり、最も低いのは乙地区であった。
+            </div>
+
+            <!-- データ表 -->
+            <div class="figure-container">
+                <div class="figure-title">【表】B市 地区別人口動態（2024年度）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>地区</th>
+                            <th>世帯数</th>
+                            <th>人口（人）</th>
+                            <th>高齢化率（%）</th>
+                        </tr>
+                        <tr>
+                            <td>甲</td>
+                            <td>1,200</td>
+                            <td>3,000</td>
+                            <td>28.0</td>
+                        </tr>
+                        <tr>
+                            <td>乙</td>
+                            <td>900</td>
+                            <td class="blank-cell">（ア）</td>
+                            <td>22.0</td>
+                        </tr>
+                        <tr>
+                            <td>丙</td>
+                            <td class="blank-cell">（イ）</td>
+                            <td>2,400</td>
+                            <td>32.0</td>
+                        </tr>
+                        <tr>
+                            <td>丁</td>
+                            <td>1,500</td>
+                            <td>3,600</td>
+                            <td class="blank-cell">（ウ）</td>
+                        </tr>
+                        <tr>
+                            <td>戊</td>
+                            <td>800</td>
+                            <td>1,800</td>
+                            <td>35.0</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>ア＝2,160　イ＝960　ウ＝25.0
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>ア＝2,400　イ＝960　ウ＝23.0
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>ア＝2,160　イ＝960　ウ＝23.0
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>ア＝2,160　イ＝1,000　ウ＝23.0
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>ア＝2,160　イ＝960　ウ＝21.0
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>報告文中の複数の条件を組み合わせて、3つの空欄を求める。</p>
+                    <br>
+                    <p><strong>【ア：乙地区の人口】</strong></p>
+                    <p>「乙地区と丁地区の1世帯あたり人口が等しい」という条件を使う。</p>
+                    <p>丁地区の1世帯あたり人口 ＝ 3,600 / 1,500 ＝ 2.4人</p>
+                    <p>乙地区の人口 ＝ 900 × 2.4 ＝ <strong>2,160人</strong></p>
+                    <p>（検算: 人口合計 ＝ 3,000＋2,160＋2,400＋3,600＋1,800 ＝ 12,960人）</p>
+                    <br>
+                    <p><strong>【イ：丙地区の世帯数】</strong></p>
+                    <p>「丙地区と甲地区の1世帯あたり人口が等しい」という条件を使う。</p>
+                    <p>甲地区の1世帯あたり人口 ＝ 3,000 / 1,200 ＝ 2.5人</p>
+                    <p>丙地区の世帯数 ＝ 2,400 / 2.5 ＝ <strong>960世帯</strong></p>
+                    <p>（検算: 「甲(1,200) ＞ 丙(960) ＞ 戊(800)」の制約を満たす）</p>
+                    <br>
+                    <p><strong>【ウ：丁地区の高齢化率】</strong></p>
+                    <p>「5地区の高齢化率の平均が28.0%」という条件を使う。</p>
+                    <p>5地区の高齢化率の合計 ＝ 28.0 × 5 ＝ 140.0%</p>
+                    <p>ウ ＝ 140.0 −（28.0＋22.0＋32.0＋35.0）＝ 140.0 − 117.0 ＝ <strong>23.0%</strong></p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) ウ＝25.0 → 合計の計算で28＋22＋32＋35＝117を115と誤算</p>
+                    <p>・(2) ア＝2,400 → 丙の人口と同じ値を入れた誤り（1世帯あたり人口の条件を未使用）</p>
+                    <p>・(4) イ＝1,000 → 丁の1世帯あたり人口(2.4)を丙に適用した誤り</p>
+                    <p>・(5) ウ＝21.0 → 合計の計算で28＋22＋32＋35＝117を119と誤算</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考106/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
