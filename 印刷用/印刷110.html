@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 20px; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 10px; text-align: justify; }
+        .figure-container { margin: 12px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .options { margin-left: 20px; line-height: 2.2; }
+        .inline-figure { display: inline-block; vertical-align: middle; margin-left: 10px; }
+        @media print {
+            body { background-color: white; padding: 0; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; transform: none !important; width: 100%; height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+
+            <div class="question-number">問1．図は、滑走路に着陸しようとしている飛行機から滑走路を見た前方の景色である。この地点から、滑走路へ直行し着陸するまでの景色として誤っているものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+            <!--
+            図表仕様:
+            - 初期景色フレーム: 160x160px の枠
+            - viewBox: 0 0 180 180
+            - 台形の頂点: 上辺(70,75)-(90,75), 下辺(40,130)-(120,130)
+              top_width=20, bottom_width=80 → 正常な台形
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-content">
+                    <svg width="180" height="180" viewBox="0 0 180 180">
+                        <!-- 外枠（視界フレーム）-->
+                        <rect x="10" y="10" width="160" height="160" fill="white" stroke="black" stroke-width="2"/>
+                        <!-- 滑走路（台形）-->
+                        <polygon points="75,70 105,70 140,140 40,140" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢エリア
+            各選択肢: 100x100 の視界フレーム + 内部の台形
+            - (1) 台形拡大: 上辺(38,35)-(62,35), 下辺(15,85)-(85,85) → 正常
+            - (2) 台形さらに拡大: 上辺(35,30)-(65,30), 下辺(5,88)-(95,88) → 正常
+            - (3) 台形中程度: 上辺(40,40)-(60,40), 下辺(20,80)-(80,80) → 正常
+            - (4) 台形やや拡大: 上辺(40,45)-(60,45), 下辺(25,82)-(75,82) → 正常
+            - (5) 逆台形: 上辺(15,35)-(85,35), 下辺(35,85)-(65,85) → 誤り（正解）
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-content">
+                    <svg width="620" height="130" viewBox="0 0 620 130">
+                        <!-- (1) -->
+                        <g transform="translate(10, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(1)</text>
+                            <rect x="0" y="15" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                            <polygon points="38,50 62,50 85,100 15,100" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (2) -->
+                        <g transform="translate(130, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(2)</text>
+                            <rect x="0" y="15" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                            <polygon points="35,45 65,45 95,103 5,103" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (3) -->
+                        <g transform="translate(250, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(3)</text>
+                            <rect x="0" y="15" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                            <polygon points="40,55 60,55 80,95 20,95" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (4) -->
+                        <g transform="translate(370, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(4)</text>
+                            <rect x="0" y="15" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                            <polygon points="42,60 58,60 73,97 27,97" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (5) 逆台形（正解：誤り）-->
+                        <g transform="translate(490, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(5)</text>
+                            <rect x="0" y="15" width="100" height="100" fill="white" stroke="black" stroke-width="1.5"/>
+                            <polygon points="15,50 85,50 65,100 35,100" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1(正解:(5))</strong><br>
+            滑走路は地面上の長方形であり、その上空から前方を見ると遠近法により「台形」に見える。<br><br>
+
+            <strong>【透視図法の原理】</strong><br>
+            ・観察者は滑走路の上空にいるため、滑走路の<strong>遠い側（奥）</strong>は視界の上方に、<strong>近い側（手前）</strong>は視界の下方に見える。<br>
+            ・遠いほど小さく見えるため、<strong>上辺（奥の辺）は狭く、下辺（手前の辺）は広く</strong>見える。<br>
+            ・すなわち、常に「上辺 ＜ 下辺」の関係が成立する。<br><br>
+
+            <strong>【進入中の見え方の変化】</strong><br>
+            ・飛行機が滑走路に直行し近づくほど、台形は相似的に<strong>大きく拡大</strong>する。<br>
+            ・ただし、拡大しても「上辺 ＜ 下辺」の関係は崩れない。<br>
+            ・接地直前では、台形の下辺がフレームの下端に迫り、両側面が視界の端まで広がる。<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 上辺が下辺より狭い台形で、進入中の正常な拡大段階 → 正常<br>
+            ・(2) (1)よりさらに拡大し、両側が枠に近づいている → 接地に近い段階として正常<br>
+            ・(3) 上辺が下辺より狭い中程度の台形 → 正常<br>
+            ・(4) 少し拡大した台形 → 正常<br>
+            ・(5) <strong>上辺が下辺より広い逆台形</strong>になっている。これは遠い側が手前より広く見えることを意味し、観察者が滑走路の<strong>下側から見上げている</strong>場合にしか起こらない。進入中の飛行機（上空から見下ろす）には<strong>ありえない</strong> → 誤り<br><br>
+
+            したがって、正解は<strong>(5)</strong>である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．図は、滑走路に着陸しようとしている飛行機から滑走路を見た前方の景色である。画面の中ほどに水平線（地平線）があり、その直下に台形の滑走路が見える。この地点から、機首の向き（ピッチ）を一定に保ったまま滑走路へ直進し接地するまでの景色として誤っているものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+            <!--
+            初期景色図:
+            - フレーム: 200x140 の枠（上段に空、下段に地面）
+            - 地平線 y=80 の水平線
+            - 台形の上辺は地平線上 (90,80)-(110,80)、下辺 (70,130)-(130,130)
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-content">
+                    <svg width="220" height="160" viewBox="0 0 220 160">
+                        <rect x="10" y="10" width="200" height="140" fill="white" stroke="black" stroke-width="2"/>
+                        <!-- 地平線 -->
+                        <line x1="10" y1="80" x2="210" y2="80" stroke="black" stroke-width="1.2"/>
+                        <!-- 滑走路（台形, 上辺は地平線上）-->
+                        <polygon points="100,80 120,80 145,140 75,140" fill="none" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢:
+            - フレームは一律 100x80
+            - 地平線の基準 y = 40（フレーム内では上から40の位置）
+              ※選択肢(3) のみ地平線が y=55 に下がっている（誤り）
+            - 台形の上辺は常に地平線上（正常選択肢）
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-content">
+                    <svg width="620" height="110" viewBox="0 0 620 110">
+                        <!-- (1) -->
+                        <g transform="translate(10, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(1)</text>
+                            <rect x="0" y="15" width="100" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="55" x2="100" y2="55" stroke="black" stroke-width="1"/>
+                            <polygon points="40,55 60,55 78,90 22,90" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (2) -->
+                        <g transform="translate(130, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(2)</text>
+                            <rect x="0" y="15" width="100" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="55" x2="100" y2="55" stroke="black" stroke-width="1"/>
+                            <polygon points="38,55 62,55 90,92 10,92" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (3) 地平線が下がっている（誤り） -->
+                        <g transform="translate(250, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(3)</text>
+                            <rect x="0" y="15" width="100" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="70" x2="100" y2="70" stroke="black" stroke-width="1"/>
+                            <polygon points="38,70 62,70 90,93 10,93" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (4) 接地直前 -->
+                        <g transform="translate(370, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(4)</text>
+                            <rect x="0" y="15" width="100" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="55" x2="100" y2="55" stroke="black" stroke-width="1"/>
+                            <polygon points="35,55 65,55 100,94 0,94" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                        <!-- (5) -->
+                        <g transform="translate(490, 10)">
+                            <text x="50" y="10" text-anchor="middle" font-size="13" font-family="serif">(5)</text>
+                            <rect x="0" y="15" width="100" height="80" fill="white" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="55" x2="100" y2="55" stroke="black" stroke-width="1"/>
+                            <polygon points="42,55 58,55 72,85 28,85" fill="none" stroke="black" stroke-width="1.3"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2(正解:(3))</strong><br>
+            地平線は常に観察者の<strong>眼の高さ</strong>（水平視線の先）にある。<br><br>
+
+            <strong>【地平線の見かけの位置】</strong><br>
+            ・飛行機がピッチ（機首の上下角）を一定に保っている限り、機体基準（フレーム）に対する地平線の見かけの高さは<strong>変わらない</strong>。<br>
+            ・高度が変わっても、機首が同じ角度であれば水平視線の方向は同じであり、フレーム内の地平線の位置は固定される。<br>
+            ・滑走路の遠い端（奥）は地面上の最遠点なので、その上辺は常に<strong>地平線上</strong>にくる。<br><br>
+
+            <strong>【進入中の見え方の変化】</strong><br>
+            ・飛行機が近づくと、台形は下方に広がり拡大する。<br>
+            ・台形の上辺（奥の辺）は地平線上から動かない。下辺（手前の辺）は視界の下へと広がっていく。<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 地平線は元の位置、台形は適度に拡大 → 正常<br>
+            ・(2) 地平線は元の位置、台形がより拡大 → 正常（進入中）<br>
+            ・(3) <strong>地平線が下方に移動</strong>しており、これはピッチを一定に保った直進降下ではありえない（地平線が下がるのは機首を上げた場合）。また、台形上辺も下がった地平線上に描かれており矛盾 → <strong>誤り</strong><br>
+            ・(4) 地平線は元の位置、台形が視界端まで広がる → 接地直前として正常<br>
+            ・(5) 地平線は元の位置、台形が少し拡大 → 正常<br><br>
+
+            したがって、正解は<strong>(3)</strong>である。
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
