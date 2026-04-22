@@ -102,14 +102,14 @@ def roll_right(cube):
 
 
 def verify_q1():
-    """問1: Bの対面を求める"""
+    """問1: Fの対面を求める"""
     cube = fold_cube_from_net()
     print("=== 問1 検証 ===")
     print(f"初期配置: {cube}")
     print(f"対面ペア: {opposite_pairs(cube)}")
 
-    answer = opposite_of(cube, 'B')
-    print(f"Bの対面: {answer}")
+    answer = opposite_of(cube, 'F')
+    print(f"Fの対面: {answer}")
 
     # 対面ペア検証: A-E, B-D, C-F
     expected_pairs = [('A', 'E'), ('B', 'D'), ('C', 'F')]
@@ -117,8 +117,8 @@ def verify_q1():
     expected = sorted(expected_pairs)
     assert actual == expected, f"対面ペアが不正: {actual} != {expected}"
 
-    assert answer == 'D', f"問1の答えが不正: {answer}"
-    print("問1 OK: 正解は D")
+    assert answer == 'C', f"問1の答えが不正: {answer}"
+    print("問1 OK: 正解は C")
     print()
     return answer
 
@@ -159,8 +159,8 @@ def verify_uniqueness_q1():
     """問1の解が一意であることを確認 (全候補をチェック)"""
     cube = fold_cube_from_net()
     valid = []
-    for candidate in ['A', 'C', 'D', 'E', 'F']:
-        if opposite_of(cube, 'B') == candidate:
+    for candidate in ['A', 'B', 'C', 'D', 'E']:
+        if opposite_of(cube, 'F') == candidate:
             valid.append(candidate)
     assert len(valid) == 1, f"問1の解が一意でない: {valid}"
     print(f"問1の解の一意性 OK: {valid[0]}")
