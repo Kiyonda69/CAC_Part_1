@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 16px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 18px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下記の数列は、ある規則に従って並んでいる。空欄に入る数として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【数列】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <td>2</td>
+                            <td>5</td>
+                            <td>11</td>
+                            <td>23</td>
+                            <td>47</td>
+                            <td><strong>?</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>71
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>77
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>83
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>89
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>95
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5) 95）</div>
+                <div class="explanation-content">
+                    <p>数列 2, 5, 11, 23, 47, ? の規則を見抜く問題である。</p>
+                    <br>
+                    <p><strong>【規則の発見：方法1（差分の比）】</strong></p>
+                    <p>隣接する項の差分を計算する。</p>
+                    <p>・5 − 2 = 3</p>
+                    <p>・11 − 5 = 6</p>
+                    <p>・23 − 11 = 12</p>
+                    <p>・47 − 23 = 24</p>
+                    <p>差分は 3, 6, 12, 24 と<strong>公比2の等比数列</strong>になっている。</p>
+                    <p>次の差分は 24 × 2 = 48 となるので、次の項は 47 + 48 = <strong>95</strong>。</p>
+                    <br>
+                    <p><strong>【規則の発見：方法2（漸化式）】</strong></p>
+                    <p>各項を直前の項と比較すると、a(n+1) = 2·a(n) + 1 という関係が成り立つ。</p>
+                    <p>・2 × 2 + 1 = 5 ✓</p>
+                    <p>・5 × 2 + 1 = 11 ✓</p>
+                    <p>・11 × 2 + 1 = 23 ✓</p>
+                    <p>・23 × 2 + 1 = 47 ✓</p>
+                    <p>よって、次の項は 47 × 2 + 1 = <strong>95</strong>。</p>
+                    <br>
+                    <p><strong>【規則の発見：方法3（一般項）】</strong></p>
+                    <p>a(n) = 3·2<sup>n−1</sup> − 1</p>
+                    <p>・n=1: 3·1 − 1 = 2 ✓</p>
+                    <p>・n=2: 3·2 − 1 = 5 ✓</p>
+                    <p>・n=3: 3·4 − 1 = 11 ✓</p>
+                    <p>・n=4: 3·8 − 1 = 23 ✓</p>
+                    <p>・n=5: 3·16 − 1 = 47 ✓</p>
+                    <p>・n=6: 3·32 − 1 = <strong>95</strong></p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 71 → 47 + 24（差分を倍化せず再使用した誤答）</p>
+                    <p>・(2) 77 → 47 + 30（差分を等差公差6と誤認）</p>
+                    <p>・(3) 83 → 47 + 36（差分の増加分を一定12と誤認）</p>
+                    <p>・(4) 89 → 47 + 42（差分の規則を恣意的に推定した誤答）</p>
+                    <p>・(5) 95 → 正解（差分 48＝24×2 を適用）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5) 95</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下の4×4の数表は、行番号 r と列番号 c から決まるある規則に従って作られている。空欄「?」に入る数として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【数表】</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th></th>
+                            <th>c=1</th>
+                            <th>c=2</th>
+                            <th>c=3</th>
+                            <th>c=4</th>
+                        </tr>
+                        <tr>
+                            <th>r=1</th>
+                            <td>4</td>
+                            <td>10</td>
+                            <td>28</td>
+                            <td>82</td>
+                        </tr>
+                        <tr>
+                            <th>r=2</th>
+                            <td>6</td>
+                            <td>12</td>
+                            <td>30</td>
+                            <td>84</td>
+                        </tr>
+                        <tr>
+                            <th>r=3</th>
+                            <td>10</td>
+                            <td>16</td>
+                            <td><strong>?</strong></td>
+                            <td>88</td>
+                        </tr>
+                        <tr>
+                            <th>r=4</th>
+                            <td>18</td>
+                            <td>24</td>
+                            <td>42</td>
+                            <td>96</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>32
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>34
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>36
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>40
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>42
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2) 34）</div>
+                <div class="explanation-content">
+                    <p>数表の行・列にそれぞれ独立した規則を発見し、空欄 (r=3, c=3) の値を求める問題である。</p>
+                    <br>
+                    <p><strong>【列方向の規則】</strong></p>
+                    <p>各列を縦に見ると、隣接する数の差分が次第に増えていく。</p>
+                    <p>・列1: 4, 6, 10, 18 → 差分 2, 4, 8（<strong>公比2</strong>）</p>
+                    <p>・列2: 10, 12, 16, 24 → 差分 2, 4, 8（公比2）</p>
+                    <p>・列4: 82, 84, 88, 96 → 差分 2, 4, 8（公比2）</p>
+                    <p>すべての列で差分が公比2の等比数列をなす。</p>
+                    <br>
+                    <p><strong>【行方向の規則】</strong></p>
+                    <p>各行を横に見ると、隣接する数の差分はさらに大きく増える。</p>
+                    <p>・行1: 4, 10, 28, 82 → 差分 6, 18, 54（<strong>公比3</strong>）</p>
+                    <p>・行2: 6, 12, 30, 84 → 差分 6, 18, 54（公比3）</p>
+                    <p>・行4: 18, 24, 42, 96 → 差分 6, 18, 54（公比3）</p>
+                    <p>すべての行で差分が公比3の等比数列をなす。</p>
+                    <br>
+                    <p><strong>【空欄(3,3)の算出：列3からのアプローチ】</strong></p>
+                    <p>列3 は 28, 30, ?, 42。</p>
+                    <p>・差分1: 30 − 28 = 2</p>
+                    <p>・差分2: 2 × 2 = 4 → ? = 30 + 4 = <strong>34</strong></p>
+                    <p>・差分3: 4 × 2 = 8 → 34 + 8 = 42 ✓（最下段と一致）</p>
+                    <br>
+                    <p><strong>【空欄(3,3)の算出：行3からのアプローチ】</strong></p>
+                    <p>行3 は 10, 16, ?, 88。</p>
+                    <p>・差分1: 16 − 10 = 6</p>
+                    <p>・差分2: 6 × 3 = 18 → ? = 16 + 18 = <strong>34</strong></p>
+                    <p>・差分3: 18 × 3 = 54 → 34 + 54 = 88 ✓（最右と一致）</p>
+                    <br>
+                    <p><strong>【発展：一般式】</strong></p>
+                    <p>数表の規則は a(r,c) = 2<sup>r</sup> + 3<sup>c</sup> − 1 と書ける。</p>
+                    <p>・(1,1) = 2 + 3 − 1 = 4 ✓</p>
+                    <p>・(3,3) = 8 + 27 − 1 = <strong>34</strong> ✓</p>
+                    <p>・(4,4) = 16 + 81 − 1 = 96 ✓</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 32 → 16×2 や 30+2（差分を倍化せず再利用した誤答）</p>
+                    <p>・(2) 34 → 正解（行・列いずれの方法でも一致）</p>
+                    <p>・(3) 36 → 30+6（行と列の差分を取り違えた誤答）</p>
+                    <p>・(4) 40 → 16+24（行差分の累積を誤計算した誤答）</p>
+                    <p>・(5) 42 → (r=4, c=3) の値と読み違えた誤答</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2) 34</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考114/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
