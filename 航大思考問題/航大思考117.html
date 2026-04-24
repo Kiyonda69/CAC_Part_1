@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 8px auto;
+            max-width: 100%;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、円の中の矢印と円の塗りつぶしが規則的に変化している。?に当てはまる図形として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620×110px, viewBox: 0 0 620 110
+            - 6アイテム、中心x = 35, 145, 255, 365, 475, 585（間隔110）
+            - 各円: cy=55, r=25
+            - 矢印セパレータ → を中間点 x = 90, 200, 310, 420, 530 に配置
+
+            規則:
+            - 矢印の向き: 東(0°)から時計回りに45°ずつ回転
+              Step1=0°(E), Step2=45°(SE), Step3=90°(S), Step4=135°(SW), Step5=180°(W), Step6=225°(NW)
+            - 円の塗りつぶし: 黒(odd) と 白(even) の交互
+              Step1=黒, Step2=白, Step3=黒, Step4=白, Step5=黒, Step6=白
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【変化の系列】</div>
+                <div class="figure-content">
+                    <svg width="620" height="110" viewBox="0 0 620 110">
+                        <!-- Step1: 東(0°), 黒円・白矢印 -->
+                        <circle cx="35" cy="55" r="25" fill="black" stroke="black" stroke-width="2"/>
+                        <g transform="translate(35,55) rotate(0)">
+                            <line x1="-14" y1="0" x2="10" y2="0" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="16,0 7,-6 7,6" fill="white"/>
+                        </g>
+                        <text x="35" y="100" text-anchor="middle" class="svg-text">1</text>
+
+                        <text x="90" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step2: 南東(45°), 白円・黒矢印 -->
+                        <circle cx="145" cy="55" r="25" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(145,55) rotate(45)">
+                            <line x1="-14" y1="0" x2="10" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="16,0 7,-6 7,6" fill="black"/>
+                        </g>
+                        <text x="145" y="100" text-anchor="middle" class="svg-text">2</text>
+
+                        <text x="200" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step3: 南(90°), 黒円・白矢印 -->
+                        <circle cx="255" cy="55" r="25" fill="black" stroke="black" stroke-width="2"/>
+                        <g transform="translate(255,55) rotate(90)">
+                            <line x1="-14" y1="0" x2="10" y2="0" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="16,0 7,-6 7,6" fill="white"/>
+                        </g>
+                        <text x="255" y="100" text-anchor="middle" class="svg-text">3</text>
+
+                        <text x="310" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step4: 南西(135°), 白円・黒矢印 -->
+                        <circle cx="365" cy="55" r="25" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(365,55) rotate(135)">
+                            <line x1="-14" y1="0" x2="10" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="16,0 7,-6 7,6" fill="black"/>
+                        </g>
+                        <text x="365" y="100" text-anchor="middle" class="svg-text">4</text>
+
+                        <text x="420" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step5: 西(180°), 黒円・白矢印 -->
+                        <circle cx="475" cy="55" r="25" fill="black" stroke="black" stroke-width="2"/>
+                        <g transform="translate(475,55) rotate(180)">
+                            <line x1="-14" y1="0" x2="10" y2="0" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="16,0 7,-6 7,6" fill="white"/>
+                        </g>
+                        <text x="475" y="100" text-anchor="middle" class="svg-text">5</text>
+
+                        <text x="530" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step6: ? (点線枠) -->
+                        <circle cx="585" cy="55" r="25" fill="white" stroke="#888" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="585" y="63" text-anchor="middle" font-size="24" font-weight="bold" font-family="serif">?</text>
+                        <text x="585" y="100" text-anchor="middle" class="svg-text">?</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢（正解は (3)）:
+            (1) NW(225°) 黒 → 色の誤答（白でなく黒）
+            (2) W(180°)  白 → 方向が Step5 から進んでいない誤答
+            (3) NW(225°) 白 → 正解
+            (4) N(270°)  白 → 45°余分に進んだ誤答
+            (5) SW(135°) 白 → 逆回転（時計回りでなく反時計回り）の誤答
+            -->
+            <div class="options-figure" id="q1-options">
+
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <circle cx="45" cy="65" r="22" fill="black" stroke="black" stroke-width="2"/>
+                        <g transform="translate(45,65) rotate(225)">
+                            <line x1="-12" y1="0" x2="9" y2="0" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="14,0 6,-5 6,5" fill="white"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <circle cx="45" cy="65" r="22" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(45,65) rotate(180)">
+                            <line x1="-12" y1="0" x2="9" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="14,0 6,-5 6,5" fill="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <circle cx="45" cy="65" r="22" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(45,65) rotate(225)">
+                            <line x1="-12" y1="0" x2="9" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="14,0 6,-5 6,5" fill="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <circle cx="45" cy="65" r="22" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(45,65) rotate(270)">
+                            <line x1="-12" y1="0" x2="9" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="14,0 6,-5 6,5" fill="black"/>
+                        </g>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <circle cx="45" cy="65" r="22" fill="white" stroke="black" stroke-width="2"/>
+                        <g transform="translate(45,65) rotate(135)">
+                            <line x1="-12" y1="0" x2="9" y2="0" stroke="black" stroke-width="2.5" stroke-linecap="round"/>
+                            <polygon points="14,0 6,-5 6,5" fill="black"/>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>円の中の矢印の向きと、円の塗りつぶしの2つの属性が独立に変化している。</p>
+                    <br>
+                    <p><strong>【矢印の向きの規則】</strong></p>
+                    <p>矢印の向きを8方位（東・南東・南・南西・西・北西・北・北東）で追うと、各ステップで<strong>時計回りに45°ずつ回転</strong>している。</p>
+                    <p>・1: 東（→）</p>
+                    <p>・2: 南東（↘）</p>
+                    <p>・3: 南（↓）</p>
+                    <p>・4: 南西（↙）</p>
+                    <p>・5: 西（←）</p>
+                    <p>・6: 西から45°時計回り → <strong>北西（↖）</strong></p>
+                    <br>
+                    <p><strong>【塗りつぶしの規則】</strong></p>
+                    <p>円の塗りつぶしは<strong>黒と白の交互</strong>。</p>
+                    <p>・1黒 → 2白 → 3黒 → 4白 → 5黒 → 6は<strong>白</strong></p>
+                    <br>
+                    <p><strong>【結論】</strong></p>
+                    <p>6番目は「白い円の中に北西向き（↖）の矢印」。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 北西・黒 → 向きは正しいが、色が誤り（6番目は白）</p>
+                    <p>・(2) 西・白 → 色は正しいが、向きが Step5 から進んでいない</p>
+                    <p>・(3) 北西・白 → 正解（両属性とも規則に合致）</p>
+                    <p>・(4) 北・白 → 西から90°進んだ誤答（時計回り45°を超過）</p>
+                    <p>・(5) 南西・白 → 西から反時計回りに戻した誤答</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下図のように、「外形」「中の数字」「枠線の種類」の3つの属性がそれぞれ独立した規則で変化する図形が並んでいる。?に当てはまる図形として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620×110px, viewBox: 0 0 620 110
+            - 6アイテム、中心x = 35, 145, 255, 365, 475, 585（間隔110）
+            - 各図形: cy=55中心、サイズ約44px
+            - 矢印セパレータ → を中間点 x = 90, 200, 310, 420, 530 に配置
+
+            規則（3属性の独立変化）:
+            1. 外形: ○→□→△ の周期3 サイクル（(i-1) mod 3: 0=○, 1=□, 2=△）
+               Step1=○, Step2=□, Step3=△, Step4=○, Step5=□, Step6=△
+            2. 数字: +1（1,2,3,4,5,6…）
+               Step1=1, Step2=2, Step3=3, Step4=4, Step5=5, Step6=6
+            3. 枠線: 実線/点線の交互（周期2）
+               Step1=実, Step2=点, Step3=実, Step4=点, Step5=実, Step6=点
+
+            6番目 = (△, 6, 点線)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【変化の系列】</div>
+                <div class="figure-content">
+                    <svg width="620" height="110" viewBox="0 0 620 110">
+                        <!-- Step1: ○ 1 実線 -->
+                        <circle cx="35" cy="55" r="22" fill="white" stroke="black" stroke-width="2.5"/>
+                        <text x="35" y="62" text-anchor="middle" font-size="20" font-family="serif">1</text>
+                        <text x="35" y="100" text-anchor="middle" class="svg-text">1</text>
+
+                        <text x="90" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step2: □ 2 点線 -->
+                        <rect x="123" y="33" width="44" height="44" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <text x="145" y="62" text-anchor="middle" font-size="20" font-family="serif">2</text>
+                        <text x="145" y="100" text-anchor="middle" class="svg-text">2</text>
+
+                        <text x="200" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step3: △ 3 実線 -->
+                        <polygon points="255,31 232,77 278,77" fill="white" stroke="black" stroke-width="2.5" stroke-linejoin="round"/>
+                        <text x="255" y="70" text-anchor="middle" font-size="18" font-family="serif">3</text>
+                        <text x="255" y="100" text-anchor="middle" class="svg-text">3</text>
+
+                        <text x="310" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step4: ○ 4 点線 -->
+                        <circle cx="365" cy="55" r="22" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <text x="365" y="62" text-anchor="middle" font-size="20" font-family="serif">4</text>
+                        <text x="365" y="100" text-anchor="middle" class="svg-text">4</text>
+
+                        <text x="420" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step5: □ 5 実線 -->
+                        <rect x="453" y="33" width="44" height="44" fill="white" stroke="black" stroke-width="2.5"/>
+                        <text x="475" y="62" text-anchor="middle" font-size="20" font-family="serif">5</text>
+                        <text x="475" y="100" text-anchor="middle" class="svg-text">5</text>
+
+                        <text x="530" y="62" text-anchor="middle" font-size="22" font-family="serif">→</text>
+
+                        <!-- Step6: ? (点線の四角 + ?) -->
+                        <rect x="563" y="33" width="44" height="44" fill="white" stroke="#888" stroke-width="2" stroke-dasharray="5,3"/>
+                        <text x="585" y="64" text-anchor="middle" font-size="24" font-weight="bold" font-family="serif">?</text>
+                        <text x="585" y="100" text-anchor="middle" class="svg-text">?</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢（正解は (1)）:
+            (1) △・6・点線 → 正解
+            (2) △・6・実線 → 枠線の誤り（実線と点線が逆）
+            (3) ○・6・点線 → 外形を△の次=○と誤認（周期3の次サイクル開始）
+            (4) △・5・点線 → 数字が +1 されなかった誤答
+            (5) □・6・点線 → 外形をStep5と同じと誤認
+            -->
+            <div class="options-figure" id="q2-options">
+
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <svg width="90" height="115" viewBox="0 0 90 115">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <polygon points="45,40 20,85 70,85" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3" stroke-linejoin="round"/>
+                        <text x="45" y="78" text-anchor="middle" font-size="18" font-family="serif">6</text>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <svg width="90" height="115" viewBox="0 0 90 115">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <polygon points="45,40 20,85 70,85" fill="white" stroke="black" stroke-width="2.5" stroke-linejoin="round"/>
+                        <text x="45" y="78" text-anchor="middle" font-size="18" font-family="serif">6</text>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <svg width="90" height="115" viewBox="0 0 90 115">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <circle cx="45" cy="63" r="22" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <text x="45" y="70" text-anchor="middle" font-size="20" font-family="serif">6</text>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <svg width="90" height="115" viewBox="0 0 90 115">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <polygon points="45,40 20,85 70,85" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3" stroke-linejoin="round"/>
+                        <text x="45" y="78" text-anchor="middle" font-size="18" font-family="serif">5</text>
+                    </svg>
+                </button>
+
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <svg width="90" height="115" viewBox="0 0 90 115">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <rect x="23" y="41" width="44" height="44" fill="white" stroke="black" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <text x="45" y="70" text-anchor="middle" font-size="20" font-family="serif">6</text>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>図形は「外形」「中の数字」「枠線の種類」の3つの属性がそれぞれ独立した規則で変化している。</p>
+                    <br>
+                    <p><strong>【属性①：外形】</strong></p>
+                    <p>○ → □ → △ の<strong>周期3</strong>のサイクルを繰り返す。</p>
+                    <p>・1=○, 2=□, 3=△, 4=○, 5=□, 6=<strong>△</strong></p>
+                    <br>
+                    <p><strong>【属性②：中の数字】</strong></p>
+                    <p>各ステップで<strong>1ずつ増加</strong>する。</p>
+                    <p>・1, 2, 3, 4, 5, <strong>6</strong></p>
+                    <br>
+                    <p><strong>【属性③：枠線の種類】</strong></p>
+                    <p>実線と点線が<strong>周期2で交互</strong>に現れる。</p>
+                    <p>・1=実, 2=点, 3=実, 4=点, 5=実, 6=<strong>点</strong></p>
+                    <br>
+                    <p><strong>【結論】</strong></p>
+                    <p>6番目は「<strong>△・数字6・点線</strong>」。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) △・6・点線 → 正解（3属性とも規則に合致）</p>
+                    <p>・(2) △・6・実線 → 枠線が誤り（5=実だから6は点のはず）</p>
+                    <p>・(3) ○・6・点線 → 外形が誤り。Step6は周期3で位置3(=△)なので○ではない</p>
+                    <p>・(4) △・5・点線 → 数字が誤り。+1を忘れてStep5と同じ5にしている</p>
+                    <p>・(5) □・6・点線 → 外形が誤り。Step5(=□)と同じにしてしまった誤答</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考117/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
