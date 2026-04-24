@@ -1,0 +1,661 @@
+<!--
+================================================================================
+航大思考116.html - セット116: 資料読取・長文読解問題（インタラクティブ版）
+================================================================================
+問1（標準）: 市内5図書館の月次運営報告書の長文読解（5記述から正しい1つを特定）
+問2（高難度）: 食品工場の月次品質管理報告書の長文読解
+               （4条件を全て満たす「優良品」の組合せ判定）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .passage-box {
+            margin: 15px 0;
+            padding: 18px 22px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .criteria-list {
+            display: block;
+            margin: 10px 0 10px 20px;
+            line-height: 1.9;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 6px 10px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料】および【表】を読み、資料・表の内容と数値的に整合する記述として正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-box">
+                <div class="passage-title">【資料】H市立図書館 月次運営報告書（2025年10月）</div>
+                H市立図書館協議会は、市内5つの図書館（中央館、北支館、南支館、東支館、西支館）の2025年10月の運営状況について、開館日数、延べ来館者数、貸出冊数の3指標を集計した。<br>
+                中央館は市内で最も規模の大きい図書館であり、10月は28日間開館し、延べ来館者数は14,000人、貸出冊数は21,000冊であった。支館では、北支館が25日間開館して4,500人が来館し、8,500冊を貸し出した。南支館は24日間開館し、来館者は6,000人、貸出冊数は7,200冊であった。東支館は26日間開館して5,200人を迎え、10,400冊を貸し出した。西支館は27日間開館し、8,100人が来館して13,500冊を貸し出した。<br>
+                なお、運営指標として「1日あたり平均来館者数」「1日あたり平均貸出冊数」「来館者1人あたり貸出冊数」の3種類を定義している。指標の比較は各図書館ごとの値で行い、合計値ではなく平均値に基づく。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】市立5図書館の運営実績（2025年10月）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>図書館</th>
+                            <th>開館日数（日）</th>
+                            <th>来館者数（人）</th>
+                            <th>貸出冊数（冊）</th>
+                        </tr>
+                        <tr>
+                            <td>中央館</td>
+                            <td>28</td>
+                            <td>14,000</td>
+                            <td>21,000</td>
+                        </tr>
+                        <tr>
+                            <td>北支館</td>
+                            <td>25</td>
+                            <td>4,500</td>
+                            <td>8,500</td>
+                        </tr>
+                        <tr>
+                            <td>南支館</td>
+                            <td>24</td>
+                            <td>6,000</td>
+                            <td>7,200</td>
+                        </tr>
+                        <tr>
+                            <td>東支館</td>
+                            <td>26</td>
+                            <td>5,200</td>
+                            <td>10,400</td>
+                        </tr>
+                        <tr>
+                            <td>西支館</td>
+                            <td>27</td>
+                            <td>8,100</td>
+                            <td>13,500</td>
+                        </tr>
+                        <tr>
+                            <td><strong>合計</strong></td>
+                            <td><strong>130</strong></td>
+                            <td><strong>37,800</strong></td>
+                            <td><strong>60,600</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>5館のうち、1日あたり平均来館者数が最も多いのは西支館である。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>5館のうち、1日あたり平均貸出冊数が最も少ないのは北支館である。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>貸出冊数が最も多いのは中央館であり、その冊数は5館合計の半分以上を占めている。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>開館日数が最も多い図書館は西支館で、27日間開館した。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>来館者1人あたり貸出冊数が最大の図書館は東支館であり、その値はちょうど2.0冊である。
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>各選択肢の数値を表から計算し、資料・表の内容と整合するものを特定する。</p>
+                    <br>
+                    <p><strong>【派生量の計算】</strong></p>
+                    <p>・1日あたり平均来館者数（＝来館者数÷開館日数）</p>
+                    <p>　中央館：14,000÷28＝<strong>500.0人</strong>／北支館：4,500÷25＝180.0人／南支館：6,000÷24＝250.0人／東支館：5,200÷26＝200.0人／西支館：8,100÷27＝<strong>300.0人</strong></p>
+                    <p>・1日あたり平均貸出冊数（＝貸出冊数÷開館日数）</p>
+                    <p>　中央館：21,000÷28＝<strong>750.0冊</strong>／北支館：8,500÷25＝340.0冊／南支館：7,200÷24＝<strong>300.0冊</strong>／東支館：10,400÷26＝400.0冊／西支館：13,500÷27＝500.0冊</p>
+                    <p>・来館者1人あたり貸出冊数（＝貸出冊数÷来館者数）</p>
+                    <p>　中央館：21,000÷14,000＝1.500冊／北支館：8,500÷4,500≒1.889冊／南支館：7,200÷6,000＝1.200冊／東支館：10,400÷5,200＝<strong>2.000冊</strong>／西支館：13,500÷8,100≒1.667冊</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 1日あたり平均来館者数の最多は<strong>中央館の500.0人</strong>。西支館は300.0人で第2位 → 誤り</p>
+                    <p>・(2) 1日あたり平均貸出冊数の最少は<strong>南支館の300.0冊</strong>。北支館は340.0冊で2番目に少ない → 誤り</p>
+                    <p>・(3) 貸出冊数最多は確かに中央館（21,000冊）だが、5館合計60,600冊の半分は30,300冊。21,000冊＜30,300冊なので「半分以上」ではない → 誤り</p>
+                    <p>・(4) 開館日数最多は<strong>中央館の28日</strong>。西支館は27日で第2位 → 誤り</p>
+                    <p>・(5) 1人あたり貸出冊数の最大は東支館の<strong>2.000冊</strong>で、資料・表と完全に整合 → <strong>正しい</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料】および【表】を読み、T食品工場で「優良品」として評価される製品の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-box">
+                <div class="passage-title">【資料】T食品工場 月次品質管理報告書（2025年10月）</div>
+                T食品工場では5種類の主力製品（P1、P2、P3、P4、P5）を製造している。同工場では、月ごとに生産数・不良品数・顧客返品数・製造から出荷までの平均リードタイムを集計し、次の4つの「出荷基準」を<strong>すべて</strong>満たす製品のみを「優良品」として評価している（基準値ちょうどの場合は基準を満たすものとする）。<br><br>
+                <strong>【出荷基準】</strong><br>
+                <span class="criteria-list">
+                ①　月間生産数が10,000個以上であること<br>
+                ②　不良品率（不良品数÷生産数）が1.0％以下であること<br>
+                ③　顧客返品率（返品数÷生産数）が0.5％以下であること<br>
+                ④　製造から出荷までの平均リードタイムが3.0日以内であること
+                </span><br>
+                なお、不良品率および返品率は小数点以下第4位を切り捨てて判定する。生産数・不良品数・返品数・リードタイムは下表のとおりである。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】製品別 月次生産実績（2025年10月）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>製品</th>
+                            <th>生産数（個）</th>
+                            <th>不良品数（個）</th>
+                            <th>返品数（個）</th>
+                            <th>平均リードタイム（日）</th>
+                        </tr>
+                        <tr>
+                            <td>P1</td>
+                            <td>12,000</td>
+                            <td>100</td>
+                            <td>40</td>
+                            <td>2.5</td>
+                        </tr>
+                        <tr>
+                            <td>P2</td>
+                            <td>15,000</td>
+                            <td>120</td>
+                            <td>50</td>
+                            <td>3.2</td>
+                        </tr>
+                        <tr>
+                            <td>P3</td>
+                            <td>8,000</td>
+                            <td>40</td>
+                            <td>20</td>
+                            <td>2.0</td>
+                        </tr>
+                        <tr>
+                            <td>P4</td>
+                            <td>11,000</td>
+                            <td>110</td>
+                            <td>30</td>
+                            <td>2.8</td>
+                        </tr>
+                        <tr>
+                            <td>P5</td>
+                            <td>14,000</td>
+                            <td>140</td>
+                            <td>80</td>
+                            <td>2.7</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>P1 と P2
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>P1 と P4
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>P2 と P4
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>P1、P3 と P5
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>P2、P4 と P5
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>各製品について4つの出荷基準を順に検証する。</p>
+                    <br>
+                    <p><strong>【基準ごとの検証】</strong></p>
+                    <p>・P1：生産12,000（≥10,000 ✓）／不良率 100÷12,000≒0.833%（≤1.0% ✓）／返品率 40÷12,000≒0.333%（≤0.5% ✓）／リード2.5日（≤3.0 ✓）→ <strong>全基準充足（優良品）</strong></p>
+                    <p>・P2：生産15,000（✓）／不良率 120÷15,000＝0.800%（✓）／返品率 50÷15,000≒0.333%（✓）／リード<strong>3.2日＞3.0日</strong>（✗）→ <strong>基準④で不適</strong></p>
+                    <p>・P3：生産<strong>8,000＜10,000</strong>（✗）→ <strong>基準①で不適</strong>（他条件を検討する必要なし）</p>
+                    <p>・P4：生産11,000（✓）／不良率 110÷11,000＝1.000%（≤1.0% ✓、境界値はOK）／返品率 30÷11,000≒0.272%（✓）／リード2.8日（✓）→ <strong>全基準充足（優良品）</strong></p>
+                    <p>・P5：生産14,000（✓）／不良率 140÷14,000＝1.000%（✓）／返品率 <strong>80÷14,000≒0.571%＞0.5%</strong>（✗）→ <strong>基準③で不適</strong></p>
+                    <br>
+                    <p><strong>【優良品】</strong>P1 と P4 の<strong>2製品のみ</strong>が4基準すべてを満たす。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) P2はリード3.2日で基準④違反 → 誤り</p>
+                    <p>・(2) P1とP4は共に全基準を満たす → <strong>正しい</strong></p>
+                    <p>・(3) P2は基準④違反のため優良品ではない → 誤り</p>
+                    <p>・(4) P3は生産量8,000で基準①違反、P5は返品率0.571%で基準③違反 → 誤り</p>
+                    <p>・(5) P2（基準④違反）およびP5（基準③違反）が含まれる → 誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考116/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
