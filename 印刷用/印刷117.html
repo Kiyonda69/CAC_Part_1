@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 16px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 18px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下記の数列は、ある規則に従って並んでいる。空欄に入る数として正しいものを次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【数列】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <td>1</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>7</td>
+                                <td>11</td>
+                                <td>18</td>
+                                <td><strong>?</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 25　　(2) 27　　(3) 31　　(4) 36　　(5) 29
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5) 29)</strong><br>
+                数列 1, 3, 4, 7, 11, 18, ? の規則を見抜く問題である。<br><br>
+
+                <strong>【規則の発見：方法1（差分が元の数列と一致）】</strong><br>
+                隣接する項の差分を計算する。<br>
+                ・3 − 1 = 2<br>
+                ・4 − 3 = 1<br>
+                ・7 − 4 = 3<br>
+                ・11 − 7 = 4<br>
+                ・18 − 11 = 7<br>
+                差分は 2, 1, 3, 4, 7 となり、元の数列の途中項と重なる部分が現れる。<br>
+                この観察から「各項は直前の2項の和ではないか」という仮説を立てる。<br><br>
+
+                <strong>【規則の発見：方法2（漸化式 a(n) = a(n-1) + a(n-2)）】</strong><br>
+                フィボナッチ型の漸化式を検証する。<br>
+                ・a(3) = a(2) + a(1) = 3 + 1 = 4 ✓<br>
+                ・a(4) = a(3) + a(2) = 4 + 3 = 7 ✓<br>
+                ・a(5) = a(4) + a(3) = 7 + 4 = 11 ✓<br>
+                ・a(6) = a(5) + a(4) = 11 + 7 = 18 ✓<br>
+                よって、a(7) = a(6) + a(5) = 18 + 11 = <strong>29</strong>。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 25 → 11 × 2 + 3（前項倍増の誤推定）<br>
+                ・(2) 27 → 18 + 9（差分を恣意的に推定した誤答）<br>
+                ・(3) 31 → 18 + 13（フィボナッチ数の誤り）<br>
+                ・(4) 36 → 18 × 2（直前項のみを倍化した誤答）<br>
+                ・(5) 29 → 正解（18 + 11 = 29）<br><br>
+
+                したがって、正解は<strong>(5) 29</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の4×4の数表は、行番号 r と列番号 c から決まるある規則に従って作られている。空欄「?」に入る数として正しいものを次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【数表】</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th></th>
+                                <th>c=1</th>
+                                <th>c=2</th>
+                                <th>c=3</th>
+                                <th>c=4</th>
+                            </tr>
+                            <tr>
+                                <th>r=1</th>
+                                <td>3</td>
+                                <td>7</td>
+                                <td>13</td>
+                                <td>21</td>
+                            </tr>
+                            <tr>
+                                <th>r=2</th>
+                                <td>7</td>
+                                <td>12</td>
+                                <td>19</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <th>r=3</th>
+                                <td>13</td>
+                                <td>19</td>
+                                <td><strong>?</strong></td>
+                                <td>37</td>
+                            </tr>
+                            <tr>
+                                <th>r=4</th>
+                                <td>21</td>
+                                <td>28</td>
+                                <td>37</td>
+                                <td>48</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 27　　(2) 24　　(3) 25　　(4) 29　　(5) 33
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1) 27)</strong><br>
+                数表の規則を発見し、空欄 (r=3, c=3) の値を求める問題である。<br><br>
+
+                <strong>【観察1：表は対称】</strong><br>
+                数表は主対角線について対称である（例: (1,2)=7=(2,1)、(1,3)=13=(3,1)、(2,4)=28=(4,2)）。<br>
+                したがって規則は r と c について対称な式のはずである。<br><br>
+
+                <strong>【観察2：行方向の差分】</strong><br>
+                各行で隣接する数の差分を計算する。<br>
+                ・行1: 3, 7, 13, 21 → 差分 4, 6, 8（公差2）<br>
+                ・行2: 7, 12, 19, 28 → 差分 5, 7, 9（公差2）<br>
+                ・行3: 13, 19, ?, 37 → 差分 6, ?, ?（公差2と推測）<br>
+                ・行4: 21, 28, 37, 48 → 差分 7, 9, 11（公差2）<br>
+                いずれの行も差分が<strong>公差2の等差数列</strong>をなす。<br>
+                行3の差分初項は 19 − 13 = 6 なので、次の差分は 6 + 2 = 8。<br>
+                よって ? = 19 + 8 = <strong>27</strong>（検算: 27 + 10 = 37 ✓）。<br><br>
+
+                <strong>【観察3：列方向の差分】</strong><br>
+                列3 は 13, 19, ?, 37。<br>
+                対称性により行3と同じ差分パターンになる。<br>
+                差分初項 19 − 13 = 6、公差2なので次の差分は 8。<br>
+                ? = 19 + 8 = <strong>27</strong>。さらに 27 + 10 = 37 ✓。<br><br>
+
+                <strong>【発展：一般式】</strong><br>
+                数表の規則は a(r,c) = r² + r·c + c² と書ける。<br>
+                ・(1,1) = 1 + 1 + 1 = 3 ✓<br>
+                ・(2,3) = 4 + 6 + 9 = 19 ✓<br>
+                ・(3,3) = 9 + 9 + 9 = <strong>27</strong> ✓<br>
+                ・(4,4) = 16 + 16 + 16 = 48 ✓<br>
+                r と c を入れ替えても値は変わらないため、表の対称性と整合する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 27 → 正解（行・列いずれの差分アプローチでも一致）<br>
+                ・(2) 24 → 19 + 5（差分を公差1で誤推定した誤答）<br>
+                ・(3) 25 → 19 + 6（差分を増加させず同値で推定した誤答）<br>
+                ・(4) 29 → 19 + 10（差分3項目を取り違えた誤答）<br>
+                ・(5) 33 → 3 × 11 など根拠なき誤答<br><br>
+
+                したがって、正解は<strong>(1) 27</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
