@@ -1,0 +1,565 @@
+<!--
+================================================================================
+印刷118.html - セット118: 情報量の多い資料穴埋め問題（印刷用）
+================================================================================
+問1（標準）: N地方5県の観光統計（4指標×5県）の穴埋め（空欄4つ）
+問2（高難度）: 食品メーカーY社の3部門×3年度×4指標の業績データ穴埋め（空欄5つ）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 5px auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 7px 10px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .passage-box {
+            margin: 12px 0;
+            padding: 14px 18px;
+            border: 1px solid #999;
+            background-color: #fafafa;
+            text-align: justify;
+            font-size: 14.5px;
+            line-height: 1.95;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14.5px;
+        }
+
+        .blank-inline {
+            display: inline-block;
+            min-width: 42px;
+            padding: 0 8px;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .option-table {
+            margin: 10px auto;
+            border-collapse: collapse;
+        }
+
+        .option-table td, .option-table th {
+            border: 1px solid #333;
+            padding: 7px 12px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .option-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 13px;
+            color: #444;
+            margin-top: 6px;
+            text-align: left;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料】および【表】を読み、文中の空欄（ア）〜（エ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】N地方の2024年度 観光振興レポート</div>
+                    N地方では域内のA県〜E県（5県）について、毎年「観光入込客数」「うち宿泊客数」「観光消費額」「観光関連雇用者数」の4指標を集計し、地域経済への貢献を評価している。2024年度の集計結果によれば、5県合計の観光入込客数は<span class="blank-inline">（ア）</span>万人にのぼり、地方全体の観光消費額は9,000億円となった。県別にみると、観光消費額が最も多いのは<span class="blank-inline">（イ）</span>県で、地方全体の約26.7％を占めている。一方、宿泊率（宿泊客数÷観光入込客数）に着目すると、5県の中で最も宿泊率が高いのは<span class="blank-inline">（ウ）</span>県（40.0％）であり、観光客の多くが日帰りではなく宿泊を伴っていることがわかる。さらに、観光関連雇用者1人あたりの観光消費額（観光消費額÷観光関連雇用者数）は、地方全体で約<span class="blank-inline">（エ）</span>万円に達した。
+                </div>
+
+                <!-- 統計表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】N地方 県別 観光関連指標（2024年度）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>県</th>
+                                <th>観光入込客数<br>（万人）</th>
+                                <th>うち宿泊客数<br>（万人）</th>
+                                <th>観光消費額<br>（億円）</th>
+                                <th>観光関連雇用者数<br>（千人）</th>
+                            </tr>
+                            <tr>
+                                <td>A県</td>
+                                <td>1,200</td>
+                                <td>300</td>
+                                <td>2,400</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>B県</td>
+                                <td>800</td>
+                                <td>320</td>
+                                <td>1,800</td>
+                                <td>30</td>
+                            </tr>
+                            <tr>
+                                <td>C県</td>
+                                <td>1,500</td>
+                                <td>300</td>
+                                <td>1,800</td>
+                                <td>60</td>
+                            </tr>
+                            <tr>
+                                <td>D県</td>
+                                <td>600</td>
+                                <td>210</td>
+                                <td>1,200</td>
+                                <td>20</td>
+                            </tr>
+                            <tr>
+                                <td>E県</td>
+                                <td>900</td>
+                                <td>180</td>
+                                <td>1,800</td>
+                                <td>40</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5県合計</strong></td>
+                                <td><strong>5,000</strong></td>
+                                <td><strong>1,310</strong></td>
+                                <td><strong>9,000</strong></td>
+                                <td><strong>200</strong></td>
+                            </tr>
+                        </table>
+                        <div class="note">※「うち宿泊客数」は観光入込客数のうち宿泊を伴った客数。1億円＝10,000万円。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th>
+                            <th>（ア）</th>
+                            <th>（イ）</th>
+                            <th>（ウ）</th>
+                            <th>（エ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td>
+                            <td>5,000</td>
+                            <td>A</td>
+                            <td>B</td>
+                            <td>450</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td>
+                            <td>5,000</td>
+                            <td>C</td>
+                            <td>B</td>
+                            <td>450</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td>
+                            <td>5,000</td>
+                            <td>A</td>
+                            <td>D</td>
+                            <td>450</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td>
+                            <td>1,310</td>
+                            <td>A</td>
+                            <td>B</td>
+                            <td>450</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td>
+                            <td>5,000</td>
+                            <td>A</td>
+                            <td>B</td>
+                            <td>45</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br><br>
+
+                【表】の数値を用いて、資料文中の各空欄に入る値を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）5県の観光入込客数の合計：1,200 + 800 + 1,500 + 600 + 900 = <strong>5,000万人</strong>（表の合計欄と一致）。<br>
+                ・（イ）観光消費額が最も多い県：A県 2,400億円（B 1,800、C 1,800、D 1,200、E 1,800）。2,400 ÷ 9,000 ≒ 0.267（約26.7％）で資料文の記述と整合 → <strong>A県</strong>。<br>
+                ・（ウ）宿泊率（宿泊客数÷観光入込客数）：<br>
+                　　A 300/1,200 = 25.0％、B 320/800 = <strong>40.0％</strong>、C 300/1,500 = 20.0％、D 210/600 = 35.0％、E 180/900 = 20.0％<br>
+                　　最大は<strong>B県</strong>（40.0％）。<br>
+                ・（エ）観光関連雇用者1人あたり観光消費額：<br>
+                　　9,000億円 ÷ 200千人 = 9,000×10⁸ ÷ 2×10⁵ = 4,500,000円 = <strong>450万円</strong>。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=5,000、イ=A、ウ=B、エ=450 → すべて整合 → <strong>正しい</strong><br>
+                ・(2) イ=Cは誤り（C県の観光消費額は1,800億円でA県2,400億円より少ない）。<br>
+                ・(3) ウ=Dは誤り（D県の宿泊率は35.0％。最高はB県の40.0％）。<br>
+                ・(4) ア=1,310は宿泊客数の合計であり、観光入込客数の合計ではない。<br>
+                ・(5) エ=45は単位の取り違え（9,000億÷200千人＝450万円が正しい。45は20万人で割った場合の値ではなく、計算ミス）。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の【資料】および【表】を読み、文中の空欄（ア）〜（オ）に入る数値・語句の組合せとして正しいものを、次ページの(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】Y社 統合業績レポート（2023〜2025年度）</div>
+                    食品メーカーY社は「製造」「販売」「物流」の3部門で事業を展開しており、2023〜2025年度の3年間にわたって部門別の業績を集計している。2025年度の全社売上高は<span class="blank-inline">（ア）</span>億円であり、2023年度の合計2,500億円から3年間で約<span class="blank-inline">（イ）</span>％増加した（成長率＝（2025年度－2023年度）÷2023年度×100、小数第2位を四捨五入）。<br>
+                    部門別にみると、2025年度の営業利益率（営業利益÷売上高×100）は製造16.4％、販売14.4％、物流12.5％であり、最も高いのは<span class="blank-inline">（ウ）</span>部門である。一方、2025年度に従業員1人あたり営業利益（営業利益÷従業員数）が最も高いのは<span class="blank-inline">（エ）</span>部門であり、その値は約3,939万円に相当する（1億円＝10,000万円）。なお、3部門合計の従業員数は2023年度の1,100人から2025年度の<span class="blank-inline">（オ）</span>人へと増加した。
+                </div>
+
+                <!-- 統計表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】Y社 部門別×年度別 業績データ（売上高・売上原価・営業利益・従業員数）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th rowspan="2">部門</th>
+                                <th rowspan="2">年度</th>
+                                <th>売上高<br>（億円）</th>
+                                <th>売上原価<br>（億円）</th>
+                                <th>営業利益<br>（億円）</th>
+                                <th>従業員数<br>（人）</th>
+                            </tr>
+                            <tr></tr>
+                            <tr>
+                                <td rowspan="3">製造</td>
+                                <td>2023</td>
+                                <td>1,200</td>
+                                <td>900</td>
+                                <td>200</td>
+                                <td>600</td>
+                            </tr>
+                            <tr>
+                                <td>2024</td>
+                                <td>1,300</td>
+                                <td>970</td>
+                                <td>220</td>
+                                <td>620</td>
+                            </tr>
+                            <tr>
+                                <td>2025</td>
+                                <td>1,400</td>
+                                <td>1,050</td>
+                                <td>230</td>
+                                <td>640</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3">販売</td>
+                                <td>2023</td>
+                                <td>800</td>
+                                <td>600</td>
+                                <td>100</td>
+                                <td>300</td>
+                            </tr>
+                            <tr>
+                                <td>2024</td>
+                                <td>850</td>
+                                <td>640</td>
+                                <td>110</td>
+                                <td>320</td>
+                            </tr>
+                            <tr>
+                                <td>2025</td>
+                                <td>900</td>
+                                <td>670</td>
+                                <td>130</td>
+                                <td>330</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3">物流</td>
+                                <td>2023</td>
+                                <td>500</td>
+                                <td>380</td>
+                                <td>60</td>
+                                <td>200</td>
+                            </tr>
+                            <tr>
+                                <td>2024</td>
+                                <td>540</td>
+                                <td>410</td>
+                                <td>65</td>
+                                <td>210</td>
+                            </tr>
+                            <tr>
+                                <td>2025</td>
+                                <td>600</td>
+                                <td>450</td>
+                                <td>75</td>
+                                <td>220</td>
+                            </tr>
+                        </table>
+                        <div class="note">※営業利益率＝営業利益÷売上高×100。1人あたり営業利益＝営業利益÷従業員数（1億円＝10,000万円で換算）。</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 選択肢ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．（続き）下の(1)〜(5)から空欄（ア）〜（オ）の組合せとして正しいものを1つ選べ。</div>
+
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th>
+                            <th>（ア）</th>
+                            <th>（イ）</th>
+                            <th>（ウ）</th>
+                            <th>（エ）</th>
+                            <th>（オ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td>
+                            <td>2,500</td>
+                            <td>16.0</td>
+                            <td>製造</td>
+                            <td>販売</td>
+                            <td>1,190</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td>
+                            <td>2,900</td>
+                            <td>13.8</td>
+                            <td>製造</td>
+                            <td>販売</td>
+                            <td>1,190</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td>
+                            <td>2,900</td>
+                            <td>16.0</td>
+                            <td>販売</td>
+                            <td>販売</td>
+                            <td>1,190</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td>
+                            <td>2,900</td>
+                            <td>16.0</td>
+                            <td>製造</td>
+                            <td>販売</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td>
+                            <td>2,900</td>
+                            <td>16.0</td>
+                            <td>製造</td>
+                            <td>販売</td>
+                            <td>1,190</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br><br>
+
+                【表】の値を用いて、資料文中の各空欄を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）2025年度の全社売上高：1,400 + 900 + 600 = <strong>2,900億円</strong>。<br>
+                ・（イ）2023→2025年度の成長率：(2,900 − 2,500) ÷ 2,500 × 100 = 16.0％ → <strong>16.0％</strong>。<br>
+                ・（ウ）2025年度の営業利益率：<br>
+                　　製造 230÷1,400 = 16.43％ ≒ 16.4％、販売 130÷900 = 14.44％ ≒ 14.4％、物流 75÷600 = 12.5％。<br>
+                　　最大は<strong>製造</strong>部門。<br>
+                ・（エ）2025年度の1人あたり営業利益（万円換算）：<br>
+                　　製造 230億÷640人 ≒ 0.3594億/人 ≒ 3,594万円<br>
+                　　販売 130億÷330人 ≒ 0.3939億/人 ≒ <strong>3,939万円</strong><br>
+                　　物流 75億÷220人 ≒ 0.3409億/人 ≒ 3,409万円<br>
+                　　最大は<strong>販売</strong>部門。<br>
+                ・（オ）2025年度の3部門合計従業員数：640 + 330 + 220 = <strong>1,190人</strong>。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=2,500は2023年度の合計値で、2025年度の値ではない → 誤り<br>
+                ・(2) イ=13.8は (2,900−2,500)÷<u>2,900</u>×100 ≒ 13.8％。分母を2025年度にした計算ミス → 誤り<br>
+                ・(3) ウ=販売は誤り（2025年度の営業利益率最高は製造16.4％）。<br>
+                ・(4) オ=90は2023→2025年度の従業員「増加数」（1,190−1,100）であり、2025年度の従業員数（1,190人）ではない → 誤り<br>
+                ・(5) ア=2,900、イ=16.0、ウ=製造、エ=販売、オ=1,190 → すべて整合 → <strong>正しい</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

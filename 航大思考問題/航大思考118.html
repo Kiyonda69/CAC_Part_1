@@ -1,0 +1,732 @@
+<!--
+================================================================================
+航大思考118.html - セット118: 情報量の多い資料穴埋め問題（インタラクティブ版）
+================================================================================
+問1（標準）: N地方5県の観光統計（4指標×5県）の穴埋め（空欄4つ）
+問2（高難度）: 食品メーカーY社の3部門×3年度×4指標の業績データ穴埋め（空欄5つ）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        .passage-box {
+            margin: 15px 0;
+            padding: 18px 22px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            font-size: 15px;
+            line-height: 2;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .blank-inline {
+            display: inline-block;
+            min-width: 42px;
+            padding: 0 8px;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 14.5px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .option-inline-table {
+            display: inline-block;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .option-inline-table span {
+            display: inline-block;
+            min-width: 70px;
+            padding: 0 7px;
+            border-right: 1px solid #bbb;
+        }
+
+        .option-inline-table span:last-child {
+            border-right: none;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 12px;
+            min-width: 50px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 7px 10px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .note {
+            font-size: 13px;
+            color: #555;
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <!-- プログレスバー -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料】および【表】を読み、文中の空欄（ア）〜（エ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!-- 資料（穴埋め文章） -->
+            <div class="passage-box">
+                <div class="passage-title">【資料】N地方の2024年度 観光振興レポート</div>
+                N地方では域内のA県〜E県（5県）について、毎年「観光入込客数」「うち宿泊客数」「観光消費額」「観光関連雇用者数」の4指標を集計し、地域経済への貢献を評価している。2024年度の集計結果によれば、5県合計の観光入込客数は<span class="blank-inline">（ア）</span>万人にのぼり、地方全体の観光消費額は9,000億円となった。県別にみると、観光消費額が最も多いのは<span class="blank-inline">（イ）</span>県で、地方全体の約26.7％を占めている。一方、宿泊率（宿泊客数÷観光入込客数）に着目すると、5県の中で最も宿泊率が高いのは<span class="blank-inline">（ウ）</span>県（40.0％）であり、観光客の多くが日帰りではなく宿泊を伴っていることがわかる。さらに、観光関連雇用者1人あたりの観光消費額（観光消費額÷観光関連雇用者数）は、地方全体で約<span class="blank-inline">（エ）</span>万円に達した。
+            </div>
+
+            <!-- 統計表 -->
+            <div class="figure-container">
+                <div class="figure-title">【表】N地方 県別 観光関連指標（2024年度）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>県</th>
+                            <th>観光入込客数<br>（万人）</th>
+                            <th>うち宿泊客数<br>（万人）</th>
+                            <th>観光消費額<br>（億円）</th>
+                            <th>観光関連雇用者数<br>（千人）</th>
+                        </tr>
+                        <tr>
+                            <td>A県</td>
+                            <td>1,200</td>
+                            <td>300</td>
+                            <td>2,400</td>
+                            <td>50</td>
+                        </tr>
+                        <tr>
+                            <td>B県</td>
+                            <td>800</td>
+                            <td>320</td>
+                            <td>1,800</td>
+                            <td>30</td>
+                        </tr>
+                        <tr>
+                            <td>C県</td>
+                            <td>1,500</td>
+                            <td>300</td>
+                            <td>1,800</td>
+                            <td>60</td>
+                        </tr>
+                        <tr>
+                            <td>D県</td>
+                            <td>600</td>
+                            <td>210</td>
+                            <td>1,200</td>
+                            <td>20</td>
+                        </tr>
+                        <tr>
+                            <td>E県</td>
+                            <td>900</td>
+                            <td>180</td>
+                            <td>1,800</td>
+                            <td>40</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5県合計</strong></td>
+                            <td><strong>5,000</strong></td>
+                            <td><strong>1,310</strong></td>
+                            <td><strong>9,000</strong></td>
+                            <td><strong>200</strong></td>
+                        </tr>
+                    </table>
+                    <div class="note">※「うち宿泊客数」は観光入込客数のうち宿泊を伴った客数。1億円＝10,000万円。</div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>
+                    <span class="option-inline-table"><span>ア: 5,000</span><span>イ: A</span><span>ウ: B</span><span>エ: 450</span></span>
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>
+                    <span class="option-inline-table"><span>ア: 5,000</span><span>イ: C</span><span>ウ: B</span><span>エ: 450</span></span>
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>
+                    <span class="option-inline-table"><span>ア: 5,000</span><span>イ: A</span><span>ウ: D</span><span>エ: 450</span></span>
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>
+                    <span class="option-inline-table"><span>ア: 1,310</span><span>イ: A</span><span>ウ: B</span><span>エ: 450</span></span>
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>
+                    <span class="option-inline-table"><span>ア: 5,000</span><span>イ: A</span><span>ウ: B</span><span>エ: 45</span></span>
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>【表】の数値を用いて、資料文中の各空欄に入る値を順に確定する。</p>
+                    <br>
+                    <p><strong>【各空欄の確定】</strong></p>
+                    <p>・（ア）5県の観光入込客数の合計：1,200 + 800 + 1,500 + 600 + 900 = <strong>5,000万人</strong>（表の合計欄と一致）。</p>
+                    <p>・（イ）観光消費額が最も多い県：A県 2,400億円（B 1,800、C 1,800、D 1,200、E 1,800）。2,400 ÷ 9,000 ≒ 0.267（約26.7％）で資料文の記述と整合 → <strong>A県</strong>。</p>
+                    <p>・（ウ）宿泊率（宿泊客数÷観光入込客数）：A 25.0％、B <strong>40.0％</strong>、C 20.0％、D 35.0％、E 20.0％ → 最大は<strong>B県</strong>。</p>
+                    <p>・（エ）観光関連雇用者1人あたり観光消費額：9,000億円 ÷ 200千人 = 9,000×10⁸ ÷ 2×10⁵ = 4,500,000円 = <strong>450万円</strong>。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) ア=5,000、イ=A、ウ=B、エ=450 → すべて整合 → <strong>正しい</strong></p>
+                    <p>・(2) イ=Cは誤り（C県の観光消費額は1,800億円でA県2,400億円より少ない）。</p>
+                    <p>・(3) ウ=Dは誤り（D県の宿泊率は35.0％。最高はB県の40.0％）。</p>
+                    <p>・(4) ア=1,310は宿泊客数の合計であり、観光入込客数の合計ではない。</p>
+                    <p>・(5) エ=45は単位の取り違えによる誤算（正解は450万円）。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料】および【表】を読み、文中の空欄（ア）〜（オ）に入る数値・語句の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!-- 資料（穴埋め文章） -->
+            <div class="passage-box">
+                <div class="passage-title">【資料】Y社 統合業績レポート（2023〜2025年度）</div>
+                食品メーカーY社は「製造」「販売」「物流」の3部門で事業を展開しており、2023〜2025年度の3年間にわたって部門別の業績を集計している。2025年度の全社売上高は<span class="blank-inline">（ア）</span>億円であり、2023年度の合計2,500億円から3年間で約<span class="blank-inline">（イ）</span>％増加した（成長率＝（2025年度－2023年度）÷2023年度×100、小数第2位を四捨五入）。<br>
+                部門別にみると、2025年度の営業利益率（営業利益÷売上高×100）は製造16.4％、販売14.4％、物流12.5％であり、最も高いのは<span class="blank-inline">（ウ）</span>部門である。一方、2025年度に従業員1人あたり営業利益（営業利益÷従業員数）が最も高いのは<span class="blank-inline">（エ）</span>部門であり、その値は約3,939万円に相当する（1億円＝10,000万円）。なお、3部門合計の従業員数は2023年度の1,100人から2025年度の<span class="blank-inline">（オ）</span>人へと増加した。
+            </div>
+
+            <!-- 統計表 -->
+            <div class="figure-container">
+                <div class="figure-title">【表】Y社 部門別×年度別 業績データ（売上高・売上原価・営業利益・従業員数）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>部門</th>
+                            <th>年度</th>
+                            <th>売上高<br>（億円）</th>
+                            <th>売上原価<br>（億円）</th>
+                            <th>営業利益<br>（億円）</th>
+                            <th>従業員数<br>（人）</th>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">製造</td>
+                            <td>2023</td>
+                            <td>1,200</td>
+                            <td>900</td>
+                            <td>200</td>
+                            <td>600</td>
+                        </tr>
+                        <tr>
+                            <td>2024</td>
+                            <td>1,300</td>
+                            <td>970</td>
+                            <td>220</td>
+                            <td>620</td>
+                        </tr>
+                        <tr>
+                            <td>2025</td>
+                            <td>1,400</td>
+                            <td>1,050</td>
+                            <td>230</td>
+                            <td>640</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">販売</td>
+                            <td>2023</td>
+                            <td>800</td>
+                            <td>600</td>
+                            <td>100</td>
+                            <td>300</td>
+                        </tr>
+                        <tr>
+                            <td>2024</td>
+                            <td>850</td>
+                            <td>640</td>
+                            <td>110</td>
+                            <td>320</td>
+                        </tr>
+                        <tr>
+                            <td>2025</td>
+                            <td>900</td>
+                            <td>670</td>
+                            <td>130</td>
+                            <td>330</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3">物流</td>
+                            <td>2023</td>
+                            <td>500</td>
+                            <td>380</td>
+                            <td>60</td>
+                            <td>200</td>
+                        </tr>
+                        <tr>
+                            <td>2024</td>
+                            <td>540</td>
+                            <td>410</td>
+                            <td>65</td>
+                            <td>210</td>
+                        </tr>
+                        <tr>
+                            <td>2025</td>
+                            <td>600</td>
+                            <td>450</td>
+                            <td>75</td>
+                            <td>220</td>
+                        </tr>
+                    </table>
+                    <div class="note">※営業利益率＝営業利益÷売上高×100。1人あたり営業利益＝営業利益÷従業員数（1億円＝10,000万円で換算）。</div>
+                </div>
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>
+                    <span class="option-inline-table"><span>ア: 2,500</span><span>イ: 16.0</span><span>ウ: 製造</span><span>エ: 販売</span><span>オ: 1,190</span></span>
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>
+                    <span class="option-inline-table"><span>ア: 2,900</span><span>イ: 13.8</span><span>ウ: 製造</span><span>エ: 販売</span><span>オ: 1,190</span></span>
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>
+                    <span class="option-inline-table"><span>ア: 2,900</span><span>イ: 16.0</span><span>ウ: 販売</span><span>エ: 販売</span><span>オ: 1,190</span></span>
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>
+                    <span class="option-inline-table"><span>ア: 2,900</span><span>イ: 16.0</span><span>ウ: 製造</span><span>エ: 販売</span><span>オ: 90</span></span>
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>
+                    <span class="option-inline-table"><span>ア: 2,900</span><span>イ: 16.0</span><span>ウ: 製造</span><span>エ: 販売</span><span>オ: 1,190</span></span>
+                </button>
+            </div>
+
+            <!-- 解説 -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>【表】の値を用いて、資料文中の各空欄を順に確定する。</p>
+                    <br>
+                    <p><strong>【各空欄の確定】</strong></p>
+                    <p>・（ア）2025年度の全社売上高：1,400 + 900 + 600 = <strong>2,900億円</strong>。</p>
+                    <p>・（イ）2023→2025年度の成長率：(2,900 − 2,500) ÷ 2,500 × 100 = <strong>16.0％</strong>。</p>
+                    <p>・（ウ）2025年度の営業利益率：製造 230÷1,400 ≒ 16.4％、販売 130÷900 ≒ 14.4％、物流 75÷600 = 12.5％ → 最大は<strong>製造</strong>部門。</p>
+                    <p>・（エ）2025年度の1人あたり営業利益（万円換算）：</p>
+                    <p>　　- 製造 230億÷640人 ≒ 0.3594億/人 ≒ 3,594万円</p>
+                    <p>　　- 販売 130億÷330人 ≒ 0.3939億/人 ≒ <strong>3,939万円</strong></p>
+                    <p>　　- 物流 75億÷220人 ≒ 0.3409億/人 ≒ 3,409万円</p>
+                    <p>　　最大は<strong>販売</strong>部門。</p>
+                    <p>・（オ）2025年度の3部門合計従業員数：640 + 330 + 220 = <strong>1,190人</strong>。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) ア=2,500は2023年度の合計値で、2025年度の値ではない → 誤り</p>
+                    <p>・(2) イ=13.8は (2,900−2,500)÷<u>2,900</u>×100 ≒ 13.8％。分母を2025年度にした計算ミス → 誤り</p>
+                    <p>・(3) ウ=販売は誤り（2025年度の営業利益率最高は製造16.4％）。</p>
+                    <p>・(4) オ=90は2023→2025年度の従業員「増加数」（1,190−1,100）であり、2025年度の従業員数（1,190人）ではない → 誤り</p>
+                    <p>・(5) ア=2,900、イ=16.0、ウ=製造、エ=販売、オ=1,190 → すべて整合 → <strong>正しい</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_04/航大思考118/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
