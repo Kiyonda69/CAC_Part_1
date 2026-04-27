@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .question { margin-bottom: 20px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .choices { margin-top: 20px; display: flex; justify-content: space-around; font-size: 16px; padding: 0 10px; }
+        .explanation { padding: 20px 0; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．同じ大きさの小立方体27個を組み合わせてできた3×3×3の大立方体がある。図のように、上面と正面（手前の面）に丸印をつけ、各丸印の位置から反対側の面まで垂直に穴を空けた（上面の丸印は下面まで貫通、正面の丸印は背面まで貫通）。穴が開いていない小立方体の個数として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図】3×3×3の大立方体（上面・正面に丸印）</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 430×340px, viewBox: 0 0 430 340
+                    - 斜投影法（カバリエ投影）: 奥行き45°、比率0.5
+                    - 前面原点: (90, 165), セルサイズ: 50px, 奥行き単位: 25px
+                    - 上面: (90,165)(240,165)(315,90)(165,90)
+                    - 前面: (90,165)(240,165)(240,315)(90,315)
+                    - 右面: (240,165)(315,90)(315,240)(240,315)
+                    - 上面の丸印: col=2 row=1、col=1 row=2、col=3 row=2 (col=左右, row=前後)
+                    - 前面の丸印: col=1 height=1、col=3 height=3 (height=下から)
+                    -->
+                    <svg width="430" height="340" viewBox="0 0 430 340">
+                        <!-- 面の塗りつぶし（白） -->
+                        <polygon points="90,165 240,165 315,90 165,90" fill="white" stroke="none"/>
+                        <polygon points="90,165 240,165 240,315 90,315" fill="white" stroke="none"/>
+                        <polygon points="240,165 315,90 315,240 240,315" fill="white" stroke="none"/>
+
+                        <!-- 前面 内部グリッド -->
+                        <line x1="140" y1="165" x2="140" y2="315" stroke="black" stroke-width="1"/>
+                        <line x1="190" y1="165" x2="190" y2="315" stroke="black" stroke-width="1"/>
+                        <line x1="90" y1="215" x2="240" y2="215" stroke="black" stroke-width="1"/>
+                        <line x1="90" y1="265" x2="240" y2="265" stroke="black" stroke-width="1"/>
+
+                        <!-- 上面 内部グリッド -->
+                        <!-- 列区切り（奥行き方向） -->
+                        <line x1="140" y1="165" x2="215" y2="90" stroke="black" stroke-width="1"/>
+                        <line x1="190" y1="165" x2="265" y2="90" stroke="black" stroke-width="1"/>
+                        <!-- 行区切り（左右方向） -->
+                        <line x1="115" y1="140" x2="265" y2="140" stroke="black" stroke-width="1"/>
+                        <line x1="140" y1="115" x2="290" y2="115" stroke="black" stroke-width="1"/>
+
+                        <!-- 右面 内部グリッド -->
+                        <!-- 列区切り（奥行き） -->
+                        <line x1="265" y1="140" x2="265" y2="290" stroke="black" stroke-width="1"/>
+                        <line x1="290" y1="115" x2="290" y2="265" stroke="black" stroke-width="1"/>
+                        <!-- 行区切り（高さ） -->
+                        <line x1="240" y1="215" x2="315" y2="140" stroke="black" stroke-width="1"/>
+                        <line x1="240" y1="265" x2="315" y2="190" stroke="black" stroke-width="1"/>
+
+                        <!-- 外枠（太線） -->
+                        <!-- 前面 -->
+                        <line x1="90" y1="165" x2="240" y2="165" stroke="black" stroke-width="2.5"/>
+                        <line x1="90" y1="165" x2="90" y2="315" stroke="black" stroke-width="2.5"/>
+                        <line x1="90" y1="315" x2="240" y2="315" stroke="black" stroke-width="2.5"/>
+                        <line x1="240" y1="165" x2="240" y2="315" stroke="black" stroke-width="2.5"/>
+                        <!-- 上面の追加辺 -->
+                        <line x1="90" y1="165" x2="165" y2="90" stroke="black" stroke-width="2.5"/>
+                        <line x1="165" y1="90" x2="315" y2="90" stroke="black" stroke-width="2.5"/>
+                        <line x1="240" y1="165" x2="315" y2="90" stroke="black" stroke-width="2.5"/>
+                        <!-- 右面の追加辺 -->
+                        <line x1="315" y1="90" x2="315" y2="240" stroke="black" stroke-width="2.5"/>
+                        <line x1="315" y1="240" x2="240" y2="315" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 上面の丸印 -->
+                        <!-- (col=2, row=1): cx=90+(2-0.5)*50+(1-0.5)*25=177.5, cy=165-(1-0.5)*25=152.5 -->
+                        <circle cx="177.5" cy="152.5" r="7" fill="black"/>
+                        <!-- (col=1, row=2): cx=90+(1-0.5)*50+(2-0.5)*25=152.5, cy=165-(2-0.5)*25=127.5 -->
+                        <circle cx="152.5" cy="127.5" r="7" fill="black"/>
+                        <!-- (col=3, row=2): cx=90+(3-0.5)*50+(2-0.5)*25=252.5, cy=127.5 -->
+                        <circle cx="252.5" cy="127.5" r="7" fill="black"/>
+
+                        <!-- 前面の丸印 -->
+                        <!-- (col=1, h=1): cx=90+(1-0.5)*50=115, cy=315-(1-0.5)*50=290 -->
+                        <circle cx="115" cy="290" r="7" fill="black"/>
+                        <!-- (col=3, h=3): cx=90+(3-0.5)*50=215, cy=315-(3-0.5)*50=190 -->
+                        <circle cx="215" cy="190" r="7" fill="black"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="choices">
+                <span>(1)&ensp;10個</span>
+                <span>(2)&ensp;12個</span>
+                <span>(3)&ensp;14個</span>
+                <span>(4)&ensp;16個</span>
+                <span>(5)&ensp;18個</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1（正解：(3)）</strong><br><br>
+
+            小立方体は全部で27個。座標を（左右列、前後行、高さ段）で表す（各1〜3）。<br><br>
+
+            <strong>【上面からの穴（3箇所）】</strong><br>
+            各丸印から下面まで垂直に貫通するため、各列3個の小立方体が穴あきになる。<br>
+            ・(列2,行1)：3個 &emsp; ・(列1,行2)：3個 &emsp; ・(列3,行2)：3個<br>
+            小計：3×3 = <strong>9個</strong><br><br>
+
+            <strong>【正面からの穴（2箇所）】</strong><br>
+            各丸印から背面まで水平に貫通するため、各行3個の小立方体が穴あきになる。<br>
+            ・(列1,高さ1)：3個 &emsp; ・(列3,高さ3)：3個<br>
+            小計：2×3 = <strong>6個</strong><br><br>
+
+            <strong>【重複の除外】</strong><br>
+            上面と正面の両方から貫通され、二重に数えた小立方体が2個ある。<br>
+            ・(列1,行2,高さ1)：上面(列1,行2)の穴と正面(列1,高さ1)の穴が交差<br>
+            ・(列3,行2,高さ3)：上面(列3,行2)の穴と正面(列3,高さ3)の穴が交差<br>
+            重複：<strong>2個</strong><br><br>
+
+            <strong>【穴あき小立方体の総数】</strong><br>
+            9 + 6 − 2 = <strong>13個</strong><br><br>
+
+            <strong>【穴なし小立方体の数】</strong><br>
+            27 − 13 = <strong>14個</strong><br><br>
+
+            ・(1) 10個 → 不正解（重複計算の誤り）<br>
+            ・(2) 12個 → 不正解（重複の数え違い）<br>
+            ・(3) 14個 → <strong>正解</strong><br>
+            ・(4) 16個 → 不正解（穴の数え漏れ）<br>
+            ・(5) 18個 → 不正解（重複未除外）<br><br>
+
+            したがって、正解は<strong>(3)</strong>である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．同じ大きさの小立方体64個を組み合わせてできた4×4×4の大立方体がある。図のように、上面・正面（手前の面）・右側面の3方向に丸印をつけ、各丸印の位置から反対側の面まで垂直に穴を空けた（上面は下面まで、正面は背面まで、右側面は左側面まで貫通）。穴が開いていない小立方体の個数として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図】4×4×4の大立方体（上面・正面・右側面に丸印）</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500×390px, viewBox: 0 0 500 390
+                    - 斜投影法: 前面原点 (100,185), セルサイズ: 36px, 奥行き単位: 18px
+                    - 上面: (100,185)(244,185)(316,113)(172,113)
+                    - 前面: (100,185)(244,185)(244,329)(100,329)
+                    - 右面: (244,185)(316,113)(316,257)(244,329)
+                    - 上面の丸印: (c,r)=(1,2),(2,1),(3,3),(4,2),(2,4),(1,4),(4,3)
+                    - 前面の丸印: (c,h)=(3,1),(2,3),(1,2),(4,4)
+                    - 右面の丸印: (y,h)=(1,3),(3,4),(4,2)
+                    -->
+                    <svg width="500" height="390" viewBox="0 0 500 390">
+                        <!-- 面の塗りつぶし（白） -->
+                        <polygon points="100,185 244,185 316,113 172,113" fill="white" stroke="none"/>
+                        <polygon points="100,185 244,185 244,329 100,329" fill="white" stroke="none"/>
+                        <polygon points="244,185 316,113 316,257 244,329" fill="white" stroke="none"/>
+
+                        <!-- 前面 内部グリッド -->
+                        <line x1="136" y1="185" x2="136" y2="329" stroke="black" stroke-width="1"/>
+                        <line x1="172" y1="185" x2="172" y2="329" stroke="black" stroke-width="1"/>
+                        <line x1="208" y1="185" x2="208" y2="329" stroke="black" stroke-width="1"/>
+                        <line x1="100" y1="221" x2="244" y2="221" stroke="black" stroke-width="1"/>
+                        <line x1="100" y1="257" x2="244" y2="257" stroke="black" stroke-width="1"/>
+                        <line x1="100" y1="293" x2="244" y2="293" stroke="black" stroke-width="1"/>
+
+                        <!-- 上面 内部グリッド -->
+                        <!-- 列区切り（奥行き方向） -->
+                        <line x1="136" y1="185" x2="208" y2="113" stroke="black" stroke-width="1"/>
+                        <line x1="172" y1="185" x2="244" y2="113" stroke="black" stroke-width="1"/>
+                        <line x1="208" y1="185" x2="280" y2="113" stroke="black" stroke-width="1"/>
+                        <!-- 行区切り（左右方向） -->
+                        <line x1="118" y1="167" x2="262" y2="167" stroke="black" stroke-width="1"/>
+                        <line x1="136" y1="149" x2="280" y2="149" stroke="black" stroke-width="1"/>
+                        <line x1="154" y1="131" x2="298" y2="131" stroke="black" stroke-width="1"/>
+
+                        <!-- 右面 内部グリッド -->
+                        <!-- 列区切り（奥行き） -->
+                        <line x1="262" y1="167" x2="262" y2="311" stroke="black" stroke-width="1"/>
+                        <line x1="280" y1="149" x2="280" y2="293" stroke="black" stroke-width="1"/>
+                        <line x1="298" y1="131" x2="298" y2="275" stroke="black" stroke-width="1"/>
+                        <!-- 行区切り（高さ） -->
+                        <line x1="244" y1="221" x2="316" y2="149" stroke="black" stroke-width="1"/>
+                        <line x1="244" y1="257" x2="316" y2="185" stroke="black" stroke-width="1"/>
+                        <line x1="244" y1="293" x2="316" y2="221" stroke="black" stroke-width="1"/>
+
+                        <!-- 外枠（太線） -->
+                        <!-- 前面 -->
+                        <line x1="100" y1="185" x2="244" y2="185" stroke="black" stroke-width="2.5"/>
+                        <line x1="100" y1="185" x2="100" y2="329" stroke="black" stroke-width="2.5"/>
+                        <line x1="100" y1="329" x2="244" y2="329" stroke="black" stroke-width="2.5"/>
+                        <line x1="244" y1="185" x2="244" y2="329" stroke="black" stroke-width="2.5"/>
+                        <!-- 上面の追加辺 -->
+                        <line x1="100" y1="185" x2="172" y2="113" stroke="black" stroke-width="2.5"/>
+                        <line x1="172" y1="113" x2="316" y2="113" stroke="black" stroke-width="2.5"/>
+                        <line x1="244" y1="185" x2="316" y2="113" stroke="black" stroke-width="2.5"/>
+                        <!-- 右面の追加辺 -->
+                        <line x1="316" y1="113" x2="316" y2="257" stroke="black" stroke-width="2.5"/>
+                        <line x1="316" y1="257" x2="244" y2="329" stroke="black" stroke-width="2.5"/>
+
+                        <!-- 上面の丸印 -->
+                        <!-- (c,r): cx=100+(c-0.5)*36+(r-0.5)*18, cy=185-(r-0.5)*18 -->
+                        <!-- (1,2): cx=145, cy=158 -->
+                        <circle cx="145" cy="158" r="6" fill="black"/>
+                        <!-- (2,1): cx=163, cy=176 -->
+                        <circle cx="163" cy="176" r="6" fill="black"/>
+                        <!-- (3,3): cx=235, cy=140 -->
+                        <circle cx="235" cy="140" r="6" fill="black"/>
+                        <!-- (4,2): cx=253, cy=158 -->
+                        <circle cx="253" cy="158" r="6" fill="black"/>
+                        <!-- (2,4): cx=217, cy=122 -->
+                        <circle cx="217" cy="122" r="6" fill="black"/>
+                        <!-- (1,4): cx=181, cy=122 -->
+                        <circle cx="181" cy="122" r="6" fill="black"/>
+                        <!-- (4,3): cx=271, cy=140 -->
+                        <circle cx="271" cy="140" r="6" fill="black"/>
+
+                        <!-- 前面の丸印 -->
+                        <!-- (c,h): cx=100+(c-0.5)*36, cy=329-(h-0.5)*36 -->
+                        <!-- (3,1): cx=190, cy=311 -->
+                        <circle cx="190" cy="311" r="6" fill="black"/>
+                        <!-- (2,3): cx=154, cy=239 -->
+                        <circle cx="154" cy="239" r="6" fill="black"/>
+                        <!-- (1,2): cx=118, cy=275 -->
+                        <circle cx="118" cy="275" r="6" fill="black"/>
+                        <!-- (4,4): cx=226, cy=203 -->
+                        <circle cx="226" cy="203" r="6" fill="black"/>
+
+                        <!-- 右面の丸印 -->
+                        <!-- (y,h): cx=244+(y-0.5)*18, cy=185-(y-0.5)*18+(4-h+0.5)*36 -->
+                        <!-- (1,3): cx=253, cy=230 -->
+                        <circle cx="253" cy="230" r="6" fill="black"/>
+                        <!-- (3,4): cx=289, cy=158 -->
+                        <circle cx="289" cy="158" r="6" fill="black"/>
+                        <!-- (4,2): cx=307, cy=212 -->
+                        <circle cx="307" cy="212" r="6" fill="black"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="choices">
+                <span>(1)&ensp;20個</span>
+                <span>(2)&ensp;22個</span>
+                <span>(3)&ensp;24個</span>
+                <span>(4)&ensp;26個</span>
+                <span>(5)&ensp;28個</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2（正解：(1)）</strong><br><br>
+
+            小立方体は全部で64個。座標を（左右列x、前後行y、高さ段z）で表す（各1〜4）。<br><br>
+
+            <strong>【上面からの穴（7箇所）】</strong><br>
+            各丸印から下面まで貫通。各位置で4個の小立方体が穴あきになる。<br>
+            7×4 = <strong>28個</strong><br><br>
+
+            <strong>【正面からの穴（4箇所）】</strong><br>
+            各丸印から背面まで貫通。各位置で4個の小立方体が穴あきになる。<br>
+            4×4 = 16個 &emsp; ただし、上面の穴と重複する箇所が7か所ある。<br>
+            新規穴あき：16 − 7 = <strong>9個</strong><br><br>
+
+            <strong>【右側面からの穴（3箇所）】</strong><br>
+            各丸印から左側面まで貫通。各位置で4個の小立方体が穴あきになる。<br>
+            3×4 = 12個 &emsp; ただし、上面・正面の穴と重複する箇所が5か所ある。<br>
+            新規穴あき：12 − 5 = <strong>7個</strong><br><br>
+
+            <strong>【穴あき小立方体の総数】</strong><br>
+            28 + 9 + 7 = <strong>44個</strong><br><br>
+
+            <strong>【穴なし小立方体の数】</strong><br>
+            64 − 44 = <strong>20個</strong><br><br>
+
+            ・(1) 20個 → <strong>正解</strong><br>
+            ・(2) 22個 → 不正解（重複の計算誤り）<br>
+            ・(3) 24個 → 不正解（穴の数え不足）<br>
+            ・(4) 26個 → 不正解（穴の数え不足）<br>
+            ・(5) 28個 → 不正解（重複未除外）<br><br>
+
+            したがって、正解は<strong>(1)</strong>である。
+        </div>
+    </div>
+</div>
+
+<script>
+    function scalePages() {
+        const pages = document.querySelectorAll('.question-section');
+        const baseWidth = 800;
+        const viewportWidth = window.innerWidth;
+        const padding = 40;
+        const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+        pages.forEach(page => {
+            page.style.transform = `scale(${scale})`;
+            const originalHeight = page.offsetHeight / scale;
+            const scaledHeight = originalHeight * scale;
+            page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+        });
+    }
+    window.addEventListener('load', scalePages);
+    window.addEventListener('resize', scalePages);
+</script>
+</body>
+</html>
