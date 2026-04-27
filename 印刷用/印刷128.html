@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題 印刷128</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question { margin-bottom: 20px; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .figure-container { margin: 15px 0; text-align: center; }
+        .figure-row { display: flex; justify-content: center; align-items: flex-start; gap: 30px; margin: 15px 0; }
+        .figure-item { text-align: center; }
+        .figure-label { font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+        .options-row { display: flex; justify-content: center; gap: 8px; margin: 15px 0; }
+        .option-item { text-align: center; }
+        svg { max-width: 100%; height: auto; }
+        .explanation { padding: 15px 0; }
+        .explanation-title { font-weight: bold; font-size: 16px; margin-bottom: 12px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+        @media print {
+            body { background-color: white; padding: 0; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+        }
+    </style>
+    <script>
+        function scalePages() {
+            const sections = document.querySelectorAll('.question-section');
+            const viewportWidth = window.innerWidth - 40;
+            sections.forEach(s => {
+                const scale = Math.min(1, viewportWidth / 800);
+                s.style.transform = `scale(${scale})`;
+                s.style.marginBottom = scale < 1 ? `${(s.offsetHeight * scale - s.offsetHeight) + 20}px` : '20px';
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</head>
+<body>
+
+<!-- ===== 問1 問題ページ ===== -->
+<div class="question-section">
+<div class="page-content">
+<div class="question">
+<div class="question-number">問1．ある立体を真上から見ると図Aのようになり、アの方向から見ると図Bのようになった。この立体をイの方向から見た図として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+<div class="figure-row">
+  <!-- 図A: 上面図 (真上から見た図) -->
+  <div class="figure-item">
+    <div class="figure-label">図A（真上から）</div>
+    <!--
+    上面図 (x-z平面):
+    SVG: 220×230, 40px/unit, z=0 at bottom (前面), z=4 at top (後面)
+    svg_x = 20 + x*40, svg_y = 190 - z*40
+    L字形: x:[0-4]×z:[0-2] (前半) + x:[0-2]×z:[2-4] (後半左)
+    -->
+    <svg width="220" height="230" viewBox="0 0 220 230">
+      <!-- L字形の輪郭 -->
+      <polygon points="20,190 180,190 180,110 100,110 100,30 20,30"
+               fill="none" stroke="black" stroke-width="2"/>
+      <!-- アの方向を示す矢印（下から上向き） -->
+      <line x1="100" y1="215" x2="100" y2="200" stroke="black" stroke-width="1.5"/>
+      <polygon points="100,194 96,204 104,204" fill="black"/>
+      <text x="100" y="226" text-anchor="middle" font-family="serif" font-size="15">ア</text>
+      <!-- イの方向を示す矢印（右から左向き） -->
+      <line x1="200" y1="110" x2="188" y2="110" stroke="black" stroke-width="1.5"/>
+      <polygon points="183,110 193,106 193,114" fill="black"/>
+      <text x="210" y="114" text-anchor="start" font-family="serif" font-size="15">イ</text>
+    </svg>
+  </div>
+
+  <!-- 図B: 正面図 (ア方向から見た図) -->
+  <div class="figure-item">
+    <div class="figure-label">図B（アの方向から）</div>
+    <!--
+    正面図 (x-y平面):
+    SVG: 220×155, x: 40px/unit, y: 30px/unit (上向き)
+    svg_x = 20 + x*40, svg_y = 140 - y*30
+    左半(x:0-2)高さ1, 右半(x:2-4)高さ3 → 右が高い階段形状
+    -->
+    <svg width="220" height="155" viewBox="0 0 220 155">
+      <polygon points="20,140 180,140 180,50 100,50 100,110 20,110"
+               fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+</div>
+
+<!-- 選択肢 (5択): イ方向から見た右側面図 -->
+<!--
+右側面図 (z-y平面): z=0(前面)=左, z=4(後面)=右
+SVG: 115×100, z: 26px/unit, y: 22px/unit
+svg_x = 5 + z*26, svg_y = 92 - y*22
+z=2 → 57, z=1 → 31
+y=1 → 70, y=3 → 26
+-->
+<div class="options-row">
+  <div class="option-item">
+    <svg width="115" height="100" viewBox="0 0 115 100">
+      <text x="57" y="13" text-anchor="middle" font-family="serif" font-size="13">(1)</text>
+      <!-- 4×3 全体長方形 -->
+      <polygon points="5,92 109,92 109,26 5,26" fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="option-item">
+    <svg width="115" height="100" viewBox="0 0 115 100">
+      <text x="57" y="13" text-anchor="middle" font-family="serif" font-size="13">(2)</text>
+      <!-- 4×1 全体長方形 -->
+      <polygon points="5,92 109,92 109,70 5,70" fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="option-item">
+    <svg width="115" height="100" viewBox="0 0 115 100">
+      <text x="57" y="13" text-anchor="middle" font-family="serif" font-size="13">(3)</text>
+      <!-- 後部(右)が高い階段: z:0-2 高さ1, z:2-4 高さ3 -->
+      <polygon points="5,92 109,92 109,26 57,26 57,70 5,70" fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="option-item">
+    <svg width="115" height="100" viewBox="0 0 115 100">
+      <text x="57" y="13" text-anchor="middle" font-family="serif" font-size="13">(4)</text>
+      <!-- 前部(左)が高い階段: z:0-2 高さ3, z:2-4 高さ1 ← 正解 -->
+      <polygon points="5,92 109,92 109,70 57,70 57,26 5,26" fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+  <div class="option-item">
+    <svg width="115" height="100" viewBox="0 0 115 100">
+      <text x="57" y="13" text-anchor="middle" font-family="serif" font-size="13">(5)</text>
+      <!-- 前部1/4が高い階段: z:0-1 高さ3, z:1-4 高さ1 -->
+      <polygon points="5,92 109,92 109,70 31,70 31,26 5,26" fill="none" stroke="black" stroke-width="2"/>
+    </svg>
+  </div>
+</div>
+
+</div><!-- /question -->
+</div><!-- /page-content -->
+</div><!-- /question-section -->
+
+<!-- ===== 問1 解説ページ ===== -->
+<div class="question-section">
+<div class="page-content">
+<div class="explanation">
+<div class="explanation-title">問1（正解: (4)）</div>
+<p>与えられた立体は、次の2つのブロックからなる。</p>
+<p>・ブロックA（右前・高い）：右半分（幅2）× 前半分（奥行2）× 高さ3</p>
+<p>・ブロックB（左全域・低い）：左半分（幅2）× 全奥行（奥行4）× 高さ1</p>
+<br>
+<p><strong>【上面図（図A）の確認】</strong></p>
+<p>真上から見ると、ブロックAとブロックBの足跡がL字形に見える。前半（手前）は全幅4単位、後半は左の幅2単位のみ。これが図Aに一致する。</p>
+<br>
+<p><strong>【正面図（図B、ア方向）の確認】</strong></p>
+<p>ア方向（前面）から見ると：</p>
+<p>・左半分（x:0-2）：ブロックBのみ → 高さ1</p>
+<p>・右半分（x:2-4）：ブロックAのみ → 高さ3</p>
+<p>左が低く右が高い階段形状となり、図Bに一致する。</p>
+<br>
+<p><strong>【イ方向（右側面）の決定】</strong></p>
+<p>イ方向（右側）から見たとき、奥行き位置ごとの最大高さを調べる。</p>
+<p>・前半（z:0-2）：ブロックA（高さ3）とブロックB（高さ1）が両方存在 → 最大高さ＝3</p>
+<p>・後半（z:2-4）：ブロックBのみ（高さ1）→ 最大高さ＝1</p>
+<p>よって、右側面図は<strong>手前（前部）が高さ3、奥（後部）が高さ1の階段形状</strong>となる。</p>
+<br>
+<p>・選択肢(1)(2)は高さが一定の長方形 → 誤</p>
+<p>・選択肢(3)は前後が逆（後部が高い）→ 誤</p>
+<p>・選択肢(5)は比率が違う（1/4の位置で段差）→ 誤</p>
+<br>
+<p>したがって、正解は<strong>(4)</strong>である。</p>
+</div>
+</div>
+</div>
+
+<!-- ===== 問2 問題ページ ===== -->
+<div class="question-section">
+<div class="page-content">
+<div class="question">
+<div class="question-number">問2．図のように、直方体ABCD-EFGHがある。AB=4、BC=3、AE=3とする。辺DHの中点をP、辺BFの中点をQとするとき、3点A、P、Qを含む平面でこの直方体を切断した。切り口の形として正しいものを1つ選び、解答用紙にマークせよ。（6点）</div>
+
+<div class="figure-container">
+<!--
+直方体の投影図 (斜投影):
+投影: x→(30,0), 奥行y→(15,10), 高さz→(0,-30) per unit
+基点A at (70, 185)
+
+A=(70,185), B=(190,185), C=(235,215), D=(115,215)
+E=(70,95), F=(190,95), G=(235,125), H=(115,125)
+P=(115,160) [DH中点], Q=(190,140) [BF中点]
+-->
+<svg width="300" height="250" viewBox="0 0 300 250">
+  <!-- 可視辺（実線） -->
+  <!-- 前面 ABFE -->
+  <line x1="70" y1="185" x2="190" y2="185" stroke="black" stroke-width="2"/>
+  <line x1="70" y1="185" x2="70" y2="95" stroke="black" stroke-width="2"/>
+  <line x1="190" y1="185" x2="190" y2="95" stroke="black" stroke-width="2"/>
+  <line x1="70" y1="95" x2="190" y2="95" stroke="black" stroke-width="2"/>
+  <!-- 右面 BCGF -->
+  <line x1="190" y1="185" x2="235" y2="215" stroke="black" stroke-width="2"/>
+  <line x1="235" y1="215" x2="235" y2="125" stroke="black" stroke-width="2"/>
+  <line x1="190" y1="95" x2="235" y2="125" stroke="black" stroke-width="2"/>
+  <!-- 上面 EFGH -->
+  <line x1="235" y1="125" x2="115" y2="125" stroke="black" stroke-width="2"/>
+  <line x1="115" y1="125" x2="70" y2="95" stroke="black" stroke-width="2"/>
+
+  <!-- 不可視辺（破線） -->
+  <line x1="70" y1="185" x2="115" y2="215" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="115" y1="215" x2="235" y2="215" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <!-- DH（中点Pを含む辺）: 破線 -->
+  <line x1="115" y1="215" x2="115" y2="125" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+  <!-- 中点P, Qのマーカー -->
+  <circle cx="115" cy="160" r="3.5" fill="black"/>
+  <circle cx="190" cy="140" r="3.5" fill="black"/>
+
+  <!-- 頂点ラベル -->
+  <text x="57" y="192" font-family="serif" font-size="14">A</text>
+  <text x="193" y="192" font-family="serif" font-size="14">B</text>
+  <text x="238" y="220" font-family="serif" font-size="14">C</text>
+  <text x="103" y="223" font-family="serif" font-size="14">D</text>
+  <text x="57" y="100" font-family="serif" font-size="14">E</text>
+  <text x="193" y="100" font-family="serif" font-size="14">F</text>
+  <text x="238" y="128" font-family="serif" font-size="14">G</text>
+  <text x="103" y="122" font-family="serif" font-size="14">H</text>
+  <!-- PとQのラベル -->
+  <text x="98" y="164" font-family="serif" font-size="13" font-weight="bold">P</text>
+  <text x="195" y="137" font-family="serif" font-size="13" font-weight="bold">Q</text>
+</svg>
+</div>
+
+<div class="question-number" style="font-weight: normal; margin-top: 5px;">（切り口の形を選べ）</div>
+<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; text-align: center;">
+  <div style="border: 1px solid #999; padding: 10px; border-radius: 4px;">(1)　三角形</div>
+  <div style="border: 1px solid #999; padding: 10px; border-radius: 4px;">(2)　台形</div>
+  <div style="border: 1px solid #999; padding: 10px; border-radius: 4px;">(3)　平行四辺形</div>
+  <div style="border: 1px solid #999; padding: 10px; border-radius: 4px;">(4)　長方形</div>
+  <div style="border: 1px solid #999; padding: 10px; border-radius: 4px;">(5)　六角形</div>
+</div>
+
+</div><!-- /question -->
+</div><!-- /page-content -->
+</div><!-- /question-section -->
+
+<!-- ===== 問2 解説ページ ===== -->
+<div class="question-section">
+<div class="page-content">
+<div class="explanation">
+<div class="explanation-title">問2（正解: (3)）</div>
+<p>直方体の各頂点を座標で表す（AB=4を x方向、BC=3を y方向、AE=3を z方向）。</p>
+<p>A(0,0,0)、B(4,0,0)、C(4,3,0)、D(0,3,0)、E(0,0,3)、F(4,0,3)、G(4,3,3)、H(0,3,3)</p>
+<p>P（辺DH中点）= (0, 3, 1.5)、Q（辺BF中点）= (4, 0, 1.5)</p>
+<br>
+<p><strong>【切断面が通る点の特定】</strong></p>
+<p>3点A、P、Qを含む平面の法線ベクトルは</p>
+<p style="margin-left: 20px;">AP×AQ = (0,3,1.5)×(4,0,1.5) = (4.5, 6, -12)</p>
+<p>平面の方程式：4.5x + 6y − 12z = 0（原点Aを通る）</p>
+<br>
+<p>各辺との交点を調べると：</p>
+<p>・辺DC（底面後辺）：x=2, y=3, z=0 → この点をPと区別して R=(2,3,0) とする… いや、改めて確認すると辺DCでは 4.5(2)+6(3)=9+18=27 ≠ 0 なので交わらない。</p>
+<p>・頂点G(4,3,3)：4.5×4+6×3−12×3 = 18+18−36 = 0 ✓ → Gも平面上にある</p>
+<br>
+<p>よって切り口の頂点は A、Q、G、P の4点であり、四角形 AQGP を形成する。</p>
+<br>
+<p><strong>【断面形状の特定】</strong></p>
+<p>・AQ = (4, 0, 1.5)、PG = G − P = (4, 0, 1.5) → AQ = PG（平行かつ等長）</p>
+<p>・AP = (0, 3, 1.5)、QG = G − Q = (0, 3, 1.5) → AP = QG（平行かつ等長）</p>
+<p>2組の対辺が平行かつ等長なので、断面は<strong>平行四辺形</strong>である。</p>
+<br>
+<p>なお AQ · AP = 4×0 + 0×3 + 1.5×1.5 = 2.25 ≠ 0 なので長方形ではない。</p>
+<br>
+<p>したがって、正解は<strong>(3)</strong>である。</p>
+</div>
+</div>
+</div>
+
+</body>
+</html>
