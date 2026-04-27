@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 20px; }
+        .question-number { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .question-text { margin-bottom: 12px; text-align: justify; font-size: 14px; }
+        .figure-container { margin: 12px 0; padding: 12px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 8px; font-size: 13px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        svg { max-width: 100%; height: auto; }
+        .options { margin-left: 20px; line-height: 2.2; font-size: 14px; }
+        .report-table { margin: 8px auto; border-collapse: collapse; font-size: 13px; }
+        .report-table td, .report-table th { border: 1px solid #666; padding: 5px 12px; text-align: left; }
+        .report-table th { background-color: #e8e8e8; font-weight: bold; text-align: center; }
+        .statements { margin: 8px 0 8px 10px; font-size: 14px; line-height: 2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．ある管制空域において、5機の航空機A機〜E機がレーダーに映っている。各機体は4方角（北・東・南・西）と3距離圏（第1圏・第2圏・第3圏）の交点に1機ずつ存在する。各パイロットから管制官への報告を下表に示す。ただしC機のみ通信不良のため報告が不明（？）である。次のア〜ウについて、正しいものの組み合わせを選べ。（6点）</div>
+
+            <!--
+            レーダー図仕様:
+            - SVGサイズ: 380x360px, viewBox: 15 30 460 430
+            - 中心: (240, 245), 第1圏 r=65, 第2圏 r=130, 第3圏 r=190
+
+            機体位置 (問1):
+            - A: 北・第2圏 → (240, 115)
+            - B: 東・第1圏 → (305, 245)
+            - C: 西・第3圏 → (50, 245)  ※通信不良
+            - D: 南・第2圏 → (240, 375)
+            - E: 北・第1圏 → (240, 180)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【レーダー図】</div>
+                <div class="figure-content">
+                    <svg width="380" height="360" viewBox="15 30 460 430">
+                        <circle cx="240" cy="245" r="65" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="240" cy="245" r="130" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="240" cy="245" r="190" fill="none" stroke="#666" stroke-width="1.5"/>
+                        <line x1="240" y1="50" x2="240" y2="440" stroke="#aaa" stroke-width="1"/>
+                        <line x1="45" y1="245" x2="435" y2="245" stroke="#aaa" stroke-width="1"/>
+                        <text x="240" y="45" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">北</text>
+                        <text x="240" y="458" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">南</text>
+                        <text x="443" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="start" fill="#333">東</text>
+                        <text x="37" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="end" fill="#333">西</text>
+                        <text x="255" y="186" font-family="serif" font-size="10" fill="#888">第1圏</text>
+                        <text x="255" y="121" font-family="serif" font-size="10" fill="#888">第2圏</text>
+                        <text x="255" y="63" font-family="serif" font-size="10" fill="#888">第3圏</text>
+                        <circle cx="240" cy="245" r="5" fill="#333"/>
+                        <text x="252" y="242" font-family="serif" font-size="10" fill="#555">中心</text>
+                        <!-- A機: 北・第2圏 (240, 115) -->
+                        <circle cx="240" cy="115" r="7" fill="#222"/>
+                        <text x="255" y="120" font-family="serif" font-size="14" font-weight="bold" fill="#000">A</text>
+                        <!-- B機: 東・第1圏 (305, 245) -->
+                        <circle cx="305" cy="245" r="7" fill="#222"/>
+                        <text x="315" y="240" font-family="serif" font-size="14" font-weight="bold" fill="#000">B</text>
+                        <!-- C機: 西・第3圏 (50, 245) -->
+                        <circle cx="50" cy="245" r="7" fill="#222"/>
+                        <text x="20" y="240" font-family="serif" font-size="14" font-weight="bold" fill="#000">C</text>
+                        <!-- D機: 南・第2圏 (240, 375) -->
+                        <circle cx="240" cy="375" r="7" fill="#222"/>
+                        <text x="255" y="380" font-family="serif" font-size="14" font-weight="bold" fill="#000">D</text>
+                        <!-- E機: 北・第1圏 (240, 180) -->
+                        <circle cx="240" cy="180" r="7" fill="#222"/>
+                        <text x="255" y="185" font-family="serif" font-size="14" font-weight="bold" fill="#000">E</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 報告表 -->
+            <div style="text-align:center; margin: 8px 0;">
+                <table class="report-table">
+                    <tr><th>機体</th><th>報告内容</th></tr>
+                    <tr><td style="text-align:center;">A機</td><td>「私は北方向の第2圏にいる。北方向には私を含めて2機がいる。」</td></tr>
+                    <tr><td style="text-align:center;">B機</td><td>「私は東方向の第1圏にいる。第1圏には私を含めて2機がいる。」</td></tr>
+                    <tr><td style="text-align:center;">C機</td><td style="text-align:center; font-weight:bold;">？（通信不良）</td></tr>
+                    <tr><td style="text-align:center;">D機</td><td>「私は南方向の第2圏にいる。第2圏には私を含めて2機がいる。」</td></tr>
+                    <tr><td style="text-align:center;">E機</td><td>「私は北方向の第1圏にいる。」</td></tr>
+                </table>
+            </div>
+
+            <!-- 命題 -->
+            <div class="statements">
+                ア．C機の報告がない場合、C機の位置として2通りが考えられる。<br>
+                イ．C機の報告がない場合、C機の位置として4通りが考えられる。<br>
+                ウ．C機が「私は東方向にいる」と報告した場合、C機の位置が確定する。
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options">
+                (1)　アのみ正しい<br>
+                (2)　イのみ正しい<br>
+                (3)　ウのみ正しい<br>
+                (4)　ア、イが正しい<br>
+                (5)　イ、ウが正しい
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1（正解：(3)）</strong><br><br>
+
+            <strong>【各機体の位置を確定する】</strong><br>
+            各パイロットの報告（C機除く）から位置を求める。<br>
+            ・A機の報告：「北方向の第2圏、北方向は計2機」→ A機＝（北、第2圏）と確定。<br>
+            ・B機の報告：「東方向の第1圏、第1圏は計2機」→ B機＝（東、第1圏）と確定。<br>
+            ・D機の報告：「南方向の第2圏、第2圏は計2機」→ D機＝（南、第2圏）と確定。<br>
+            ・E機の報告：「北方向の第1圏」→ E機＝（北、第1圏）と確定。<br><br>
+
+            <strong>【各圏・方向の充足状況を整理する】</strong><br>
+            ・北方向：A機（第2圏）＋E機（第1圏）＝2機 → 満員（A機の報告より）<br>
+            ・第1圏：B機（東）＋E機（北）＝2機 → 満員（B機の報告より）<br>
+            ・第2圏：A機（北）＋D機（南）＝2機 → 満員（D機の報告より）<br><br>
+
+            <strong>【C機の候補を絞り込む】</strong><br>
+            C機は北方向・第1圏・第2圏に入れないため、<strong>第3圏</strong>に存在する。<br>
+            方角は 東・南・西 のいずれかで<strong>3通り</strong>が候補。<br><br>
+
+            <strong>【各命題の検討】</strong><br>
+            ア．C機の位置として2通りが考えられるか？<br>
+            　→ 候補は3通りのため<strong>誤り。ア：誤り。</strong><br>
+            イ．C機の位置として4通りが考えられるか？<br>
+            　→ 候補は3通りのため<strong>誤り。イ：誤り。</strong><br>
+            ウ．「東方向にいる」の報告でC機が確定するか？<br>
+            　→ 東・第3圏のみ（1通り）→ <strong>確定する。ウ：正しい。</strong><br><br>
+
+            したがって、正解は<strong>(3)　ウのみ正しい</strong>　である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．問1と同じ条件（4方角×3距離圏、各交点に1機ずつ）で、5機A機〜E機が存在する。各パイロットの報告を下表に示す。B機のみ通信不良のため報告が不明（？）である。次のア〜ウについて、正しいものの組み合わせを選べ。（6点）</div>
+
+            <!--
+            機体位置 (問2):
+            - A: 北・第2圏 → (240, 115)
+            - B: 西・第3圏 → (50, 245)  ※通信不良
+            - C: 南・第1圏 → (240, 310)
+            - D: 東・第2圏 → (370, 245)
+            - E: 北・第1圏 → (240, 180)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【レーダー図】</div>
+                <div class="figure-content">
+                    <svg width="390" height="360" viewBox="15 30 460 430">
+                        <circle cx="240" cy="245" r="65" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="240" cy="245" r="130" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="240" cy="245" r="190" fill="none" stroke="#666" stroke-width="1.5"/>
+                        <line x1="240" y1="50" x2="240" y2="440" stroke="#aaa" stroke-width="1"/>
+                        <line x1="45" y1="245" x2="435" y2="245" stroke="#aaa" stroke-width="1"/>
+                        <text x="240" y="45" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">北</text>
+                        <text x="240" y="458" font-family="serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">南</text>
+                        <text x="443" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="start" fill="#333">東</text>
+                        <text x="37" y="250" font-family="serif" font-size="16" font-weight="bold" text-anchor="end" fill="#333">西</text>
+                        <text x="255" y="186" font-family="serif" font-size="10" fill="#888">第1圏</text>
+                        <text x="255" y="121" font-family="serif" font-size="10" fill="#888">第2圏</text>
+                        <text x="255" y="63" font-family="serif" font-size="10" fill="#888">第3圏</text>
+                        <circle cx="240" cy="245" r="5" fill="#333"/>
+                        <text x="252" y="242" font-family="serif" font-size="10" fill="#555">中心</text>
+                        <!-- A機: 北・第2圏 (240, 115) -->
+                        <circle cx="240" cy="115" r="7" fill="#222"/>
+                        <text x="255" y="120" font-family="serif" font-size="14" font-weight="bold" fill="#000">A</text>
+                        <!-- B機: 西・第3圏 (50, 245) -->
+                        <circle cx="50" cy="245" r="7" fill="#222"/>
+                        <text x="20" y="240" font-family="serif" font-size="14" font-weight="bold" fill="#000">B</text>
+                        <!-- C機: 南・第1圏 (240, 310) -->
+                        <circle cx="240" cy="310" r="7" fill="#222"/>
+                        <text x="255" y="315" font-family="serif" font-size="14" font-weight="bold" fill="#000">C</text>
+                        <!-- D機: 東・第2圏 (370, 245) -->
+                        <circle cx="370" cy="245" r="7" fill="#222"/>
+                        <text x="380" y="240" font-family="serif" font-size="14" font-weight="bold" fill="#000">D</text>
+                        <!-- E機: 北・第1圏 (240, 180) -->
+                        <circle cx="240" cy="180" r="7" fill="#222"/>
+                        <text x="255" y="185" font-family="serif" font-size="14" font-weight="bold" fill="#000">E</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 報告表 -->
+            <div style="text-align:center; margin: 8px 0;">
+                <table class="report-table">
+                    <tr><th>機体</th><th>報告内容</th></tr>
+                    <tr><td style="text-align:center;">A機</td><td>「私は北方向の第2圏にいる。北方向には私を含めて2機がいる。」</td></tr>
+                    <tr><td style="text-align:center;">B機</td><td style="text-align:center; font-weight:bold;">？（通信不良）</td></tr>
+                    <tr><td style="text-align:center;">C機</td><td>「私は南方向の第1圏にいる。第1圏には私を含めて2機がいる。」</td></tr>
+                    <tr><td style="text-align:center;">D機</td><td>「私は東方向の第2圏にいる。第2圏には私を含めて2機がいる。東方向には私のみである。」</td></tr>
+                    <tr><td style="text-align:center;">E機</td><td>「私は北方向の第1圏にいる。」</td></tr>
+                </table>
+            </div>
+
+            <!-- 命題 -->
+            <div class="statements">
+                ア．B機の報告がない場合、B機の位置として2通りが考えられる。<br>
+                イ．B機の報告がない場合、B機以外の4機の位置は全て確定する。<br>
+                ウ．B機が「私は第3圏にいる」とのみ報告した場合、B機の位置が確定する。
+            </div>
+
+            <!-- 選択肢 -->
+            <div class="options">
+                (1)　アのみ正しい<br>
+                (2)　イのみ正しい<br>
+                (3)　ウのみ正しい<br>
+                (4)　ア、イが正しい<br>
+                (5)　イ、ウが正しい
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2（正解：(4)）</strong><br><br>
+
+            <strong>【各機体の位置を確定する】</strong><br>
+            各パイロットの報告（B機除く）から位置を求める。<br>
+            ・A機の報告：「北方向の第2圏、北方向は計2機」→ A機＝（北、第2圏）と確定。<br>
+            ・C機の報告：「南方向の第1圏、第1圏は計2機」→ C機＝（南、第1圏）と確定。<br>
+            ・D機の報告：「東方向の第2圏、第2圏は計2機、東方向は1機のみ」<br>
+            　→ D機＝（東、第2圏）と確定。<br>
+            ・E機の報告：「北方向の第1圏」→ E機＝（北、第1圏）と確定。<br>
+            　→ A・C・D・E機の4機が全て一意に確定する。<br><br>
+
+            <strong>【各圏・方向の充足状況を整理する】</strong><br>
+            ・北方向：A機（第2圏）＋E機（第1圏）＝2機 → 満員（A機の報告より）<br>
+            ・東方向：D機（第2圏）のみ → D機の報告より、東方向に他の機はない<br>
+            ・第1圏：C機（南）＋E機（北）＝2機 → 満員（C機の報告より）<br>
+            ・第2圏：A機（北）＋D機（東）＝2機 → 満員（D機の報告より）<br><br>
+
+            <strong>【B機の候補を絞り込む】</strong><br>
+            ・北方向は満員 → B機は北方向に入れない。<br>
+            ・東方向はD機のみ → B機は東方向に入れない。<br>
+            ・第1圏は満員 → B機は第1圏に入れない。<br>
+            ・第2圏は満員 → B機は第2圏に入れない。<br>
+            　よってB機は<strong>第3圏</strong>かつ 南・西 方向のいずれかで<strong>2通り</strong>が候補。<br><br>
+
+            <strong>【各命題の検討】</strong><br>
+            ア．B機の位置として2通りが考えられるか？<br>
+            　→ 南・第3圏 と 西・第3圏 の2通り。<strong>ア：正しい。</strong><br>
+            イ．B機以外の4機の位置は全て確定するか？<br>
+            　→ A・C・D・E機は全て一意に確定する。<strong>イ：正しい。</strong><br>
+            ウ．「第3圏にいる」の報告だけでB機が確定するか？<br>
+            　→ 南・第3圏 と 西・第3圏 の2通りが残り確定しない。<strong>ウ：誤り。</strong><br><br>
+
+            したがって、正解は<strong>(4)　ア、イが正しい</strong>　である。
+        </div>
+    </div>
+</div>
+
+<script>
+    function scalePages() {
+        const pages = document.querySelectorAll('.question-section');
+        const baseWidth = 800;
+        const viewportWidth = window.innerWidth;
+        const padding = 40;
+        const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+        pages.forEach(page => {
+            page.style.transform = `scale(${scale})`;
+            const originalHeight = page.offsetHeight / scale;
+            const scaledHeight = originalHeight * scale;
+            page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+        });
+    }
+    window.addEventListener('load', scalePages);
+    window.addEventListener('resize', scalePages);
+</script>
+</body>
+</html>
