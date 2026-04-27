@@ -1,0 +1,568 @@
+<!--
+================================================================================
+印刷121.html - セット121: 大規模データ資料穴埋め問題（印刷用）
+================================================================================
+問1（標準）: 書店8店舗 × 5ジャンル の月間売上データ（穴埋め4箇所）
+問2（高難度）: 観光8地域 × 4四半期 × 2指標 の年間統計データ（穴埋め5箇所）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 4px auto;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 1.5px solid #333;
+            padding: 3px 6px;
+            min-width: 36px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 12.5px;
+        }
+
+        .figure-table th {
+            border: 1.5px solid #333;
+            padding: 3px 5px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .figure-table tr.total-row td,
+        .figure-table tr.total-row th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .figure-table td.total-col,
+        .figure-table th.total-col {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .passage-box {
+            margin: 10px 0;
+            padding: 12px 18px;
+            border: 1px solid #999;
+            background-color: #fafafa;
+            text-align: justify;
+            font-size: 14.5px;
+            line-height: 1.78;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14.5px;
+        }
+
+        .blank-inline {
+            display: inline-block;
+            min-width: 50px;
+            padding: 0 8px;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .option-table {
+            margin: 6px auto;
+            border-collapse: collapse;
+        }
+
+        .option-table td, .option-table th {
+            border: 1px solid #333;
+            padding: 5px 10px;
+            text-align: center;
+            font-size: 13.5px;
+        }
+
+        .option-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 12.5px;
+            color: #444;
+            margin-top: 6px;
+            text-align: left;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料】および【表】を読み、文中の空欄（ア）〜（エ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】全国書店チェーンR 主要8店舗の月間売上分析（2025年10月）</div>
+                    全国チェーン書店Rは、主要8店舗（札幌・仙台・東京・横浜・名古屋・大阪・広島・福岡）について、2025年10月の月間売上を「文芸」「実用」「専門」「児童」「コミック」の5ジャンル別に集計した。8店舗のうち月間売上（5ジャンル合計）が最も大きかったのは<span class="blank-inline">（ア）</span>店であり、首都圏の旗艦店として圧倒的な売上を記録した。一方、店舗売上に占めるコミック売上の比率（コミック比率）が最も高かったのは<span class="blank-inline">（イ）</span>店で、若年層中心の地域特性が表れている。専門書ジャンルの8店舗合計売上は<span class="blank-inline">（ウ）</span>万円であり、児童書合計（1,220万円）を大きく上回ったが、文芸・コミックには及ばなかった。8店舗・5ジャンル全体の総売上は<span class="blank-inline">（エ）</span>万円である。
+                </div>
+
+                <!-- 統計表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】チェーン書店R 店舗別×ジャンル別 月間売上（2025年10月・単位：万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>店舗</th>
+                                <th>文芸</th>
+                                <th>実用</th>
+                                <th>専門</th>
+                                <th>児童</th>
+                                <th>コミック</th>
+                                <th class="total-col">店舗合計</th>
+                            </tr>
+                            <tr>
+                                <td>札幌</td>
+                                <td>320</td><td>240</td><td>180</td><td>120</td><td>380</td>
+                                <td class="total-col">1,240</td>
+                            </tr>
+                            <tr>
+                                <td>仙台</td>
+                                <td>280</td><td>220</td><td>160</td><td>140</td><td>360</td>
+                                <td class="total-col">1,160</td>
+                            </tr>
+                            <tr>
+                                <td>東京</td>
+                                <td>480</td><td>380</td><td>320</td><td>200</td><td>520</td>
+                                <td class="total-col">1,900</td>
+                            </tr>
+                            <tr>
+                                <td>横浜</td>
+                                <td>360</td><td>280</td><td>200</td><td>180</td><td>420</td>
+                                <td class="total-col">1,440</td>
+                            </tr>
+                            <tr>
+                                <td>名古屋</td>
+                                <td>340</td><td>260</td><td>220</td><td>160</td><td>400</td>
+                                <td class="total-col">1,380</td>
+                            </tr>
+                            <tr>
+                                <td>大阪</td>
+                                <td>420</td><td>320</td><td>260</td><td>180</td><td>460</td>
+                                <td class="total-col">1,640</td>
+                            </tr>
+                            <tr>
+                                <td>広島</td>
+                                <td>240</td><td>200</td><td>140</td><td>100</td><td>320</td>
+                                <td class="total-col">1,000</td>
+                            </tr>
+                            <tr>
+                                <td>福岡</td>
+                                <td>320</td><td>240</td><td>180</td><td>140</td><td>360</td>
+                                <td class="total-col">1,240</td>
+                            </tr>
+                            <tr class="total-row">
+                                <th>ジャンル合計</th>
+                                <td>2,760</td><td>2,140</td><td>1,660</td><td>1,220</td><td>3,220</td>
+                                <td class="total-col">11,000</td>
+                            </tr>
+                        </table>
+                        <div class="note">※コミック比率＝（コミック売上）÷（店舗合計売上）。空欄（ウ）は表のジャンル合計欄に未掲載とみなして問う。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th>
+                            <th>（ア）</th>
+                            <th>（イ）</th>
+                            <th>（ウ）</th>
+                            <th>（エ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td>
+                            <td>大阪</td>
+                            <td>広島</td>
+                            <td>1,660</td>
+                            <td>11,000</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td>
+                            <td>東京</td>
+                            <td>仙台</td>
+                            <td>1,660</td>
+                            <td>11,000</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td>
+                            <td>東京</td>
+                            <td>広島</td>
+                            <td>1,660</td>
+                            <td>11,000</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td>
+                            <td>東京</td>
+                            <td>広島</td>
+                            <td>1,220</td>
+                            <td>11,000</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td>
+                            <td>東京</td>
+                            <td>広島</td>
+                            <td>1,660</td>
+                            <td>3,220</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                【表】の数値（8店舗 × 5ジャンル ＝ 40セル）を用いて、各空欄を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）店舗合計の最大：札幌1,240／仙台1,160／<strong>東京1,900</strong>／横浜1,440／名古屋1,380／大阪1,640／広島1,000／福岡1,240。最大は<strong>東京</strong>店（1,900万円）。大阪1,640万円は2位であり、首都圏の旗艦店という資料文との整合性からも東京と確定する。<br><br>
+                ・（イ）コミック比率（コミック÷店舗合計）：<br>
+                　　札幌 380/1,240≒30.65％、仙台 360/1,160≒31.03％、東京 520/1,900≒27.37％、<br>
+                　　横浜 420/1,440≒29.17％、名古屋 400/1,380≒28.99％、大阪 460/1,640≒28.05％、<br>
+                　　<strong>広島 320/1,000＝32.00％</strong>、福岡 360/1,240≒29.03％。<br>
+                　　最大は<strong>広島</strong>店（32.00％）。コミック「金額」最大は東京（520万円）だが、ここで問われるのは「比率」である点に注意。仙台31.03％は2位であり、わずかに広島が上回る。<br><br>
+                ・（ウ）専門書の8店舗合計：180+160+320+200+220+260+140+180＝<strong>1,660万円</strong>。児童書合計1,220万円より大きいが、文芸2,760／コミック3,220には及ばない。<br><br>
+                ・（エ）8店舗・5ジャンル全体の総売上：<br>
+                　　店舗合計の総和：1,240+1,160+1,900+1,440+1,380+1,640+1,000+1,240＝<strong>11,000万円</strong>。<br>
+                　　ジャンル合計の総和でも：2,760+2,140+1,660+1,220+3,220＝11,000万円（一致を確認）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=大阪 → 誤り。大阪1,640は2位で、最大は東京1,900。<br>
+                ・(2) イ=仙台 → 誤り。仙台31.03％は2位で、最大は広島32.00％。<br>
+                ・(3) ア=東京、イ=広島、ウ=1,660、エ=11,000 → すべて整合 → <strong>正しい</strong><br>
+                ・(4) ウ=1,220 → 誤り。1,220は児童書合計であり、専門書合計1,660ではない。<br>
+                ・(5) エ=3,220 → 誤り。3,220はコミック単独の合計であり、5ジャンル全体ではない。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の【資料】および【表】を読み、文中の空欄（ア）〜（オ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】全国観光統計 8地域別 四半期データ（2025年度）</div>
+                    観光庁は、全国を8地域（北海道・東北・関東・中部・近畿・中国・四国・九州）に区分し、2025年度の四半期別「来訪者数（千人）」と「消費額（百万円）」を集計した。各地域の年間来訪者数および年間消費額を求めると、来訪者数が最大の地域は当然ながら関東であり、8地域の年間来訪者総数は<span class="blank-inline">（ア）</span>千人となった。各地域の効率（来訪者1人あたりの消費額）に着目すると、最も高単価で消費を行っているのは<span class="blank-inline">（イ）</span>地域であった。また、Q4（第4四半期）の消費額がQ1（第1四半期）の消費額の2倍以上に達した地域は<span class="blank-inline">（ウ）</span>地域存在し、後半に観光需要が大きく集中したことがわかる。年間消費額が最大の地域の値は<span class="blank-inline">（エ）</span>百万円であり、8地域の年間消費額の総和は<span class="blank-inline">（オ）</span>百万円となった。
+                </div>
+
+                <!-- 統計表（大規模データ） -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】8地域別 四半期別 観光統計（2025年度）</div>
+                    <div class="figure-content">
+                        <table class="figure-table" style="font-size:11.5px;">
+                            <tr>
+                                <th rowspan="2">地域</th>
+                                <th colspan="2">Q1（4-6月）</th>
+                                <th colspan="2">Q2（7-9月）</th>
+                                <th colspan="2">Q3（10-12月）</th>
+                                <th colspan="2">Q4（1-3月）</th>
+                                <th colspan="2" class="total-col">年間合計</th>
+                            </tr>
+                            <tr>
+                                <th>来訪</th><th>消費</th>
+                                <th>来訪</th><th>消費</th>
+                                <th>来訪</th><th>消費</th>
+                                <th>来訪</th><th>消費</th>
+                                <th class="total-col">来訪</th>
+                                <th class="total-col">消費</th>
+                            </tr>
+                            <tr>
+                                <td>北海道</td>
+                                <td>80</td><td>120</td>
+                                <td>100</td><td>160</td>
+                                <td>140</td><td>240</td>
+                                <td>180</td><td>320</td>
+                                <td class="total-col">500</td><td class="total-col">840</td>
+                            </tr>
+                            <tr>
+                                <td>東北</td>
+                                <td>60</td><td>90</td>
+                                <td>90</td><td>140</td>
+                                <td>110</td><td>180</td>
+                                <td>120</td><td>200</td>
+                                <td class="total-col">380</td><td class="total-col">610</td>
+                            </tr>
+                            <tr>
+                                <td>関東</td>
+                                <td>200</td><td>360</td>
+                                <td>240</td><td>460</td>
+                                <td>280</td><td>560</td>
+                                <td>320</td><td>660</td>
+                                <td class="total-col">1,040</td><td class="total-col">2,040</td>
+                            </tr>
+                            <tr>
+                                <td>中部</td>
+                                <td>120</td><td>200</td>
+                                <td>140</td><td>240</td>
+                                <td>160</td><td>280</td>
+                                <td>180</td><td>320</td>
+                                <td class="total-col">600</td><td class="total-col">1,040</td>
+                            </tr>
+                            <tr>
+                                <td>近畿</td>
+                                <td>180</td><td>320</td>
+                                <td>200</td><td>380</td>
+                                <td>220</td><td>420</td>
+                                <td>240</td><td>460</td>
+                                <td class="total-col">840</td><td class="total-col">1,580</td>
+                            </tr>
+                            <tr>
+                                <td>中国</td>
+                                <td>70</td><td>100</td>
+                                <td>80</td><td>120</td>
+                                <td>90</td><td>140</td>
+                                <td>100</td><td>160</td>
+                                <td class="total-col">340</td><td class="total-col">520</td>
+                            </tr>
+                            <tr>
+                                <td>四国</td>
+                                <td>50</td><td>70</td>
+                                <td>60</td><td>90</td>
+                                <td>70</td><td>110</td>
+                                <td>80</td><td>130</td>
+                                <td class="total-col">260</td><td class="total-col">400</td>
+                            </tr>
+                            <tr>
+                                <td>九州</td>
+                                <td>100</td><td>160</td>
+                                <td>120</td><td>200</td>
+                                <td>140</td><td>240</td>
+                                <td>160</td><td>280</td>
+                                <td class="total-col">520</td><td class="total-col">880</td>
+                            </tr>
+                            <tr class="total-row">
+                                <th>四半期合計</th>
+                                <td>860</td><td>1,420</td>
+                                <td>1,030</td><td>1,790</td>
+                                <td>1,210</td><td>2,170</td>
+                                <td>1,380</td><td>2,530</td>
+                                <td class="total-col">4,480</td><td class="total-col">7,910</td>
+                            </tr>
+                        </table>
+                        <div class="note">※「来訪」は来訪者数（千人）、「消費」は消費額（百万円）。1人あたり消費額＝（年間消費額）÷（年間来訪者数）。資料中の空欄（ア）（オ）は本表の合計欄に未掲載とみなして問う。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th><th>（ア）</th><th>（イ）</th><th>（ウ）</th><th>（エ）</th><th>（オ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td><td>4,480</td><td>関東</td><td>2</td><td>2,040</td><td>7,910</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td><td>4,480</td><td>北海道</td><td>2</td><td>2,040</td><td>7,910</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td><td>4,480</td><td>関東</td><td>8</td><td>2,040</td><td>7,910</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td><td>4,480</td><td>関東</td><td>2</td><td>660</td><td>7,910</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td><td>1,380</td><td>関東</td><td>2</td><td>2,040</td><td>7,910</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                【表】には8地域 × 4四半期 × 2指標 ＝ 64個の数値が含まれる。各空欄に対応する集計値を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）8地域の年間来訪者数（4四半期合計）：<br>
+                　　四半期別合計から：860+1,030+1,210+1,380＝<strong>4,480千人</strong>。<br>
+                　　地域別年間合計の総和でも：500+380+1,040+600+840+340+260+520＝4,480千人（一致）。<br>
+                　　Q4のみの合計1,380と取り違えないこと。<br><br>
+                ・（イ）来訪者1人あたり消費額（年間消費÷年間来訪、単位：千円/人）：<br>
+                　　北海道 840/500＝1.680、東北 610/380≒1.605、<strong>関東 2,040/1,040≒1.962</strong>、<br>
+                　　中部 1,040/600≒1.733、近畿 1,580/840≒1.881、中国 520/340≒1.529、<br>
+                　　四国 400/260≒1.538、九州 880/520≒1.692。<br>
+                　　最大は<strong>関東</strong>（約1,962円/人）。次点は近畿1,881円/人で僅差。来訪者数・消費額・1人あたり消費額のいずれも関東がトップである点を確認できる。なお北海道は「Q4消費額/Q1消費額」の伸び率が最大（2.667倍）だが、ここで問われるのは「1人あたり消費額」なので関東である。<br><br>
+                ・（ウ）Q4消費額 ≧ 2 × Q1消費額 を満たす地域数：<br>
+                　　北海道 320/120＝2.667（○）、東北 200/90≒2.222（○）、関東 660/360≒1.833（×）、<br>
+                　　中部 320/200＝1.600（×）、近畿 460/320≒1.438（×）、中国 160/100＝1.600（×）、<br>
+                　　四国 130/70≒1.857（×）、九州 280/160＝1.750（×）。<br>
+                　　該当は<strong>2地域</strong>（北海道・東北）。全8地域でQ1<Q4は成立しているが、「2倍以上」という条件で絞り込まれる。<br><br>
+                ・（エ）年間消費額が最大の地域の値：<br>
+                　　北海道840、東北610、<strong>関東2,040</strong>、中部1,040、近畿1,580、中国520、四国400、九州880。<br>
+                　　最大は関東の<strong>2,040百万円</strong>。関東Q4単独の660百万円や、近畿1,580百万円と取り違えないこと。<br><br>
+                ・（オ）8地域の年間消費額合計：<br>
+                　　四半期合計から：1,420+1,790+2,170+2,530＝<strong>7,910百万円</strong>。<br>
+                　　地域別合計の総和でも：840+610+2,040+1,040+1,580+520+400+880＝7,910百万円（一致）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア=4,480、イ=関東、ウ=2、エ=2,040、オ=7,910 → すべて整合 → <strong>正しい</strong><br>
+                ・(2) イ=北海道 → 誤り。北海道はQ4/Q1の伸び率最大（2.667倍）だが、1人あたり消費額（840/500=1.68）は関東1.962に劣る。<br>
+                ・(3) ウ=8 → 誤り。8地域すべてでQ1<Q4だが、「2倍以上」を満たすのは北海道・東北の2地域のみ。<br>
+                ・(4) エ=660 → 誤り。660は関東のQ4単独の消費額であり、年間合計2,040ではない。<br>
+                ・(5) ア=1,380 → 誤り。1,380はQ4のみの来訪者合計であり、4四半期合計4,480ではない。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
