@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .options { margin-left: 20px; line-height: 2.5; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        svg { max-width: 100%; height: auto; }
+        .options-figure { display: flex; gap: 10px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
+        .option-figure-item { text-align: center; font-size: 14px; }
+        @media print {
+            body { background-color: white; padding: 0; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; width: 100%; height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．下の図のような立方体ABCD-EFGHがある。辺BFの中点をM、辺DHの中点をNとするとき、3点A、M、Nを通る平面でこの立方体を切断した断面の形として正しいものを1つ選べ。（6点）</div>
+            <div class="figure-container">
+                <!--
+                図表仕様（問1）:
+                - SVGサイズ: 500x280px, viewBox: 0 0 500 280
+                - 斜軸投影: d=100, depth_x=40, depth_y=-25
+                - 頂点: A(60,240) B(160,240) C(200,215) D(100,215)
+                         E(60,140)  F(160,140) G(200,115) H(100,115)
+                - 切断点: A(60,240) M=mid(BF)=(160,190) N=mid(DH)=(100,165)
+                - 断面: 菱形 A-N-G-M (全辺=sqrt(1.25)≈1.118)
+                -->
+                <svg width="500" height="280" viewBox="0 0 500 280">
+                    <!-- 隠れ辺（破線） -->
+                    <line x1="60" y1="240" x2="100" y2="215" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="100" y1="215" x2="200" y2="215" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="100" y1="215" x2="100" y2="115" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <!-- 見える辺（実線） -->
+                    <line x1="60" y1="240" x2="160" y2="240" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="240" x2="200" y2="215" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="240" x2="60" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="240" x2="160" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="200" y1="215" x2="200" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="140" x2="160" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="140" x2="200" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="200" y1="115" x2="100" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="115" x2="60" y2="140" stroke="#333" stroke-width="2"/>
+                    <!-- 切断面（薄いグレー塗り） -->
+                    <polygon points="60,240 100,165 200,115 160,190" fill="rgba(150,150,150,0.25)" stroke="#555" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <!-- 切断点マーク -->
+                    <circle cx="60" cy="240" r="4" fill="#333"/>
+                    <circle cx="160" cy="190" r="4" fill="#333"/>
+                    <circle cx="100" cy="165" r="4" fill="#333"/>
+                    <!-- 頂点ラベル -->
+                    <text x="42" y="255" font-family="serif" font-size="15" fill="#333">A</text>
+                    <text x="163" y="255" font-family="serif" font-size="15" fill="#333">B</text>
+                    <text x="204" y="218" font-family="serif" font-size="15" fill="#333">C</text>
+                    <text x="83" y="218" font-family="serif" font-size="15" fill="#333">D</text>
+                    <text x="42" y="138" font-family="serif" font-size="15" fill="#333">E</text>
+                    <text x="163" y="138" font-family="serif" font-size="15" fill="#333">F</text>
+                    <text x="204" y="115" font-family="serif" font-size="15" fill="#333">G</text>
+                    <text x="83" y="115" font-family="serif" font-size="15" fill="#333">H</text>
+                    <!-- 切断点ラベル -->
+                    <text x="168" y="193" font-family="serif" font-size="14" fill="#333">M</text>
+                    <text x="83" y="165" font-family="serif" font-size="14" fill="#333">N</text>
+                </svg>
+            </div>
+            <!-- 5択: 図形で表示 -->
+            <div class="options-figure">
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <polygon points="45,10 78,45 45,80 12,45" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(1)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <rect x="10" y="22" width="70" height="46" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(2)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <rect x="15" y="15" width="60" height="60" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(3)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <polygon points="45,8 82,78 8,78" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(4)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <polygon points="45,8 80,78 10,78" fill="none" stroke="#333" stroke-width="2"/>
+                        <!-- 頂角をやや鈍角にした二等辺三角形 -->
+                    </svg>
+                    <div>(5)</div>
+                </div>
+            </div>
+            <div style="font-size:13px; color:#666; margin-top:5px; text-align:center;">
+                (1)菱形　(2)長方形　(3)正方形　(4)正三角形　(5)二等辺三角形
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section">
+    <div class="page-content">
+        <div class="explanation">
+            <div class="question-number">問1（正解: (1) 菱形）</div>
+            <br>
+            <p><strong>【切断面の特定】</strong></p>
+            <p>3点A、M（辺BFの中点）、N（辺DHの中点）を通る平面を求める。</p>
+            <p>平面の方程式: x + y = 2z（頂点Aを原点に、辺ABをx軸、辺ADをy軸、辺AEをz軸とする）</p>
+            <br>
+            <p><strong>【断面頂点の特定】</strong></p>
+            <p>平面が各辺と交わる点を求めると、A(0,0,0)、M(1,0,½)、G(1,1,1)、N(0,1,½) の4点。</p>
+            <p>すなわち断面は頂点A・M・G・Nを結ぶ四角形となる。</p>
+            <br>
+            <p><strong>【断面の形状判定】</strong></p>
+            <p>各辺の長さを計算する（立方体の1辺を1とする）:</p>
+            <p>　AM = √(1²+0²+(½)²) = √(5/4) = (√5)/2</p>
+            <p>　MG = √(0²+1²+(½)²) = √(5/4) = (√5)/2</p>
+            <p>　GN = √(1²+0²+(½)²) = √(5/4) = (√5)/2</p>
+            <p>　NA = √(0²+1²+(½)²) = √(5/4) = (√5)/2</p>
+            <p>4辺すべて等長 → 菱形または正方形の候補。</p>
+            <br>
+            <p><strong>【正方形ではないことの確認】</strong></p>
+            <p>対角線 AG = √(1²+1²+1²) = √3、対角線 MN = √(1²+1²+0²) = √2</p>
+            <p>AG ≠ MN のため、正方形ではなく<strong>菱形</strong>。</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．下の図のような立方体ABCD-EFGHがある。辺BCの中点をP、辺DHの中点をQ、辺EFの中点をRとするとき、3点P、Q、Rを通る平面でこの立方体を切断した断面の形として正しいものを1つ選べ。（6点）</div>
+            <div class="figure-container">
+                <!--
+                図表仕様（問2）:
+                - SVGサイズ: 500x280px, viewBox: 0 0 500 280
+                - 斜軸投影: 問1と同一座標系
+                - 切断点: P=mid(BC)=(180,227) Q=mid(DH)=(100,165) R=mid(EF)=(110,140)
+                - 断面: 正六角形（6頂点: midEF, midBF, midBC, midCD, midDH, midHE）
+                -->
+                <svg width="500" height="280" viewBox="0 0 500 280">
+                    <!-- 隠れ辺（破線） -->
+                    <line x1="60" y1="240" x2="100" y2="215" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="100" y1="215" x2="200" y2="215" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <line x1="100" y1="215" x2="100" y2="115" stroke="#999" stroke-width="1.5" stroke-dasharray="5,3"/>
+                    <!-- 見える辺（実線） -->
+                    <line x1="60" y1="240" x2="160" y2="240" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="240" x2="200" y2="215" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="240" x2="60" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="240" x2="160" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="200" y1="215" x2="200" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="60" y1="140" x2="160" y2="140" stroke="#333" stroke-width="2"/>
+                    <line x1="160" y1="140" x2="200" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="200" y1="115" x2="100" y2="115" stroke="#333" stroke-width="2"/>
+                    <line x1="100" y1="115" x2="60" y2="140" stroke="#333" stroke-width="2"/>
+                    <!-- 切断面（正六角形、薄いグレー塗り） -->
+                    <!-- 頂点順: midEF(110,140), midBF(160,190), midBC(180,228), midCD(150,215), midDH(100,165), midHE(80,128) -->
+                    <polygon points="110,140 160,190 180,228 150,215 100,165 80,128"
+                             fill="rgba(150,150,150,0.25)" stroke="#555" stroke-width="1.5" stroke-dasharray="4,2"/>
+                    <!-- 切断点マーク -->
+                    <circle cx="180" cy="228" r="4" fill="#333"/>
+                    <circle cx="100" cy="165" r="4" fill="#333"/>
+                    <circle cx="110" cy="140" r="4" fill="#333"/>
+                    <!-- 頂点ラベル -->
+                    <text x="42" y="255" font-family="serif" font-size="15" fill="#333">A</text>
+                    <text x="163" y="255" font-family="serif" font-size="15" fill="#333">B</text>
+                    <text x="204" y="218" font-family="serif" font-size="15" fill="#333">C</text>
+                    <text x="83" y="218" font-family="serif" font-size="15" fill="#333">D</text>
+                    <text x="42" y="138" font-family="serif" font-size="15" fill="#333">E</text>
+                    <text x="163" y="138" font-family="serif" font-size="15" fill="#333">F</text>
+                    <text x="204" y="115" font-family="serif" font-size="15" fill="#333">G</text>
+                    <text x="83" y="115" font-family="serif" font-size="15" fill="#333">H</text>
+                    <!-- 切断点ラベル -->
+                    <text x="184" y="232" font-family="serif" font-size="14" fill="#333">P</text>
+                    <text x="83" y="165" font-family="serif" font-size="14" fill="#333">Q</text>
+                    <text x="93" y="138" font-family="serif" font-size="14" fill="#333">R</text>
+                </svg>
+            </div>
+            <div class="options-figure">
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <rect x="15" y="15" width="60" height="60" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(1)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <polygon points="45,10 75,65 15,65" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(2)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <!-- 正六角形 中心(45,45) r=35 -->
+                        <polygon points="45,10 75,27 75,63 45,80 15,63 15,27" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(3)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <!-- 正五角形 -->
+                        <polygon points="45,8 79,33 67,74 23,74 11,33" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(4)</div>
+                </div>
+                <div class="option-figure-item">
+                    <svg width="90" height="90" viewBox="0 0 90 90">
+                        <polygon points="25,35 65,35 65,55 25,55" fill="none" stroke="#333" stroke-width="2"/>
+                    </svg>
+                    <div>(5)</div>
+                </div>
+            </div>
+            <div style="font-size:13px; color:#666; margin-top:5px; text-align:center;">
+                (1)正方形　(2)正三角形　(3)正六角形　(4)正五角形　(5)長方形
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section">
+    <div class="page-content">
+        <div class="explanation">
+            <div class="question-number">問2（正解: (3) 正六角形）</div>
+            <br>
+            <p><strong>【切断面の特定】</strong></p>
+            <p>3点P（辺BCの中点）、Q（辺DHの中点）、R（辺EFの中点）を通る平面を求める。</p>
+            <p>各点の座標: P(1, ½, 0)、Q(0, 1, ½)、R(½, 0, 1)</p>
+            <p>これらはすべて x＋y＋z = 3/2 を満たす（立方体の中心を通る平面）。</p>
+            <br>
+            <p><strong>【断面頂点の特定】</strong></p>
+            <p>平面 x＋y＋z = 3/2 が各辺と交わる点を求めると、</p>
+            <p>辺BCの中点P(1, ½, 0)、辺BFの中点(1, 0, ½)、辺EFの中点R(½, 0, 1)、</p>
+            <p>辺HEの中点(0, ½, 1)、辺DHの中点Q(0, 1, ½)、辺CDの中点(½, 1, 0) の6点。</p>
+            <br>
+            <p><strong>【断面の形状判定】</strong></p>
+            <p>隣接する2点間の距離はすべて √(½) = (√2)/2 で等しい。</p>
+            <p>この切断面は立方体の空間対角線に垂直な平面であり、</p>
+            <p>6辺が等長かつすべての内角が120°の<strong>正六角形</strong>となる。</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
