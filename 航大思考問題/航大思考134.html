@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; overflow-x: auto; }
+        .options-container { margin: 20px 0; }
+        .option-button { display: block; width: 100%; padding: 12px 18px; margin: 8px 0; background-color: white; border: 2px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; transition: all 0.2s ease; font-family: inherit; font-size: 15px; }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-label { font-weight: bold; margin-right: 10px; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section { display: none; margin-top: 30px; padding: 25px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .explanation-content p { margin-bottom: 8px; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+        <div class="question-text">
+            下のような正方形を組み合わせた道がある。P地点から出発して、すべての道を1回以上通って再びP地点に戻りたい。最短距離で行くとすると、延べ何本の道を通ることになるか。正しいものを1つ選べ。
+        </div>
+        <div class="figure-container">
+            <!--
+            図表仕様（問1）:
+            - SVGサイズ: 400x300px, viewBox: 0 0 400 300
+            - 格子: 横4列×縦2行 + 下段3列の不規則形状
+            - 単位: 70px, 原点オフセット: x=50, y=40
+            - ノード(r,c) → SVG座標(50+70c, 40+70r)
+            -->
+            <svg width="400" height="300" viewBox="0 0 400 300">
+                <!-- 横方向の道 -->
+                <!-- 上段(y=40): 4列分 -->
+                <line x1="50" y1="40" x2="330" y2="40" stroke="#333" stroke-width="2.5"/>
+                <!-- 中段1(y=110): 4列分 -->
+                <line x1="50" y1="110" x2="330" y2="110" stroke="#333" stroke-width="2.5"/>
+                <!-- 中段2(y=180): 4列分（右端は[1,3]の底辺） -->
+                <line x1="50" y1="180" x2="330" y2="180" stroke="#333" stroke-width="2.5"/>
+                <!-- 下段(y=250): 3列分 -->
+                <line x1="50" y1="250" x2="260" y2="250" stroke="#333" stroke-width="2.5"/>
+                <!-- 縦方向の道 -->
+                <!-- 左端(x=50): 3段分 -->
+                <line x1="50" y1="40" x2="50" y2="250" stroke="#333" stroke-width="2.5"/>
+                <!-- 左から2番目(x=120): 3段分 -->
+                <line x1="120" y1="40" x2="120" y2="250" stroke="#333" stroke-width="2.5"/>
+                <!-- 中央(x=190): 3段分 -->
+                <line x1="190" y1="40" x2="190" y2="250" stroke="#333" stroke-width="2.5"/>
+                <!-- 右から2番目(x=260): 3段分 -->
+                <line x1="260" y1="40" x2="260" y2="250" stroke="#333" stroke-width="2.5"/>
+                <!-- 右端(x=330): 2段分のみ -->
+                <line x1="330" y1="40" x2="330" y2="180" stroke="#333" stroke-width="2.5"/>
+                <!-- P地点マーカー -->
+                <circle cx="50" cy="250" r="6" fill="#333"/>
+                <text x="20" y="255" font-family="serif" font-size="18" font-weight="bold" fill="#333">P</text>
+            </svg>
+        </div>
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                <span class="option-label">(1)</span> 33本
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                <span class="option-label">(2)</span> 34本
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                <span class="option-label">(3)</span> 35本
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                <span class="option-label">(4)</span> 36本
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                <span class="option-label">(5)</span> 37本
+            </button>
+        </div>
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【方針】</strong>すべての道を1回以上通り出発点に戻る最短経路の問題（中国人郵便配達問題）。</p>
+                <p><strong>Step 1: 道路の総本数を数える</strong></p>
+                <p>・横方向: 4本＋4本＋4本＋3本 ＝ 15本<br>・縦方向: 3本×4列＋2本×1列 ＝ 14本<br>・合計: <strong>29本</strong></p>
+                <p><strong>Step 2: 奇数次数の交差点を特定する</strong></p>
+                <p>奇数本の道がつながる交差点では、「行き」と「帰り」で同じ道を1回余分に通る必要がある。<br>この図では上辺の内側3点、右上端1点、左辺の中段2点、下辺の内側2点の計<strong>8箇所</strong>が奇数次数。</p>
+                <p><strong>Step 3: 追加走行を最小化するペアリング</strong></p>
+                <p>・上辺の1番目と2番目 → 1本追加<br>・上辺の3番目と右上端 → 2本追加<br>・左辺の中段2点 → 1本追加<br>・下辺の1番目と2番目 → 1本追加<br>・追加合計: <strong>5本</strong></p>
+                <p><strong>答え: 29＋5 ＝ 34本　→　(2)</strong></p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">（空欄）</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+        <div class="question-text">
+            下のような正方形を組み合わせた道がある。P地点から出発して、すべての道を1回以上通って再びP地点に戻りたい。最短距離で行くとすると、延べ何本の道を通ることになるか。正しいものを1つ選べ。
+        </div>
+        <div class="figure-container">
+            <!--
+            図表仕様（問2）:
+            - SVGサイズ: 410x280px, viewBox: 0 0 410 280
+            - 格子: 横5列×縦2行 + 下段4列の不規則形状
+            - 単位: 60px, 原点オフセット: x=50, y=40
+            - ノード(r,c) → SVG座標(50+60c, 40+60r)
+            -->
+            <svg width="410" height="280" viewBox="0 0 410 280">
+                <!-- 横方向の道 -->
+                <!-- 上段(y=40): 5列分 -->
+                <line x1="50" y1="40" x2="350" y2="40" stroke="#333" stroke-width="2.5"/>
+                <!-- 中段1(y=100): 5列分 -->
+                <line x1="50" y1="100" x2="350" y2="100" stroke="#333" stroke-width="2.5"/>
+                <!-- 中段2(y=160): 5列分（右端は[1,4]の底辺） -->
+                <line x1="50" y1="160" x2="350" y2="160" stroke="#333" stroke-width="2.5"/>
+                <!-- 下段(y=220): 4列分 -->
+                <line x1="50" y1="220" x2="290" y2="220" stroke="#333" stroke-width="2.5"/>
+                <!-- 縦方向の道 -->
+                <!-- 各列(x=50,110,170,230,290): 3段分 -->
+                <line x1="50"  y1="40" x2="50"  y2="220" stroke="#333" stroke-width="2.5"/>
+                <line x1="110" y1="40" x2="110" y2="220" stroke="#333" stroke-width="2.5"/>
+                <line x1="170" y1="40" x2="170" y2="220" stroke="#333" stroke-width="2.5"/>
+                <line x1="230" y1="40" x2="230" y2="220" stroke="#333" stroke-width="2.5"/>
+                <line x1="290" y1="40" x2="290" y2="220" stroke="#333" stroke-width="2.5"/>
+                <!-- 右端(x=350): 2段分のみ -->
+                <line x1="350" y1="40" x2="350" y2="160" stroke="#333" stroke-width="2.5"/>
+                <!-- P地点マーカー -->
+                <circle cx="50" cy="220" r="6" fill="#333"/>
+                <text x="20" y="225" font-family="serif" font-size="18" font-weight="bold" fill="#333">P</text>
+            </svg>
+        </div>
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                <span class="option-label">(1)</span> 43本
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                <span class="option-label">(2)</span> 44本
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                <span class="option-label">(3)</span> 45本
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                <span class="option-label">(4)</span> 46本
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                <span class="option-label">(5)</span> 47本
+            </button>
+        </div>
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (2)）</div>
+            <div class="explanation-content">
+                <p><strong>【方針】</strong>問1と同じ中国人郵便配達問題だが、道路網が大きく奇数次数の交差点も多い。</p>
+                <p><strong>Step 1: 道路の総本数を数える</strong></p>
+                <p>・横方向: 5本＋5本＋5本＋4本 ＝ 19本<br>・縦方向: 3本×5列＋2本×1列 ＝ 17本<br>・合計: <strong>36本</strong></p>
+                <p><strong>Step 2: 奇数次数の交差点を特定する</strong></p>
+                <p>上辺の内側4点、左辺の中段2点、右上端1点、下辺の内側3点の計<strong>10箇所</strong>が奇数次数。</p>
+                <p><strong>Step 3: 追加走行を最小化するペアリング（5組）</strong></p>
+                <p>・上辺の1番目と2番目 → 1本追加<br>・上辺の3番目と4番目 → 1本追加<br>・左辺の中段2点 → 1本追加<br>・下辺の1番目と2番目 → 1本追加<br>・右上端と下辺3番目 → 4本追加（右上から下辺右端まで最短4本）<br>・追加合計: <strong>8本</strong></p>
+                <p><strong>答え: 36＋8 ＝ 44本　→　(2)</strong></p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                if (state.answers[parseInt(dot.textContent)] === undefined) {
+                    dot.classList.remove('active');
+                }
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-button');
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const dot = document.getElementById(`progress-${questionNum}`);
+            dot.classList.remove('completed', 'incorrect-dot');
+            dot.classList.add('active');
+            return;
+        }
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_04/航大思考134/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const opt = parseInt(btn.dataset.option);
+            if (opt === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (opt === correctOption) btn.classList.add('correct');
+        });
+        const dot = document.getElementById(`progress-${questionNum}`);
+        dot.classList.remove('active');
+        dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+        const exp = document.getElementById(`q${questionNum}-explanation`);
+        exp.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+        setTimeout(() => exp.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2.5; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        svg { max-width: 100%; height: auto; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．下のような正方形を組み合わせた道がある。P地点から出発して、すべての道を1回以上通って再びP地点に戻りたい。最短距離で行くとすると、延べ何本の道を通ることになるか。正しいものを1つ選べ。（6点）</div>
+            <div class="figure-container">
+                <!--
+                図表仕様（問1）: SVG 400x300, viewBox 0 0 400 300
+                格子: 横4列×縦2行 + 下段3列、単位70px、オフセット x=50,y=40
+                -->
+                <svg width="400" height="300" viewBox="0 0 400 300">
+                    <line x1="50" y1="40" x2="330" y2="40" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50" y1="110" x2="330" y2="110" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50" y1="180" x2="330" y2="180" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50" y1="250" x2="260" y2="250" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50"  y1="40" x2="50"  y2="250" stroke="#333" stroke-width="2.5"/>
+                    <line x1="120" y1="40" x2="120" y2="250" stroke="#333" stroke-width="2.5"/>
+                    <line x1="190" y1="40" x2="190" y2="250" stroke="#333" stroke-width="2.5"/>
+                    <line x1="260" y1="40" x2="260" y2="250" stroke="#333" stroke-width="2.5"/>
+                    <line x1="330" y1="40" x2="330" y2="180" stroke="#333" stroke-width="2.5"/>
+                    <circle cx="50" cy="250" r="6" fill="#333"/>
+                    <text x="20" y="255" font-family="serif" font-size="18" font-weight="bold" fill="#333">P</text>
+                </svg>
+            </div>
+            <div class="options">
+                (1) 33本　　(2) 34本　　(3) 35本　　(4) 36本　　(5) 37本
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section">
+    <div class="page-content">
+        <div class="explanation">
+            <div class="question-number">問1（正解: (2) 34本）</div>
+            <p><strong>【方針】</strong>すべての道を1回以上通り出発点に戻る最短経路（中国人郵便配達問題）を解く。</p>
+            <br>
+            <p><strong>Step 1: 道路の総本数</strong></p>
+            <p>・横方向: 4本 + 4本 + 4本 + 3本 = 15本</p>
+            <p>・縦方向: 3本×4列 + 2本×1列 = 14本</p>
+            <p>・合計: 29本</p>
+            <br>
+            <p><strong>Step 2: 奇数次数の交差点</strong></p>
+            <p>奇数本の道がつながる交差点では、「行き」と「帰り」で同じ道を1回余分に通る必要がある。この道路網では上辺内側3点・右上端1点・左辺中段2点・下辺内側2点の計8箇所が奇数次数。</p>
+            <br>
+            <p><strong>Step 3: 追加走行の最小化</strong></p>
+            <p>・上辺の1番目と2番目の交差点をペア → 1本追加</p>
+            <p>・上辺の3番目と右上端をペア → 2本追加</p>
+            <p>・左辺の中段2点をペア → 1本追加</p>
+            <p>・下辺の1番目と2番目をペア → 1本追加</p>
+            <p>・追加合計: 5本</p>
+            <br>
+            <p><strong>最短延べ道路数: 29 + 5 = 34本 → (2)</strong></p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．下のような正方形を組み合わせた道がある。P地点から出発して、すべての道を1回以上通って再びP地点に戻りたい。最短距離で行くとすると、延べ何本の道を通ることになるか。正しいものを1つ選べ。（6点）</div>
+            <div class="figure-container">
+                <!--
+                図表仕様（問2）: SVG 410x280, viewBox 0 0 410 280
+                格子: 横5列×縦2行 + 下段4列、単位60px、オフセット x=50,y=40
+                -->
+                <svg width="410" height="280" viewBox="0 0 410 280">
+                    <line x1="50"  y1="40" x2="350" y2="40"  stroke="#333" stroke-width="2.5"/>
+                    <line x1="50"  y1="100" x2="350" y2="100" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50"  y1="160" x2="350" y2="160" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50"  y1="220" x2="290" y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="50"  y1="40" x2="50"  y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="110" y1="40" x2="110" y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="170" y1="40" x2="170" y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="230" y1="40" x2="230" y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="290" y1="40" x2="290" y2="220" stroke="#333" stroke-width="2.5"/>
+                    <line x1="350" y1="40" x2="350" y2="160" stroke="#333" stroke-width="2.5"/>
+                    <circle cx="50" cy="220" r="6" fill="#333"/>
+                    <text x="20" y="225" font-family="serif" font-size="18" font-weight="bold" fill="#333">P</text>
+                </svg>
+            </div>
+            <div class="options">
+                (1) 43本　　(2) 44本　　(3) 45本　　(4) 46本　　(5) 47本
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section">
+    <div class="page-content">
+        <div class="explanation">
+            <div class="question-number">問2（正解: (2) 44本）</div>
+            <p><strong>【方針】</strong>問1と同じ中国人郵便配達問題。道路網が大きく奇数次数の交差点も多い。</p>
+            <br>
+            <p><strong>Step 1: 道路の総本数</strong></p>
+            <p>・横方向: 5本 + 5本 + 5本 + 4本 = 19本</p>
+            <p>・縦方向: 3本×5列 + 2本×1列 = 17本</p>
+            <p>・合計: 36本</p>
+            <br>
+            <p><strong>Step 2: 奇数次数の交差点</strong></p>
+            <p>上辺内側4点・左辺中段2点・右上端1点・下辺内側3点の計10箇所が奇数次数。</p>
+            <br>
+            <p><strong>Step 3: 追加走行の最小化（5組のペアリング）</strong></p>
+            <p>・上辺の1番目と2番目をペア → 1本追加</p>
+            <p>・上辺の3番目と4番目をペア → 1本追加</p>
+            <p>・左辺の中段2点をペア → 1本追加</p>
+            <p>・下辺の1番目と2番目をペア → 1本追加</p>
+            <p>・右上端と下辺3番目をペア → 4本追加（右上から下辺右端まで最短4本）</p>
+            <p>・追加合計: 8本</p>
+            <br>
+            <p><strong>最短延べ道路数: 36 + 8 = 44本 → (2)</strong></p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
