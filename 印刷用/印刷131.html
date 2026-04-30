@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: white;
+            border: 1px solid #dddddd; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        .options-figure { display: flex; justify-content: space-around; align-items: flex-start; margin: 15px 0; flex-wrap: wrap; gap: 10px; }
+        .option-fig { text-align: center; width: 110px; }
+        .option-fig-label { font-weight: bold; margin-bottom: 4px; font-size: 14px; }
+        .option-fig svg { display: block; margin: 0 auto; }
+        svg { max-width: 100%; height: auto; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto;
+                min-height: auto; margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 問1 問題ページ -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図のように半径3の円の内部に半径1の円が点Pで接している。半径1の円を半径3の円周の内部を滑らないように転がしていくときの点Pの軌跡はどれか。正しいものを1つ選び解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図】半径3の円の内部を半径1の円が転がる様子</div>
+                    <div class="figure-content">
+                        <svg width="180" height="150" viewBox="0 0 180 150">
+                            <!-- 外側の円: 半径3 (scale=15 → 45px) -->
+                            <circle cx="90" cy="60" r="45" fill="white" stroke="black" stroke-width="1.5"/>
+                            <!-- 内側の円: 半径1 (15px), 中心(90,90) -->
+                            <circle cx="90" cy="90" r="15" fill="white" stroke="black" stroke-width="1.5"/>
+                            <!-- 接点P -->
+                            <circle cx="90" cy="105" r="2.5" fill="black"/>
+                            <text x="84" y="120" font-size="12" font-weight="bold" font-family="serif">P</text>
+                            <!-- 回転方向の矢印（時計回り） -->
+                            <path d="M 100 95 A 12 12 0 0 0 102 88" fill="none" stroke="black" stroke-width="1"/>
+                            <polygon points="102,88 100,90 104,90" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options-figure">
+                    <div class="option-fig">
+                        <div class="option-fig-label">(1)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="42" fill="white" stroke="black" stroke-width="1.2"/>
+                            <line x1="13" y1="55" x2="97" y2="55" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(2)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="42" fill="white" stroke="black" stroke-width="1.2"/>
+                            <ellipse cx="55" cy="55" rx="14" ry="42" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(3)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="42" fill="white" stroke="black" stroke-width="1.2"/>
+                            <path d="M97.0,55.0L95.5,54.8L91.1,53.8L84.7,51.1L77.2,46.5L69.8,40.2L63.5,32.8L58.9,25.3L56.2,18.9L55.2,14.5L55.0,13.0L54.8,14.5L53.8,18.9L51.1,25.3L46.5,32.8L40.2,40.2L32.8,46.5L25.3,51.1L18.9,53.8L14.5,54.8L13.0,55.0L14.5,55.2L18.9,56.2L25.3,58.9L32.8,63.5L40.2,69.8L46.5,77.2L51.1,84.7L53.8,91.1L54.8,95.5L55.0,97.0L55.2,95.5L56.2,91.1L58.9,84.7L63.5,77.2L69.8,69.8L77.2,63.5L84.7,58.9L91.1,56.2L95.5,55.2L97.0,55.0Z" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(4)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="42" fill="white" stroke="black" stroke-width="1.2"/>
+                            <path d="M97.0,55.0L96.5,55.0L95.2,54.9L93.0,54.6L89.9,54.0L86.2,53.1L82.0,51.9L77.3,50.2L72.3,48.1L67.1,45.7L62.0,42.9L57.0,39.8L52.3,36.6L48.0,33.3L44.2,30.1L41.0,27.0L38.4,24.2L36.4,21.9L35.0,20.1L34.2,19.0L34.0,18.6L34.2,19.0L34.8,20.3L35.7,22.3L36.7,25.2L37.8,28.9L38.8,33.2L39.7,38.1L40.4,43.5L40.8,49.2L41.0,55.0L40.8,60.8L40.4,66.5L39.7,71.9L38.8,76.8L37.8,81.1L36.7,84.8L35.7,87.7L34.8,89.7L34.2,91.0L34.0,91.4L34.2,91.0L35.0,89.9L36.4,88.1L38.4,85.8L41.0,83.0L44.2,79.9L48.0,76.7L52.3,73.4L57.0,70.2L62.0,67.1L67.1,64.3L72.3,61.9L77.3,59.8L82.0,58.1L86.2,56.9L89.9,56.0L93.0,55.4L95.2,55.1L96.5,55.0L97.0,55.0Z" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(5)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="42" fill="white" stroke="black" stroke-width="1.2"/>
+                            <circle cx="55" cy="55" r="14" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 問1 解説ページ -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1（正解:(4)）</strong><br><br>
+
+                半径Rの円の内部を半径rの円が滑らずに転がるとき、初め接点Pにあった点が描く軌跡を<strong>ハイポサイクロイド（内転擺線）</strong>という。<br><br>
+
+                <strong>【性質】</strong><br>
+                R/r = n（自然数）のとき、ハイポサイクロイドは<strong>n個の尖点</strong>をもち、すべての尖点は半径Rの外円に接する。<br><br>
+
+                ・R/r = 2 → 直径（直線）に退化<br>
+                ・R/r = 3 → <strong>3尖点（デルトイド）</strong><br>
+                ・R/r = 4 → 4尖点（アステロイド）<br><br>
+
+                <strong>【本問】</strong><br>
+                R = 3, r = 1 より R/r = 3。よって軌跡は<strong>3個の尖点をもつ星形（デルトイド）</strong>である。<br><br>
+
+                各尖点は外円上にあり、隣り合う尖点の中心角は120°となる。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。<br><br>
+
+                <strong>【参考】媒介変数表示</strong><br>
+                R = 3, r = 1のハイポサイクロイドは次式で与えられる。<br>
+                x(t) = 2 cos t + cos 2t<br>
+                y(t) = 2 sin t &minus; sin 2t<br>
+                t = 0, 2π/3, 4π/3 で尖点となり、各尖点の位置は外円上の3点(3, 0), (&minus;3/2, 3√3/2), (&minus;3/2, &minus;3√3/2)である。
+            </div>
+        </div>
+    </div>
+
+    <!-- 問2 問題ページ -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図のように半径2の円の外部に半径1の円が点Pで接している。半径1の円を半径2の円の外周を滑らないように転がしていくときの点Pの軌跡はどれか。正しいものを1つ選び解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図】半径2の円の外周を半径1の円が転がる様子</div>
+                    <div class="figure-content">
+                        <svg width="180" height="160" viewBox="0 0 180 160">
+                            <!-- 内側の固定円: 半径2 (scale=15 → 30px) -->
+                            <circle cx="90" cy="60" r="30" fill="white" stroke="black" stroke-width="1.5"/>
+                            <!-- 外側の転がる円: 半径1 (15px), 中心(90,105) -->
+                            <circle cx="90" cy="105" r="15" fill="white" stroke="black" stroke-width="1.5"/>
+                            <!-- 接点P (90, 90) -->
+                            <circle cx="90" cy="90" r="2.5" fill="black"/>
+                            <text x="96" y="93" font-size="12" font-weight="bold" font-family="serif">P</text>
+                            <!-- 回転方向の矢印 -->
+                            <path d="M 105 110 A 12 12 0 0 0 100 118" fill="none" stroke="black" stroke-width="1"/>
+                            <polygon points="100,118 102,114 98,116" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options-figure">
+                    <div class="option-fig">
+                        <div class="option-fig-label">(1)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="22" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,2"/>
+                            <path d="M77.0,55.0L77.4,54.9L78.4,54.6L79.9,53.7L81.7,52.0L83.6,49.5L85.1,46.1L86.0,41.8L86.0,36.9L84.9,31.7L82.5,26.4L78.9,21.5L74.1,17.1L68.3,13.8L61.8,11.7L55.0,11.0L48.2,11.7L41.7,13.8L35.9,17.1L31.1,21.5L27.5,26.4L25.1,31.7L24.0,36.9L24.0,41.8L24.9,46.1L26.4,49.5L28.3,52.0L30.1,53.7L31.6,54.6L32.6,54.9L33.0,55.0L32.6,55.1L31.6,55.4L30.1,56.3L28.3,58.0L26.4,60.5L24.9,63.9L24.0,68.2L24.0,73.1L25.1,78.3L27.5,83.6L31.1,88.5L35.9,92.9L41.7,96.2L48.2,98.3L55.0,99.0L61.8,98.3L68.3,96.2L74.1,92.9L78.9,88.5L82.5,83.6L84.9,78.3L86.0,73.1L86.0,68.2L85.1,63.9L83.6,60.5L81.7,58.0L79.9,56.3L78.4,55.4L77.4,55.1L77.0,55.0Z" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(2)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="22" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,2"/>
+                            <path d="M77.0,55.0L77.1,55.0L77.5,54.9L78.0,54.7L78.7,54.2L79.6,53.5L80.4,52.5L81.2,51.2L81.9,49.6L82.3,47.7L82.5,45.5L82.3,43.1L81.7,40.5L80.6,38.0L79.1,35.4L77.0,33.0L74.5,30.8L71.5,29.0L68.1,27.6L64.4,26.7L60.5,26.4L56.5,26.7L52.4,27.7L48.5,29.3L44.8,31.6L41.4,34.5L38.5,37.9L36.2,41.7L34.4,46.0L33.4,50.4L33.0,55.0L33.4,59.6L34.4,64.0L36.2,68.3L38.5,72.1L41.4,75.5L44.8,78.4L48.5,80.7L52.4,82.3L56.5,83.3L60.5,83.6L64.4,83.3L68.1,82.4L71.5,81.0L74.5,79.2L77.0,77.0L79.1,74.6L80.6,72.0L81.7,69.5L82.3,66.9L82.5,64.5L82.3,62.3L81.9,60.4L81.2,58.8L80.4,57.5L79.6,56.5L78.7,55.8L78.0,55.3L77.5,55.1L77.1,55.0L77.0,55.0Z" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(3)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="22" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,2"/>
+                            <path d="M79.0,55.0L79.3,55.0L80.1,54.7L81.4,54.0L83.0,52.7L84.6,50.8L86.0,48.1L87.0,44.8L87.4,40.9L86.9,36.7L85.6,32.4L83.4,28.2L80.3,24.4L76.4,21.2L72.0,18.9L67.2,17.4L62.4,17.0L57.8,17.4L53.5,18.7L49.9,20.6L47.0,23.0L44.9,25.6L43.5,28.1L42.8,30.4L42.6,32.2L42.8,33.4L42.9,34.1L43.0,34.2L42.7,33.8L41.8,33.1L40.4,32.4L38.3,31.7L35.6,31.5L32.4,31.8L29.0,32.9L25.4,34.8L22.1,37.5L19.2,41.1L16.9,45.3L15.5,50.0L15.0,55.0L15.5,60.0L16.9,64.7L19.2,68.9L22.1,72.5L25.4,75.2L29.0,77.1L32.4,78.2L35.6,78.5L38.3,78.3L40.4,77.6L41.8,76.9L42.7,76.2L43.0,75.8L42.9,75.9L42.8,76.6L42.6,77.8L42.8,79.6L43.5,81.9L44.9,84.4L47.0,87.0L49.9,89.4L53.5,91.3L57.8,92.6L62.4,93.0L67.2,92.6L72.0,91.1L76.4,88.8L80.3,85.6L83.4,81.8L85.6,77.6L86.9,73.3L87.4,69.1L87.0,65.2L86.0,61.9L84.6,59.2L83.0,57.3L81.4,56.0L80.1,55.3L79.3,55.0L79.0,55.0Z" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(4)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="22" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,2"/>
+                            <ellipse cx="55" cy="55" rx="40" ry="28" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <div class="option-fig">
+                        <div class="option-fig-label">(5)</div>
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle cx="55" cy="55" r="22" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="3,2"/>
+                            <circle cx="55" cy="55" r="40" fill="none" stroke="black" stroke-width="2"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 問2 解説ページ -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2（正解:(1)）</strong><br><br>
+
+                半径Rの円の外部を半径rの円が滑らずに転がるとき、初め接点Pにあった点が描く軌跡を<strong>エピサイクロイド（外転擺線）</strong>という。<br><br>
+
+                <strong>【性質】</strong><br>
+                R/r = n（自然数）のとき、エピサイクロイドは<strong>n個の尖点</strong>をもち、すべての尖点は半径Rの内円上にある。<br><br>
+
+                ・R/r = 1 → 1尖点（カーディオイド／心臓形）<br>
+                ・R/r = 2 → <strong>2尖点（ネフロイド／腎臓形）</strong><br>
+                ・R/r = 3 → 3尖点（3尖エピサイクロイド）<br><br>
+
+                <strong>【本問】</strong><br>
+                R = 2, r = 1 より R/r = 2。よって軌跡は<strong>2個の尖点をもつ腎臓形（ネフロイド）</strong>である。<br><br>
+
+                2つの尖点は内円上で互いに正反対の位置（中心角180°）にあり、軌跡はそれらを結ぶ直径を対称軸とする。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。<br><br>
+
+                <strong>【参考】媒介変数表示</strong><br>
+                R = 2, r = 1のエピサイクロイドは次式で与えられる。<br>
+                x(t) = 3 cos t &minus; cos 3t<br>
+                y(t) = 3 sin t &minus; sin 3t<br>
+                t = 0, π で尖点となり、各尖点の位置は内円上の2点(2, 0), (&minus;2, 0)である。最遠点は(0, ±4)で、原点から距離4(= R + 2r)の位置にある。
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
