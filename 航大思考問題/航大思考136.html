@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen { display: none; background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display: block; }
+        .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333; }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .condition-list { margin: 10px 0 15px 20px; line-height: 2.2; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        svg { max-width: 100%; height: auto; }
+        .options-figure { display: flex; flex-wrap: wrap; justify-content: center; gap: 2%; margin: 20px 0; width: 100%; }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 120px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section { display: none; margin-top: 30px; padding: 25px; background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot { width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease; }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot active" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ===== 問1 ===== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            一辺が1cmの立方体の積み木を、以下の条件に従って積み上げた。
+        </div>
+        <ul class="condition-list">
+            <li>底面は「前後2行×左右4列」のマス目に配置する</li>
+            <li>前列（手前）は、左から順に　<strong>2個・1個・3個・4個</strong></li>
+            <li>後列（奥）は、左から順に　<strong>1個・3個・2個・1個</strong></li>
+        </ul>
+        <div class="question-text">
+            この積み木の全体を、<strong>真正面（手前の行の方向）</strong>から眺めたとき、見えるシルエットはどれか。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">（正面から見たシルエット）</div>
+            <!--
+              (1)[3,3,2,4]  (2)[2,4,3,3]  (3)[3,2,3,4]  (4)[2,3,4,4]  (5)[2,3,3,4]正解
+              各ボタン内SVG: unit_h=27, baseline=100, col_w=18, gap=4
+            -->
+        </div>
+
+        <div class="options-figure" id="q1-options">
+            <!-- (1) heights: 3,3,2,4 -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                <svg width="80" height="120" viewBox="0 0 80 120">
+                    <text x="40" y="115" text-anchor="middle" font-size="13" font-family="serif">(1)</text>
+                    <line x1="4" y1="100" x2="76" y2="100" stroke="black" stroke-width="1.5"/>
+                    <rect x="4"  y="19" width="16" height="81" fill="black"/>
+                    <rect x="22" y="19" width="16" height="81" fill="black"/>
+                    <rect x="40" y="46" width="16" height="54" fill="black"/>
+                    <rect x="58" y="-8" width="16" height="108" fill="black"/>
+                </svg>
+            </button>
+            <!-- (2) heights: 2,4,3,3 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                <svg width="80" height="120" viewBox="0 0 80 120">
+                    <text x="40" y="115" text-anchor="middle" font-size="13" font-family="serif">(2)</text>
+                    <line x1="4" y1="100" x2="76" y2="100" stroke="black" stroke-width="1.5"/>
+                    <rect x="4"  y="46" width="16" height="54" fill="black"/>
+                    <rect x="22" y="-8" width="16" height="108" fill="black"/>
+                    <rect x="40" y="19" width="16" height="81" fill="black"/>
+                    <rect x="58" y="19" width="16" height="81" fill="black"/>
+                </svg>
+            </button>
+            <!-- (3) heights: 3,2,3,4 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                <svg width="80" height="120" viewBox="0 0 80 120">
+                    <text x="40" y="115" text-anchor="middle" font-size="13" font-family="serif">(3)</text>
+                    <line x1="4" y1="100" x2="76" y2="100" stroke="black" stroke-width="1.5"/>
+                    <rect x="4"  y="19" width="16" height="81" fill="black"/>
+                    <rect x="22" y="46" width="16" height="54" fill="black"/>
+                    <rect x="40" y="19" width="16" height="81" fill="black"/>
+                    <rect x="58" y="-8" width="16" height="108" fill="black"/>
+                </svg>
+            </button>
+            <!-- (4) heights: 2,3,4,4 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                <svg width="80" height="120" viewBox="0 0 80 120">
+                    <text x="40" y="115" text-anchor="middle" font-size="13" font-family="serif">(4)</text>
+                    <line x1="4" y1="100" x2="76" y2="100" stroke="black" stroke-width="1.5"/>
+                    <rect x="4"  y="46" width="16" height="54" fill="black"/>
+                    <rect x="22" y="19" width="16" height="81" fill="black"/>
+                    <rect x="40" y="-8" width="16" height="108" fill="black"/>
+                    <rect x="58" y="-8" width="16" height="108" fill="black"/>
+                </svg>
+            </button>
+            <!-- (5) heights: 2,3,3,4  ← 正解 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                <svg width="80" height="120" viewBox="0 0 80 120">
+                    <text x="40" y="115" text-anchor="middle" font-size="13" font-family="serif">(5)</text>
+                    <line x1="4" y1="100" x2="76" y2="100" stroke="black" stroke-width="1.5"/>
+                    <rect x="4"  y="46" width="16" height="54" fill="black"/>
+                    <rect x="22" y="19" width="16" height="81" fill="black"/>
+                    <rect x="40" y="19" width="16" height="81" fill="black"/>
+                    <rect x="58" y="-8" width="16" height="108" fill="black"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (5)）</div>
+            <div class="explanation-content">
+                <p>正面（手前の行の方向）から見たとき、各列で見えるのは前列と後列のうち<strong>高い方</strong>だけである。</p>
+                <br>
+                <p><strong>【各列の高さを比較】</strong></p>
+                <p>・左から1列目：前列2個 vs 後列1個 → <strong>2段</strong></p>
+                <p>・左から2列目：前列1個 vs 後列3個 → <strong>3段</strong></p>
+                <p>・左から3列目：前列3個 vs 後列2個 → <strong>3段</strong></p>
+                <p>・左から4列目：前列4個 vs 後列1個 → <strong>4段</strong></p>
+                <br>
+                <p>正面シルエットは左から「2・3・3・4段」となる。</p>
+                <p>・(1)[3,3,2,4]・(2)[2,4,3,3]・(3)[3,2,3,4]・(4)[2,3,4,4] はいずれも誤り。</p>
+                <p>・(5)[2,3,3,4] がすべて一致する。</p>
+                <br>
+                <p>したがって、正解は<strong>(5)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ===== 問2 ===== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            一辺が1cmの立方体の積み木を、以下の条件に従って積み上げた。
+        </div>
+        <ul class="condition-list">
+            <li>底面は「前後3行×左右3列」のマス目に配置する</li>
+            <li>前列（手前）は、左から順に　<strong>2個・1個・3個</strong></li>
+            <li>中列は、左から順に　<strong>4個・2個・1個</strong></li>
+            <li>後列（奥）は、左から順に　<strong>1個・3個・2個</strong></li>
+        </ul>
+        <div class="question-text">
+            この積み木の全体を、<strong>右側面（右端の列の方向）</strong>から眺めたとき、見えるシルエットはどれか。<br>
+            ただし、シルエットは左側に前列、右側に後列が見える向きで示す。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">（右側面から見たシルエット　左＝手前・右＝奥）</div>
+        </div>
+
+        <div class="options-figure" id="q2-options">
+            <!-- (1) heights: 3,4,3  ← 正解（山型） -->
+            <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <svg width="70" height="130" viewBox="0 0 70 130">
+                    <text x="35" y="125" text-anchor="middle" font-size="13" font-family="serif">(1)</text>
+                    <line x1="5" y1="108" x2="65" y2="108" stroke="black" stroke-width="1.5"/>
+                    <rect x="5"  y="27" width="18" height="81" fill="black"/>
+                    <rect x="26" y="0"  width="18" height="108" fill="black"/>
+                    <rect x="47" y="27" width="18" height="81" fill="black"/>
+                </svg>
+            </button>
+            <!-- (2) heights: 4,3,3 -->
+            <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <svg width="70" height="130" viewBox="0 0 70 130">
+                    <text x="35" y="125" text-anchor="middle" font-size="13" font-family="serif">(2)</text>
+                    <line x1="5" y1="108" x2="65" y2="108" stroke="black" stroke-width="1.5"/>
+                    <rect x="5"  y="0"  width="18" height="108" fill="black"/>
+                    <rect x="26" y="27" width="18" height="81" fill="black"/>
+                    <rect x="47" y="27" width="18" height="81" fill="black"/>
+                </svg>
+            </button>
+            <!-- (3) heights: 3,3,4 -->
+            <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <svg width="70" height="130" viewBox="0 0 70 130">
+                    <text x="35" y="125" text-anchor="middle" font-size="13" font-family="serif">(3)</text>
+                    <line x1="5" y1="108" x2="65" y2="108" stroke="black" stroke-width="1.5"/>
+                    <rect x="5"  y="27" width="18" height="81" fill="black"/>
+                    <rect x="26" y="27" width="18" height="81" fill="black"/>
+                    <rect x="47" y="0"  width="18" height="108" fill="black"/>
+                </svg>
+            </button>
+            <!-- (4) heights: 4,4,3 -->
+            <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <svg width="70" height="130" viewBox="0 0 70 130">
+                    <text x="35" y="125" text-anchor="middle" font-size="13" font-family="serif">(4)</text>
+                    <line x1="5" y1="108" x2="65" y2="108" stroke="black" stroke-width="1.5"/>
+                    <rect x="5"  y="0"  width="18" height="108" fill="black"/>
+                    <rect x="26" y="0"  width="18" height="108" fill="black"/>
+                    <rect x="47" y="27" width="18" height="81" fill="black"/>
+                </svg>
+            </button>
+            <!-- (5) heights: 3,4,4 -->
+            <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <svg width="70" height="130" viewBox="0 0 70 130">
+                    <text x="35" y="125" text-anchor="middle" font-size="13" font-family="serif">(5)</text>
+                    <line x1="5" y1="108" x2="65" y2="108" stroke="black" stroke-width="1.5"/>
+                    <rect x="5"  y="27" width="18" height="81" fill="black"/>
+                    <rect x="26" y="0"  width="18" height="108" fill="black"/>
+                    <rect x="47" y="0"  width="18" height="108" fill="black"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p>右側面（右端の列の方向）から見たとき、各行（前・中・後）で見えるのはその行の<strong>最大高さ</strong>だけである。</p>
+                <br>
+                <p><strong>【各行の最大高さを求める】</strong></p>
+                <p>・前列（左から2・1・3個）：最大は <strong>3個</strong></p>
+                <p>・中列（左から4・2・1個）：最大は <strong>4個</strong></p>
+                <p>・後列（左から1・3・2個）：最大は <strong>3個</strong></p>
+                <br>
+                <p>右側面から見ると左側に前列・右側に後列が映り、シルエットの高さは前から後へ「3段・4段・3段」となる（中列が最も高い山型）。</p>
+                <p>・(1)[3,4,3] がすべて一致する。その他の選択肢はいずれか1か所以上が誤り。</p>
+                <br>
+                <p>したがって、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button');
+        buttons.forEach(btn => {
+            btn.classList.add('disabled');
+            const opt = parseInt(btn.getAttribute('data-option'));
+            if (opt === correctOption) btn.classList.add('correct');
+            else if (opt === selectedOption) btn.classList.add('incorrect');
+        });
+        document.getElementById(`q${questionNum}-explanation`).classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+        const isCorrect = selectedOption === correctOption;
+        const dot = document.getElementById(`progress-${questionNum}`);
+        dot.classList.remove('active');
+        dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+        try {
+            window.parent.recordAnswer(
+                `2026_05/航大思考136/問${questionNum}`,
+                selectedOption, correctOption, isCorrect
+            );
+        } catch(e) {}
+    }
+
+    function goToQuestion(num) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.progress-dot').forEach(d => {
+            if (!d.classList.contains('completed') && !d.classList.contains('incorrect-dot'))
+                d.classList.remove('active');
+        });
+        const screen = document.getElementById(`q${num}-question`);
+        if (screen) screen.classList.add('active');
+        const dot = document.getElementById(`progress-${num}`);
+        if (dot && !dot.classList.contains('completed') && !dot.classList.contains('incorrect-dot'))
+            dot.classList.add('active');
+    }
+</script>
+</body>
+</html>
