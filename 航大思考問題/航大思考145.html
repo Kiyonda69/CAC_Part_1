@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .data-table {
+            margin: 0 auto; border-collapse: collapse; background-color: white;
+            font-size: 14px;
+        }
+        .data-table td, .data-table th {
+            border: 1.5px solid #333; padding: 8px 12px;
+            text-align: center; vertical-align: middle;
+        }
+        .data-table th { background-color: #e8e8e8; font-weight: bold; }
+        .data-table td.row-head { background-color: #f5f5f5; font-weight: bold; }
+        .conditions {
+            background-color: #f8f8f8; border: 1px solid #ccc;
+            padding: 12px 18px; margin: 15px 0; font-size: 15px; text-align: left;
+        }
+        .conditions ol { margin-left: 22px; line-height: 1.9; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer; display: flex;
+            align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【表1】は、ある業界に属する5社（A社〜E社）の人事関連データをまとめたものである。下記の条件をすべて満たす会社を、選択肢の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】5社の人事データ</div>
+                <div class="figure-content">
+                    <table class="data-table">
+                        <tr>
+                            <th>会社</th>
+                            <th>社員数<br>(人)</th>
+                            <th>女性比率<br>(%)</th>
+                            <th>平均年齢<br>(歳)</th>
+                            <th>平均年収<br>(万円)</th>
+                            <th>平均勤続<br>年数(年)</th>
+                            <th>月平均<br>残業(時間)</th>
+                        </tr>
+                        <tr><td class="row-head">A社</td><td>180</td><td>40</td><td>35</td><td>510</td><td>5.5</td><td>25</td></tr>
+                        <tr><td class="row-head">B社</td><td>320</td><td>28</td><td>37</td><td>540</td><td>7.0</td><td>28</td></tr>
+                        <tr><td class="row-head">C社</td><td>250</td><td>35</td><td>36</td><td>520</td><td>6.5</td><td>22</td></tr>
+                        <tr><td class="row-head">D社</td><td>280</td><td>32</td><td>39</td><td>530</td><td>6.0</td><td>26</td></tr>
+                        <tr><td class="row-head">E社</td><td>220</td><td>36</td><td>38</td><td>480</td><td>5.8</td><td>35</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="conditions">
+                <strong>【条件】次の6つをすべて満たすこと</strong>
+                <ol>
+                    <li>社員数が200人以上</li>
+                    <li>女性比率が30%以上</li>
+                    <li>平均年齢が38歳以下</li>
+                    <li>平均年収が500万円以上</li>
+                    <li>平均勤続年数が5年以上</li>
+                    <li>月平均残業時間が30時間以下</li>
+                </ol>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)"><span class="option-label">(1)</span>A社</button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)"><span class="option-label">(2)</span>B社</button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)"><span class="option-label">(3)</span>C社</button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)"><span class="option-label">(4)</span>D社</button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)"><span class="option-label">(5)</span>E社</button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各社について6つの条件を順に確認する。</p>
+                    <br>
+                    <p><strong>【各条件による絞り込み】</strong></p>
+                    <p>・条件①（社員数200人以上）：A社（180）が脱落。</p>
+                    <p>・条件②（女性比率30%以上）：B社（28%）が脱落。</p>
+                    <p>・条件③（平均年齢38歳以下）：D社（39歳）が脱落。</p>
+                    <p>・条件④（平均年収500万円以上）：E社（480万円）が脱落。</p>
+                    <p>・条件⑥（残業30時間以下）：E社（35時間）も脱落。</p>
+                    <br>
+                    <p><strong>【C社の検証】</strong></p>
+                    <p>社員数250人 ≧ 200 ○ ／ 女性比率35% ≧ 30% ○ ／ 平均年齢36歳 ≦ 38 ○ ／ 平均年収520万円 ≧ 500 ○ ／ 平均勤続6.5年 ≧ 5 ○ ／ 月平均残業22時間 ≦ 30 ○</p>
+                    <br>
+                    <p><strong>【コツ】</strong>条件が多い問題では、各条件で1社ずつ脱落させる方針が早い。A→①、B→②、D→③、E→④（または⑥）で4社脱落し、残るC社を最後に検証する。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) C社</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の【図1】は飲食チェーンX系列の5店舗（A〜E）における四半期ごとの月平均来客数を、【表2】は各店舗の付帯情報を示している。下記の条件をすべて満たす店舗を1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図1】月平均来客数（人/月）</div>
+                <div class="figure-content">
+<svg width="620" height="360" viewBox="0 0 620 360">
+    <line x1="50" y1="290" x2="600" y2="290" stroke="black" stroke-width="1.5"/>
+    <line x1="50" y1="40" x2="50" y2="290" stroke="black" stroke-width="1.5"/>
+    <g stroke="#aaa" stroke-width="0.5" stroke-dasharray="3,3">
+        <line x1="50" y1="250" x2="600" y2="250"/>
+        <line x1="50" y1="210" x2="600" y2="210"/>
+        <line x1="50" y1="170" x2="600" y2="170"/>
+        <line x1="50" y1="130" x2="600" y2="130"/>
+        <line x1="50" y1="90" x2="600" y2="90"/>
+        <line x1="50" y1="50" x2="600" y2="50"/>
+    </g>
+    <g class="svg-text" text-anchor="end" font-size="12">
+        <text x="44" y="294">0</text>
+        <text x="44" y="254">200</text>
+        <text x="44" y="214">400</text>
+        <text x="44" y="174">600</text>
+        <text x="44" y="134">800</text>
+        <text x="44" y="94">1000</text>
+        <text x="44" y="54">1200</text>
+    </g>
+    <text x="20" y="30" class="svg-text" font-size="12">(人/月)</text>
+
+    <g stroke="black" stroke-width="0.8">
+        <rect x="61" y="130" width="18" height="160" fill="#f0f0f0"/>
+        <rect x="81" y="120" width="18" height="170" fill="#bbbbbb"/>
+        <rect x="101" y="110" width="18" height="180" fill="#777777"/>
+        <rect x="121" y="100" width="18" height="190" fill="#333333"/>
+    </g>
+    <text x="100" y="308" class="svg-text" text-anchor="middle">A店</text>
+
+    <g stroke="black" stroke-width="0.8">
+        <rect x="171" y="90" width="18" height="200" fill="#f0f0f0"/>
+        <rect x="191" y="70" width="18" height="220" fill="#bbbbbb"/>
+        <rect x="211" y="80" width="18" height="210" fill="#777777"/>
+        <rect x="231" y="50" width="18" height="240" fill="#333333"/>
+    </g>
+    <text x="210" y="308" class="svg-text" text-anchor="middle">B店</text>
+
+    <g stroke="black" stroke-width="0.8">
+        <rect x="281" y="110" width="18" height="180" fill="#f0f0f0"/>
+        <rect x="301" y="100" width="18" height="190" fill="#bbbbbb"/>
+        <rect x="321" y="70" width="18" height="220" fill="#777777"/>
+        <rect x="341" y="60" width="18" height="230" fill="#333333"/>
+    </g>
+    <text x="320" y="308" class="svg-text" text-anchor="middle">C店</text>
+
+    <g stroke="black" stroke-width="0.8">
+        <rect x="391" y="140" width="18" height="150" fill="#f0f0f0"/>
+        <rect x="411" y="120" width="18" height="170" fill="#bbbbbb"/>
+        <rect x="431" y="100" width="18" height="190" fill="#777777"/>
+        <rect x="451" y="70" width="18" height="220" fill="#333333"/>
+    </g>
+    <text x="430" y="308" class="svg-text" text-anchor="middle">D店</text>
+
+    <g stroke="black" stroke-width="0.8">
+        <rect x="501" y="130" width="18" height="160" fill="#f0f0f0"/>
+        <rect x="521" y="114" width="18" height="176" fill="#bbbbbb"/>
+        <rect x="541" y="94" width="18" height="196" fill="#777777"/>
+        <rect x="561" y="80" width="18" height="210" fill="#333333"/>
+    </g>
+    <text x="540" y="308" class="svg-text" text-anchor="middle">E店</text>
+
+    <g class="svg-text" font-size="12">
+        <rect x="180" y="328" width="14" height="12" fill="#f0f0f0" stroke="black" stroke-width="0.8"/>
+        <text x="198" y="338">Q1</text>
+        <rect x="240" y="328" width="14" height="12" fill="#bbbbbb" stroke="black" stroke-width="0.8"/>
+        <text x="258" y="338">Q2</text>
+        <rect x="300" y="328" width="14" height="12" fill="#777777" stroke="black" stroke-width="0.8"/>
+        <text x="318" y="338">Q3</text>
+        <rect x="360" y="328" width="14" height="12" fill="#333333" stroke="black" stroke-width="0.8"/>
+        <text x="378" y="338">Q4</text>
+    </g>
+</svg>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】各店舗の付帯情報</div>
+                <div class="figure-content">
+                    <table class="data-table">
+                        <tr>
+                            <th>店舗</th>
+                            <th>客単価<br>(円)</th>
+                            <th>リピート率<br>(%)</th>
+                            <th>食品売上<br>比率(%)</th>
+                            <th>飲料売上<br>比率(%)</th>
+                            <th>新規顧客<br>比率(%)</th>
+                        </tr>
+                        <tr><td class="row-head">A店</td><td>1400</td><td>65</td><td>55</td><td>20</td><td>25</td></tr>
+                        <tr><td class="row-head">B店</td><td>1600</td><td>70</td><td>60</td><td>25</td><td>20</td></tr>
+                        <tr><td class="row-head">C店</td><td>1550</td><td>55</td><td>50</td><td>35</td><td>22</td></tr>
+                        <tr><td class="row-head">D店</td><td>1700</td><td>72</td><td>55</td><td>28</td><td>18</td></tr>
+                        <tr><td class="row-head">E店</td><td>1850</td><td>62</td><td>45</td><td>30</td><td>15</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="conditions">
+                <strong>【条件】次の5つをすべて満たすこと</strong>
+                <ol>
+                    <li>Q1〜Q4で月平均来客数が単調に増加している（Q1&lt;Q2&lt;Q3&lt;Q4）</li>
+                    <li>客単価が1500円以上</li>
+                    <li>リピート率が60%以上</li>
+                    <li>Q4の月間総売上（来客数×客単価）が180万円以上</li>
+                    <li>食品売上比率と飲料売上比率の和が80%以上</li>
+                </ol>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)"><span class="option-label">(1)</span>A店</button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)"><span class="option-label">(2)</span>B店</button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)"><span class="option-label">(3)</span>C店</button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)"><span class="option-label">(4)</span>D店</button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)"><span class="option-label">(5)</span>E店</button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>条件を順に適用し、各店舗を絞り込む。</p>
+                    <br>
+                    <p><strong>【条件①：単調増加】</strong></p>
+                    <p>A店：800&lt;850&lt;900&lt;950 ○ ／ B店：1000&lt;1100&gt;1050&lt;1200（Q3で減少）× ／ C店：900&lt;950&lt;1100&lt;1150 ○ ／ D店：750&lt;850&lt;950&lt;1100 ○ ／ E店：800&lt;880&lt;980&lt;1050 ○</p>
+                    <p>→ B店脱落。</p>
+                    <br>
+                    <p><strong>【条件②：客単価1500円以上】</strong></p>
+                    <p>A店1400× ／ C店1550○ ／ D店1700○ ／ E店1850○ → A店脱落。</p>
+                    <br>
+                    <p><strong>【条件③：リピート率60%以上】</strong></p>
+                    <p>C店55%× ／ D店72%○ ／ E店62%○ → C店脱落。</p>
+                    <br>
+                    <p><strong>【条件⑤：食品＋飲料が80%以上】</strong></p>
+                    <p>D店：55+28＝83% ○ ／ E店：45+30＝75% × → E店脱落。</p>
+                    <br>
+                    <p><strong>【条件④：D店のQ4売上の確認】</strong></p>
+                    <p>Q4来客数1100人 × 客単価1700円 ＝ <strong>187万円</strong> ≧ 180万円 ○</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4) D店</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考145/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
