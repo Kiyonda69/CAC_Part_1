@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"ヒラギノ明朝 ProN","Hiragino Mincho ProN","游明朝","Yu Mincho",serif;font-size:16px;line-height:1.8;background-color:#f5f5f5;min-height:100vh}
+.main-content{max-width:800px;margin:0 auto;padding:20px 20px 40px}
+.screen{display:none;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.screen.active{display:block}
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #333}
+.question-number{font-weight:bold;font-size:18px}
+.question-meta{font-size:14px;color:#666}
+.question-text{margin-bottom:12px;text-align:justify}
+.report-text{font-size:14px;line-height:1.8;margin:15px 0;padding:12px 15px;border:1px solid #ccc;border-left:3px solid #555;background:#fafafa}
+.data-table{margin:12px auto;border-collapse:collapse;font-size:14px}
+.data-table th,.data-table td{border:1px solid #888;padding:9px 22px;text-align:center}
+.data-table th{background:#e0e0e0;font-weight:bold}
+.data-table td:first-child{background:#f0f0f0;font-weight:bold;text-align:left;padding-left:14px}
+.cond-list{font-size:14px;line-height:2.0;margin:12px 0;padding:10px 14px;border:1px dashed #888;background:#fafafa}
+.options-container{margin:20px 0}
+.option-button{display:block;width:100%;padding:12px 15px;margin:8px 0;background:white;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-family:inherit;font-size:16px;text-align:left}
+.option-button:hover:not(.disabled){border-color:#666;background:#f9f9f9}
+.option-button.correct{border-color:#4CAF50;background:#e8f5e9}
+.option-button.incorrect{border-color:#f44336;background:#ffebee}
+.option-button.disabled{cursor:default;opacity:0.8}
+.option-label{font-weight:bold;margin-right:8px}
+.explanation-section{display:none;margin-top:20px;padding:20px;background:#f9f9f9;border-left:4px solid #333;border-radius:4px}
+.explanation-header{font-weight:bold;font-size:16px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ccc}
+.explanation-content p{margin-bottom:8px}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:20px}
+.btn{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:15px;font-family:inherit}
+.btn-primary{background:#333;color:white}
+.btn-secondary{background:#999;color:white}
+.btn.hidden{visibility:hidden}
+.progress-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px}
+.progress-dot{width:36px;height:36px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;font-size:14px}
+.progress-dot.active{background:#333;color:white}
+.progress-dot.answered{background:#4CAF50;color:white}
+</style>
+</head>
+<body>
+<main class="main-content">
+<div class="progress-bar">
+  <div class="progress-dot active" id="progress-1" onclick="goToQuestion(1)">1</div>
+  <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+</div>
+
+<!-- 問1: 気象観測データ -->
+<div class="screen active" id="q1-question">
+  <div class="question-header">
+    <span class="question-number">問1</span>
+    <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+  </div>
+  <div class="question-text">次の「気象観測データ」を読み、年間を通じた気温の変化幅（最も高い月の気温 − 最も低い月の気温）が最も小さい観測地点として正しいものを(1)〜(5)から1つ選べ。</div>
+  <div class="report-text">
+    <strong>気象観測データ（月別平均気温・単位：℃）</strong><br><br>
+    下表は、ある地域の5か所の観測地点（A〜E）における月別平均気温を示したものである。なお、記録された月は1月・4月・7月・10月の4か月のみであり、各地点の最高気温および最低気温は必ずこの4か月のいずれかに現れるものとする。
+  </div>
+  <table class="data-table">
+    <thead><tr><th>観測地点</th><th>1月</th><th>4月</th><th>7月</th><th>10月</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>3</td><td>14</td><td>32</td><td>18</td></tr>
+      <tr><td>B</td><td>6</td><td>18</td><td>35</td><td>20</td></tr>
+      <tr><td>C</td><td>10</td><td>18</td><td>28</td><td>20</td></tr>
+      <tr><td>D</td><td>0</td><td>12</td><td>30</td><td>15</td></tr>
+      <tr><td>E</td><td>−2</td><td>10</td><td>26</td><td>14</td></tr>
+    </tbody>
+  </table>
+  <div class="options-container" id="q1-options">
+    <button class="option-button" data-option="1" onclick="selectAnswer(1,1,3)"><span class="option-label">(1)</span>観測地点A</button>
+    <button class="option-button" data-option="2" onclick="selectAnswer(1,2,3)"><span class="option-label">(2)</span>観測地点B</button>
+    <button class="option-button" data-option="3" onclick="selectAnswer(1,3,3)"><span class="option-label">(3)</span>観測地点C</button>
+    <button class="option-button" data-option="4" onclick="selectAnswer(1,4,3)"><span class="option-label">(4)</span>観測地点D</button>
+    <button class="option-button" data-option="5" onclick="selectAnswer(1,5,3)"><span class="option-label">(5)</span>観測地点E</button>
+  </div>
+  <div class="explanation-section" id="q1-explanation">
+    <div class="explanation-header">解説（正解: (3)）</div>
+    <div class="explanation-content">
+      <p>各観測地点の気温変化幅（最高月 − 最低月）を計算する。</p>
+      <p><strong>【各地点の変化幅】</strong></p>
+      <p>・地点A: 32 − 3 = 29℃</p>
+      <p>・地点B: 35 − 6 = 29℃</p>
+      <p>・地点C: 28 − 10 = <strong>18℃</strong></p>
+      <p>・地点D: 30 − 0 = 30℃</p>
+      <p>・地点E: 26 − (−2) = 28℃（マイナス符号に注意）</p>
+      <p><strong>変化幅の順位: C(18) ＜ E(28) ＜ A=B(29) ＜ D(30)</strong></p>
+      <p>最も小さいのは観測地点C（18℃）である。</p>
+      <p>したがって正解は<strong>(3)</strong>の観測地点Cである。</p>
+    </div>
+  </div>
+  <div class="nav-buttons" id="q1-nav" style="display:none">
+    <button class="btn btn-secondary hidden">前の問題</button>
+    <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+  </div>
+</div>
+
+<!-- 問2: 製品品質検査データ -->
+<div class="screen" id="q2-question">
+  <div class="question-header">
+    <span class="question-number">問2</span>
+    <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+  </div>
+  <div class="question-text">次の「製品品質検査データ」を読み、以下の合格条件をすべて満たす製品として正しいものを(1)〜(5)から1つ選べ。</div>
+  <div class="report-text">
+    <strong>製品品質検査データ（評価スコア：10点満点）</strong><br><br>
+    下表は、工場で生産された5種類の製品（製品1〜製品5）について、4項目の品質指標（強度・耐熱性・精度・耐久性）を数値で評価したものである。
+  </div>
+  <table class="data-table">
+    <thead><tr><th>製品</th><th>強度</th><th>耐熱性</th><th>精度</th><th>耐久性</th></tr></thead>
+    <tbody>
+      <tr><td>製品1</td><td>12</td><td>8</td><td>5</td><td>6</td></tr>
+      <tr><td>製品2</td><td>10</td><td>7</td><td>4</td><td>3</td></tr>
+      <tr><td>製品3</td><td>9</td><td>6</td><td>7</td><td>8</td></tr>
+      <tr><td>製品4</td><td>11</td><td>7</td><td>6</td><td>9</td></tr>
+      <tr><td>製品5</td><td>13</td><td>9</td><td>5</td><td>7</td></tr>
+    </tbody>
+  </table>
+  <div class="cond-list">
+    <strong>【合格条件】</strong><br>
+    条件ア：耐熱性のスコアが7以上であること<br>
+    条件イ：精度のスコアが耐久性のスコアより小さいこと<br>
+    条件ウ：強度と耐熱性のスコアの合計が21以上であること
+  </div>
+  <div class="options-container" id="q2-options">
+    <button class="option-button" data-option="1" onclick="selectAnswer(2,1,5)"><span class="option-label">(1)</span>製品1</button>
+    <button class="option-button" data-option="2" onclick="selectAnswer(2,2,5)"><span class="option-label">(2)</span>製品2</button>
+    <button class="option-button" data-option="3" onclick="selectAnswer(2,3,5)"><span class="option-label">(3)</span>製品3</button>
+    <button class="option-button" data-option="4" onclick="selectAnswer(2,4,5)"><span class="option-label">(4)</span>製品4</button>
+    <button class="option-button" data-option="5" onclick="selectAnswer(2,5,5)"><span class="option-label">(5)</span>製品5</button>
+  </div>
+  <div class="explanation-section" id="q2-explanation">
+    <div class="explanation-header">解説（正解: (5)）</div>
+    <div class="explanation-content">
+      <p>3つの合格条件を各製品に照合する（条件を満たさない時点で不合格と判定）。</p>
+      <p><strong>【条件ア】耐熱性 ≧ 7</strong></p>
+      <p>製品1: 8 → 満たす／製品2: 7 → 満たす／製品3: 6 → <strong>不合格</strong></p>
+      <p>製品4: 7 → 満たす／製品5: 9 → 満たす</p>
+      <p><strong>【条件イ】精度 ＜ 耐久性</strong>（製品1・2・4・5を確認）</p>
+      <p>製品1: 5 ＜ 6 → 満たす／製品2: 4 ＜ 3？ → <strong>不合格</strong>（4 ＞ 3）</p>
+      <p>製品4: 6 ＜ 9 → 満たす／製品5: 5 ＜ 7 → 満たす</p>
+      <p><strong>【条件ウ】強度＋耐熱性 ≧ 21</strong>（製品1・4・5を確認）</p>
+      <p>製品1: 12＋8 = 20 ＜ 21 → <strong>不合格</strong></p>
+      <p>製品4: 11＋7 = 18 ＜ 21 → <strong>不合格</strong></p>
+      <p>製品5: 13＋9 = 22 ≧ 21 → <strong>合格</strong></p>
+      <p>3条件すべてを満たすのは製品5のみである。</p>
+      <p>したがって正解は<strong>(5)</strong>の製品5である。</p>
+    </div>
+  </div>
+  <div class="nav-buttons" id="q2-nav" style="display:none">
+    <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+    <button class="btn btn-secondary hidden">（空欄）</button>
+  </div>
+</div>
+</main>
+<script>
+const state = {currentQuestion:1, answers:{}};
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active'); window.scrollTo(0,0);
+}
+function goToQuestion(n) {
+    state.currentQuestion = n; showScreen(`q${n}-question`);
+    if (state.answers[n] === undefined) {
+        document.querySelectorAll('.progress-dot').forEach(d => {
+            if (state.answers[parseInt(d.textContent)] === undefined) d.classList.remove('active');
+        });
+        document.getElementById(`progress-${n}`).classList.add('active');
+    }
+}
+function selectAnswer(qNum, sel, cor) {
+    const c = document.getElementById(`q${qNum}-options`);
+    if (c.querySelector('.disabled')) return;
+    const ok = (sel === cor); state.answers[qNum] = sel;
+    c.querySelectorAll('.option-button').forEach(b => {
+        b.classList.add('disabled'); const o = parseInt(b.getAttribute('data-option'));
+        if (o === cor) b.classList.add('correct'); else if (o === sel && !ok) b.classList.add('incorrect');
+    });
+    document.getElementById(`q${qNum}-explanation`).style.display = 'block';
+    document.getElementById(`q${qNum}-nav`).style.display = 'flex';
+    const dot = document.getElementById(`progress-${qNum}`);
+    dot.classList.remove('active'); dot.classList.add('answered');
+    if (window.parent && window.parent.recordAnswer)
+        window.parent.recordAnswer(`2026_05/航大思考143/問${qNum}`, sel, cor, ok);
+    setTimeout(() => document.getElementById(`q${qNum}-explanation`).scrollIntoView({behavior:'smooth',block:'start'}), 100);
+}
+</script>
+</body>
+</html>
