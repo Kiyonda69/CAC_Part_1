@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"ヒラギノ明朝 ProN","Hiragino Mincho ProN","游明朝","Yu Mincho",serif;font-size:16px;line-height:1.8;background-color:#f5f5f5;min-height:100vh}
+.main-content{max-width:800px;margin:0 auto;padding:20px 20px 40px}
+.screen{display:none;background-color:white;padding:30px;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+.screen.active{display:block}
+.question-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #333}
+.question-number{font-weight:bold;font-size:18px}
+.question-meta{font-size:14px;color:#666}
+.question-text{margin-bottom:12px;text-align:justify}
+.report-text{font-size:14px;line-height:1.8;margin:15px 0;padding:12px 15px;border:1px solid #ccc;border-left:3px solid #555;background:#fafafa}
+.blank-mark{display:inline-block;min-width:50px;padding:0 6px;border:1px solid #555;border-radius:2px;background:#fffde7;font-weight:bold;text-align:center}
+.data-table{margin:12px auto;border-collapse:collapse;font-size:14px}
+.data-table th,.data-table td{border:1px solid #888;padding:9px 22px;text-align:center}
+.data-table th{background:#e0e0e0;font-weight:bold}
+.data-table td:first-child{background:#f0f0f0;font-weight:bold;text-align:left;padding-left:14px}
+.options-container{margin:20px 0}
+.option-button{display:block;width:100%;padding:12px 15px;margin:8px 0;background:white;border:2px solid #ddd;border-radius:6px;cursor:pointer;font-family:inherit;font-size:16px;text-align:left}
+.option-button:hover:not(.disabled){border-color:#666;background:#f9f9f9}
+.option-button.correct{border-color:#4CAF50;background:#e8f5e9}
+.option-button.incorrect{border-color:#f44336;background:#ffebee}
+.option-button.disabled{cursor:default;opacity:0.8}
+.option-label{font-weight:bold;margin-right:8px}
+.explanation-section{display:none;margin-top:20px;padding:20px;background:#f9f9f9;border-left:4px solid #333;border-radius:4px}
+.explanation-header{font-weight:bold;font-size:16px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ccc}
+.explanation-content p{margin-bottom:8px}
+.nav-buttons{display:flex;justify-content:space-between;margin-top:20px}
+.btn{padding:12px 24px;border:none;border-radius:6px;cursor:pointer;font-size:15px;font-family:inherit}
+.btn-primary{background:#333;color:white}
+.btn-secondary{background:#999;color:white}
+.btn.hidden{visibility:hidden}
+.progress-bar{display:flex;justify-content:center;gap:10px;margin-bottom:20px}
+.progress-dot{width:36px;height:36px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-weight:bold;cursor:pointer;font-size:14px}
+.progress-dot.active{background:#333;color:white}
+.progress-dot.answered{background:#4CAF50;color:white}
+</style>
+</head>
+<body>
+<main class="main-content">
+<div class="progress-bar">
+  <div class="progress-dot active" id="progress-1" onclick="goToQuestion(1)">1</div>
+  <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+</div>
+
+<!-- 問1: テーブル形式 -->
+<div class="screen active" id="q1-question">
+  <div class="question-header">
+    <span class="question-number">問1</span>
+    <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+  </div>
+  <div class="question-text">次の「店舗別売上実績報告」を読み、空欄（ア）に当てはまる数値として正しいものを(1)〜(5)から1つ選べ。</div>
+  <div class="report-text">
+    <strong>第1四半期 店舗別売上実績報告（単位：万円）</strong><br><br>
+    下表は、当社の3店舗（新宿店・渋谷店・品川店）における4〜6月の月間売上高をまとめたものである。第1四半期の3店舗合計売上は1,730万円であった。
+  </div>
+  <table class="data-table">
+    <thead><tr><th></th><th>4月</th><th>5月</th><th>6月</th></tr></thead>
+    <tbody>
+      <tr><td>新宿店</td><td>190</td><td><span class="blank-mark">（ア）</span></td><td>220</td></tr>
+      <tr><td>渋谷店</td><td>180</td><td>190</td><td>200</td></tr>
+      <tr><td>品川店</td><td>170</td><td>180</td><td>190</td></tr>
+    </tbody>
+  </table>
+  <div class="options-container" id="q1-options">
+    <button class="option-button" data-option="1" onclick="selectAnswer(1,1,3)"><span class="option-label">(1)</span>195万円</button>
+    <button class="option-button" data-option="2" onclick="selectAnswer(1,2,3)"><span class="option-label">(2)</span>200万円</button>
+    <button class="option-button" data-option="3" onclick="selectAnswer(1,3,3)"><span class="option-label">(3)</span>210万円</button>
+    <button class="option-button" data-option="4" onclick="selectAnswer(1,4,3)"><span class="option-label">(4)</span>220万円</button>
+    <button class="option-button" data-option="5" onclick="selectAnswer(1,5,3)"><span class="option-label">(5)</span>230万円</button>
+  </div>
+  <div class="explanation-section" id="q1-explanation">
+    <div class="explanation-header">解説（正解: (3)）</div>
+    <div class="explanation-content">
+      <p>渋谷=180+190+200=570、品川=170+180+190=540。</p>
+      <p>新宿合計=1,730−570−540=620。</p>
+      <p>∴ ア=620−190−220=<strong>210万円</strong>。</p>
+      <p>5月列の合計: 190+210+180+190=770 → 各月の合計確認 ✓</p>
+      <p>したがって正解は<strong>(3)</strong>の210万円である。</p>
+    </div>
+  </div>
+  <div class="nav-buttons" id="q1-nav" style="display:none">
+    <button class="btn btn-secondary hidden">前の問題</button>
+    <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+  </div>
+</div>
+
+<!-- 問2: テキスト形式 -->
+<div class="screen" id="q2-question">
+  <div class="question-header">
+    <span class="question-number">問2</span>
+    <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+  </div>
+  <div class="question-text">次の「社内体力測定記録」を読み、空欄（ウ）に当てはまる数値として正しいものを(1)〜(5)から1つ選べ。</div>
+  <div class="report-text">
+    <strong>社内体力測定記録（2026年3月実施）</strong><br><br>
+    今年度の50m走タイム測定に5名（山田・鈴木・田中・佐藤・高橋）が参加した。<br><br>
+    ・5名のタイムの平均は8.0秒であった。<br>
+    ・山田のタイムは8.2秒であった。<br>
+    ・鈴木のタイムは山田のタイムより0.4秒速かった。<br>
+    ・佐藤のタイムは8.6秒であった。<br>
+    ・田中のタイムは佐藤のタイムより0.2秒速かった。<br>
+    ・高橋のタイムは5名のうち最も速く、（ウ）秒であった。
+  </div>
+  <div class="options-container" id="q2-options">
+    <button class="option-button" data-option="1" onclick="selectAnswer(2,1,4)"><span class="option-label">(1)</span>6.4秒</button>
+    <button class="option-button" data-option="2" onclick="selectAnswer(2,2,4)"><span class="option-label">(2)</span>6.6秒</button>
+    <button class="option-button" data-option="3" onclick="selectAnswer(2,3,4)"><span class="option-label">(3)</span>6.8秒</button>
+    <button class="option-button" data-option="4" onclick="selectAnswer(2,4,4)"><span class="option-label">(4)</span>7.0秒</button>
+    <button class="option-button" data-option="5" onclick="selectAnswer(2,5,4)"><span class="option-label">(5)</span>7.2秒</button>
+  </div>
+  <div class="explanation-section" id="q2-explanation">
+    <div class="explanation-header">解説（正解: (4)）</div>
+    <div class="explanation-content">
+      <p>山田=8.2、鈴木=8.2−0.4=7.8、佐藤=8.6、田中=8.6−0.2=8.4。</p>
+      <p>5名合計=8.0×5=40.0。</p>
+      <p>∴ ウ=40.0−8.2−7.8−8.6−8.4=<strong>7.0秒</strong>。</p>
+      <p>順位: 高橋(7.0)＜鈴木(7.8)＜山田(8.2)＜田中(8.4)＜佐藤(8.6)　最速確認 ✓</p>
+      <p><strong>【ポイント】</strong>「最も速い」条件から、算出した値が他全員より小さいことを確認する必要がある。</p>
+      <p>したがって正解は<strong>(4)</strong>の7.0秒である。</p>
+    </div>
+  </div>
+  <div class="nav-buttons" id="q2-nav" style="display:none">
+    <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+    <button class="btn btn-secondary hidden">（空欄）</button>
+  </div>
+</div>
+</main>
+<script>
+const state = {currentQuestion:1, answers:{}};
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active'); window.scrollTo(0,0);
+}
+function goToQuestion(n) {
+    state.currentQuestion = n; showScreen(`q${n}-question`);
+    if (state.answers[n] === undefined) {
+        document.querySelectorAll('.progress-dot').forEach(d => {
+            if (state.answers[parseInt(d.textContent)] === undefined) d.classList.remove('active');
+        });
+        document.getElementById(`progress-${n}`).classList.add('active');
+    }
+}
+function selectAnswer(qNum, sel, cor) {
+    const c = document.getElementById(`q${qNum}-options`);
+    if (c.querySelector('.disabled')) return;
+    const ok = (sel === cor); state.answers[qNum] = sel;
+    c.querySelectorAll('.option-button').forEach(b => {
+        b.classList.add('disabled'); const o = parseInt(b.getAttribute('data-option'));
+        if (o === cor) b.classList.add('correct'); else if (o === sel && !ok) b.classList.add('incorrect');
+    });
+    document.getElementById(`q${qNum}-explanation`).style.display = 'block';
+    document.getElementById(`q${qNum}-nav`).style.display = 'flex';
+    const dot = document.getElementById(`progress-${qNum}`);
+    dot.classList.remove('active'); dot.classList.add('answered');
+    if (window.parent && window.parent.recordAnswer)
+        window.parent.recordAnswer(`2026_05/航大思考142/問${qNum}`, sel, cor, ok);
+    setTimeout(() => document.getElementById(`q${qNum}-explanation`).scrollIntoView({behavior:'smooth',block:'start'}), 100);
+}
+</script>
+</body>
+</html>
