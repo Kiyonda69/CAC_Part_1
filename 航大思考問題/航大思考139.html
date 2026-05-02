@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航大思考139</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:"ヒラギノ明朝 ProN","Hiragino Mincho ProN","游明朝","Yu Mincho",serif; font-size:16px; line-height:1.8; background-color:#f5f5f5; min-height:100vh; }
+        .main-content { max-width:800px; margin:0 auto; padding:20px 20px 40px; }
+        .screen { display:none; background-color:white; padding:30px; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        .screen.active { display:block; }
+        .question-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:15px; border-bottom:2px solid #333; }
+        .question-number { font-weight:bold; font-size:18px; }
+        .question-meta { font-size:14px; color:#666; }
+        .question-text { margin-bottom:15px; text-align:justify; }
+        .condition-list { margin:5px 0 15px 24px; line-height:2.2; }
+        svg { max-width:100%; height:auto; }
+        .options-figure { display:flex; flex-wrap:wrap; justify-content:center; gap:2%; margin:20px 0; width:100%; }
+        .option-figure-button { flex:0 1 calc(20% - 2%); min-width:80px; max-width:120px; padding:8px; background-color:white; border:3px solid #ddd; border-radius:8px; cursor:pointer; transition:all 0.2s ease; }
+        .option-figure-button svg { width:100%; height:auto; }
+        .option-figure-button:hover:not(.disabled) { border-color:#666; background-color:#f9f9f9; }
+        .option-figure-button.selected { border-color:#2196F3; background-color:#e3f2fd; }
+        .option-figure-button.correct { border-color:#4CAF50; background-color:#e8f5e9; }
+        .option-figure-button.incorrect { border-color:#f44336; background-color:#ffebee; }
+        .option-figure-button.disabled { cursor:default; }
+        @media (max-width:600px) { .option-figure-button { flex:0 1 calc(33% - 2%); min-width:60px; } }
+        .options-map { display:flex; flex-wrap:wrap; justify-content:center; gap:2%; margin:20px 0; width:100%; }
+        .option-map-button { flex:0 1 calc(33% - 2%); min-width:150px; max-width:230px; padding:8px; background-color:white; border:3px solid #ddd; border-radius:8px; cursor:pointer; transition:all 0.2s ease; }
+        .option-map-button svg { width:100%; height:auto; }
+        .option-map-button:hover:not(.disabled) { border-color:#666; background-color:#f9f9f9; }
+        .option-map-button.selected { border-color:#2196F3; background-color:#e3f2fd; }
+        .option-map-button.correct { border-color:#4CAF50; background-color:#e8f5e9; }
+        .option-map-button.incorrect { border-color:#f44336; background-color:#ffebee; }
+        .option-map-button.disabled { cursor:default; }
+        .options-face { display:flex; flex-wrap:wrap; justify-content:center; gap:2%; margin:20px 0; width:100%; }
+        .option-face-button { flex:0 1 calc(20% - 2%); min-width:100px; max-width:160px; padding:8px; background-color:white; border:3px solid #ddd; border-radius:8px; cursor:pointer; transition:all 0.2s ease; }
+        .option-face-button svg { width:100%; height:auto; }
+        .option-face-button:hover:not(.disabled) { border-color:#666; background-color:#f9f9f9; }
+        .option-face-button.selected { border-color:#2196F3; background-color:#e3f2fd; }
+        .option-face-button.correct { border-color:#4CAF50; background-color:#e8f5e9; }
+        .option-face-button.incorrect { border-color:#f44336; background-color:#ffebee; }
+        .option-face-button.disabled { cursor:default; }
+        .btn { padding:12px 30px; font-size:16px; font-family:inherit; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s ease; }
+        .btn-primary { background-color:#2196F3; color:white; }
+        .btn-primary:hover { background-color:#1976D2; }
+        .btn-secondary { background-color:#666; color:white; }
+        .btn-secondary:hover { background-color:#555; }
+        .explanation-section { display:none; margin-top:30px; padding:25px; background-color:#f8f9fa; border:1px solid #ddd; border-radius:8px; }
+        .explanation-section.show { display:block; }
+        .explanation-header { font-weight:bold; font-size:16px; margin-bottom:15px; padding-bottom:10px; border-bottom:2px solid #333; }
+        .explanation-content { line-height:2; }
+        .progress-bar { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
+        .progress-dot { width:32px; height:32px; border-radius:50%; background-color:#ddd; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:bold; color:#666; transition:all 0.2s ease; }
+        .progress-dot:hover { transform:scale(1.1); }
+        .progress-dot.active { background-color:#2196F3; color:white; }
+        .progress-dot.completed { background-color:#4CAF50; color:white; }
+        .progress-dot.incorrect-dot { background-color:#f44336; color:white; }
+        .nav-buttons { display:flex; justify-content:space-between; margin-top:20px; padding-top:20px; border-top:1px solid #eee; }
+        .nav-buttons .btn { min-width:120px; }
+        .nav-buttons .btn.hidden { visibility:hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot active" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+        <div class="question-text">
+            地図上に5つの地点A, B, C, D, Eがある。次の条件がすべて成り立つとき、5地点の位置関係として正しいものはどれか。なお地図は北が上である。
+        </div>
+        <ul class="condition-list">
+            <li>AからBへは真北に40km</li>
+            <li>AからDへは真東に30km</li>
+            <li>BからCへは真東に30km</li>
+            <li>DからEへは真北に20km</li>
+        </ul>
+        <div class="options-map" id="q1-options">
+            <button class="option-map-button" data-option="1" onclick="selectAnswer(1,1,5)">
+            <svg width="200" height="225" viewBox="0 0 200 225">
+<text x="100" y="12" font-size="14" font-weight="bold" text-anchor="middle">(1)</text>
+<line x1="20" y1="40" x2="20" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="40" x2="160" y2="40" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="160" y1="40" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="185" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/>
+<circle cx="20" cy="185" r="5.5" fill="#222"/><circle cx="20" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="185" r="5.5" fill="#222"/>
+<text x="8" y="28" font-size="13" text-anchor="end">B</text><text x="172" y="28" font-size="13" text-anchor="start">C</text><text x="8" y="205" font-size="13" text-anchor="end">A</text><text x="172" y="205" font-size="13" text-anchor="start">D</text>
+<circle cx="20" cy="113" r="6" fill="#333"/><text x="8" y="131" font-size="13" text-anchor="end">E</text>
+<text x="100" y="220" font-size="11" text-anchor="middle" fill="#888">↑北</text>
+</svg></button>
+            <button class="option-map-button" data-option="2" onclick="selectAnswer(1,2,5)">
+            <svg width="200" height="225" viewBox="0 0 200 225">
+<text x="100" y="12" font-size="14" font-weight="bold" text-anchor="middle">(2)</text>
+<line x1="20" y1="40" x2="20" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="40" x2="160" y2="40" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="160" y1="40" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="185" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/>
+<circle cx="20" cy="185" r="5.5" fill="#222"/><circle cx="20" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="185" r="5.5" fill="#222"/>
+<text x="8" y="28" font-size="13" text-anchor="end">B</text><text x="172" y="28" font-size="13" text-anchor="start">C</text><text x="8" y="205" font-size="13" text-anchor="end">A</text><text x="172" y="205" font-size="13" text-anchor="start">D</text>
+<circle cx="90" cy="113" r="6" fill="#333"/><text x="90" y="104" font-size="13" text-anchor="middle">E</text>
+<text x="100" y="220" font-size="11" text-anchor="middle" fill="#888">↑北</text>
+</svg></button>
+            <button class="option-map-button" data-option="3" onclick="selectAnswer(1,3,5)">
+            <svg width="200" height="225" viewBox="0 0 200 225">
+<text x="100" y="12" font-size="14" font-weight="bold" text-anchor="middle">(3)</text>
+<line x1="20" y1="40" x2="20" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="40" x2="160" y2="40" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="160" y1="40" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="185" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/>
+<circle cx="20" cy="185" r="5.5" fill="#222"/><circle cx="20" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="185" r="5.5" fill="#222"/>
+<text x="8" y="28" font-size="13" text-anchor="end">B</text><text x="172" y="28" font-size="13" text-anchor="start">C</text><text x="8" y="205" font-size="13" text-anchor="end">A</text><text x="172" y="205" font-size="13" text-anchor="start">D</text>
+<circle cx="160" cy="58" r="6" fill="#333"/><text x="172" y="76" font-size="13" text-anchor="start">E</text>
+<text x="100" y="220" font-size="11" text-anchor="middle" fill="#888">↑北</text>
+</svg></button>
+            <button class="option-map-button" data-option="4" onclick="selectAnswer(1,4,5)">
+            <svg width="200" height="225" viewBox="0 0 200 225">
+<text x="100" y="12" font-size="14" font-weight="bold" text-anchor="middle">(4)</text>
+<line x1="20" y1="40" x2="20" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="40" x2="160" y2="40" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="160" y1="40" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="185" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/>
+<circle cx="20" cy="185" r="5.5" fill="#222"/><circle cx="20" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="185" r="5.5" fill="#222"/>
+<text x="8" y="28" font-size="13" text-anchor="end">B</text><text x="172" y="28" font-size="13" text-anchor="start">C</text><text x="8" y="205" font-size="13" text-anchor="end">A</text><text x="172" y="205" font-size="13" text-anchor="start">D</text>
+<circle cx="160" cy="149" r="6" fill="#333"/><text x="172" y="167" font-size="13" text-anchor="start">E</text>
+<text x="100" y="220" font-size="11" text-anchor="middle" fill="#888">↑北</text>
+</svg></button>
+            <button class="option-map-button" data-option="5" onclick="selectAnswer(1,5,5)">
+            <svg width="200" height="225" viewBox="0 0 200 225">
+<text x="100" y="12" font-size="14" font-weight="bold" text-anchor="middle">(5)</text>
+<line x1="20" y1="40" x2="20" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="40" x2="160" y2="40" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="160" y1="40" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/><line x1="20" y1="185" x2="160" y2="185" stroke="#ccc" stroke-width="1.5" stroke-dasharray="3,2"/>
+<circle cx="20" cy="185" r="5.5" fill="#222"/><circle cx="20" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="40" r="5.5" fill="#222"/><circle cx="160" cy="185" r="5.5" fill="#222"/>
+<text x="8" y="28" font-size="13" text-anchor="end">B</text><text x="172" y="28" font-size="13" text-anchor="start">C</text><text x="8" y="205" font-size="13" text-anchor="end">A</text><text x="172" y="205" font-size="13" text-anchor="start">D</text>
+<circle cx="160" cy="113" r="6" fill="#333"/><text x="172" y="131" font-size="13" text-anchor="start">E</text>
+<text x="100" y="220" font-size="11" text-anchor="middle" fill="#888">↑北</text>
+</svg></button>
+        </div>
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (5)）</div>
+            <div class="explanation-content">
+                <p>各条件を順に図示する（北が上、東が右）。</p><br>
+                <p>①A=(0,0)を基点とし、BはAの真北40km → B=(0,40)</p>
+                <p>②AからDは真東30km → D=(30,0)</p>
+                <p>③BからCは真東30km → C=(30,40)</p>
+                <p>④DからEは真北20km → E=(30,20)</p><br>
+                <p>A・B・C・Dは30km×40kmの<strong>長方形</strong>の4頂点をなし、Eは辺CD（右辺）の<strong>中点</strong>に位置する（D→E=20km、D→C=40km の半分）。</p><br>
+                <svg width="220" height="175" viewBox="0 0 220 175" style="display:block;margin:10px auto;">
+<text x="22" y="20" font-size="10" text-anchor="middle" fill="#555">N↑</text>
+<line x1="40" y1="140" x2="40" y2="20" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+<line x1="40" y1="20" x2="130" y2="20" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+<line x1="130" y1="20" x2="130" y2="140" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+<line x1="40" y1="140" x2="130" y2="140" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+<text x="28" y="83" font-size="10" text-anchor="end" fill="#555">40km</text>
+<text x="85" y="155" font-size="10" text-anchor="middle" fill="#555">30km</text>
+<text x="85" y="16" font-size="10" text-anchor="middle" fill="#555">30km</text>
+<text x="143" y="90" font-size="10" text-anchor="start" fill="#555">20km</text>
+<circle cx="40" cy="140" r="5" fill="#333"/><text x="30" y="139" font-size="12" font-weight="bold" text-anchor="end">A</text>
+<circle cx="40" cy="20" r="5" fill="#333"/><text x="30" y="24" font-size="12" font-weight="bold" text-anchor="end">B</text>
+<circle cx="130" cy="20" r="5" fill="#333"/><text x="140" y="24" font-size="12" font-weight="bold" text-anchor="start">C</text>
+<circle cx="130" cy="140" r="5" fill="#333"/><text x="140" y="139" font-size="12" font-weight="bold" text-anchor="start">D</text>
+<circle cx="130" cy="80" r="6" fill="#222" stroke="#fff" stroke-width="1.5"/><text x="140" y="84" font-size="12" font-weight="bold" text-anchor="start">E</text>
+                </svg>
+                <p>したがって正解は<strong>(5)</strong>である。</p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q1-nav" style="display:none;">
+            <button class="btn btn-secondary hidden">（空欄）</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+        <div class="question-text">
+            6枚の正方形の面（面1〜面6）を次の配置でつなげた展開図を、折り曲げて立方体を作る。
+        </div>
+        <ul class="condition-list">
+            <li>面1, 面2, 面3, 面4の4枚が横一列に左から順に並んでいる</li>
+            <li>面5は面2の上方（一列の上側）に接続されている</li>
+            <li>面6は面2の下方（一列の下側）に接続されている</li>
+        </ul>
+        <div class="question-text">
+            この展開図を折り曲げて立方体を作ったとき、<strong>面3と向かい合う（対面する）面</strong>はどれか。
+        </div>
+        <div class="options-face" id="q2-options">
+            <button class="option-face-button" data-option="1" onclick="selectAnswer(2,1,3)">
+            <svg width="120" height="140" viewBox="0 0 120 140">
+<text x="60" y="15" font-size="14" font-weight="bold" text-anchor="middle">(1)</text><rect x="10" y="22" width="100" height="90" fill="white" stroke="#333" stroke-width="2.5"/><text x="60" y="73" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="middle">面2</text><text x="60" y="128" font-size="12" text-anchor="middle" fill="#666">（面2）</text>
+</svg></button>
+            <button class="option-face-button" data-option="2" onclick="selectAnswer(2,2,3)">
+            <svg width="120" height="140" viewBox="0 0 120 140">
+<text x="60" y="15" font-size="14" font-weight="bold" text-anchor="middle">(2)</text><rect x="10" y="22" width="100" height="90" fill="white" stroke="#333" stroke-width="2.5"/><text x="60" y="73" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="middle">面4</text><text x="60" y="128" font-size="12" text-anchor="middle" fill="#666">（面4）</text>
+</svg></button>
+            <button class="option-face-button" data-option="3" onclick="selectAnswer(2,3,3)">
+            <svg width="120" height="140" viewBox="0 0 120 140">
+<text x="60" y="15" font-size="14" font-weight="bold" text-anchor="middle">(3)</text><rect x="10" y="22" width="100" height="90" fill="white" stroke="#333" stroke-width="2.5"/><text x="60" y="73" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="middle">面1</text><text x="60" y="128" font-size="12" text-anchor="middle" fill="#666">（面1）</text>
+</svg></button>
+            <button class="option-face-button" data-option="4" onclick="selectAnswer(2,4,3)">
+            <svg width="120" height="140" viewBox="0 0 120 140">
+<text x="60" y="15" font-size="14" font-weight="bold" text-anchor="middle">(4)</text><rect x="10" y="22" width="100" height="90" fill="white" stroke="#333" stroke-width="2.5"/><text x="60" y="73" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="middle">面5</text><text x="60" y="128" font-size="12" text-anchor="middle" fill="#666">（面5）</text>
+</svg></button>
+            <button class="option-face-button" data-option="5" onclick="selectAnswer(2,5,3)">
+            <svg width="120" height="140" viewBox="0 0 120 140">
+<text x="60" y="15" font-size="14" font-weight="bold" text-anchor="middle">(5)</text><rect x="10" y="22" width="100" height="90" fill="white" stroke="#333" stroke-width="2.5"/><text x="60" y="73" font-size="28" font-weight="bold" text-anchor="middle" dominant-baseline="middle">面6</text><text x="60" y="128" font-size="12" text-anchor="middle" fill="#666">（面6）</text>
+</svg></button>
+        </div>
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (3)）</div>
+            <div class="explanation-content">
+                <p>条件から展開図の配置を図示すると下記のT字形になる。</p>
+                <svg width="230" height="158" viewBox="0 0 230 158" style="display:block;margin:10px auto;">
+<rect x="10" y="52" width="44" height="44" fill="#ddd" stroke="#333" stroke-width="1.5"/><text x="32" y="79" font-size="13" font-weight="bold" text-anchor="middle">面1</text>
+<rect x="54" y="52" width="44" height="44" fill="#fff" stroke="#333" stroke-width="1.5"/><text x="76" y="79" font-size="13" font-weight="bold" text-anchor="middle">面2</text>
+<rect x="98" y="52" width="44" height="44" fill="#eee" stroke="#555" stroke-width="2.5"/><text x="120" y="79" font-size="13" font-weight="bold" text-anchor="middle">面3</text>
+<rect x="142" y="52" width="44" height="44" fill="#fff" stroke="#333" stroke-width="1.5"/><text x="164" y="79" font-size="13" font-weight="bold" text-anchor="middle">面4</text>
+<rect x="54" y="8" width="44" height="44" fill="#fff" stroke="#333" stroke-width="1.5"/><text x="76" y="35" font-size="13" font-weight="bold" text-anchor="middle">面5</text>
+<rect x="54" y="96" width="44" height="44" fill="#fff" stroke="#333" stroke-width="1.5"/><text x="76" y="123" font-size="13" font-weight="bold" text-anchor="middle">面6</text>
+<text x="32" y="104" font-size="9" text-anchor="middle" fill="#333">（正解）</text>
+                </svg>
+                <p>面2を底面に置いて折り曲げると：</p>
+                <p>・面2（底）　・面4（天井・上面）　・面1（西壁）　・面3（東壁）　・面5（北壁）　・面6（南壁）</p><br>
+                <p>面4が天井（上面）になる理由：面3が東壁として立ち上がると、面4はその上端に接続されているため天井に折れる。</p>
+                <p>向かい合うペア：<strong>（底面2↔天井4）、（西壁1↔東壁3）、（北壁5↔南壁6）</strong></p><br>
+                <p>面3（東壁）の対面は西壁＝<strong>面1</strong>なので、正解は<strong>(3)</strong>である。</p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q2-nav" style="display:none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    function goToQuestion(n) {
+        state.currentQuestion = n;
+        showScreen(`q${n}-question`);
+        if (state.answers[n] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(d => { if (state.answers[parseInt(d.textContent)] === undefined) d.classList.remove('active'); });
+            document.getElementById(`progress-${n}`).classList.add('active');
+        }
+    }
+    function selectAnswer(qn, sel, cor) {
+        const cont = document.getElementById(`q${qn}-options`);
+        const btns = cont.querySelectorAll('[data-option]');
+        if (state.answers[qn] !== undefined) {
+            state.answers[qn] = undefined;
+            btns.forEach(b => b.classList.remove('selected','correct','incorrect'));
+            document.getElementById(`q${qn}-explanation`).classList.remove('show');
+            document.getElementById(`q${qn}-nav`).style.display = 'none';
+            const pd = document.getElementById(`progress-${qn}`);
+            pd.classList.remove('completed','incorrect-dot'); pd.classList.add('active');
+            return;
+        }
+        state.answers[qn] = sel;
+        const ok = sel === cor;
+        try { if (window.parent && window.parent.recordAnswer) window.parent.recordAnswer(`2026_05/航大思考139/問${qn}`, sel, cor, ok); } catch(e) {}
+        btns.forEach(b => {
+            b.classList.remove('selected','correct','incorrect');
+            const o = parseInt(b.dataset.option);
+            if (o === sel) { b.classList.add('selected'); if (!ok) b.classList.add('incorrect'); }
+            if (o === cor) b.classList.add('correct');
+        });
+        const pd = document.getElementById(`progress-${qn}`);
+        pd.classList.remove('active'); pd.classList.add(ok ? 'completed' : 'incorrect-dot');
+        const ex = document.getElementById(`q${qn}-explanation`);
+        ex.classList.add('show');
+        document.getElementById(`q${qn}-nav`).style.display = 'flex';
+        setTimeout(() => ex.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+    document.addEventListener('DOMContentLoaded', () => { document.getElementById('progress-1').classList.add('active'); });
+</script>
+</body>
+</html>
