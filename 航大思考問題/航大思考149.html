@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .info-block {
+            margin: 16px 0; padding: 14px 18px; border: 1px solid #999;
+            background-color: #fafafa; text-align: left;
+        }
+        .info-block .info-title { font-weight: bold; margin-bottom: 8px; }
+        .condition-list { margin-left: 20px; line-height: 1.9; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 13px;
+        }
+        .options-figure {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 2%; margin: 20px 0; width: 100%;
+        }
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
+            padding: 8px; background-color: white; border: 3px solid #ddd;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .option-figure-button svg { width: 100%; height: auto; }
+        .option-figure-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-figure-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-figure-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-figure-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-figure-button.disabled { cursor: default; }
+        @media (max-width: 600px) {
+            .option-figure-button { flex: 0 1 calc(33% - 2%); min-width: 60px; }
+        }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の条件で定まる立方体について、指定された3点を通る平面で切断したときの断面の形として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【立方体の構成】</div>
+                <ul class="condition-list">
+                    <li>立方体 ABCD-EFGH において、ABCD は上面の正方形、EFGH は下面の正方形である。</li>
+                    <li>頂点を上から見たとき、A・B・C・D は反時計回りに並んでおり、A の真下が E、B の真下が F、C の真下が G、D の真下が H である。</li>
+                </ul>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【切断する3点】</div>
+                <ul class="condition-list">
+                    <li>頂点 A</li>
+                    <li>頂点 C</li>
+                    <li>辺 FG の中点 M</li>
+                </ul>
+            </div>
+
+            <div class="question-text">
+                上記の3点 A・C・M を通る1つの平面で立方体を切断したときに現れる切り口（断面）の形として最も適切なものを選べ。
+            </div>
+
+            <div class="options-figure" id="q1-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                        <polygon points="35,30 75,30 95,90 15,90" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">等脚台形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                        <polygon points="55,28 18,90 92,90" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">正三角形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                        <polygon points="30,30 95,30 80,90 15,90" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">平行四辺形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                        <polygon points="15,32 95,32 95,88 15,88" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">長方形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                        <polygon points="20,40 80,28 95,82 30,90" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">一般の四角形</text>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1) 等脚台形）</div>
+                <div class="explanation-content">
+                    <p>立方体の一辺を 1 とし、A(0,0,1)、B(1,0,1)、C(1,1,1)、D(0,1,1)、E(0,0,0)、F(1,0,0)、G(1,1,0)、H(0,1,0) と座標を設定する。辺 FG の中点は M(1, 0.5, 0)。</p>
+                    <br>
+                    <p><strong>【切断面の特定】</strong></p>
+                    <p>3点 A、C、M を通る平面と立方体の各面の交わりを調べると:</p>
+                    <p>・上面 ABCD: 対角線 AC が断面の一辺</p>
+                    <p>・側面 BCGF: 頂点 C と点 M を結ぶ線分 CM</p>
+                    <p>・底面 EFGH: 点 M と 辺 EF 上の点 N(0.5, 0, 0) を結ぶ線分 MN</p>
+                    <p>・側面 ABFE: 点 N と 頂点 A を結ぶ線分 NA</p>
+                    <p>よって断面は 4頂点 A・C・M・N からなる四角形である。</p>
+                    <br>
+                    <p><strong>【辺の長さ（一辺=1のとき）】</strong></p>
+                    <p>・AC = √2 ≈ 1.414</p>
+                    <p>・CM = √(0.25 + 1) = √1.25 ≈ 1.118</p>
+                    <p>・MN = √(0.25 + 0.25) = √0.5 ≈ 0.707</p>
+                    <p>・NA = √(0.25 + 1) = √1.25 ≈ 1.118</p>
+                    <br>
+                    <p><strong>【形状の判定】</strong></p>
+                    <p>・MN の方向 (-0.5, -0.5, 0) と AC の方向 (1, 1, 0) は平行 ⇒ 1組の対辺 AC ∥ MN を持つ <strong>台形</strong>。</p>
+                    <p>・残る2辺 CM = NA = √1.25 で長さが等しい ⇒ <strong>等脚台形</strong>。</p>
+                    <p>・AC ≠ MN なので長方形・平行四辺形ではない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1) 等脚台形</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の条件で定まる立方体について、指定された3点を通る平面で切断したときの断面の形として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【立方体の構成】</div>
+                <ul class="condition-list">
+                    <li>立方体 ABCD-EFGH において、ABCD は上面の正方形、EFGH は下面の正方形である。</li>
+                    <li>頂点を上から見たとき、A・B・C・D は反時計回りに並んでおり、A の真下が E、B の真下が F、C の真下が G、D の真下が H である。</li>
+                </ul>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【切断する3点】</div>
+                <ul class="condition-list">
+                    <li>辺 AB の中点 P</li>
+                    <li>辺 CG の中点 Q</li>
+                    <li>辺 HE の中点 R</li>
+                </ul>
+            </div>
+
+            <div class="question-text">
+                上記の3点 P・Q・R を通る1つの平面で立方体を切断したときに現れる切り口（断面）の形として最も適切なものを選べ。
+            </div>
+
+            <div class="options-figure" id="q2-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                        <polygon points="55,28 92,52 80,90 30,90 18,52" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">五角形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                        <polygon points="55,30 88,49 88,87 55,106 22,87 22,49" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="125" class="svg-text" text-anchor="middle">正六角形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                        <polygon points="20,30 90,30 90,90 20,90" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">正方形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                        <polygon points="15,40 95,40 95,82 15,82" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">長方形</text>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <svg width="110" height="130" viewBox="0 0 110 130">
+                        <text x="55" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                        <polygon points="55,26 90,42 95,82 60,98 22,90 18,50" fill="none" stroke="black" stroke-width="2"/>
+                        <text x="55" y="115" class="svg-text" text-anchor="middle">一般の六角形</text>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2) 正六角形）</div>
+                <div class="explanation-content">
+                    <p>立方体の一辺を 1 とし、A(0,0,1)、B(1,0,1)、C(1,1,1)、D(0,1,1)、E(0,0,0)、F(1,0,0)、G(1,1,0)、H(0,1,0) と座標を設定する。</p>
+                    <p>・P = AB の中点 = (0.5, 0, 1)　・Q = CG の中点 = (1, 1, 0.5)　・R = HE の中点 = (0, 0.5, 0)</p>
+                    <br>
+                    <p><strong>【切断面の方程式】</strong></p>
+                    <p>3点 P・Q・R を通る平面の法線ベクトルを計算すると n = (-1, 1, 1) となり、整理すると <strong>−x + y + z = 0.5</strong>。</p>
+                    <p>この平面は立方体の中心 (0.5, 0.5, 0.5) を通る（−0.5+0.5+0.5=0.5）ことに注目する。</p>
+                    <br>
+                    <p><strong>【各辺との交点】</strong></p>
+                    <p>立方体の12本の辺について平面と交わる点をすべて求めると、次の <strong>6つの中点</strong> が得られる:</p>
+                    <p>・辺 AB の中点 P(0.5, 0, 1)　・辺 BC の中点 (1, 0.5, 1)</p>
+                    <p>・辺 CG の中点 Q(1, 1, 0.5)　・辺 GH の中点 (0.5, 1, 0)</p>
+                    <p>・辺 HE の中点 R(0, 0.5, 0)　・辺 AE の中点 (0, 0, 0.5)</p>
+                    <p>これら6点を順に結ぶと六角形が得られる。</p>
+                    <br>
+                    <p><strong>【正六角形であることの確認】</strong></p>
+                    <p>・隣り合う2点間の距離はいずれも √((0.5)²+(0.5)²) = √0.5 ≈ 0.707 で等しい。</p>
+                    <p>・各内角を計算すると、すべて 120° となる。</p>
+                    <p>6辺すべてが等しく、6つの内角もすべて 120° なので、断面は <strong>正六角形</strong>である。</p>
+                    <br>
+                    <p><strong>【補足】</strong></p>
+                    <p>立方体の中心を通り、互いに平行でない3つの辺の中点を通る平面は、立方体の対称性により必ず正六角形を切り出す。これは空間幾何の有名な結果である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2) 正六角形</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const dot = document.getElementById(`progress-${questionNum}`);
+                dot.classList.remove('completed', 'incorrect-dot');
+                dot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考149/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const opt = parseInt(btn.dataset.option);
+                if (opt === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (opt === correctOption) btn.classList.add('correct');
+            });
+
+            const dot = document.getElementById(`progress-${questionNum}`);
+            dot.classList.remove('active');
+            dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const exp = document.getElementById(`q${questionNum}-explanation`);
+            exp.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+            setTimeout(() => exp.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
