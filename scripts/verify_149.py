@@ -158,16 +158,16 @@ def midpoint(a, b):
 
 
 print("="*60)
-print("問1: 頂点 A, C と 辺 FG の中点 M を通る平面")
+print("問1: 頂点 B, D, E を通る平面")
 print("="*60)
-A_pt = V['A']
-C_pt = V['C']
-M = midpoint(V['F'], V['G'])
-print(f"A = {A_pt}")
-print(f"C = {C_pt}")
-print(f"M (FG中点) = {M}")
+B_pt = V['B']
+D_pt = V['D']
+E_pt = V['E']
+print(f"B = {B_pt}")
+print(f"D = {D_pt}")
+print(f"E = {E_pt}")
 
-n1, d1 = plane_from_3points(A_pt, C_pt, M)
+n1, d1 = plane_from_3points(B_pt, D_pt, E_pt)
 print(f"平面方程式: {n1[0]}x + {n1[1]}y + {n1[2]}z = {d1}")
 
 points1 = find_cross_section(n1, d1)
@@ -181,28 +181,19 @@ angles1 = interior_angles(ordered1)
 print(f"\n辺の長さ: {[round(s, 4) for s in sides1]}")
 print(f"内角(度): {[round(a, 2) for a in angles1]}")
 
-pairs1 = parallel_pairs(ordered1)
-print(f"平行な辺のペア: {pairs1}")
-
 # 形状の判定
 n_sides = len(ordered1)
-if n_sides == 4:
-    # 4辺の中で平行ペアの数
-    n_parallel = len(pairs1)
+if n_sides == 3:
     s_round = [round(s, 6) for s in sides1]
-    if n_parallel == 2:
-        print("→ 平行四辺形")
-    elif n_parallel == 1:
-        # 台形
-        i, j = pairs1[0]
-        # 平行でない2辺（脚）
-        legs = [s_round[k] for k in range(4) if k != i and k != j]
-        if abs(legs[0] - legs[1]) < 1e-6:
-            print("→ 等脚台形")
-        else:
-            print("→ 一般の台形")
+    a_round = [round(a, 4) for a in angles1]
+    if all(abs(sides1[0] - s) < 1e-6 for s in sides1):
+        print("→ 正三角形")
+    elif len(set(s_round)) == 2:
+        print("→ 二等辺三角形（正三角形でない）")
     else:
-        print("→ 一般の四角形")
+        print("→ 一般の三角形")
+    if any(abs(a - 90) < 1e-3 for a in angles1):
+        print("  （直角を含む）")
 
 print()
 print("="*60)

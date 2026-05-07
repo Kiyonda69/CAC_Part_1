@@ -45,6 +45,19 @@
             display: flex; flex-wrap: wrap; justify-content: center;
             gap: 2%; margin: 20px 0; width: 100%;
         }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
         .option-figure-button {
             flex: 0 1 calc(20% - 2%); min-width: 80px; max-width: 130px;
             padding: 8px; background-color: white; border: 3px solid #ddd;
@@ -112,7 +125,7 @@
             </div>
 
             <div class="question-text">
-                次の条件で定まる立方体について、指定された3点を通る平面で切断したときの断面の形として正しいものを次の(1)〜(5)の中から1つ選べ。
+                次の条件で定まる立方体について、指定された3頂点を通る平面で切断したときに現れる断面に関する記述として、最も適切なものを次の(1)〜(5)の中から1つ選べ。
             </div>
 
             <div class="info-block">
@@ -120,85 +133,63 @@
                 <ul class="condition-list">
                     <li>立方体 ABCD-EFGH において、ABCD は上面の正方形、EFGH は下面の正方形である。</li>
                     <li>頂点を上から見たとき、A・B・C・D は反時計回りに並んでおり、A の真下が E、B の真下が F、C の真下が G、D の真下が H である。</li>
+                    <li>立方体の一辺の長さを 1 とする。</li>
                 </ul>
             </div>
 
             <div class="info-block">
-                <div class="info-title">【切断する3点】</div>
+                <div class="info-title">【切断する3頂点】</div>
                 <ul class="condition-list">
-                    <li>頂点 A</li>
-                    <li>頂点 C</li>
-                    <li>辺 FG の中点 M</li>
+                    <li>頂点 B、頂点 D、頂点 E</li>
                 </ul>
             </div>
 
             <div class="question-text">
-                上記の3点 A・C・M を通る1つの平面で立方体を切断したときに現れる切り口（断面）の形として最も適切なものを選べ。
+                上記の3頂点 B・D・E を通る1つの平面で立方体を切断したときに現れる切り口（断面）について、最も適切な記述を選べ。
             </div>
 
-            <div class="options-figure" id="q1-options">
-                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
-                    <svg width="110" height="130" viewBox="0 0 110 130">
-                        <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
-                        <polygon points="35,30 75,30 95,90 15,90" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="55" y="115" class="svg-text" text-anchor="middle">等脚台形</text>
-                    </svg>
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>一辺の長さが √2 の正三角形である
                 </button>
-                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
-                    <svg width="110" height="130" viewBox="0 0 110 130">
-                        <text x="55" y="14" class="svg-text" text-anchor="middle">(2)</text>
-                        <polygon points="55,28 18,90 92,90" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="55" y="115" class="svg-text" text-anchor="middle">正三角形</text>
-                    </svg>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>直角二等辺三角形（直角をはさむ2辺の長さが √2）である
                 </button>
-                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
-                    <svg width="110" height="130" viewBox="0 0 110 130">
-                        <text x="55" y="14" class="svg-text" text-anchor="middle">(3)</text>
-                        <polygon points="30,30 95,30 80,90 15,90" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="55" y="115" class="svg-text" text-anchor="middle">平行四辺形</text>
-                    </svg>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>一辺の長さが 1 の正方形である
                 </button>
-                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
-                    <svg width="110" height="130" viewBox="0 0 110 130">
-                        <text x="55" y="14" class="svg-text" text-anchor="middle">(4)</text>
-                        <polygon points="15,32 95,32 95,88 15,88" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="55" y="115" class="svg-text" text-anchor="middle">長方形</text>
-                    </svg>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>一辺の長さが √2 の正方形である
                 </button>
-                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
-                    <svg width="110" height="130" viewBox="0 0 110 130">
-                        <text x="55" y="14" class="svg-text" text-anchor="middle">(5)</text>
-                        <polygon points="20,40 80,28 95,82 30,90" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="55" y="115" class="svg-text" text-anchor="middle">一般の四角形</text>
-                    </svg>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>三辺の長さがすべて異なる一般の三角形である
                 </button>
             </div>
 
             <div class="explanation-section" id="q1-explanation">
-                <div class="explanation-header">解説（正解: (1) 等脚台形）</div>
+                <div class="explanation-header">解説（正解: (1) 一辺 √2 の正三角形）</div>
                 <div class="explanation-content">
-                    <p>立方体の一辺を 1 とし、A(0,0,1)、B(1,0,1)、C(1,1,1)、D(0,1,1)、E(0,0,0)、F(1,0,0)、G(1,1,0)、H(0,1,0) と座標を設定する。辺 FG の中点は M(1, 0.5, 0)。</p>
+                    <p>立方体の一辺を 1 とし、A(0,0,1)、B(1,0,1)、C(1,1,1)、D(0,1,1)、E(0,0,0)、F(1,0,0)、G(1,1,0)、H(0,1,0) と座標を設定する。3頂点は B(1,0,1)、D(0,1,1)、E(0,0,0)。</p>
                     <br>
-                    <p><strong>【切断面の特定】</strong></p>
-                    <p>3点 A、C、M を通る平面と立方体の各面の交わりを調べると:</p>
-                    <p>・上面 ABCD: 対角線 AC が断面の一辺</p>
-                    <p>・側面 BCGF: 頂点 C と点 M を結ぶ線分 CM</p>
-                    <p>・底面 EFGH: 点 M と 辺 EF 上の点 N(0.5, 0, 0) を結ぶ線分 MN</p>
-                    <p>・側面 ABFE: 点 N と 頂点 A を結ぶ線分 NA</p>
-                    <p>よって断面は 4頂点 A・C・M・N からなる四角形である。</p>
-                    <br>
-                    <p><strong>【辺の長さ（一辺=1のとき）】</strong></p>
-                    <p>・AC = √2 ≈ 1.414</p>
-                    <p>・CM = √(0.25 + 1) = √1.25 ≈ 1.118</p>
-                    <p>・MN = √(0.25 + 0.25) = √0.5 ≈ 0.707</p>
-                    <p>・NA = √(0.25 + 1) = √1.25 ≈ 1.118</p>
+                    <p><strong>【3頂点を結ぶ線分の長さ】</strong></p>
+                    <p>切断面の3頂点は立方体の頂点そのものなので、断面は3頂点 B・D・E を結ぶ三角形となる。各辺の長さを計算すると:</p>
+                    <p>・BD = √((1-0)²+(0-1)²+0²) = √2（上面 ABCD の対角線）</p>
+                    <p>・DE = √(0²+1²+1²) = √2（側面 ADHE の対角線）</p>
+                    <p>・EB = √(1²+0²+1²) = √2（側面 ABFE の対角線）</p>
                     <br>
                     <p><strong>【形状の判定】</strong></p>
-                    <p>・MN の方向 (-0.5, -0.5, 0) と AC の方向 (1, 1, 0) は平行 ⇒ 1組の対辺 AC ∥ MN を持つ <strong>台形</strong>。</p>
-                    <p>・残る2辺 CM = NA = √1.25 で長さが等しい ⇒ <strong>等脚台形</strong>。</p>
-                    <p>・AC ≠ MN なので長方形・平行四辺形ではない。</p>
+                    <p>BD・DE・EB はいずれも立方体の<strong>面の対角線</strong>で、長さがすべて √2 で等しい。</p>
+                    <p>3辺が等しい三角形は正三角形であり、各内角は 60°（直角ではない）。</p>
+                    <p>したがって断面は <strong>一辺の長さが √2 の正三角形</strong>である。</p>
                     <br>
-                    <p>したがって、正解は<strong>(1) 等脚台形</strong>である。</p>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 一辺 √2 の正三角形 → 計算と一致（正解）</p>
+                    <p>・(2) 直角二等辺三角形 → 内角はすべて 60° で直角を含まない（不適）</p>
+                    <p>・(3) 一辺 1 の正方形 → 頂点数3なので不適</p>
+                    <p>・(4) 一辺 √2 の正方形 → 頂点数3なので不適</p>
+                    <p>・(5) 三辺がすべて異なる三角形 → 三辺はすべて √2（不適）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
                 </div>
             </div>
 
