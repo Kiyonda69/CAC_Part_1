@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container {
+            margin: 16px 0; padding: 16px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .info-block {
+            margin: 14px 0; padding: 14px 18px; background-color: #fafafa;
+            border-left: 4px solid #666; border-radius: 4px;
+        }
+        .info-title { font-weight: bold; margin-bottom: 8px; font-size: 15px; }
+        .condition-list { margin-left: 22px; line-height: 1.9; }
+        .data-table { border-collapse: collapse; margin: 8px auto; font-size: 15px; }
+        .data-table th, .data-table td {
+            border: 1.5px solid #333; padding: 10px 16px; text-align: center;
+        }
+        .data-table th { background-color: #eee; font-weight: bold; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の資料に基づき、すべての条件を満たす配送業者として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料1】配送業者の比較表</div>
+                <div class="figure-container" style="margin: 8px 0; padding: 8px;">
+                    <table class="data-table">
+                        <tr>
+                            <th>業者</th><th>配送日数</th><th>基本料金</th><th>重量上限</th><th>補償上限額</th>
+                        </tr>
+                        <tr><td>A社</td><td>翌日</td><td>2,800円</td><td>30kg</td><td>5万円</td></tr>
+                        <tr><td>B社</td><td>翌々日</td><td>2,200円</td><td>25kg</td><td>10万円</td></tr>
+                        <tr><td>C社</td><td>翌日</td><td>3,200円</td><td>50kg</td><td>8万円</td></tr>
+                        <tr><td>D社</td><td>翌々日</td><td>1,800円</td><td>20kg</td><td>3万円</td></tr>
+                        <tr><td>E社</td><td>翌々日</td><td>2,500円</td><td>40kg</td><td>6万円</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料2】今回の配送条件</div>
+                <ul class="condition-list">
+                    <li>商品の重量は <strong>28kg</strong></li>
+                    <li>商品の価値は <strong>5万5千円</strong>（補償が必要な金額）</li>
+                    <li>到着は翌々日でも問題ない</li>
+                    <li>配送料は <strong>2,700円以下</strong> に収めたい</li>
+                </ul>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>B社
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>D社
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>E社
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>A社
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>C社
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>4つの条件を一つずつ各業者に当てはめ、すべてを満たす業者を絞り込む。</p>
+                    <br>
+                    <p><strong>【条件①】重量28kg以下を扱える業者（重量上限が28kg以上）</strong></p>
+                    <p>A社: 30kg ✓　B社: 25kg ✗　C社: 50kg ✓　D社: 20kg ✗　E社: 40kg ✓</p>
+                    <p>→ 残るのは <strong>A・C・E社</strong>。</p>
+                    <br>
+                    <p><strong>【条件②】補償上限が5万5千円以上</strong></p>
+                    <p>A社: 5万円 ✗　C社: 8万円 ✓　E社: 6万円 ✓</p>
+                    <p>→ A社は補償額が不足するため脱落。残るのは <strong>C・E社</strong>。</p>
+                    <br>
+                    <p><strong>【条件③】翌々日着で問題ない</strong></p>
+                    <p>C社: 翌日 ✓　E社: 翌々日 ✓ → 両社とも問題なし。</p>
+                    <br>
+                    <p><strong>【条件④】配送料が2,700円以下</strong></p>
+                    <p>C社: 3,200円 ✗　E社: 2,500円 ✓</p>
+                    <p>→ C社は予算超過で脱落。残るのは <strong>E社のみ</strong>。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) E社</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の資料に基づき、利用者Pさんの今月の利用料金（税抜き）として正しいものを次の(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料1】基本プラン</div>
+                <div class="figure-container" style="margin: 8px 0; padding: 8px;">
+                    <table class="data-table">
+                        <tr><th>プラン</th><th>月額基本料金</th><th>データ通信容量</th></tr>
+                        <tr><td>ライト</td><td>3,000円</td><td>5GB</td></tr>
+                        <tr><td>スタンダード</td><td>5,000円</td><td>30GB</td></tr>
+                        <tr><td>プレミアム</td><td>7,500円</td><td>無制限</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料2】通話・オプション料金</div>
+                <ul class="condition-list">
+                    <li>国内通話: 30秒あたり 22円</li>
+                    <li>国際通話: 30秒あたり 60円</li>
+                    <li>通話定額オプション（月額500円）: 加入で国内通話のみ無料</li>
+                </ul>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料3】データ超過料金</div>
+                <ul class="condition-list">
+                    <li>ライト・スタンダードは容量超過時、超過分1GBあたり 300円課金</li>
+                    <li>プレミアムは超過料金なし</li>
+                </ul>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料4】各種割引（基本料金にのみ適用）</div>
+                <ul class="condition-list">
+                    <li>家族割: 同一家族2回線目以降は基本料金から10%引き</li>
+                    <li>長期契約割引: 利用期間 <strong>24ヶ月以上</strong> で5%引き</li>
+                    <li>学割: 学生は基本料金から15%引き（家族割と併用不可）</li>
+                    <li>自動引き落とし割引: 100円引き（定額）</li>
+                    <li>※割引は <strong>パーセント割引 → 定額割引</strong> の順で適用</li>
+                </ul>
+            </div>
+
+            <div class="info-block">
+                <div class="info-title">【資料5】Pさんの今月の利用状況</div>
+                <ul class="condition-list">
+                    <li>スタンダードプラン契約／通話定額オプション加入</li>
+                    <li>今月の通話: 国内通話多数（定額対象）／<strong>国際通話 8分</strong></li>
+                    <li>今月のデータ通信量: <strong>38GB</strong></li>
+                    <li>家族割対象（2回線目）／利用期間 18ヶ月／学生ではない</li>
+                    <li>支払いは自動引き落とし</li>
+                </ul>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>7,400円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>7,760円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>8,260円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>8,360円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>8,760円
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>料金は<strong>「基本料金 → 割引適用 → オプション・通話料・データ超過料の加算」</strong>の順で計算する。</p>
+                    <br>
+                    <p><strong>【ステップ1】基本料金</strong></p>
+                    <p>スタンダードプラン: <strong>5,000円</strong></p>
+                    <br>
+                    <p><strong>【ステップ2】パーセント割引の適用</strong></p>
+                    <p>・家族割（2回線目）: -10% → 5,000 × 0.9 = <strong>4,500円</strong></p>
+                    <p>・長期契約割引: 18ヶ月（24ヶ月未満のため<strong>適用されない</strong>）</p>
+                    <p>・学割: 学生ではないため対象外</p>
+                    <br>
+                    <p><strong>【ステップ3】定額割引の適用</strong></p>
+                    <p>・自動引き落とし割引: -100円 → 4,500 - 100 = <strong>4,400円</strong></p>
+                    <br>
+                    <p><strong>【ステップ4】オプション・通話料・データ超過料の加算</strong></p>
+                    <p>・通話定額オプション: +500円 → 4,400 + 500 = 4,900円</p>
+                    <p>・国内通話: 定額対象につき <strong>0円</strong></p>
+                    <p>・国際通話: 8分 = 480秒 = <strong>16単位</strong>（30秒/単位）</p>
+                    <p>　16 × 60円 = 960円 → 4,900 + 960 = 5,860円</p>
+                    <p>・データ超過: 38GB - 30GB = <strong>8GB超過</strong></p>
+                    <p>　8 × 300円 = 2,400円 → 5,860 + 2,400 = <strong>8,260円</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(3) 8,260円</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考148/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
