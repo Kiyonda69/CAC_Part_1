@@ -1,0 +1,580 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下表は、ある企業の4つの支店（A〜D）における2025年度の四半期別売上高（単位：百万円）を示したものである。表から読み取れる事実として正しいものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】支店別・四半期別売上高（単位：百万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>支店</th>
+                                <th>第1四半期</th>
+                                <th>第2四半期</th>
+                                <th>第3四半期</th>
+                                <th>第4四半期</th>
+                            </tr>
+                            <tr><td>A</td><td>124</td><td>156</td><td>188</td><td>212</td></tr>
+                            <tr><td>B</td><td>198</td><td>172</td><td>154</td><td>166</td></tr>
+                            <tr><td>C</td><td>80</td><td>95</td><td>116</td><td>145</td></tr>
+                            <tr><td>D</td><td>168</td><td>174</td><td>186</td><td>192</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　4支店の第1四半期売上の平均は143.5百万円である。<br>
+                    (2)　全支店の第4四半期合計売上は、第1四半期合計売上の約1.25倍である。<br>
+                    (3)　A支店の第4四半期売上は、同支店の第1四半期売上の約1.5倍である。<br>
+                    (4)　B支店の年間売上は、C支店の年間売上の約1.8倍である。<br>
+                    (5)　D支店の第3四半期売上は、全支店の第3四半期合計売上の約25％である。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(2))</strong><br>
+                各支店の年間売上、四半期合計を整理してから各選択肢を検証する。<br><br>
+
+                <strong>【基本数値の整理】</strong><br>
+                ・年間売上：A＝124+156+188+212＝680、B＝198+172+154+166＝690、C＝80+95+116+145＝436、D＝168+174+186+192＝720（百万円）<br>
+                ・第1四半期合計＝124+198+80+168＝570<br>
+                ・第2四半期合計＝156+172+95+174＝597<br>
+                ・第3四半期合計＝188+154+116+186＝644<br>
+                ・第4四半期合計＝212+166+145+192＝715<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 第1四半期平均＝570÷4＝142.5百万円。143.5百万円ではないため誤り。<br>
+                ・(2) Q4÷Q1＝715÷570≒1.2544。約1.25倍となり<strong>正しい</strong>。<br>
+                ・(3) A支店のQ4÷Q1＝212÷124≒1.710。約1.71倍であり、1.5倍ではない。<br>
+                ・(4) B÷C＝690÷436≒1.583。約1.58倍であり、1.8倍ではない。<br>
+                ・(5) D支店Q3÷全支店Q3＝186÷644≒0.289（約28.9％）。25％ではない。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下のグラフは、ある工場で生産・販売している3製品（P、Q、R）の月別販売数量の推移を示したものである。また、表2・表3はそれぞれの製品の販売単価と製造原価を示している。これらの資料から読み取れる事実として正しいものを、(1)〜(5)のうちから1つ選べ。なお、利益＝販売単価－製造原価とする。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】製品別 月別販売数量（単位：個）</div>
+                    <div class="figure-content">
+                        <!--
+                        SVG仕様: 600x380, viewBox 0 0 600 380
+                        プロット領域: 左上(80,40), 右下(560,320), 幅480, 高さ280
+                        Y軸: 0〜250 → 1単位 ≒ 1.08px
+                        X軸: 1〜4月 → 月位置 140, 260, 380, 500
+                        -->
+                        <svg width="600" height="420" viewBox="0 0 600 420">
+                            <!-- 軸 -->
+                            <line x1="80" y1="320" x2="560" y2="320" stroke="black" stroke-width="1.5"/>
+                            <line x1="80" y1="40" x2="80" y2="320" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Y軸目盛り（0,50,100,150,200,250） -->
+                            <g class="svg-text" font-size="12">
+                                <line x1="76" y1="320" x2="80" y2="320" stroke="black"/>
+                                <text x="72" y="324" text-anchor="end">0</text>
+                                <line x1="76" y1="266" x2="80" y2="266" stroke="black"/>
+                                <text x="72" y="270" text-anchor="end">50</text>
+                                <line x1="76" y1="212" x2="80" y2="212" stroke="black"/>
+                                <text x="72" y="216" text-anchor="end">100</text>
+                                <line x1="76" y1="158" x2="80" y2="158" stroke="black"/>
+                                <text x="72" y="162" text-anchor="end">150</text>
+                                <line x1="76" y1="104" x2="80" y2="104" stroke="black"/>
+                                <text x="72" y="108" text-anchor="end">200</text>
+                                <line x1="76" y1="50" x2="80" y2="50" stroke="black"/>
+                                <text x="72" y="54" text-anchor="end">250</text>
+                            </g>
+
+                            <!-- グリッド線（薄め） -->
+                            <g stroke="#ddd" stroke-width="0.5" stroke-dasharray="2,2">
+                                <line x1="80" y1="266" x2="560" y2="266"/>
+                                <line x1="80" y1="212" x2="560" y2="212"/>
+                                <line x1="80" y1="158" x2="560" y2="158"/>
+                                <line x1="80" y1="104" x2="560" y2="104"/>
+                                <line x1="80" y1="50" x2="560" y2="50"/>
+                            </g>
+
+                            <!-- X軸目盛り -->
+                            <g class="svg-text" font-size="12">
+                                <line x1="140" y1="320" x2="140" y2="324" stroke="black"/>
+                                <text x="140" y="338" text-anchor="middle">1月</text>
+                                <line x1="260" y1="320" x2="260" y2="324" stroke="black"/>
+                                <text x="260" y="338" text-anchor="middle">2月</text>
+                                <line x1="380" y1="320" x2="380" y2="324" stroke="black"/>
+                                <text x="380" y="338" text-anchor="middle">3月</text>
+                                <line x1="500" y1="320" x2="500" y2="324" stroke="black"/>
+                                <text x="500" y="338" text-anchor="middle">4月</text>
+                            </g>
+
+                            <!-- 軸ラベル -->
+                            <text x="320" y="358" class="svg-text" text-anchor="middle" font-size="13">月</text>
+                            <text x="30" y="180" class="svg-text" text-anchor="middle" font-size="13" transform="rotate(-90 30 180)">販売数量（個）</text>
+
+                            <!-- 製品P: 実線＋丸マーカー (120,145,168,192) -->
+                            <polyline points="140,190 260,163 380,139 500,113" fill="none" stroke="black" stroke-width="2"/>
+                            <g fill="white" stroke="black" stroke-width="2">
+                                <circle cx="140" cy="190" r="5"/>
+                                <circle cx="260" cy="163" r="5"/>
+                                <circle cx="380" cy="139" r="5"/>
+                                <circle cx="500" cy="113" r="5"/>
+                            </g>
+                            <text x="514" y="116" class="svg-text" font-size="13" font-weight="bold">P</text>
+
+                            <!-- 製品Q: 破線＋四角マーカー (200,175,160,145) -->
+                            <polyline points="140,104 260,131 380,147 500,163" fill="none" stroke="black" stroke-width="2" stroke-dasharray="8,4"/>
+                            <g fill="black">
+                                <rect x="135" y="99" width="10" height="10"/>
+                                <rect x="255" y="126" width="10" height="10"/>
+                                <rect x="375" y="142" width="10" height="10"/>
+                                <rect x="495" y="158" width="10" height="10"/>
+                            </g>
+                            <text x="514" y="167" class="svg-text" font-size="13" font-weight="bold">Q</text>
+
+                            <!-- 製品R: 点線＋三角マーカー (80,110,140,165) -->
+                            <polyline points="140,234 260,201 380,169 500,142" fill="none" stroke="black" stroke-width="2" stroke-dasharray="2,3"/>
+                            <g fill="white" stroke="black" stroke-width="2">
+                                <polygon points="140,228 134,238 146,238"/>
+                                <polygon points="260,195 254,205 266,205"/>
+                                <polygon points="380,163 374,173 386,173"/>
+                                <polygon points="500,136 494,146 506,146"/>
+                            </g>
+                            <text x="514" y="146" class="svg-text" font-size="13" font-weight="bold">R</text>
+
+                            <!-- 凡例（グラフ下部・横並びでコンパクトに配置） -->
+                            <g transform="translate(120, 385)">
+                                <line x1="0" y1="10" x2="35" y2="10" stroke="black" stroke-width="2"/>
+                                <circle cx="17" cy="10" r="5" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="44" y="14" class="svg-text" font-size="13">製品P</text>
+
+                                <line x1="125" y1="10" x2="160" y2="10" stroke="black" stroke-width="2" stroke-dasharray="6,3"/>
+                                <rect x="137" y="5" width="10" height="10" fill="black"/>
+                                <text x="169" y="14" class="svg-text" font-size="13">製品Q</text>
+
+                                <line x1="250" y1="10" x2="285" y2="10" stroke="black" stroke-width="2" stroke-dasharray="2,3"/>
+                                <polygon points="267,4 261,14 273,14" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="294" y="14" class="svg-text" font-size="13">製品R</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】販売単価と製造原価（単位：円／個）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>製品</th>
+                                <th>販売単価</th>
+                                <th>製造原価</th>
+                            </tr>
+                            <tr><td>P</td><td>5,000</td><td>3,200</td></tr>
+                            <tr><td>Q</td><td>8,000</td><td>5,400</td></tr>
+                            <tr><td>R</td><td>12,000</td><td>8,800</td></tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ続き（選択肢） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．（続き）</div>
+                <div class="options">
+                    (1)　4ヶ月通算の製品別売上金額では、製品Qが最大である。<br>
+                    (2)　4ヶ月通算における製品Pの売上金額は、約325万円である。<br>
+                    (3)　4月における製品Rの利益は、同月の3製品の合計利益の50％以上を占めている。<br>
+                    (4)　4月における3製品の合計利益は、1月における3製品の合計利益の約1.26倍である。<br>
+                    (5)　4ヶ月間で最も販売数量の合計が多い製品は、製品Rである。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                各製品の利益（販売単価－製造原価）と月別の販売数量から、必要な値を計算する。<br><br>
+
+                <strong>【利益単価】</strong><br>
+                ・P：5,000－3,200＝1,800円／個<br>
+                ・Q：8,000－5,400＝2,600円／個<br>
+                ・R：12,000－8,800＝3,200円／個<br><br>
+
+                <strong>【月別合計利益】</strong><br>
+                ・1月：120×1,800＋200×2,600＋80×3,200＝216,000＋520,000＋256,000＝<strong>992,000円</strong><br>
+                ・4月：192×1,800＋145×2,600＋165×3,200＝345,600＋377,000＋528,000＝<strong>1,250,600円</strong><br><br>
+
+                <strong>【製品別の通算売上・販売数量】</strong><br>
+                ・販売数量合計：P＝625個、Q＝680個、R＝495個<br>
+                ・売上合計：P＝625×5,000＝312.5万円、Q＝680×8,000＝544万円、R＝495×12,000＝594万円<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 通算売上の最大は製品R（594万円）であり、Qではない。誤り。<br>
+                ・(2) 製品Pの通算売上は312.5万円。325万円ではない。誤り。<br>
+                ・(3) 4月のRの利益＝165×3,200＝528,000円。合計1,250,600円に占める割合は約42.2％であり、50％未満。誤り。<br>
+                ・(4) 1,250,600÷992,000≒1.2607。約1.26倍であり<strong>正しい</strong>。<br>
+                ・(5) 通算販売数量の最大は製品Q（680個）であり、Rではない。誤り。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
