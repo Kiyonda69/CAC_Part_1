@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題158</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .question-text p + p { margin-top: 12px; }
+        .figure-container { margin: 20px 0; padding: 15px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%;
+            padding: 15px 20px; margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left; cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .ascii-fig {
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 12px 16px;
+            margin: 12px 0;
+            white-space: pre;
+            display: inline-block;
+        }
+        .progress-bar {
+            display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;
+        }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+
+    <!-- プログレスバー -->
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 画面 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+
+        <div class="question-text">
+            <p>サイコロの6面が、<strong>赤、青、黄、緑、白、黒</strong>の6色で塗り分けられている。下図はこのサイコロを3つの異なる方向から見たものであり（同じサイコロの3視点）、それぞれ上面・前面・右面の3面が見えている。</p>
+            <p>このとき、<strong>赤の裏側にある面の色</strong>として正しいものを、(1)〜(5)から1つ選べ。</p>
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【図1】3視点から見た同じサイコロ</div>
+            <svg width="600" height="180" viewBox="0 0 600 180">
+                <!-- 視点1: 上=赤, 前=白, 右=黄 -->
+                <g transform="translate(60, 30)">
+                    <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点1</text>
+                    <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">赤</text>
+                    <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                    <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                </g>
+                <!-- 視点2: 上=青, 前=白, 右=緑 -->
+                <g transform="translate(260, 30)">
+                    <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点2</text>
+                    <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">青</text>
+                    <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                    <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">緑</text>
+                </g>
+                <!-- 視点3: 上=黒, 前=黄, 右=青 -->
+                <g transform="translate(460, 30)">
+                    <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点3</text>
+                    <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">黒</text>
+                    <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                    <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">青</text>
+                </g>
+            </svg>
+        </div>
+
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)"><span class="option-label">(1)</span>黒</button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)"><span class="option-label">(2)</span>緑</button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)"><span class="option-label">(3)</span>黄</button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)"><span class="option-label">(4)</span>青</button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)"><span class="option-label">(5)</span>白</button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">解説（正解: (4)）</div>
+            <div class="explanation-content">
+                <p>サイコロの各面は、自分以外の5面のうち4面と隣接し、残る1面が対面（向かい合う面）となる。各視点では同時に上・前・右の3面が見えており、これら3面は互いに隣接している（対面ではない）。</p>
+                <p><strong>【各視点から得られる隣接関係】</strong></p>
+                <p>・視点1（上=赤、前=白、右=黄）から、<strong>赤・白・黄</strong>の3色は互いに隣接。</p>
+                <p>・視点2（上=青、前=白、右=緑）から、<strong>青・白・緑</strong>の3色は互いに隣接。</p>
+                <p>・視点3（上=黒、前=黄、右=青）から、<strong>黒・黄・青</strong>の3色は互いに隣接。</p>
+                <p><strong>【青の隣接面が4色集まる】</strong></p>
+                <p>視点2より青は <strong>白</strong>・<strong>緑</strong> と隣接、視点3より青は <strong>黒</strong>・<strong>黄</strong> と隣接。よって青は <strong>白・緑・黒・黄</strong> の4色と隣接しており、残る1色 <strong>赤</strong> が青の対面である。すなわち <strong>赤の裏側は青</strong>。</p>
+                <p><strong>【他の対面ペアの確認】</strong></p>
+                <p>同様に、白の隣接色は視点1（赤・黄）と視点2（青・緑）から計4色 → <strong>白の対面は黒</strong>。黄の隣接色は視点1（赤・白）と視点3（黒・青）から計4色 → <strong>黄の対面は緑</strong>。よって対面の3組は <strong>赤⇔青、黄⇔緑、白⇔黒</strong> である。</p>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 黒 → 黒の対面は白なので、赤の対面ではない。</p>
+                <p>・(2) 緑 → 緑の対面は黄なので、赤の対面ではない。</p>
+                <p>・(3) 黄 → 視点1で赤と黄は隣接しているので、対面ではない。</p>
+                <p>・(4) 青 → 青は赤に隣接していない唯一の色であり、これが赤の対面。<strong>正解</strong>。</p>
+                <p>・(5) 白 → 視点1で赤と白は隣接しているので、対面ではない。</p>
+                <p>したがって、赤の裏側は <strong>(4) 青</strong> である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 画面 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+
+        <div class="question-text">
+            <p>問1と同じサイコロを、<strong>上面=赤・前面=白・右面=黄</strong>である状態（視点1の向き）に置く。次に、以下の操作①、②をこの順に行う。</p>
+            <p>　操作①：サイコロを<strong>右</strong>に倒す（右面が新たに底面となる向きに90°転がす）。</p>
+            <p>　操作②：操作①後の状態から、サイコロを<strong>後ろ</strong>に倒す（後面が新たに底面となる向きに90°転がす）。</p>
+            <p>このときの最終的な<strong>上面と前面の色の組み合わせ</strong>として正しいものを、(1)〜(5)から1つ選べ。</p>
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【図2】操作の方向</div>
+            <svg width="500" height="180" viewBox="0 0 500 180">
+                <!-- 初期状態 -->
+                <g transform="translate(40, 40)">
+                    <text x="40" y="-12" text-anchor="middle" class="svg-text" font-weight="bold">初期状態</text>
+                    <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">赤</text>
+                    <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                    <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                </g>
+                <!-- 操作①: 右に倒す -->
+                <g transform="translate(160, 80)">
+                    <text x="50" y="-30" text-anchor="middle" class="svg-text" font-weight="bold">操作①</text>
+                    <text x="50" y="-12" text-anchor="middle" class="svg-text">（右へ倒す）</text>
+                    <line x1="0" y1="0" x2="90" y2="0" stroke="black" stroke-width="2"/>
+                    <polygon points="90,0 80,-6 80,6" fill="black"/>
+                </g>
+                <!-- 操作②: 後ろへ倒す -->
+                <g transform="translate(290, 80)">
+                    <text x="50" y="-30" text-anchor="middle" class="svg-text" font-weight="bold">操作②</text>
+                    <text x="50" y="-12" text-anchor="middle" class="svg-text">（後ろへ倒す）</text>
+                    <line x1="0" y1="0" x2="90" y2="0" stroke="black" stroke-width="2"/>
+                    <polygon points="90,0 80,-6 80,6" fill="black"/>
+                </g>
+                <!-- 最終状態 (?) -->
+                <g transform="translate(400, 40)">
+                    <text x="40" y="-12" text-anchor="middle" class="svg-text" font-weight="bold">最終状態</text>
+                    <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">?</text>
+                    <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                    <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">?</text>
+                    <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)"><span class="option-label">(1)</span>上面=白、前面=黄</button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)"><span class="option-label">(2)</span>上面=黒、前面=緑</button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)"><span class="option-label">(3)</span>上面=黄、前面=赤</button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)"><span class="option-label">(4)</span>上面=赤、前面=白</button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)"><span class="option-label">(5)</span>上面=緑、前面=青</button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">解説（正解: (1)）</div>
+            <div class="explanation-content">
+                <p>問1より、対面の3組は <strong>赤⇔青、黄⇔緑、白⇔黒</strong>。初期状態（上=赤、前=白、右=黄）から、見えていない3面は次のように決まる。</p>
+                <p>・上=赤 ⇒ 底=青　／　前=白 ⇒ 後=黒　／　右=黄 ⇒ 左=緑</p>
+                <p><strong>【操作①：右に倒す】</strong></p>
+                <p>右に倒すと「上→右、右→底、底→左、左→上」と入れ替わる。前後は不変。</p>
+                <div class="ascii-fig">操作①前               操作①後
+ 上 = 赤                上 = 緑（左から）
+ 前 = 白                前 = 白（不変）
+ 右 = 黄                右 = 赤（上から）
+ 底 = 青                底 = 黄（右から）
+ 後 = 黒                後 = 黒（不変）
+ 左 = 緑                左 = 青（底から）</div>
+                <p><strong>【操作②：後ろに倒す】</strong></p>
+                <p>後ろに倒すと「上→後、後→底、底→前、前→上」と入れ替わる。左右は不変。</p>
+                <div class="ascii-fig">操作②前               操作②後
+ 上 = 緑                上 = 白（前から）
+ 前 = 白                前 = 黄（底から）
+ 右 = 赤                右 = 赤（不変）
+ 底 = 黄                底 = 黒（後から）
+ 後 = 黒                後 = 緑（上から）
+ 左 = 青                左 = 青（不変）</div>
+                <p>よって最終状態の上面は <strong>白</strong>、前面は <strong>黄</strong> である。</p>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 上面=白、前面=黄 → 上記の手順で得られる正解。</p>
+                <p>・(2) 上面=黒、前面=緑 → 操作①と②を逆順に行った結果に対応する誤り。</p>
+                <p>・(3) 上面=黄、前面=赤 → 操作②で「後ろへ倒す」を「前へ倒す」と取り違えた結果。</p>
+                <p>・(4) 上面=赤、前面=白 → 操作を行わない（または2回で元に戻ると誤った）場合。</p>
+                <p>・(5) 上面=緑、前面=青 → 操作①のみを行い、操作②を省略した結果。</p>
+                <p>したがって、正解は <strong>(1) 上面=白、前面=黄</strong> である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+
+    function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const dot = document.getElementById(`progress-${questionNum}`);
+            dot.classList.remove('completed', 'incorrect-dot');
+            dot.classList.add('active');
+            return;
+        }
+
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_05/航大思考158/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+
+        const dot = document.getElementById(`progress-${questionNum}`);
+        dot.classList.remove('active');
+        dot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+        document.getElementById(`q${questionNum}-explanation`).classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+        setTimeout(() => {
+            document.getElementById(`q${questionNum}-explanation`).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>

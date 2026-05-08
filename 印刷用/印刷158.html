@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題158</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 10px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 15px; }
+        .options { margin-left: 20px; line-height: 2.4; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .ascii-fig {
+            font-family: "Courier New", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #f6f6f6;
+            border: 1px solid #ccc;
+            padding: 12px 16px;
+            margin: 10px 0;
+            white-space: pre;
+            display: inline-block;
+        }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1・問2 共通の前置き ========== -->
+    <!-- 問1のSVGで使われている視点の塗り分けが、問2でも同じサイコロとして参照される -->
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．サイコロの6面が、赤、青、黄、緑、白、黒の6色で塗り分けられている。下図はこのサイコロを3つの異なる方向から見たものである（同じサイコロの3視点）。赤の裏側にある面の色として正しいものを、(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】3視点から見た同じサイコロ</div>
+                    <!--
+                    SVG仕様:
+                    - サイズ: 600x180px, viewBox: 0 0 600 180
+                    - 各サイコロ: 約100x100px の等角投影立方体
+                    - 視点1: 上=赤, 前=白, 右=黄
+                    - 視点2: 上=青, 前=白, 右=緑
+                    - 視点3: 上=黒, 前=黄, 右=青
+                    -->
+                    <svg width="600" height="180" viewBox="0 0 600 180">
+                        <!-- 視点1 -->
+                        <g transform="translate(60, 30)">
+                            <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点1</text>
+                            <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">赤</text>
+                            <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                            <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                        </g>
+                        <!-- 視点2 -->
+                        <g transform="translate(260, 30)">
+                            <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点2</text>
+                            <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">青</text>
+                            <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                            <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">緑</text>
+                        </g>
+                        <!-- 視点3 -->
+                        <g transform="translate(460, 30)">
+                            <text x="40" y="-8" text-anchor="middle" class="svg-text" font-weight="bold">視点3</text>
+                            <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">黒</text>
+                            <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                            <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">青</text>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="options">
+                    (1) 黒<br>
+                    (2) 緑<br>
+                    (3) 黄<br>
+                    (4) 青<br>
+                    (5) 白
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                サイコロは6面（上・下・前・後・左・右）からなり、対面（向かい合う面）は3組ある。各視点では同時に上・前・右の3面が見えており、これら3面は互いに対面ではない（隣接している）。<br><br>
+
+                <strong>【各視点から得られる隣接関係】</strong><br>
+                ・視点1（上=赤、前=白、右=黄）から、<strong>赤・白・黄</strong>の3色は互いに隣接。<br>
+                ・視点2（上=青、前=白、右=緑）から、<strong>青・白・緑</strong>の3色は互いに隣接。<br>
+                ・視点3（上=黒、前=黄、右=青）から、<strong>黒・黄・青</strong>の3色は互いに隣接。<br><br>
+
+                <strong>【青の対面の特定】</strong><br>
+                上記3つの視点を整理すると、<strong>青</strong>に隣接する色は次の4色である。<br>
+                ・視点2より、青は <strong>白</strong> および <strong>緑</strong> と隣接。<br>
+                ・視点3より、青は <strong>黒</strong> および <strong>黄</strong> と隣接。<br>
+                サイコロの各面は4面と隣接し、残る1面が対面となる。よって青と隣接していない唯一の色は<strong>赤</strong>であり、<strong>青の対面は赤</strong>と確定する。<br>
+                すなわち <strong>赤の対面も青</strong>である。<br><br>
+
+                <strong>【他の対面ペアの確認】</strong><br>
+                同様に、<strong>白</strong>に隣接する色は視点1（赤・黄）と視点2（青・緑）から計4色 → <strong>白の対面は黒</strong>。<br>
+                <strong>黄</strong>に隣接する色は視点1（赤・白）と視点3（黒・青）から計4色 → <strong>黄の対面は緑</strong>。<br>
+                したがって、対面の3組は <strong>赤⇔青、黄⇔緑、白⇔黒</strong> である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 黒 → 上記より黒の対面は白なので、赤の対面ではない。<br>
+                ・(2) 緑 → 上記より緑の対面は黄なので、赤の対面ではない。<br>
+                ・(3) 黄 → 視点1で赤と黄は隣接しているので、対面ではない。<br>
+                ・(4) 青 → 青は赤に隣接していない唯一の色であり、これが赤の対面である。正解。<br>
+                ・(5) 白 → 視点1で赤と白は隣接しているので、対面ではない。<br><br>
+
+                したがって、赤の裏側は<strong>(4) 青</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じサイコロを、上面=赤・前面=白・右面=黄である状態（視点1の向き）に置く。次に、以下の操作①、②をこの順に行う。<br>　操作①：サイコロを<strong>右</strong>に倒す（右面が新たに底面となる向きに90°転がす）。<br>　操作②：操作①後の状態から、サイコロを<strong>後ろ</strong>に倒す（後面が新たに底面となる向きに90°転がす）。<br>このときの最終的な上面と前面の色の組み合わせとして正しいものを、(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】操作の方向（黒丸はサイコロを真上から見た位置を表す）</div>
+                    <svg width="500" height="180" viewBox="0 0 500 180">
+                        <!-- 初期状態 -->
+                        <g transform="translate(40, 40)">
+                            <text x="40" y="-12" text-anchor="middle" class="svg-text" font-weight="bold">初期状態</text>
+                            <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">赤</text>
+                            <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">白</text>
+                            <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="70" y="55" text-anchor="middle" class="svg-text" font-weight="bold">黄</text>
+                        </g>
+                        <!-- 操作①: 右に倒す -->
+                        <g transform="translate(160, 80)">
+                            <text x="50" y="-30" text-anchor="middle" class="svg-text" font-weight="bold">操作①</text>
+                            <text x="50" y="-12" text-anchor="middle" class="svg-text">（右へ倒す）</text>
+                            <line x1="0" y1="0" x2="90" y2="0" stroke="black" stroke-width="2"/>
+                            <polygon points="90,0 80,-6 80,6" fill="black"/>
+                        </g>
+                        <!-- 操作②: 後ろへ倒す -->
+                        <g transform="translate(290, 80)">
+                            <text x="50" y="-30" text-anchor="middle" class="svg-text" font-weight="bold">操作②</text>
+                            <text x="50" y="-12" text-anchor="middle" class="svg-text">（後ろへ倒す）</text>
+                            <line x1="0" y1="0" x2="90" y2="0" stroke="black" stroke-width="2"/>
+                            <polygon points="90,0 80,-6 80,6" fill="black"/>
+                        </g>
+                        <!-- 最終状態 (?) -->
+                        <g transform="translate(400, 40)">
+                            <text x="40" y="-12" text-anchor="middle" class="svg-text" font-weight="bold">最終状態</text>
+                            <polygon points="0,30 60,30 80,10 20,10" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="40" y="25" text-anchor="middle" class="svg-text" font-weight="bold">?</text>
+                            <polygon points="0,30 60,30 60,90 0,90" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="30" y="65" text-anchor="middle" class="svg-text" font-weight="bold">?</text>
+                            <polygon points="60,30 80,10 80,70 60,90" fill="white" stroke="black" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <div class="options">
+                    (1) 上面=白、前面=黄<br>
+                    (2) 上面=黒、前面=緑<br>
+                    (3) 上面=黄、前面=赤<br>
+                    (4) 上面=赤、前面=白<br>
+                    (5) 上面=緑、前面=青
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                問1より、対面の3組は <strong>赤⇔青、黄⇔緑、白⇔黒</strong>。初期状態（上=赤、前=白、右=黄）から、見えていない3面は次のように決まる。<br>
+                ・上=赤 ⇒ 底=青<br>
+                ・前=白 ⇒ 後=黒<br>
+                ・右=黄 ⇒ 左=緑<br><br>
+
+                <strong>【操作①：右に倒す】</strong><br>
+                右に倒すと、今までの「上→右、右→底、底→左、左→上」という入れ替わりが起きる。前後は変わらない。<br>
+                <div class="ascii-fig">操作①前               操作①後
+ 上 = 赤                上 = 緑（左から）
+ 前 = 白                前 = 白（不変）
+ 右 = 黄                右 = 赤（上から）
+ 底 = 青                底 = 黄（右から）
+ 後 = 黒                後 = 黒（不変）
+ 左 = 緑                左 = 青（底から）</div>
+                <br>
+
+                <strong>【操作②：後ろに倒す】</strong><br>
+                操作①後の状態から後ろに倒すと、「上→後、後→底、底→前、前→上」という入れ替わりが起きる。左右は変わらない。<br>
+                <div class="ascii-fig">操作②前               操作②後
+ 上 = 緑                上 = 白（前から）
+ 前 = 白                前 = 黄（底から）
+ 右 = 赤                右 = 赤（不変）
+ 底 = 黄                底 = 黒（後から）
+ 後 = 黒                後 = 緑（上から）
+ 左 = 青                左 = 青（不変）</div>
+                <br>
+
+                よって最終状態の上面は<strong>白</strong>、前面は<strong>黄</strong>である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 上面=白、前面=黄 → 上記の手順で得られる正解。<br>
+                ・(2) 上面=黒、前面=緑 → 操作①と②の倒す方向を逆順にした結果に近い誤り。<br>
+                ・(3) 上面=黄、前面=赤 → 操作②で「後ろへ倒す」を「前へ倒す」と取り違えた結果。<br>
+                ・(4) 上面=赤、前面=白 → 操作を行わなかった（または2回の操作で元に戻すと誤った）場合の誤り。<br>
+                ・(5) 上面=緑、前面=青 → 操作①のみを行い、操作②を省略した結果。<br><br>
+
+                したがって、正解は<strong>(1) 上面=白、前面=黄</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
