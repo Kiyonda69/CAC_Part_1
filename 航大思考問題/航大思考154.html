@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題 第154回</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; max-width: 100%; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 13px;
+        }
+        .data-table { margin: 0 auto; border-collapse: collapse; background-color: white; font-size: 14px; }
+        .data-table th, .data-table td {
+            border: 1.5px solid #333; padding: 8px 14px; text-align: center; vertical-align: middle;
+        }
+        .data-table th { background-color: #e8e8e8; font-weight: bold; }
+        .data-table .row-label { background-color: #f4f4f4; font-weight: bold; text-align: left; padding-left: 14px; }
+        .data-table .total-row { background-color: #f0f0f0; font-weight: bold; }
+        .data-table .total-col { background-color: #f0f0f0; font-weight: bold; }
+        .source-note { font-size: 12px; color: #555; margin-top: 6px; text-align: right; }
+        .info-table { margin: 12px auto; border-collapse: collapse; font-size: 13px; }
+        .info-table th, .info-table td { border: 1px solid #555; padding: 5px 12px; text-align: center; }
+        .info-table th { background-color: #eee; }
+        .calc-table { margin: 10px auto; border-collapse: collapse; font-size: 14px; }
+        .calc-table th, .calc-table td { border: 1px solid #555; padding: 6px 12px; text-align: center; }
+        .calc-table th { background-color: #eee; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px; line-height: 1.7;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.95; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn { padding: 12px 30px; font-size: 16px; font-family: inherit; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px; background-color: #f8f9fa;
+            border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header { font-weight: bold; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #333; }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%; background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+            font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+            <div class="question-text">
+                下表は、ある電子部品メーカーの2025年度における部門別四半期売上高（単位：百万円）を示したものである。この表から読み取れる内容として正しいものを、次の選択肢のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】2025年度 部門別四半期売上高（単位：百万円）</div>
+                <div class="figure-content">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>部門</th>
+                                <th>第1四半期</th>
+                                <th>第2四半期</th>
+                                <th>第3四半期</th>
+                                <th>第4四半期</th>
+                                <th class="total-col">年間合計</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td class="row-label">半導体</td><td>480</td><td>540</td><td>612</td><td>720</td><td class="total-col">2,352</td></tr>
+                            <tr><td class="row-label">センサー</td><td>320</td><td>360</td><td>396</td><td>440</td><td class="total-col">1,516</td></tr>
+                            <tr><td class="row-label">モーター</td><td>280</td><td>290</td><td>305</td><td>312</td><td class="total-col">1,187</td></tr>
+                            <tr><td class="row-label">基板</td><td>220</td><td>250</td><td>285</td><td>312</td><td class="total-col">1,067</td></tr>
+                            <tr class="total-row"><td class="row-label total-row">合計</td><td>1,300</td><td>1,440</td><td>1,598</td><td>1,784</td><td class="total-col">6,122</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="source-note">※ 数値はすべて百万円単位、端数は四捨五入により処理</div>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>第4四半期の半導体部門の売上高は、第1四半期の半導体部門の売上高の1.5倍を超えている。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>センサー部門の年間売上高に占める第3四半期の売上高の割合は、約27％である。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>第1四半期から第4四半期にかけての売上高の伸び率（第4四半期÷第1四半期）が最も大きいのは、モーター部門である。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>全部門の年間売上高合計に占める半導体部門の年間売上高の割合は、約38％である。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>第3四半期における基板部門の売上高は、同四半期のモーター部門の売上高の95％以上である。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>各選択肢を順に検証する。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 720 ÷ 480 ＝ 1.500（ちょうど1.5倍）。「1.5倍を<u>超えている</u>」とは言えない。 → 不正解</p>
+                    <p>・(2) 396 ÷ 1,516 ≒ 26.1％。約27％ではなく約26％である。 → 不正解</p>
+                    <p>・(3) 各部門の伸び率を計算すると、半導体 1.500、センサー 1.375、モーター 1.114、基板 1.418。最大は半導体部門であり、モーター部門ではない。 → 不正解</p>
+                    <p>・(4) 2,352 ÷ 6,122 ≒ 38.4％。「約38％」と言える。 → <strong>正解</strong></p>
+                    <p>・(5) 285 ÷ 305 ≒ 93.4％。「95％以上」とは言えない。 → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+            <div class="question-text">
+                下のグラフは、ある国内航空会社における路線A〜Eの月間運航便数（棒グラフ・左軸）と平均搭乗率（折れ線グラフ・右軸）を示したものである。各路線の使用機材の定員は表1に示すとおりである。月間搭乗者数は「運航便数 × 機材定員 × 平均搭乗率」で求められるものとして、次の選択肢のうち正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図1】路線別 月間運航便数および平均搭乗率</div>
+                <div class="figure-content">
+<svg width="600" height="350" viewBox="0 0 600 350">
+    <rect x="60" y="40" width="480" height="260" fill="white" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="300" x2="540" y2="300" stroke="#999" stroke-width="0.5"/>
+    <line x1="60" y1="248" x2="540" y2="248" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <line x1="60" y1="196" x2="540" y2="196" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <line x1="60" y1="144" x2="540" y2="144" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <line x1="60" y1="92" x2="540" y2="92" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <line x1="60" y1="40" x2="540" y2="40" stroke="#ccc" stroke-width="0.5" stroke-dasharray="3,3"/>
+    <text x="55" y="304" class="svg-text" text-anchor="end">0</text>
+    <text x="55" y="252" class="svg-text" text-anchor="end">50</text>
+    <text x="55" y="200" class="svg-text" text-anchor="end">100</text>
+    <text x="55" y="148" class="svg-text" text-anchor="end">150</text>
+    <text x="55" y="96" class="svg-text" text-anchor="end">200</text>
+    <text x="55" y="44" class="svg-text" text-anchor="end">250</text>
+    <text x="20" y="170" class="svg-text" text-anchor="middle" transform="rotate(-90, 20, 170)">運航便数（便/月）</text>
+    <text x="545" y="304" class="svg-text" text-anchor="start">0</text>
+    <text x="545" y="252" class="svg-text" text-anchor="start">20</text>
+    <text x="545" y="200" class="svg-text" text-anchor="start">40</text>
+    <text x="545" y="148" class="svg-text" text-anchor="start">60</text>
+    <text x="545" y="96" class="svg-text" text-anchor="start">80</text>
+    <text x="545" y="44" class="svg-text" text-anchor="start">100</text>
+    <text x="585" y="170" class="svg-text" text-anchor="middle" transform="rotate(90, 585, 170)">平均搭乗率（％）</text>
+    <rect x="95"  y="112.8" width="30" height="187.2" fill="#666" stroke="#000" stroke-width="0.5"/>
+    <rect x="175" y="50.4"  width="30" height="249.6" fill="#666" stroke="#000" stroke-width="0.5"/>
+    <rect x="255" y="175.2" width="30" height="124.8" fill="#666" stroke="#000" stroke-width="0.5"/>
+    <rect x="335" y="144"   width="30" height="156"   fill="#666" stroke="#000" stroke-width="0.5"/>
+    <rect x="415" y="92"    width="30" height="208"   fill="#666" stroke="#000" stroke-width="0.5"/>
+    <text x="110" y="108" class="svg-text" text-anchor="middle">180</text>
+    <text x="190" y="46"  class="svg-text" text-anchor="middle">240</text>
+    <text x="270" y="170" class="svg-text" text-anchor="middle">120</text>
+    <text x="350" y="139" class="svg-text" text-anchor="middle">150</text>
+    <text x="430" y="87"  class="svg-text" text-anchor="middle">200</text>
+    <polyline points="110,92 190,105 270,118 350,79 430,66" fill="none" stroke="#000" stroke-width="2"/>
+    <circle cx="110" cy="92"  r="4" fill="white" stroke="#000" stroke-width="2"/>
+    <circle cx="190" cy="105" r="4" fill="white" stroke="#000" stroke-width="2"/>
+    <circle cx="270" cy="118" r="4" fill="white" stroke="#000" stroke-width="2"/>
+    <circle cx="350" cy="79"  r="4" fill="white" stroke="#000" stroke-width="2"/>
+    <circle cx="430" cy="66"  r="4" fill="white" stroke="#000" stroke-width="2"/>
+    <text x="110" y="82" class="svg-text" text-anchor="middle">80%</text>
+    <text x="190" y="120" class="svg-text" text-anchor="middle">75%</text>
+    <text x="270" y="133" class="svg-text" text-anchor="middle">70%</text>
+    <text x="350" y="69" class="svg-text" text-anchor="middle">85%</text>
+    <text x="430" y="56" class="svg-text" text-anchor="middle">90%</text>
+    <text x="110" y="320" class="svg-text" text-anchor="middle">A路線</text>
+    <text x="190" y="320" class="svg-text" text-anchor="middle">B路線</text>
+    <text x="270" y="320" class="svg-text" text-anchor="middle">C路線</text>
+    <text x="350" y="320" class="svg-text" text-anchor="middle">D路線</text>
+    <text x="430" y="320" class="svg-text" text-anchor="middle">E路線</text>
+    <rect x="200" y="335" width="14" height="10" fill="#666" stroke="#000" stroke-width="0.5"/>
+    <text x="218" y="344" class="svg-text">運航便数</text>
+    <line x1="290" y1="340" x2="310" y2="340" stroke="#000" stroke-width="2"/>
+    <circle cx="300" cy="340" r="3" fill="white" stroke="#000" stroke-width="2"/>
+    <text x="316" y="344" class="svg-text">平均搭乗率</text>
+</svg>
+                </div>
+            </div>
+
+            <div class="figure-container" style="padding:12px;">
+                <div class="figure-title">【表1】各路線の使用機材定員</div>
+                <table class="info-table">
+                    <thead>
+                        <tr><th>路線</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><th>機材定員（席）</th><td>150</td><td>200</td><td>180</td><td>160</td><td>120</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>B路線の月間搭乗者数は、5路線合計の月間搭乗者数の3分の1を超えている。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>A路線の月間搭乗者数とE路線の月間搭乗者数は等しい。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>C路線の月間搭乗者数は、D路線の月間搭乗者数の80％を超えている。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>5路線の平均搭乗率（単純平均）は、80％を超えている。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>E路線の月間搭乗者数は、C路線の月間搭乗者数の1.5倍を超えている。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>【ステップ1：各路線の月間搭乗者数を計算】</strong></p>
+                    <p>月間搭乗者数 ＝ 運航便数 × 機材定員 × 平均搭乗率</p>
+                    <table class="calc-table">
+                        <thead>
+                            <tr><th>路線</th><th>計算式</th><th>月間搭乗者数（人）</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>A</td><td>180 × 150 × 0.80</td><td>21,600</td></tr>
+                            <tr><td>B</td><td>240 × 200 × 0.75</td><td>36,000</td></tr>
+                            <tr><td>C</td><td>120 × 180 × 0.70</td><td>15,120</td></tr>
+                            <tr><td>D</td><td>150 × 160 × 0.85</td><td>20,400</td></tr>
+                            <tr><td>E</td><td>200 × 120 × 0.90</td><td>21,600</td></tr>
+                            <tr><td colspan="2"><strong>合計</strong></td><td><strong>114,720</strong></td></tr>
+                        </tbody>
+                    </table>
+                    <br>
+                    <p><strong>【ステップ2：選択肢の検討】</strong></p>
+                    <p>・(1) 36,000 ÷ 114,720 ≒ 31.4％。1/3（約33.3％）を超えていない。 → 不正解</p>
+                    <p>・(2) A路線：180×150×0.80＝21,600人、E路線：200×120×0.90＝21,600人。両者は等しい。 → <strong>正解</strong></p>
+                    <p>・(3) 15,120 ÷ 20,400 ≒ 74.1％。80％を超えていない。 → 不正解</p>
+                    <p>・(4) (80+75+70+85+90)÷5 ＝ 80.0％。ちょうど80％であり、超えていない。 → 不正解</p>
+                    <p>・(5) 21,600 ÷ 15,120 ≒ 1.43倍。1.5倍を超えていない。 → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考154/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
