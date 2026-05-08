@@ -76,67 +76,69 @@
                         図表仕様:
                         - SVGサイズ: 500x400px
                         - viewBox: 0 0 500 400
-                        - キャビネット投影: u=(45,0), v=(-30,-30), w=(0,-45)
-                        - 立方体原点(0,0,0): (130, 320)
+                        - 斜投影法: 前面原点(130,330), セルサイズ50px, 奥行き25px(右上方向)
+                        - 立方体は前面・右面（奥行き右上方向）・上面が見える視点
 
                         穴の構成:
-                        - 上面から垂直下方向: (x,y)=(1,1),(1,3),(3,1),(3,3) の4つ
-                        - 右側面から左方向: (y,z)=(2,1),(2,3) の2つ
+                        - 上面から垂直下方向: (col,row)=(1,1),(1,3),(3,1),(3,3) の4つ（4隅）
+                        - 右側面から左方向: (row,height)=(2,1),(2,3) の2つ（中央行・上下）
                         -->
                         <svg width="500" height="400" viewBox="0 0 500 400">
-                            <!-- 矢印用マーカー定義 -->
                             <defs>
-                                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
                                     <polygon points="0,0 10,5 0,10" fill="black"/>
                                 </marker>
                             </defs>
 
-                            <!-- 立方体外形（前面） -->
-                            <polygon points="130,320 265,320 265,185 130,185" fill="white" stroke="black" stroke-width="2"/>
-                            <!-- 上面 -->
-                            <polygon points="130,185 265,185 175,95 40,95" fill="white" stroke="black" stroke-width="2"/>
-                            <!-- 右面 -->
-                            <polygon points="265,320 265,185 175,95 175,230" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 面の塗りつぶし（白で背景を確保） -->
+                            <polygon points="130,180 280,180 355,105 205,105" fill="white"/>
+                            <polygon points="130,180 280,180 280,330 130,330" fill="white"/>
+                            <polygon points="280,180 355,105 355,255 280,330" fill="white"/>
 
-                            <!-- 前面の格子 -->
-                            <line x1="175" y1="320" x2="175" y2="185" stroke="black" stroke-width="1"/>
-                            <line x1="220" y1="320" x2="220" y2="185" stroke="black" stroke-width="1"/>
-                            <line x1="130" y1="275" x2="265" y2="275" stroke="black" stroke-width="1"/>
-                            <line x1="130" y1="230" x2="265" y2="230" stroke="black" stroke-width="1"/>
+                            <!-- 前面の格子（縦線・横線） -->
+                            <line x1="180" y1="180" x2="180" y2="330" stroke="black" stroke-width="1"/>
+                            <line x1="230" y1="180" x2="230" y2="330" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="230" x2="280" y2="230" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="280" x2="280" y2="280" stroke="black" stroke-width="1"/>
 
                             <!-- 上面の格子 -->
-                            <line x1="100" y1="155" x2="235" y2="155" stroke="black" stroke-width="1"/>
-                            <line x1="70" y1="125" x2="205" y2="125" stroke="black" stroke-width="1"/>
-                            <line x1="175" y1="185" x2="85" y2="95" stroke="black" stroke-width="1"/>
-                            <line x1="220" y1="185" x2="130" y2="95" stroke="black" stroke-width="1"/>
+                            <line x1="180" y1="180" x2="255" y2="105" stroke="black" stroke-width="1"/>
+                            <line x1="230" y1="180" x2="305" y2="105" stroke="black" stroke-width="1"/>
+                            <line x1="155" y1="155" x2="305" y2="155" stroke="black" stroke-width="1"/>
+                            <line x1="180" y1="130" x2="330" y2="130" stroke="black" stroke-width="1"/>
 
-                            <!-- 右面の格子 -->
-                            <line x1="235" y1="290" x2="235" y2="155" stroke="black" stroke-width="1"/>
-                            <line x1="205" y1="260" x2="205" y2="125" stroke="black" stroke-width="1"/>
-                            <line x1="265" y1="275" x2="175" y2="185" stroke="black" stroke-width="1"/>
-                            <line x1="265" y1="230" x2="175" y2="140" stroke="black" stroke-width="1"/>
+                            <!-- 右側面の格子 -->
+                            <line x1="305" y1="155" x2="305" y2="305" stroke="black" stroke-width="1"/>
+                            <line x1="330" y1="130" x2="330" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="280" y1="230" x2="355" y2="155" stroke="black" stroke-width="1"/>
+                            <line x1="280" y1="280" x2="355" y2="205" stroke="black" stroke-width="1"/>
 
-                            <!-- 上面の穴の点と矢印（4隅） -->
-                            <!-- (1,1): 前左上隅 -->
-                            <line x1="137.5" y1="50" x2="137.5" y2="170" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="137.5" cy="170" r="4" fill="black"/>
-                            <!-- (1,3): 後左上隅 -->
-                            <line x1="77.5" y1="40" x2="77.5" y2="110" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="77.5" cy="110" r="4" fill="black"/>
-                            <!-- (3,1): 前右上隅 -->
-                            <line x1="227.5" y1="50" x2="227.5" y2="170" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="227.5" cy="170" r="4" fill="black"/>
-                            <!-- (3,3): 後右上隅 -->
-                            <line x1="167.5" y1="40" x2="167.5" y2="110" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="167.5" cy="110" r="4" fill="black"/>
+                            <!-- 立方体の外枠（太線） -->
+                            <line x1="130" y1="180" x2="280" y2="180" stroke="black" stroke-width="2.5"/>
+                            <line x1="130" y1="180" x2="130" y2="330" stroke="black" stroke-width="2.5"/>
+                            <line x1="130" y1="330" x2="280" y2="330" stroke="black" stroke-width="2.5"/>
+                            <line x1="280" y1="180" x2="280" y2="330" stroke="black" stroke-width="2.5"/>
+                            <line x1="130" y1="180" x2="205" y2="105" stroke="black" stroke-width="2.5"/>
+                            <line x1="205" y1="105" x2="355" y2="105" stroke="black" stroke-width="2.5"/>
+                            <line x1="280" y1="180" x2="355" y2="105" stroke="black" stroke-width="2.5"/>
+                            <line x1="355" y1="105" x2="355" y2="255" stroke="black" stroke-width="2.5"/>
+                            <line x1="355" y1="255" x2="280" y2="330" stroke="black" stroke-width="2.5"/>
 
-                            <!-- 右面の穴の点と矢印（2つ、中央行を水平左方向） -->
-                            <!-- (y=2,z=1): 右面中央・下段 -->
-                            <line x1="320" y1="252.5" x2="220" y2="252.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="220" cy="252.5" r="4" fill="black"/>
-                            <!-- (y=2,z=3): 右面中央・上段 -->
-                            <line x1="320" y1="162.5" x2="220" y2="162.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
-                            <circle cx="220" cy="162.5" r="4" fill="black"/>
+                            <!-- 上面の穴の点と矢印（4隅・垂直下方向） -->
+                            <line x1="167.5" y1="50" x2="167.5" y2="167.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="167.5" cy="167.5" r="5" fill="black"/>
+                            <line x1="217.5" y1="50" x2="217.5" y2="117.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="217.5" cy="117.5" r="5" fill="black"/>
+                            <line x1="267.5" y1="50" x2="267.5" y2="167.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="267.5" cy="167.5" r="5" fill="black"/>
+                            <line x1="317.5" y1="50" x2="317.5" y2="117.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="317.5" cy="117.5" r="5" fill="black"/>
+
+                            <!-- 右側面の穴の点と矢印（中央行・水平左方向） -->
+                            <line x1="450" y1="267.5" x2="317.5" y2="267.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="317.5" cy="267.5" r="5" fill="black"/>
+                            <line x1="450" y1="167.5" x2="317.5" y2="167.5" stroke="black" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="317.5" cy="167.5" r="5" fill="black"/>
                         </svg>
                     </div>
                 </div>
