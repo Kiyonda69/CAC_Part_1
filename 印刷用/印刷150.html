@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 10px 0; font-size: 14px; line-height: 1.7; }
+        .question { margin-bottom: 20px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 12px; text-align: justify; }
+        .figure-container { margin: 12px 0; padding: 12px; background-color: white; text-align: center; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .option-table { margin: 10px auto; border-collapse: collapse; }
+        .option-table td, .option-table th { padding: 6px 18px; text-align: center; }
+        .option-table th { font-weight: bold; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto;
+                min-height: auto; margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．飛行機の進行方向を映し、ある方位面の断面を示す垂直線と、ある高度面の断面を示す水平線が表示されている計器がある。下図の左端は飛行機が設定された方位と高度を維持して飛行している適正な状態の表示である。続く4つの表示は時間経過に伴う計器の遷移を示しており、表示と表示の間 A・B・C で機首上げ・機首下げ・右旋回・左旋回のいずれか1つの操作が行われた。A・B・C で行われた操作の組み合わせとして正しいものを次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <!--
+                    図表仕様: 540x110px, viewBox 0 0 540 110
+                    各表示枠 80x80, 機体は中央(40,40)に8x8の白塗り四角
+                    線位置: 左/上=20, 中央=40, 右/下=60
+                    遷移: D1(V20,H20) →A→ D2(V20,H40) →B→ D3(V40,H40) →C→ D4(V40,H60)
+                    -->
+                    <svg width="540" height="110" viewBox="0 0 540 110">
+                        <!-- D1: V左, H上 -->
+                        <g transform="translate(10,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="20" y1="0" x2="20" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="20" x2="80" y2="20" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印A -->
+                        <text x="120" y="50" class="svg-text" text-anchor="middle" font-weight="bold">A</text>
+                        <text x="120" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D2: V左, H中央 -->
+                        <g transform="translate(150,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="20" y1="0" x2="20" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="40" x2="80" y2="40" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印B -->
+                        <text x="260" y="50" class="svg-text" text-anchor="middle" font-weight="bold">B</text>
+                        <text x="260" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D3: V中央, H中央 -->
+                        <g transform="translate(290,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="40" x2="80" y2="40" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印C -->
+                        <text x="400" y="50" class="svg-text" text-anchor="middle" font-weight="bold">C</text>
+                        <text x="400" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D4: V中央, H下 -->
+                        <g transform="translate(430,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="60" x2="80" y2="60" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <table class="option-table">
+                    <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+                    <tr><td>(1)</td><td>機首下げ</td><td>左旋回</td><td>機首上げ</td></tr>
+                    <tr><td>(2)</td><td>機首上げ</td><td>左旋回</td><td>機首上げ</td></tr>
+                    <tr><td>(3)</td><td>機首上げ</td><td>右旋回</td><td>機首上げ</td></tr>
+                    <tr><td>(4)</td><td>機首上げ</td><td>左旋回</td><td>機首下げ</td></tr>
+                    <tr><td>(5)</td><td>機首下げ</td><td>右旋回</td><td>機首下げ</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+                計器の表示は飛行機（中央の白い四角）から見た方位面・高度面の相対位置を示す。<br><br>
+
+                <strong>【操作と線の動きの対応】</strong><br>
+                ・機首上げ … 機体が高度面より上昇するため、水平線（高度面）は表示上「下」に動く。<br>
+                ・機首下げ … 機体が高度面より下降するため、水平線は表示上「上」に動く。<br>
+                ・右旋回 … 機体が方位面の右側へ移動するため、垂直線（方位面）は表示上「左」に動く。<br>
+                ・左旋回 … 機体が方位面の左側へ移動するため、垂直線は表示上「右」に動く。<br><br>
+
+                <strong>【各遷移で動いた線】</strong><br>
+                ・A：D1→D2 で水平線が「上」から「中央」へ＝下方向に移動 → <strong>機首上げ</strong><br>
+                ・B：D2→D3 で垂直線が「左」から「中央」へ＝右方向に移動 → <strong>左旋回</strong><br>
+                ・C：D3→D4 で水平線が「中央」から「下」へ＝下方向に移動 → <strong>機首上げ</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) A=機首下げ → A の水平線は下方向に移動しているので不適。<br>
+                ・(2) A=機首上げ／B=左旋回／C=機首上げ → 全遷移と一致（正解）。<br>
+                ・(3) B=右旋回 → 垂直線は右方向に動いており不適。<br>
+                ・(4) C=機首下げ → C の水平線は下方向に動いており不適。<br>
+                ・(5) A=機首下げ／B=右旋回 → いずれも線の動きと反対方向で不適。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ計器について、下図に示すように 5 つの表示が連続して観測された。表示と表示の間 A・B・C・D で機首上げ・機首下げ・右旋回・左旋回のいずれか1つの操作が行われた。線のずれ幅は均等に1段階ずつであり、どの遷移も垂直線か水平線のどちらか一方だけが動く。A・B・C・D で行われた操作の組み合わせとして正しいものを次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <!--
+                    図表仕様: 620x110px, viewBox 0 0 620 110
+                    各表示枠 80x80, 機体は中央(40,40)に8x8の白塗り四角
+                    線位置: やや左/上=32, 中央=40 (1段階差は8px)
+                    遷移: D1(V32,H40) →A→ D2(V40,H40) →B→ D3(V40,H32)
+                          →C→ D4(V32,H32) →D→ D5(V32,H40)
+                    -->
+                    <svg width="620" height="110" viewBox="0 0 620 110">
+                        <!-- D1: Vやや左, H中央 -->
+                        <g transform="translate(5,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="32" y1="0" x2="32" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="40" x2="80" y2="40" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印A -->
+                        <text x="115" y="50" class="svg-text" text-anchor="middle" font-weight="bold">A</text>
+                        <text x="115" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D2: V中央, H中央 -->
+                        <g transform="translate(140,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="40" x2="80" y2="40" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印B -->
+                        <text x="250" y="50" class="svg-text" text-anchor="middle" font-weight="bold">B</text>
+                        <text x="250" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D3: V中央, Hやや上 -->
+                        <g transform="translate(275,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="0" x2="40" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="32" x2="80" y2="32" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印C -->
+                        <text x="385" y="50" class="svg-text" text-anchor="middle" font-weight="bold">C</text>
+                        <text x="385" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D4: Vやや左, Hやや上 -->
+                        <g transform="translate(410,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="32" y1="0" x2="32" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="32" x2="80" y2="32" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                        <!-- 矢印D -->
+                        <text x="520" y="50" class="svg-text" text-anchor="middle" font-weight="bold">D</text>
+                        <text x="520" y="70" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                        <!-- D5: Vやや左, H中央 -->
+                        <g transform="translate(545,15)">
+                            <rect x="0" y="0" width="80" height="80" fill="white" stroke="black" stroke-width="2"/>
+                            <line x1="32" y1="0" x2="32" y2="80" stroke="black" stroke-width="1.5"/>
+                            <line x1="0" y1="40" x2="80" y2="40" stroke="black" stroke-width="1.5"/>
+                            <rect x="36" y="36" width="8" height="8" fill="white" stroke="black" stroke-width="1.5"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <table class="option-table">
+                    <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+                    <tr><td>(1)</td><td>右旋回</td><td>機首下げ</td><td>左旋回</td><td>機首上げ</td></tr>
+                    <tr><td>(2)</td><td>左旋回</td><td>機首上げ</td><td>右旋回</td><td>機首下げ</td></tr>
+                    <tr><td>(3)</td><td>左旋回</td><td>機首下げ</td><td>右旋回</td><td>機首上げ</td></tr>
+                    <tr><td>(4)</td><td>右旋回</td><td>機首上げ</td><td>左旋回</td><td>機首下げ</td></tr>
+                    <tr><td>(5)</td><td>左旋回</td><td>機首下げ</td><td>左旋回</td><td>機首上げ</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+                操作と線の動きの対応は問1と同じ。本問では線のずれは「やや左／中央」「中央／やや上」の2段階のみで、各遷移は1段階だけ動く。<br><br>
+
+                <strong>【各遷移で動いた線】</strong><br>
+                ・A：D1→D2 で垂直線が「やや左」から「中央」へ＝右方向に移動 → <strong>左旋回</strong><br>
+                ・B：D2→D3 で水平線が「中央」から「やや上」へ＝上方向に移動 → <strong>機首下げ</strong><br>
+                ・C：D3→D4 で垂直線が「中央」から「やや左」へ＝左方向に移動 → <strong>右旋回</strong><br>
+                ・D：D4→D5 で水平線が「やや上」から「中央」へ＝下方向に移動 → <strong>機首上げ</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) A=右旋回 → 垂直線は右方向に動いており不適。<br>
+                ・(2) B=機首上げ → 水平線は上方向（機首下げ方向）に動いており不適。<br>
+                ・(3) A=左旋回／B=機首下げ／C=右旋回／D=機首上げ → 全遷移と一致（正解）。<br>
+                ・(4) A=右旋回／B=機首上げ → ともに動きと反対で不適。<br>
+                ・(5) C=左旋回 → 垂直線は左方向に動いており不適。<br><br>
+
+                <strong>【別解：観察ポイント】</strong><br>
+                D1とD5の表示は同一であり、4回の操作で元に戻ったことが分かる。これは「左右で打ち消し合う旋回操作（左旋回1回＋右旋回1回）」と「上下で打ち消し合うピッチ操作（機首下げ1回＋機首上げ1回）」が必ず含まれることを意味する。選択肢のうちこの条件を満たすのは(2)と(3)だが、Bの遷移で水平線が上に動く事実から(3)が正解と確定する。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
