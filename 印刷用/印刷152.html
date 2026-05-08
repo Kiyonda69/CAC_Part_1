@@ -1,0 +1,277 @@
+<!--
+================================================================================
+印刷152.html - セット152（印刷用）
+問1: 3x3x3立方体に穴を開けたときの穴なし小立方体の個数（空間視覚化 / 標準難度）
+問2: 正三角形上の6つの石の配置で必ず正しいといえないものを選ぶ（論理推論 / 高難度）
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #dddddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の大きな立方体は小さな立方体を27個重ねたものである。ここに黒い点から点線の矢印のように垂直に穴を突き通したとき、穴の開いていない小さな立方体はいくつあるか。正しいものを1つ選び解答用紙にマークせよ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図】3×3×3立方体と穴の位置</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 500x400px
+                        - viewBox: 0 0 500 400
+                        - キャビネット投影: u=(45,0), v=(-30,-30), w=(0,-45)
+                        - 立方体原点(0,0,0): (130, 320)
+
+                        穴の構成:
+                        - 上面から垂直下方向: (x,y)=(1,1),(1,3),(3,1),(3,3) の4つ
+                        - 手前面から後方向: (x,z)=(2,1),(2,3) の2つ
+                        -->
+                        <svg width="500" height="400" viewBox="0 0 500 400">
+                            <!-- 矢印用マーカー定義 -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+                                    <polygon points="0,0 10,5 0,10" fill="black"/>
+                                </marker>
+                            </defs>
+
+                            <!-- 立方体外形（前面） -->
+                            <polygon points="130,320 265,320 265,185 130,185" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 上面 -->
+                            <polygon points="130,185 265,185 175,95 40,95" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 右面 -->
+                            <polygon points="265,320 265,185 175,95 175,230" fill="white" stroke="black" stroke-width="2"/>
+
+                            <!-- 前面の格子 -->
+                            <line x1="175" y1="320" x2="175" y2="185" stroke="black" stroke-width="1"/>
+                            <line x1="220" y1="320" x2="220" y2="185" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="275" x2="265" y2="275" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="230" x2="265" y2="230" stroke="black" stroke-width="1"/>
+
+                            <!-- 上面の格子 -->
+                            <line x1="100" y1="155" x2="235" y2="155" stroke="black" stroke-width="1"/>
+                            <line x1="70" y1="125" x2="205" y2="125" stroke="black" stroke-width="1"/>
+                            <line x1="175" y1="185" x2="85" y2="95" stroke="black" stroke-width="1"/>
+                            <line x1="220" y1="185" x2="130" y2="95" stroke="black" stroke-width="1"/>
+
+                            <!-- 右面の格子 -->
+                            <line x1="235" y1="290" x2="235" y2="155" stroke="black" stroke-width="1"/>
+                            <line x1="205" y1="260" x2="205" y2="125" stroke="black" stroke-width="1"/>
+                            <line x1="265" y1="275" x2="175" y2="185" stroke="black" stroke-width="1"/>
+                            <line x1="265" y1="230" x2="175" y2="140" stroke="black" stroke-width="1"/>
+
+                            <!-- 上面の穴の点と矢印（4隅） -->
+                            <!-- (1,1): 前左上隅 -->
+                            <line x1="137.5" y1="50" x2="137.5" y2="170" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="137.5" cy="170" r="4" fill="black"/>
+                            <!-- (1,3): 後左上隅 -->
+                            <line x1="77.5" y1="40" x2="77.5" y2="110" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="77.5" cy="110" r="4" fill="black"/>
+                            <!-- (3,1): 前右上隅 -->
+                            <line x1="227.5" y1="50" x2="227.5" y2="170" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="227.5" cy="170" r="4" fill="black"/>
+                            <!-- (3,3): 後右上隅 -->
+                            <line x1="167.5" y1="40" x2="167.5" y2="110" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="167.5" cy="110" r="4" fill="black"/>
+
+                            <!-- 前面の穴の点と矢印（2つ、中央列） -->
+                            <!-- (2,1): 前面中央列の下段 -->
+                            <line x1="262.5" y1="362.5" x2="197.5" y2="297.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="197.5" cy="297.5" r="4" fill="black"/>
+                            <!-- (2,3): 前面中央列の上段 -->
+                            <line x1="295" y1="305" x2="197.5" y2="207.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowhead)"/>
+                            <circle cx="197.5" cy="207.5" r="4" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 6個 &nbsp;&nbsp;&nbsp;&nbsp; (2) 7個 &nbsp;&nbsp;&nbsp;&nbsp; (3) 8個 &nbsp;&nbsp;&nbsp;&nbsp; (4) 9個 &nbsp;&nbsp;&nbsp;&nbsp; (5) 10個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                3×3×3=27個の小立方体に、垂直な穴を6本通したときに、穴の通っていない小立方体の個数を数える。<br><br>
+
+                <strong>【穴の構成】</strong><br>
+                ・上面から垂直に下方向: 4本（(x,y)=(1,1),(1,3),(3,1),(3,3) の4隅）<br>
+                ・手前面から奥方向: 2本（(x,z)=(2,1),(2,3) の中央列・下段と上段）<br><br>
+
+                <strong>【穴が通った小立方体の集計】</strong><br>
+                上面からの垂直穴は、4隅の柱（(x,y)=(1,1),(1,3),(3,1),(3,3) の各3層）すなわち合計12個の小立方体を貫く。<br>
+                手前面からの2本は、それぞれ中央列の3個（y=1,2,3）に穴を通す。<br>
+                ・(x,z)=(2,1): (2,1,1),(2,2,1),(2,3,1) の3個（上面穴と重複なし）<br>
+                ・(x,z)=(2,3): (2,1,3),(2,2,3),(2,3,3) の3個（上面穴と重複なし）<br>
+                よって穴の通った小立方体は 12+3+3 = 18個。<br><br>
+
+                <strong>【穴が通っていない小立方体】</strong><br>
+                27 − 18 = 9個。<br>
+                具体的には、各層において以下のとおり：<br>
+                ・最下層(z=1): (1,2,1),(3,2,1) の2個<br>
+                ・中層(z=2): (1,2,2),(2,1,2),(2,2,2),(2,3,2),(3,2,2) の5個<br>
+                ・最上層(z=3): (1,2,3),(3,2,3) の2個<br>
+                合計 2+5+2 = 9個。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図は小さな正三角形を4つ組み合わせて作った1つの大きな正三角形である。正三角形上のアからカの点上にP、Q、R、S、T、Uの6つの石を置く。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図】大きな正三角形と6つの点</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 360x320px
+                        - viewBox: 0 0 360 320
+                        - 大きな正三角形の頂点: ア(180,40), エ(40,280), カ(320,280)
+                        - 中点: イ(110,160), ウ(250,160), オ(180,280)
+                        -->
+                        <svg width="360" height="320" viewBox="0 0 360 320">
+                            <!-- 大きな三角形 -->
+                            <polygon points="180,40 40,280 320,280" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 中央の逆三角形（中点を結ぶ） -->
+                            <polygon points="110,160 250,160 180,280" fill="none" stroke="black" stroke-width="2"/>
+
+                            <!-- 6つの頂点ラベル -->
+                            <text x="180" y="30" class="svg-text" text-anchor="middle">ア</text>
+                            <text x="95" y="155" class="svg-text" text-anchor="end">イ</text>
+                            <text x="265" y="155" class="svg-text" text-anchor="start">ウ</text>
+                            <text x="32" y="298" class="svg-text" text-anchor="end">エ</text>
+                            <text x="180" y="300" class="svg-text" text-anchor="middle">オ</text>
+                            <text x="328" y="298" class="svg-text" text-anchor="start">カ</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="question-text">
+                    6つの石の位置について、以下のi)からiii)の情報がわかっている。<br><br>
+                    i) PはQ以外とは等距離の場所にいる。<br>
+                    ii) Q、T、Uは一直線上に並んでいる。<br>
+                    iii) SはRの真右にいる。<br><br>
+                    このとき、必ず正しいといえないものはどれか。正しいものを1つ選び解答用紙にマークせよ。
+                </div>
+
+                <div class="options">
+                    (1) Pは三角形の頂点（ア、エ、カ）にはいない。<br>
+                    (2) Q、R、Sは底辺(エ-オ-カ)上に並んでいる。<br>
+                    (3) PとSは1つの小さな正三角形上にいる。<br>
+                    (4) Tはアにいる。<br>
+                    (5) TとUは1つの小さな正三角形上にいる。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                各点の幾何学的関係を整理してから条件を順に適用する。<br><br>
+
+                <strong>【点の幾何学的関係】</strong><br>
+                辺の長さを2とする座標系で、ア(1,√3),イ(0.5,√3/2),ウ(1.5,√3/2),エ(0,0),オ(1,0),カ(2,0)。<br>
+                ある1点から他の4点までの距離が等しくなるのは、その点が中点（イ・ウ・オ）にあり、4点が距離1にある時。<br>
+                ・オから等距離(1)の4点: イ、ウ、エ、カ（アは距離√3で別）<br>
+                ・イから等距離(1)の4点: ア、ウ、エ、オ（カは距離√3で別）<br>
+                ・ウから等距離(1)の4点: ア、イ、オ、カ（エは距離√3で別）<br>
+                3点が一直線上に並ぶのは、外側の三辺ア-イ-エ、ア-ウ-カ、エ-オ-カに乗る場合のみ。<br><br>
+
+                <strong>【条件の適用】</strong><br>
+                条件i)より、Pはイ・ウ・オのいずれか。それに対応してQはカ・エ・アのいずれか。<br>
+                条件iii)「SはRの真右」より、(R,S)は同じy座標で、Sのx座標が大きい。可能な対は (イ,ウ),(エ,オ),(エ,カ),(オ,カ)。<br>
+                条件ii)「Q,T,Uが一直線上」を満たすかを場合分けで確認する。<br><br>
+
+                ・P=オの場合: Q=ア。R,S,T,Uは{イ,ウ,エ,カ}に置かれるが、(R,S)候補は (イ,ウ) または (エ,カ) のみ。残るT,Uは {エ,カ} または {イ,ウ}。Q=アを通る直線(ア-イ-エ または ア-ウ-カ)上に、これら2点組のT,Uが揃う組合せは存在しないため不適。<br>
+                ・P=イの場合: Q=カ。R,S,T,Uは{ア,ウ,エ,オ}。(R,S)=(エ,オ)のみ可能。T,Uは{ア,ウ}。Q=カ,T,Uがア-ウ-カの線上に揃う。✓<br>
+                ・P=ウの場合: Q=エ。R,S,T,Uは{ア,イ,オ,カ}。(R,S)=(オ,カ)のみ可能。T,Uは{ア,イ}。Q=エ,T,Uがア-イ-エの線上に揃う。✓<br><br>
+
+                <strong>【有効な配置】</strong><br>
+                ・配置A: P=イ,Q=カ,R=エ,S=オ,T=ア,U=ウ<br>
+                ・配置B: P=イ,Q=カ,R=エ,S=オ,T=ウ,U=ア<br>
+                ・配置C: P=ウ,Q=エ,R=オ,S=カ,T=ア,U=イ<br>
+                ・配置D: P=ウ,Q=エ,R=オ,S=カ,T=イ,U=ア<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) Pはイまたはウ。いずれも頂点(ア,エ,カ)ではない。常に正しい。<br>
+                ・(2) Q,R,Sはいずれも{エ,オ,カ}内にあり、底辺エ-オ-カ上に並ぶ。常に正しい。<br>
+                ・(3) Pとsの組: 配置A,B(イとオ:小三角形イ-エ-オ上),配置C,D(ウとカ:小三角形ウ-オ-カ上)。常に正しい。<br>
+                ・(4) Tはア(配置A,C)またはイ・ウ(配置B,D)。配置B,DではTはアにいないため、必ず正しいとはいえない。<br>
+                ・(5) TとUの組はア-ウ・ア-イのいずれか。共に上の小三角形ア-イ-ウに属す。常に正しい。<br><br>
+
+                したがって、必ず正しいといえないのは<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
