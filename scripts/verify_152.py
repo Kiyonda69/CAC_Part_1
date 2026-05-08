@@ -20,7 +20,7 @@ def verify_problem1():
 
     穴の構成:
     - 上面から垂直下方向: (x,y) = (1,1), (1,3), (3,1), (3,3) 4つ（四隅）
-    - 手前面から後方向: (x,z) = (2,1), (2,3) 2つ（中央列の上下）
+    - 右側面から水平左方向: (y,z) = (2,1), (2,3) 2つ（中央行の上下）
     """
     drilled = set()
 
@@ -30,10 +30,10 @@ def verify_problem1():
         for z in range(1, 4):
             drilled.add((x, y, z))
 
-    # 手前面（y=1面）から奥方向に穴を開ける
-    front_holes = [(2, 1), (2, 3)]
-    for x, z in front_holes:
-        for y in range(1, 4):
+    # 右側面（x=3面）から左方向に穴を開ける
+    right_holes = [(2, 1), (2, 3)]
+    for y, z in right_holes:
+        for x in range(1, 4):
             drilled.add((x, y, z))
 
     total_cubes = 27
