@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #dddddd; text-align: center; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .svg-label { font-weight: bold; font-size: 16px; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid; transform: none !important; width: 100%; height: auto; min-height: auto; margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の立方体を3点（●）を通る平面で切ったとき、切り口の図形は(1)～(5)のどれになりますか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - 立方体SVG: 400x320px, viewBox: 0 0 400 320
+                - 立方体投影: V1=(0,0,0)を(140,250)に配置、単位辺=100px、奥行き(40,-40)
+                - V1=(140,250) V2=(240,250) V3=(280,210) V4=(180,210)
+                - V5=(140,150) V6=(240,150) V7=(280,110) V8=(180,110)
+                - 赤点P1=(0.5,0,0)→(190,250) [V1V2中点]
+                - 赤点P2=(1,1,0.5)→(280,160) [V3V7中点]
+                - 赤点P3=(0,0.5,1)→(160,130) [V8V5中点]
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="400" height="320" viewBox="0 0 400 320">
+                            <!-- 立方体: 隠れ線（破線） -->
+                            <line x1="140" y1="250" x2="180" y2="210" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <line x1="180" y1="210" x2="180" y2="110" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <line x1="180" y1="210" x2="280" y2="210" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <!-- 立方体: 可視辺 -->
+                            <line x1="140" y1="250" x2="240" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="250" x2="280" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="280" y1="210" x2="280" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="280" y1="110" x2="180" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="180" y1="110" x2="140" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="140" y1="150" x2="140" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="250" x2="240" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="140" y1="150" x2="240" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="150" x2="280" y2="110" stroke="black" stroke-width="2"/>
+                            <!-- 赤点（3点） -->
+                            <circle cx="190" cy="250" r="6" fill="red"/>
+                            <circle cx="280" cy="160" r="6" fill="red"/>
+                            <circle cx="160" cy="130" r="6" fill="red"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: 5択 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="650" height="140" viewBox="0 0 650 140">
+                            <!-- (1) 正六角形 ← 正解 -->
+                            <g transform="translate(10, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(1)</text>
+                                <polygon points="60,40 84,54 84,86 60,100 36,86 36,54" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 正三角形 -->
+                            <g transform="translate(140, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(2)</text>
+                                <polygon points="60,38 36,96 84,96" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 正方形 -->
+                            <g transform="translate(270, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(3)</text>
+                                <polygon points="36,40 84,40 84,96 36,96" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 正五角形 -->
+                            <g transform="translate(400, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(4)</text>
+                                <polygon points="60,38 36,57 46,92 74,92 84,57" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 等脚台形 -->
+                            <g transform="translate(530, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(5)</text>
+                                <polygon points="46,42 74,42 88,96 32,96" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br>
+                立方体の1辺を1とし、頂点を次のように設定する。<br>
+                V1(0,0,0)、V2(1,0,0)、V3(1,1,0)、V4(0,1,0)（底面）<br>
+                V5(0,0,1)、V6(1,0,1)、V7(1,1,1)、V8(0,1,1)（上面）<br><br>
+
+                <strong>【3点の座標】</strong><br>
+                ・P1：辺V1V2の中点(1/2, 0, 0)<br>
+                ・P2：辺V3V7の中点(1, 1, 1/2)<br>
+                ・P3：辺V8V5の中点(0, 1/2, 1)<br><br>
+
+                <strong>【平面の式】</strong><br>
+                3点を通る平面の方程式は <strong>x − y + z = 1/2</strong>。<br><br>
+
+                <strong>【切り口の頂点】</strong><br>
+                平面と立方体の各辺の交点は次の6点：<br>
+                ・(1/2, 0, 0)、(1, 1/2, 0)、(1, 1, 1/2)<br>
+                ・(1/2, 1, 1)、(0, 1/2, 1)、(0, 0, 1/2)<br>
+                これらは立方体の中心(1/2, 1/2, 1/2)から等距離（√(1/2)）にあり、<br>
+                隣り合う頂点間の距離はすべて √(1/2) で等しい。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 正六角形 → 6辺すべて等長、内角120°、空間対角線V1V7に垂直 → 正解<br>
+                ・(2) 三角形 → 切り口の頂点数が6なので不適<br>
+                ・(3) 正方形 → 4辺の図形は得られない（4頂点ではない）<br>
+                ・(4) 五角形 → 平面が立方体の6面すべてと交わるため5辺ではない<br>
+                ・(5) 台形 → 同上、4辺の図形は不適<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の立方体を3点（●）を通る平面で切ったとき、切り口の図形は(1)～(5)のどれになりますか。（6点）</div>
+
+                <!--
+                図表仕様（問2）:
+                - 立方体投影は問1と同じ
+                - 赤点P1=(0.75,0,0)→(215,250) [V1V2を3:1に内分する点]
+                - 赤点P2=(0,0.5,1)→(160,130) [V8V5中点]
+                - 赤点P3=(0.25,0,1)→(165,150) [V5V6を1:3に内分する点]
+                -->
+                <div class="figure-container">
+                    <div class="figure-content">
+                        <svg width="400" height="320" viewBox="0 0 400 320">
+                            <!-- 隠れ線 -->
+                            <line x1="140" y1="250" x2="180" y2="210" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <line x1="180" y1="210" x2="180" y2="110" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <line x1="180" y1="210" x2="280" y2="210" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <!-- 可視辺 -->
+                            <line x1="140" y1="250" x2="240" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="250" x2="280" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="280" y1="210" x2="280" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="280" y1="110" x2="180" y2="110" stroke="black" stroke-width="2"/>
+                            <line x1="180" y1="110" x2="140" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="140" y1="150" x2="140" y2="250" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="250" x2="240" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="140" y1="150" x2="240" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="240" y1="150" x2="280" y2="110" stroke="black" stroke-width="2"/>
+                            <!-- 赤点（3点） -->
+                            <circle cx="215" cy="250" r="6" fill="red"/>
+                            <circle cx="160" cy="130" r="6" fill="red"/>
+                            <circle cx="165" cy="150" r="6" fill="red"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: 5択 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="650" height="140" viewBox="0 0 650 140">
+                            <!-- (1) 正五角形 -->
+                            <g transform="translate(10, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(1)</text>
+                                <polygon points="60,38 36,57 46,92 74,92 84,57" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 等脚台形 -->
+                            <g transform="translate(140, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(2)</text>
+                                <polygon points="46,42 74,42 88,96 32,96" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 正六角形 -->
+                            <g transform="translate(270, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(3)</text>
+                                <polygon points="60,40 84,54 84,86 60,100 36,86 36,54" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 線対称な五角形（実際の切り口） ← 正解 -->
+                            <g transform="translate(400, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(4)</text>
+                                <polygon points="60,40 32,66 41,98 79,98 88,66" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 平行四辺形（菱形） -->
+                            <g transform="translate(530, 0)">
+                                <text x="60" y="20" class="svg-text svg-label" text-anchor="middle">(5)</text>
+                                <polygon points="60,40 84,68 60,96 36,68" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                問1と同じ頂点設定を用いる。<br><br>
+
+                <strong>【3点の座標】</strong><br>
+                ・P1：辺V1V2を3:1に内分する点(3/4, 0, 0)<br>
+                ・P2：辺V8V5の中点(0, 1/2, 1)<br>
+                ・P3：辺V5V6を1:3に内分する点(1/4, 0, 1)<br><br>
+
+                <strong>【平面の式】</strong><br>
+                3点を通る平面の方程式は <strong>2x + y + z = 3/2</strong>。<br><br>
+
+                <strong>【頂点の半空間】</strong><br>
+                各頂点で 2x+y+z の値を計算すると：<br>
+                ・V1=0、V2=2、V3=3、V4=1、V5=1、V6=3、V7=4、V8=2<br>
+                値が3/2未満：V1、V4、V5（3頂点）。これら3点は一直線上ではなくL字状に配置される。<br>
+                残り5頂点は3/2より大。よって平面が切るのは <strong>5辺</strong> → 切り口は<strong>五角形</strong>。<br><br>
+
+                <strong>【切り口の頂点】</strong><br>
+                平面と各辺の交点：<br>
+                ・(3/4, 0, 0)：辺V1V2上<br>
+                ・(1/4, 1, 0)：辺V4V3上<br>
+                ・(0, 1, 1/2)：辺V4V8の中点<br>
+                ・(0, 1/2, 1)：辺V8V5の中点<br>
+                ・(1/4, 0, 1)：辺V5V6上<br>
+                辺の長さは順に √(5)/4、√(5)/2、√(5)/2、√(5)/4、√(2)/2。<br>
+                P1とP3を結ぶ線分の中点を通り、切り口は <strong>1本の対称軸を持つ線対称な五角形</strong>。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 正五角形 → 5辺すべてが等長ではないので不適<br>
+                ・(2) 等脚台形 → 4辺の図形は不適（5辺ある）<br>
+                ・(3) 正六角形 → 6辺の図形は不適<br>
+                ・(4) 線対称な五角形 → 形状一致 → 正解<br>
+                ・(5) 菱形 → 4辺の図形は不適<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
