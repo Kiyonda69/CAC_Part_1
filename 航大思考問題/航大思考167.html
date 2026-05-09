@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題 第167回</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td {
+            border: 2px solid #333; padding: 8px 14px;
+            min-width: 70px; text-align: center; vertical-align: middle;
+        }
+        .figure-table th {
+            border: 2px solid #333; padding: 8px 14px;
+            background-color: #e8e8e8; font-weight: bold;
+        }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%; background-color: #ddd;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の表は、A、B、Cの3県についてある年の火災発生件数、発生率及び死傷率を示したものである。この表に関するア～ウの正誤をいずれも正しく示しているのはどれか。<br>
+                なお、表中の「発生率」は1万世帯あたりの火災発生件数、「死傷率」は火災発生件数に対する死傷者数の割合である。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】A、B、C 3県の火災データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th></th>
+                            <th>A県</th>
+                            <th>B県</th>
+                            <th>C県</th>
+                        </tr>
+                        <tr>
+                            <th>火災発生件数（件）</th>
+                            <td>2,400</td>
+                            <td>1,800</td>
+                            <td>600</td>
+                        </tr>
+                        <tr>
+                            <th>発生率（件／万世帯）</th>
+                            <td>12.0</td>
+                            <td>9.0</td>
+                            <td>24.0</td>
+                        </tr>
+                        <tr>
+                            <th>死傷率（％）</th>
+                            <td>15.0</td>
+                            <td>20.0</td>
+                            <td>30.0</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin: 15px 0;">
+                ア：A県の死傷者数はB県の死傷者数の2倍以上である。<br>
+                イ：C県の世帯数は20万世帯を超えている。<br>
+                ウ：A県、B県、C県の火災発生件数と死傷者数を合わせた死傷率は20％以上である。
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>ア：正、イ：正、ウ：正
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>ア：誤、イ：正、ウ：誤
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>ア：正、イ：誤、ウ：誤
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>ア：正、イ：誤、ウ：正
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>ア：誤、イ：誤、ウ：正
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (2)）の解説</div>
+                <div class="explanation-content">
+                    <p><strong>ア　誤り</strong></p>
+                    <p>A県の死傷者数 ＝ 2,400 × 0.15 ＝ 360（人）</p>
+                    <p>B県の死傷者数 ＝ 1,800 × 0.20 ＝ 360（人）</p>
+                    <p>A県の死傷者数（360人）とB県の死傷者数（360人）は同数で、2倍以上ではない。</p>
+                    <br>
+                    <p><strong>イ　正しい</strong></p>
+                    <p>C県の世帯数 ＝ 600 ÷ 24.0 × 10,000 ＝ 250,000（世帯）＝ 25万世帯</p>
+                    <p>20万世帯を超えている。</p>
+                    <br>
+                    <p><strong>ウ　誤り</strong></p>
+                    <p>A県の死傷者数：2,400 × 0.15 ＝ 360</p>
+                    <p>B県の死傷者数：1,800 × 0.20 ＝ 360</p>
+                    <p>C県の死傷者数：600 × 0.30 ＝ 180</p>
+                    <p>死傷者数の合計：360 ＋ 360 ＋ 180 ＝ 900</p>
+                    <p>火災発生件数の合計：2,400 ＋ 1,800 ＋ 600 ＝ 4,800</p>
+                    <p>合計死傷率 ＝ 900 ÷ 4,800 ＝ 0.1875 ＝ 約18.75％ → 20％未満</p>
+                    <br>
+                    <p>以上より、ア＝誤、イ＝正、ウ＝誤 となり、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある自動車会社はA～Dの4つの車種を製造している。この会社の3つの販売店舗、X店・Y店・Z店の年間販売台数の合計は1万台である。表は販売店舗別・車種別の年間販売台数の構成比である。この表から正しくいえるのはどれか。<br>
+                ただし、Z店の年間販売台数は3店舗の合計の50％を占める。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】販売店舗別・車種別の年間販売台数構成比（％）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th rowspan="2"></th>
+                            <th colspan="4">店舗別</th>
+                        </tr>
+                        <tr>
+                            <th>合計</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th>Z</th>
+                        </tr>
+                        <tr>
+                            <th>合計</th>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                            <td>100</td>
+                        </tr>
+                        <tr>
+                            <th>A</th>
+                            <td>20</td>
+                            <td>15</td>
+                            <td>20</td>
+                            <td>22</td>
+                        </tr>
+                        <tr>
+                            <th>B</th>
+                            <td>31</td>
+                            <td>40</td>
+                            <td>30</td>
+                            <td>28</td>
+                        </tr>
+                        <tr>
+                            <th>C</th>
+                            <td>22</td>
+                            <td>20</td>
+                            <td>30</td>
+                            <td>18</td>
+                        </tr>
+                        <tr>
+                            <th>D</th>
+                            <td>27</td>
+                            <td>25</td>
+                            <td>20</td>
+                            <td>32</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>Aの販売台数は、X店・Y店・Z店ともに同じである。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>Dの販売台数は、Y店がZ店より多い。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>Bの販売台数は、Y店よりX店とZ店の合計の方が多い。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>Cの販売台数は、Z店がX店の3倍以上である。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>X店の販売台数はY店の販売台数の2倍である。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）の解説</div>
+                <div class="explanation-content">
+                    <p>Z店の販売割合が50％なので、X店・Y店の販売割合をそれぞれx％、y％とおくと、x＋y＝50。</p>
+                    <p>A車種の合計構成比（20％）に注目し、各店舗の販売割合と各店舗内のA構成比から方程式を立てる：</p>
+                    <p style="margin-left: 20px;">0.15x ＋ 0.20y ＋ 0.50 × 22 ＝ 20</p>
+                    <p style="margin-left: 20px;">15x ＋ 20y ＝ 900 ⇒ 3x ＋ 4y ＝ 180</p>
+                    <p>x＋y＝50 と連立して、<strong>x＝20、y＝30</strong> が得られる。</p>
+                    <br>
+                    <p><strong>各店舗の販売台数：</strong></p>
+                    <p>X店 ＝ 10,000 × 0.20 ＝ 2,000台</p>
+                    <p>Y店 ＝ 10,000 × 0.30 ＝ 3,000台</p>
+                    <p>Z店 ＝ 10,000 × 0.50 ＝ 5,000台</p>
+                    <br>
+                    <p><strong>車種×店舗別の販売台数：</strong></p>
+                    <p>A：X＝300、Y＝600、Z＝1,100　（合計2,000台）</p>
+                    <p>B：X＝800、Y＝900、Z＝1,400　（合計3,100台）</p>
+                    <p>C：X＝400、Y＝900、Z＝900　（合計2,200台）</p>
+                    <p>D：X＝500、Y＝600、Z＝1,600　（合計2,700台）</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) A：300・600・1,100で同じではない → 誤り</p>
+                    <p>・(2) D：Y＝600 ＜ Z＝1,600 → 誤り</p>
+                    <p>・(3) B：Y＝900 ＜ X＋Z＝2,200 → <strong>正しい</strong></p>
+                    <p>・(4) C：Z＝900、3X＝1,200 で Z＜3X → 誤り</p>
+                    <p>・(5) X＝2,000、Y＝3,000 で 2倍ではない → 誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考167/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
