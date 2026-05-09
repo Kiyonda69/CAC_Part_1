@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題159</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 10px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 15px; }
+        .figure-container { margin: 15px 0; padding: 15px; background-color: white; text-align: center; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の立方体を赤い点線で切って広げたとき、どの形になりますか。(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <!--
+                    立方体図 仕様:
+                    - SVGサイズ: 320x270px, viewBox: 0 0 320 270
+                    - 前面: (60,80)-(210,80)-(210,230)-(60,230)
+                    - 奥行きオフセット: (+60,-50) → 後面: (120,30)-(270,30)-(270,180)-(120,180)
+                    - 切る辺(赤点線): 上奥, 上左, 上右, 下奥, 下左, 下右, 奥左縦
+                    - 残す辺(黒実線): 上前, 下前, 前左縦, 前右縦, 奥右縦
+                    - 隠れ辺(後面の見えない辺)も赤点線(切れているため)
+                    -->
+                    <svg width="320" height="270" viewBox="0 0 320 270">
+                        <!-- 隠れ辺(切る) 先に描画 -->
+                        <line x1="120" y1="180" x2="270" y2="180" stroke="red" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="60" y1="230" x2="120" y2="180" stroke="red" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="120" y1="180" x2="120" y2="30" stroke="red" stroke-width="2" stroke-dasharray="5,3"/>
+                        <!-- 見える辺(切る) 赤点線 -->
+                        <line x1="120" y1="30" x2="270" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="60" y1="80" x2="120" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="210" y1="80" x2="270" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="210" y1="230" x2="270" y2="180" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <!-- 見える辺(残す) 黒実線 -->
+                        <line x1="60" y1="80" x2="210" y2="80" stroke="black" stroke-width="2.5"/>
+                        <line x1="60" y1="230" x2="210" y2="230" stroke="black" stroke-width="2.5"/>
+                        <line x1="60" y1="80" x2="60" y2="230" stroke="black" stroke-width="2.5"/>
+                        <line x1="210" y1="80" x2="210" y2="230" stroke="black" stroke-width="2.5"/>
+                        <line x1="270" y1="30" x2="270" y2="180" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </div>
+
+                <div class="figure-container">
+                    <!--
+                    展開図選択肢 仕様:
+                    - SVGサイズ: 600x140px, viewBox: 0 0 600 140
+                    - 各オプション: 約110x130px space, 22pxマス目
+                    - (1)正解: プラス形 (1-4-1, T@col1/B@col1)
+                    - (2): 1-4-1 (T@col0/B@col3)
+                    - (3): 階段形 2-2-2
+                    - (4): 3-3 オフセット
+                    - (5): 2-3-1 L形
+                    -->
+                    <svg width="600" height="140" viewBox="0 0 600 140">
+                        <!-- (1) Plus 正解 -->
+                        <g transform="translate(10, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(1)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="33" y="20" width="22" height="22"/>
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="77" y="42" width="22" height="22"/>
+                                <rect x="33" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (2) 1-4-1 ends -->
+                        <g transform="translate(130, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(2)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="20" width="22" height="22"/>
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="77" y="42" width="22" height="22"/>
+                                <rect x="77" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (3) Stairs 2-2-2 -->
+                        <g transform="translate(250, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(3)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="20" width="22" height="22"/>
+                                <rect x="33" y="20" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="55" y="64" width="22" height="22"/>
+                                <rect x="77" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (4) 3-3 offset -->
+                        <g transform="translate(370, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(4)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="31" width="22" height="22"/>
+                                <rect x="33" y="31" width="22" height="22"/>
+                                <rect x="55" y="31" width="22" height="22"/>
+                                <rect x="33" y="53" width="22" height="22"/>
+                                <rect x="55" y="53" width="22" height="22"/>
+                                <rect x="77" y="53" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (5) 2-3-1 L -->
+                        <g transform="translate(490, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(5)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="20" width="22" height="22"/>
+                                <rect x="33" y="20" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="77" y="42" width="22" height="22"/>
+                                <rect x="77" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br>
+                立方体の6面を T(上)、B(下)、F(前)、K(奥)、L(左)、R(右)と表記する。<br><br>
+
+                <strong>【切る辺の整理】</strong><br>
+                赤点線で示された切る辺は次の7本である。<br>
+                ・上面と奥・左・右の3辺(T-K, T-L, T-R)<br>
+                ・下面と奥・左・右の3辺(B-K, B-L, B-R)<br>
+                ・奥と左の縦辺(K-L)<br><br>
+
+                <strong>【残す辺(つながったまま)】</strong><br>
+                12本のうち上記7本を切るので、残る5本が「ヒンジ(蝶番)」となる。<br>
+                ・上前(T-F)、下前(B-F)、前左縦(F-L)、前右縦(F-R)、奥右縦(K-R)<br><br>
+
+                <strong>【展開の手順】</strong><br>
+                F面を平面に置く。F面を中心として、<br>
+                ・T面はT-F辺を軸にFの上方向へ広げる<br>
+                ・B面はB-F辺を軸にFの下方向へ広げる<br>
+                ・L面はF-L辺を軸にFの左方向へ広げる<br>
+                ・R面はF-R辺を軸にFの右方向へ広げる<br>
+                さらに、K面はK-R辺で繋がっているので、Rの右方向へ展開される。<br><br>
+
+                <strong>【できあがる形】</strong><br>
+                Fを中心にT・B・L・Rが十字に配置され、Rの右にKが付く。<br>
+                すなわち「4マスの横一列の中央上下に1マスずつ付き、横一列が4マス」となる形である。これは選択肢(1)の形である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 中央上下対称の十字+1形 → 正解<br>
+                ・(2) 4マス列の左端上・右端下に1マスずつ付く形 → ヒンジ位置が異なる<br>
+                ・(3) 階段形(2-2-2型) → ヒンジが連続しない、対応せず<br>
+                ・(4) 3-3オフセット形 → 上面の上下に枝分かれする展開ではない<br>
+                ・(5) L字型(2-3-1型) → 左上の2マスが横並びになる展開ではない<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の立方体を赤い点線で切って広げたとき、どの形になりますか。(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <!--
+                    立方体図 仕様:
+                    - SVGサイズ: 320x270px, viewBox: 0 0 320 270
+                    - 切る辺(赤点線・7本): T-K, T-L, T-R, B-F, B-K, F-L, K-R
+                    - 残す辺(黒実線・5本): T-F, F-R, R-B, B-L, L-K
+                    - 残すうちB-LとL-Kは隠れ辺(後左頂点側)→ 黒点線
+                    - 切る辺のうちB-Kは隠れ辺 → 赤点線
+                    -->
+                    <svg width="320" height="270" viewBox="0 0 320 270">
+                        <!-- 隠れ辺(残す)黒点線: B-L (FBL-BBL), K-L (BBL-BTL) -->
+                        <line x1="60" y1="230" x2="120" y2="180" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                        <line x1="120" y1="180" x2="120" y2="30" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                        <!-- 隠れ辺(切る)赤点線: B-K (BBL-BBR) -->
+                        <line x1="120" y1="180" x2="270" y2="180" stroke="red" stroke-width="2" stroke-dasharray="5,3"/>
+                        <!-- 見える辺(切る)赤点線: T-K, T-L, T-R, B-F, F-L, K-R -->
+                        <line x1="120" y1="30" x2="270" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="60" y1="80" x2="120" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="210" y1="80" x2="270" y2="30" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="60" y1="230" x2="210" y2="230" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="60" y1="80" x2="60" y2="230" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <line x1="270" y1="30" x2="270" y2="180" stroke="red" stroke-width="2.5" stroke-dasharray="6,3"/>
+                        <!-- 見える辺(残す)黒実線: T-F, F-R, R-B -->
+                        <line x1="60" y1="80" x2="210" y2="80" stroke="black" stroke-width="2.5"/>
+                        <line x1="210" y1="80" x2="210" y2="230" stroke="black" stroke-width="2.5"/>
+                        <line x1="210" y1="230" x2="270" y2="180" stroke="black" stroke-width="2.5"/>
+                    </svg>
+                </div>
+
+                <div class="figure-container">
+                    <!--
+                    展開図選択肢 仕様:
+                    - SVGサイズ: 600x160px, viewBox: 0 0 600 160
+                    - 22pxマス目, 各オプション110pxスペース
+                    - (1): 1-4-1 (T@col0/B@col0) 同じ列に上下
+                    - (2): プラス形(1-4-1, T@col1/B@col1)
+                    - (3): 3-3 オフセット
+                    - (4)正解: ジグザグ階段形(縦 X.. / XX. / .X. / .XX)
+                    - (5): 階段形(2-2-2 横向き)
+                    -->
+                    <svg width="600" height="160" viewBox="0 0 600 160">
+                        <!-- (1) -->
+                        <g transform="translate(10, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(1)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="20" width="22" height="22"/>
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="77" y="42" width="22" height="22"/>
+                                <rect x="11" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (2) Plus -->
+                        <g transform="translate(130, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(2)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="33" y="20" width="22" height="22"/>
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="77" y="42" width="22" height="22"/>
+                                <rect x="33" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (3) 3-3 offset -->
+                        <g transform="translate(250, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(3)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="33" y="64" width="22" height="22"/>
+                                <rect x="55" y="64" width="22" height="22"/>
+                                <rect x="77" y="64" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (4) 縦階段(正解) -->
+                        <g transform="translate(370, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(4)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="33" y="20" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="55" y="42" width="22" height="22"/>
+                                <rect x="55" y="64" width="22" height="22"/>
+                                <rect x="55" y="86" width="22" height="22"/>
+                                <rect x="77" y="86" width="22" height="22"/>
+                            </g>
+                        </g>
+                        <!-- (5) 横階段 -->
+                        <g transform="translate(490, 10)">
+                            <text x="55" y="12" text-anchor="middle" class="svg-text" font-weight="bold">(5)</text>
+                            <g fill="white" stroke="black" stroke-width="1.5">
+                                <rect x="11" y="42" width="22" height="22"/>
+                                <rect x="33" y="42" width="22" height="22"/>
+                                <rect x="33" y="64" width="22" height="22"/>
+                                <rect x="55" y="64" width="22" height="22"/>
+                                <rect x="55" y="86" width="22" height="22"/>
+                                <rect x="77" y="86" width="22" height="22"/>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                立方体の6面を T(上)、B(下)、F(前)、K(奥)、L(左)、R(右)と表記する。<br><br>
+
+                <strong>【切る辺の整理(7本)】</strong><br>
+                ・上面の3辺: T-K, T-L, T-R<br>
+                ・下前(B-F)、下奥(B-K)<br>
+                ・前左縦(F-L)、奥右縦(K-R)<br><br>
+
+                <strong>【残す辺(5本のヒンジ)】</strong><br>
+                T-F、F-R、R-B、B-L、L-K の5本が連続的につながっている。<br>
+                これは「T-F-R-B-L-K」と一筆書きの順序で隣接面が連なる構造である。<br><br>
+
+                <strong>【展開の手順】</strong><br>
+                Fを中心に置く。残った5本が一本鎖に繋がっているため、ジグザグ状の展開図となる。<br>
+                ・F → 上にT(T-F辺)<br>
+                ・F → 右にR(F-R辺)<br>
+                ・R → 下にB(R-B辺)<br>
+                ・B → 下にL(B-L辺、ただしBの向きが回転しているのでLはBの「下方向」へ)<br>
+                ・L → 右にK(L-K辺、Lの向きに従ってKはLの「右方向」へ)<br><br>
+
+                <strong>【できあがる形】</strong><br>
+                以下の階段状(ジグザグ)になる。<br>
+                ・1段目: T<br>
+                ・2段目: F、R<br>
+                ・3段目: B(Rの真下)<br>
+                ・4段目: L、K(Bの下、その右)<br>
+                これが選択肢(4)の縦長ジグザグ階段形である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 1-4-1 で枝が同じ側 → 鎖状の連結ではない<br>
+                ・(2) プラス形 → 中心面に4面が直接つながる構造、本問とは異なる<br>
+                ・(3) 3-3オフセット → 横方向の鎖で構造が異なる<br>
+                ・(4) 縦長ジグザグ階段 → 正解<br>
+                ・(5) 横階段(2-2-2) → 横向きの階段、本問の鎖の向きと異なる<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
