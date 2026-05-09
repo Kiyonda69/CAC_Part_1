@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative;
+            flex-shrink: 0; transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: white;
+            border: 1px solid #dddddd; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .options { margin-left: 20px; line-height: 2.2; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の3つの図は、各面に1〜6の数字が一つずつ書かれた同じサイコロを、異なる方向から見たものである。このサイコロを、前面（数字「2」の面）を中央に置いた十字型の展開図に開いたとき、空欄(ア)・(イ)・(ウ)に入る数の組合せとして正しいものを、下の選択肢(1)〜(5)のうちから一つ選びなさい。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】サイコロの3つの視点</div>
+                    <div class="figure-content">
+                        <!--
+                        各サイコロ: 80x80 viewBox, s=50, d=18
+                        斜投影で前・上・右の3面を表示
+                        前面に大きな数字、上・右面に小さな数字
+                        -->
+                        <svg width="450" height="100" viewBox="0 0 450 100">
+                            <!-- 視点1: 上=1, 前=2, 右=3 -->
+                            <g transform="translate(0,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点1</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">1</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">3</text>
+                            </g>
+                            <!-- 視点2: 上=3, 前=2, 右=6 -->
+                            <g transform="translate(150,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点2</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">3</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">6</text>
+                            </g>
+                            <!-- 視点3: 上=4, 前=2, 右=1 -->
+                            <g transform="translate(300,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点3</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">4</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">1</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】十字型展開図（前面=2 を中央に配置）</div>
+                    <div class="figure-content">
+                        <!--
+                        十字型展開図 セルs=55
+                        配置: [上], [左][前][右][後], [下]
+                        与: 上=1, 前=2, 右=3
+                        空欄: 左=(ア), 後=(イ), 下=(ウ)
+                        -->
+                        <svg width="260" height="200" viewBox="0 0 260 200">
+                            <g stroke="black" stroke-width="2" fill="white">
+                                <rect x="60" y="5" width="55" height="55"/>
+                                <rect x="5" y="60" width="55" height="55"/>
+                                <rect x="60" y="60" width="55" height="55"/>
+                                <rect x="115" y="60" width="55" height="55"/>
+                                <rect x="170" y="60" width="55" height="55"/>
+                                <rect x="60" y="115" width="55" height="55"/>
+                            </g>
+                            <text x="87.5" y="32.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">1</text>
+                            <text x="32.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(ア)</text>
+                            <text x="87.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">2</text>
+                            <text x="142.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">3</text>
+                            <text x="197.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(イ)</text>
+                            <text x="87.5" y="142.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(ウ)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) (ア, イ, ウ) = (5, 4, 6)<br>
+                    (2) (ア, イ, ウ) = (4, 6, 5)<br>
+                    (3) (ア, イ, ウ) = (4, 5, 6)<br>
+                    (4) (ア, イ, ウ) = (6, 5, 4)<br>
+                    (5) (ア, イ, ウ) = (5, 6, 4)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                3つの視点から、サイコロの各面の対応関係を順に決定する問題である。<br><br>
+
+                <strong>【視点1から判明する3面】</strong><br>
+                視点1: 上=1, 前=2, 右=3。これにより前面と右面・上面の3面が確定する。残り3面（左、後、下）は{4, 5, 6}のいずれかとなる。<br><br>
+
+                <strong>【視点2から下面を決定】</strong><br>
+                視点2: 上=3, 前=2, 右=6。前面が「2」のままなので、視点1から前後軸まわりに左へ90°回転（左に転がす）したものと判る。<br>
+                左回転では「上→左、左→下、下→右、右→上」となる。視点1の右=3が新しい上=3となるのは整合し、新しい右=6は視点1の下面に相当するから、<strong>下=6</strong>が確定する（よって対面: 上↔下 = 1↔6）。<br><br>
+
+                <strong>【視点3から左面を決定】</strong><br>
+                視点3: 上=4, 前=2, 右=1。前面が「2」のままなので、視点1から前後軸まわりに右へ90°回転（右に転がす）したもの。<br>
+                右回転では「上→右、右→下、下→左、左→上」。新しい上=4は視点1の左面に相当するから、<strong>左=4</strong>が確定する（よって対面: 左↔右 = 4↔3）。<br><br>
+
+                <strong>【後面の決定】</strong><br>
+                残る面は1つ（後面）であり、未使用の数字は5。よって<strong>後=5</strong>。対面: 前↔後 = 2↔5。<br><br>
+
+                すべての対面の組: 1↔6、2↔5、3↔4（標準的な西洋サイコロと同じ配置）。<br><br>
+
+                <strong>【十字型展開図】</strong><br>
+                上=1、左(ア)=4、前=2、右=3、後(イ)=5、下(ウ)=6。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) (5,4,6): 左=5、後=4 だが、視点3より左=4が確定 → 不正解<br>
+                ・(2) (4,6,5): 後=6、下=5 だが、視点2より下=6が確定 → 不正解<br>
+                ・(3) (4,5,6): すべて整合 → <strong>正解</strong><br>
+                ・(4) (6,5,4): 左=6、下=4 だが、視点3より左=4 → 不正解<br>
+                ・(5) (5,6,4): 左=5、下=4 だが、視点3より左=4 → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の4つの図は、各面に1〜6の数字が一つずつ書かれた同じサイコロを、異なる方向から見たものである（このサイコロは標準的な西洋サイコロとは限らない）。このサイコロを、前面（数字「2」の面）を中央に置いた十字型の展開図に開いたとき、空欄(ア)・(イ)・(ウ)に入る数の組合せとして正しいものを、下の選択肢(1)〜(5)のうちから一つ選びなさい。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】サイコロの4つの視点</div>
+                    <div class="figure-content">
+                        <svg width="600" height="100" viewBox="0 0 600 100">
+                            <!-- 視点1: 上=1, 前=2, 右=5 -->
+                            <g transform="translate(0,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点1</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">1</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">5</text>
+                            </g>
+                            <!-- 視点2: 上=5, 前=2, 右=4 -->
+                            <g transform="translate(150,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点2</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">5</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">4</text>
+                            </g>
+                            <!-- 視点3: 上=1, 前=5, 右=3 -->
+                            <g transform="translate(300,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点3</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">5</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">1</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">3</text>
+                            </g>
+                            <!-- 視点4: 上=6, 前=2, 右=1 -->
+                            <g transform="translate(450,5)">
+                                <text x="40" y="98" text-anchor="middle" class="svg-text">視点4</text>
+                                <polygon points="5,23 55,23 55,73 5,73" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="23,5 73,5 55,23 5,23" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,23 73,5 73,55 55,73" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="30" y="48" text-anchor="middle" dominant-baseline="central" font-size="22" font-weight="bold">2</text>
+                                <text x="39" y="14" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">6</text>
+                                <text x="64" y="39" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="bold">1</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】十字型展開図（前面=2 を中央に配置）</div>
+                    <div class="figure-content">
+                        <svg width="260" height="200" viewBox="0 0 260 200">
+                            <g stroke="black" stroke-width="2" fill="white">
+                                <rect x="60" y="5" width="55" height="55"/>
+                                <rect x="5" y="60" width="55" height="55"/>
+                                <rect x="60" y="60" width="55" height="55"/>
+                                <rect x="115" y="60" width="55" height="55"/>
+                                <rect x="170" y="60" width="55" height="55"/>
+                                <rect x="60" y="115" width="55" height="55"/>
+                            </g>
+                            <text x="87.5" y="32.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">1</text>
+                            <text x="32.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(ア)</text>
+                            <text x="87.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">2</text>
+                            <text x="142.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="24" font-weight="bold">5</text>
+                            <text x="197.5" y="87.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(イ)</text>
+                            <text x="87.5" y="142.5" text-anchor="middle" dominant-baseline="central" font-size="20" font-weight="bold">(ウ)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) (ア, イ, ウ) = (3, 6, 4)<br>
+                    (2) (ア, イ, ウ) = (6, 3, 4)<br>
+                    (3) (ア, イ, ウ) = (6, 4, 3)<br>
+                    (4) (ア, イ, ウ) = (4, 3, 6)<br>
+                    (5) (ア, イ, ウ) = (3, 4, 6)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                4つの視点から、対面の組（top↔bottom, front↔back, left↔right）を順に決定する非標準サイコロの問題である。<br><br>
+
+                <strong>【視点1から3面の確定】</strong><br>
+                視点1: 上=1, 前=2, 右=5。これにより上面・前面・右面の3面が確定する。<br>
+                残り3面（下、後、左）は{3, 4, 6}のいずれかに対応する。<br><br>
+
+                <strong>【視点2: 前後軸まわりの左回転（roll left）】</strong><br>
+                視点2: 上=5, 前=2, 右=4。前=2が共通なので、視点1から前後軸まわりに90°左回転した姿勢である。<br>
+                左回転では「上→左、左→下、下→右、右→上」と対応するため:<br>
+                ・新しい上=4の位置にあるのは視点1の右=5 → 整合<br>
+                ・新しい右=4は視点1の下面に相当する → よって<strong>下=4</strong>が確定（対面: 上↔下 = 1↔4）<br><br>
+
+                <strong>【視点3: 上下軸まわりの右回転（yaw right）】</strong><br>
+                視点3: 上=1, 前=5, 右=3。上=1が共通なので、視点1から上下軸まわりに90°右回転した姿勢である。<br>
+                右回転では「前→左、左→後、後→右、右→前」と対応するため:<br>
+                ・新しい前=5の位置にあるのは視点1の右=5 → 整合<br>
+                ・新しい右=3は視点1の後面に相当する → よって<strong>後=3</strong>が確定（対面: 前↔後 = 2↔3）<br><br>
+
+                <strong>【視点4: 前後軸まわりの右回転で確認】</strong><br>
+                視点4: 上=6, 前=2, 右=1。前=2が共通なので前後軸まわりに90°右回転した姿勢。<br>
+                右回転では「上→右、右→下、下→左、左→上」と対応するため:<br>
+                ・新しい上=6は視点1の左面に相当する → よって<strong>左=6</strong>が確定（対面: 左↔右 = 6↔5）<br><br>
+
+                すべての対面の組: 1↔4、2↔3、5↔6（標準的な西洋サイコロとは異なる配置）。<br><br>
+
+                <strong>【十字型展開図】</strong><br>
+                上=1、左(ア)=6、前=2、右=5、後(イ)=3、下(ウ)=4。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) (3,6,4): 左=3、後=6 だが、視点3より後=3、視点4より左=6 → 不正解<br>
+                ・(2) (6,3,4): 左=6、後=3、下=4。すべて整合 → <strong>正解</strong><br>
+                ・(3) (6,4,3): 後=4、下=3 だが、視点2より下=4、視点3より後=3 → 不正解<br>
+                ・(4) (4,3,6): 左=4、下=6 だが、視点4より左=6、視点2より下=4 → 不正解<br>
+                ・(5) (3,4,6): 左=3 だが、視点4より左=6 → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
