@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative;
+            flex-shrink: 0; transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: white;
+            border: 1px solid #dddddd; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図のように、立方体ABCD-EFGHを、辺AD・DC・CG・GF・FE・EAの中点を通る平面で切断したところ、切り口は正六角形となった。この立方体を、前面ABFEを中央にした十字型の展開図に開いたとき、切り口の線（切断面の縁）はどのように現れるか。最も適切なものを下の選択肢から1つ選びなさい。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体と展開図の対応</div>
+                    <div class="figure-content">
+                        <!--
+                        立方体(左)と展開図枠(右)を並べて表示
+                        立方体(斜投影):
+                        - 前面ABFE: A(80,180)-B(220,180)-F(220,320)-E(80,320)
+                        - 上面ABCD: A(80,180)-B(220,180)-C(270,130)-D(130,130)
+                        - 右面BCGF: B(220,180)-C(270,130)-G(270,270)-F(220,320)
+                        - 隠れ頂点: H(130,270)、隠れ辺: D-H, H-G, H-E
+                        - 正六角形(⊥BH): 中点 midAD(105,155), midDC(200,130),
+                          midCG(270,200), midGF(245,295), midFE(150,320), midEA(80,250)
+                        -->
+                        <svg width="640" height="380" viewBox="0 0 660 380">
+                            <g>
+                                <line x1="130" y1="130" x2="130" y2="270" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <line x1="130" y1="270" x2="270" y2="270" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <line x1="130" y1="270" x2="80" y2="320" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <polygon points="80,180 220,180 220,320 80,320" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="80,180 220,180 270,130 130,130" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="220,180 270,130 270,270 220,320" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="105,155 200,130 270,200 245,295 150,320 80,250"
+                                    fill="rgba(255,210,210,0.5)" stroke="red" stroke-width="2.5" stroke-linejoin="round"/>
+                                <text x="73" y="178" class="svg-text" text-anchor="end">A</text>
+                                <text x="227" y="178" class="svg-text" text-anchor="start">B</text>
+                                <text x="277" y="128" class="svg-text" text-anchor="start">C</text>
+                                <text x="123" y="128" class="svg-text" text-anchor="end">D</text>
+                                <text x="73" y="328" class="svg-text" text-anchor="end">E</text>
+                                <text x="227" y="328" class="svg-text" text-anchor="start">F</text>
+                                <text x="277" y="278" class="svg-text" text-anchor="start">G</text>
+                                <text x="123" y="278" class="svg-text" text-anchor="end">H</text>
+                            </g>
+                            <text x="330" y="225" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                            <!-- 展開図枠(空欄、頂点ラベルのみ) -->
+                            <g stroke="black" stroke-width="2" fill="none">
+                                <rect x="430" y="130" width="60" height="60"/>
+                                <rect x="370" y="190" width="60" height="60"/>
+                                <rect x="430" y="190" width="60" height="60"/>
+                                <rect x="490" y="190" width="60" height="60"/>
+                                <rect x="550" y="190" width="60" height="60"/>
+                                <rect x="430" y="250" width="60" height="60"/>
+                            </g>
+                            <text x="427" y="195" class="svg-text" text-anchor="end">D</text>
+                            <text x="493" y="195" class="svg-text" text-anchor="start">C</text>
+                            <text x="427" y="207" class="svg-text" text-anchor="end">A</text>
+                            <text x="493" y="207" class="svg-text" text-anchor="start">B</text>
+                            <text x="427" y="248" class="svg-text" text-anchor="end">E</text>
+                            <text x="493" y="248" class="svg-text" text-anchor="start">F</text>
+                            <text x="367" y="195" class="svg-text" text-anchor="end">D</text>
+                            <text x="367" y="248" class="svg-text" text-anchor="end">H</text>
+                            <text x="553" y="195" class="svg-text" text-anchor="start">C</text>
+                            <text x="553" y="248" class="svg-text" text-anchor="start">G</text>
+                            <text x="613" y="195" class="svg-text" text-anchor="start">D</text>
+                            <text x="613" y="248" class="svg-text" text-anchor="start">H</text>
+                            <text x="427" y="308" class="svg-text" text-anchor="end">H</text>
+                            <text x="493" y="308" class="svg-text" text-anchor="start">G</text>
+                            <text x="460" y="165" class="svg-text" text-anchor="middle" font-size="11" fill="#666">上</text>
+                            <text x="400" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">左</text>
+                            <text x="460" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">前</text>
+                            <text x="520" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">右</text>
+                            <text x="580" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">後</text>
+                            <text x="460" y="285" class="svg-text" text-anchor="middle" font-size="11" fill="#666">下</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 問1 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!--
+                        各選択肢: 110×100、十字型展開図
+                        パネル位置: 上(30,18)、左(5,43)、前(30,43)、右(55,43)、後(80,43)、下(30,68)、各25×25
+                        コーナーカット位置:
+                          TL = mid-left → mid-top
+                          TR = mid-top → mid-right
+                          BR = mid-right → mid-bottom
+                          BL = mid-bottom → mid-left
+                        -->
+                        <svg width="620" height="110" viewBox="0 0 620 110">
+                            <!-- (1) ⊥BH 正解: 上TL,左TR,前BL,右BR,後TL,下TR -->
+                            <g transform="translate(0,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="30" y1="30.5" x2="42.5" y2="18" stroke="red" stroke-width="2"/>
+                                <line x1="17.5" y1="43" x2="30" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="80" y1="55.5" x2="67.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="80" y1="55.5" x2="92.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="42.5" y1="68" x2="55" y2="80.5" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (2) ⊥AG: 上TR,左BL,前BR,右TL,後TR,下TL -->
+                            <g transform="translate(125,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="42.5" y1="18" x2="55" y2="30.5" stroke="red" stroke-width="2"/>
+                                <line x1="5" y1="55.5" x2="17.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="67.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="92.5" y1="43" x2="105" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="80.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (3) ⊥CE: 上BL,左TL,前TR,右BL,後BR,下BR -->
+                            <g transform="translate(250,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="30" y1="30.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="5" y1="55.5" x2="17.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="42.5" y1="43" x2="55" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="67.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="105" y1="55.5" x2="92.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="80.5" x2="42.5" y2="93" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (4) ⊥DF: 上BR,左BR,前TL,右TR,後BL,下BL -->
+                            <g transform="translate(375,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="55" y1="30.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="17.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="67.5" y1="43" x2="80" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="92.5" y1="68" x2="80" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="80.5" x2="42.5" y2="93" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 正方形断面(中央4面に水平帯) -->
+                            <g transform="translate(500,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="5" y1="55.5" x2="105" y2="55.5" stroke="red" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br>
+                立方体ABCD-EFGHを、辺AD・DC・CG・GF・FE・EAの中点を通る平面で切断したときの正六角形の切り口が、十字型展開図上のどの位置に現れるかを問う問題である。<br><br>
+
+                <strong>【切り口が通過する6つの面と切り落とされる頂点】</strong><br>
+                平面が通過する6本の辺をたどると、各面で「2つの中点を結ぶ線分」が現れる。各面の切り取り頂点（切り落とされる頂点）は次のとおり。<br>
+                ・上面ABCD: 辺AD・DCの中点を結ぶ → 頂点Dが切り落とされる<br>
+                ・後面DCGH: 辺DC・CGの中点を結ぶ → 頂点Cが切り落とされる<br>
+                ・右面BCGF: 辺CG・GFの中点を結ぶ → 頂点Gが切り落とされる<br>
+                ・下面EFGH: 辺GF・FEの中点を結ぶ → 頂点Fが切り落とされる<br>
+                ・前面ABFE: 辺FE・EAの中点を結ぶ → 頂点Eが切り落とされる<br>
+                ・左面ADHE: 辺EA・ADの中点を結ぶ → 頂点Aが切り落とされる<br><br>
+
+                切り落とされる6頂点はA・C・D・E・F・G。残るB・Hは体対角線BHの両端点であり、切断面はBHに垂直な中点平面である。<br><br>
+
+                <strong>【展開図上の各パネルの頂点配置】（前面ABFEを中央）</strong><br>
+                ・上面パネル: A=左下、B=右下、C=右上、D=左上<br>
+                ・前面パネル: A=左上、B=右上、F=右下、E=左下<br>
+                ・下面パネル: E=左上、F=右上、G=右下、H=左下<br>
+                ・左面パネル: D=左上、A=右上、E=右下、H=左下<br>
+                ・右面パネル: B=左上、C=右上、G=右下、F=左下<br>
+                ・後面パネル: C=左上、D=右上、H=右下、G=左下<br><br>
+
+                <strong>【切り取り位置のまとめ】</strong><br>
+                ・上面パネル: D=左上 → <strong>左上コーナー</strong>を切り取る<br>
+                ・前面パネル: E=左下 → <strong>左下コーナー</strong><br>
+                ・下面パネル: F=右上 → <strong>右上コーナー</strong><br>
+                ・左面パネル: A=右上 → <strong>右上コーナー</strong><br>
+                ・右面パネル: G=右下 → <strong>右下コーナー</strong><br>
+                ・後面パネル: C=左上 → <strong>左上コーナー</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 上=左上、前=左下、下=右上、左=右上、右=右下、後=左上 → 上記と完全一致 <strong>正解</strong><br>
+                ・(2) 体対角線AGに垂直な切断（残る頂点A・G）。切り取られる頂点はB・C・D・E・F・H で、上面では C=右上、前面では F=右下が切り取られる → 不正解<br>
+                ・(3) 体対角線CEに垂直な切断（残る頂点C・E）。上面では A=左下、前面では B=右上が切り取られる → 不正解<br>
+                ・(4) 体対角線DFに垂直な切断（残る頂点D・F）。上面では B=右下、前面では A=左上が切り取られる → 不正解<br>
+                ・(5) 中央4面に水平帯。これは正方形断面（垂直軸の中点を通る平面）であり、正六角形ではない → 不正解<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図のように、立方体ABCD-EFGHを、辺BC・CD・DH・EH・EF・BFの中点を通る平面で切断したところ、切り口は正六角形となった。この立方体を、前面ABFEを中央にした十字型の展開図に開いたとき、切り口の線（切断面の縁）はどのように現れるか。最も適切なものを下の選択肢から1つ選びなさい。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】立方体と展開図の対応</div>
+                    <div class="figure-content">
+                        <!--
+                        正六角形(⊥AG): 中点 midBC(245,155), midCD(200,130),
+                        midDH(130,200), midEH(105,295), midEF(150,320), midBF(220,250)
+                        -->
+                        <svg width="640" height="380" viewBox="0 0 660 380">
+                            <g>
+                                <line x1="130" y1="130" x2="130" y2="270" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <line x1="130" y1="270" x2="270" y2="270" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <line x1="130" y1="270" x2="80" y2="320" stroke="black" stroke-width="1.5" stroke-dasharray="4,4"/>
+                                <polygon points="80,180 220,180 220,320 80,320" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="80,180 220,180 270,130 130,130" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="220,180 270,130 270,270 220,320" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="245,155 200,130 130,200 105,295 150,320 220,250"
+                                    fill="rgba(255,210,210,0.5)" stroke="red" stroke-width="2.5" stroke-linejoin="round"/>
+                                <text x="73" y="178" class="svg-text" text-anchor="end">A</text>
+                                <text x="227" y="178" class="svg-text" text-anchor="start">B</text>
+                                <text x="277" y="128" class="svg-text" text-anchor="start">C</text>
+                                <text x="123" y="128" class="svg-text" text-anchor="end">D</text>
+                                <text x="73" y="328" class="svg-text" text-anchor="end">E</text>
+                                <text x="227" y="328" class="svg-text" text-anchor="start">F</text>
+                                <text x="277" y="278" class="svg-text" text-anchor="start">G</text>
+                                <text x="123" y="278" class="svg-text" text-anchor="end">H</text>
+                            </g>
+                            <text x="330" y="225" class="svg-text" text-anchor="middle" font-size="20">→</text>
+                            <g stroke="black" stroke-width="2" fill="none">
+                                <rect x="430" y="130" width="60" height="60"/>
+                                <rect x="370" y="190" width="60" height="60"/>
+                                <rect x="430" y="190" width="60" height="60"/>
+                                <rect x="490" y="190" width="60" height="60"/>
+                                <rect x="550" y="190" width="60" height="60"/>
+                                <rect x="430" y="250" width="60" height="60"/>
+                            </g>
+                            <text x="427" y="195" class="svg-text" text-anchor="end">D</text>
+                            <text x="493" y="195" class="svg-text" text-anchor="start">C</text>
+                            <text x="427" y="207" class="svg-text" text-anchor="end">A</text>
+                            <text x="493" y="207" class="svg-text" text-anchor="start">B</text>
+                            <text x="427" y="248" class="svg-text" text-anchor="end">E</text>
+                            <text x="493" y="248" class="svg-text" text-anchor="start">F</text>
+                            <text x="367" y="195" class="svg-text" text-anchor="end">D</text>
+                            <text x="367" y="248" class="svg-text" text-anchor="end">H</text>
+                            <text x="553" y="195" class="svg-text" text-anchor="start">C</text>
+                            <text x="553" y="248" class="svg-text" text-anchor="start">G</text>
+                            <text x="613" y="195" class="svg-text" text-anchor="start">D</text>
+                            <text x="613" y="248" class="svg-text" text-anchor="start">H</text>
+                            <text x="427" y="308" class="svg-text" text-anchor="end">H</text>
+                            <text x="493" y="308" class="svg-text" text-anchor="start">G</text>
+                            <text x="460" y="165" class="svg-text" text-anchor="middle" font-size="11" fill="#666">上</text>
+                            <text x="400" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">左</text>
+                            <text x="460" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">前</text>
+                            <text x="520" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">右</text>
+                            <text x="580" y="225" class="svg-text" text-anchor="middle" font-size="11" fill="#666">後</text>
+                            <text x="460" y="285" class="svg-text" text-anchor="middle" font-size="11" fill="#666">下</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 問2 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="620" height="110" viewBox="0 0 620 110">
+                            <!-- (1) ⊥BH: 上TL,左TR,前BL,右BR,後TL,下TR -->
+                            <g transform="translate(0,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="30" y1="30.5" x2="42.5" y2="18" stroke="red" stroke-width="2"/>
+                                <line x1="17.5" y1="43" x2="30" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="80" y1="55.5" x2="67.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="80" y1="55.5" x2="92.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="42.5" y1="68" x2="55" y2="80.5" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (2) ⊥CE: 上BL,左TL,前TR,右BL,後BR,下BR -->
+                            <g transform="translate(125,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="30" y1="30.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="5" y1="55.5" x2="17.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="42.5" y1="43" x2="55" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="67.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="105" y1="55.5" x2="92.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="80.5" x2="42.5" y2="93" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (3) ⊥DF: 上BR,左BR,前TL,右TR,後BL,下BL -->
+                            <g transform="translate(250,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="55" y1="30.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="17.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="55.5" x2="42.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="67.5" y1="43" x2="80" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="92.5" y1="68" x2="80" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="80.5" x2="42.5" y2="93" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 正方形断面 -->
+                            <g transform="translate(375,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="5" y1="55.5" x2="105" y2="55.5" stroke="red" stroke-width="2"/>
+                            </g>
+                            <!-- (5) ⊥AG 正解: 上TR,左BL,前BR,右TL,後TR,下TL -->
+                            <g transform="translate(500,0)">
+                                <text x="55" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <g stroke="black" stroke-width="1.5" fill="none">
+                                    <rect x="30" y="18" width="25" height="25"/><rect x="5" y="43" width="25" height="25"/><rect x="30" y="43" width="25" height="25"/><rect x="55" y="43" width="25" height="25"/><rect x="80" y="43" width="25" height="25"/><rect x="30" y="68" width="25" height="25"/>
+                                </g>
+                                <line x1="42.5" y1="18" x2="55" y2="30.5" stroke="red" stroke-width="2"/>
+                                <line x1="5" y1="55.5" x2="17.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                                <line x1="55" y1="55.5" x2="67.5" y2="43" stroke="red" stroke-width="2"/>
+                                <line x1="92.5" y1="43" x2="105" y2="55.5" stroke="red" stroke-width="2"/>
+                                <line x1="30" y1="80.5" x2="42.5" y2="68" stroke="red" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                立方体ABCD-EFGHを、辺BC・CD・DH・EH・EF・BFの中点を通る平面で切断したときの正六角形の切り口が、十字型展開図上のどの位置に現れるかを問う問題である。<br><br>
+
+                <strong>【切り口が通過する6つの面と切り落とされる頂点】</strong><br>
+                各面で切り口の線が通る2つの中点は、共通の頂点で出会う。<br>
+                ・上面ABCD: 辺BC・CDの中点を結ぶ → 頂点Cが切り落とされる<br>
+                ・後面DCGH: 辺CD・DHの中点を結ぶ → 頂点Dが切り落とされる<br>
+                ・左面ADHE: 辺DH・EHの中点を結ぶ → 頂点Hが切り落とされる<br>
+                ・下面EFGH: 辺EH・EFの中点を結ぶ → 頂点Eが切り落とされる<br>
+                ・前面ABFE: 辺EF・BFの中点を結ぶ → 頂点Fが切り落とされる<br>
+                ・右面BCGF: 辺BF・BCの中点を結ぶ → 頂点Bが切り落とされる<br><br>
+
+                切り落とされる6頂点はB・C・D・E・F・H。残るA・Gは体対角線AGの両端点であり、切断面はAGに垂直な中点平面である。<br><br>
+
+                <strong>【展開図上の各パネルでの切り取り位置】</strong><br>
+                ・上面パネル: C=右上 → <strong>右上コーナー</strong>を切り取る<br>
+                ・前面パネル: F=右下 → <strong>右下コーナー</strong><br>
+                ・下面パネル: E=左上 → <strong>左上コーナー</strong><br>
+                ・左面パネル: H=左下 → <strong>左下コーナー</strong><br>
+                ・右面パネル: B=左上 → <strong>左上コーナー</strong><br>
+                ・後面パネル: D=右上 → <strong>右上コーナー</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ⊥BHパターン（切り取り頂点A・C・D・E・F・G）：上=左上、前=左下となる → 不正解<br>
+                ・(2) ⊥CEパターン（切り取り頂点A・B・D・F・G・H）：上=左下、前=右上となる → 不正解<br>
+                ・(3) ⊥DFパターン（切り取り頂点A・B・C・E・G・H）：上=右下、前=左上となる → 不正解<br>
+                ・(4) 中央4面に水平帯。これは正方形断面（垂直軸の中点を通る平面）であり、正六角形ではない → 不正解<br>
+                ・(5) 上=右上、前=右下、下=左上、左=左下、右=左上、後=右上 → 上記分析と完全一致 <strong>正解</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
