@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題 - 第170回</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .conditions-block {
+            margin: 10px 0 20px 20px;
+            padding: 12px 18px;
+            background-color: #f0f4f8;
+            border-left: 4px solid #2196F3;
+            line-height: 1.9;
+        }
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+            font-size: 15px;
+        }
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 8px 16px;
+            min-width: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 8px 16px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の表は、A社からE社までの5社における四半期別売上高（単位：百万円）を示したものである。この表を読み取り、「第1四半期から第4四半期まで毎四半期にわたって売上高が一貫して増加し、かつ年間売上高合計が400百万円以上450百万円以下」という2つの条件をともに満たす会社はどれか。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】5社の四半期別売上高（単位：百万円）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>会社</th>
+                            <th>第1四半期</th>
+                            <th>第2四半期</th>
+                            <th>第3四半期</th>
+                            <th>第4四半期</th>
+                        </tr>
+                        <tr><td>A</td><td>80</td><td>95</td><td>110</td><td>130</td></tr>
+                        <tr><td>B</td><td>120</td><td>100</td><td>90</td><td>110</td></tr>
+                        <tr><td>C</td><td>60</td><td>75</td><td>95</td><td>120</td></tr>
+                        <tr><td>D</td><td>90</td><td>110</td><td>105</td><td>115</td></tr>
+                        <tr><td>E</td><td>100</td><td>120</td><td>140</td><td>130</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>A社
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>B社
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>C社
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>D社
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>E社
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (1)）の解説</div>
+                <div class="explanation-content">
+                    <p>2つの条件を順に検討する。</p>
+                    <br>
+                    <p><strong>【条件1：四半期ごとの単調増加】</strong></p>
+                    <p>・A社： 80 &lt; 95 &lt; 110 &lt; 130 ⇒ 単調増加</p>
+                    <p>・B社： 120 &gt; 100（第1→第2で減少）⇒ 不適</p>
+                    <p>・C社： 60 &lt; 75 &lt; 95 &lt; 120 ⇒ 単調増加</p>
+                    <p>・D社： 110 &gt; 105（第2→第3で減少）⇒ 不適</p>
+                    <p>・E社： 140 &gt; 130（第3→第4で減少）⇒ 不適</p>
+                    <p>条件1を満たすのは <strong>A社、C社</strong> の2社。</p>
+                    <br>
+                    <p><strong>【条件2：年間合計が400以上450以下】</strong></p>
+                    <p>・A社： 80＋95＋110＋130 ＝ <strong>415</strong>（百万円）⇒ 範囲内</p>
+                    <p>・C社： 60＋75＋95＋120 ＝ <strong>350</strong>（百万円）⇒ 範囲外</p>
+                    <br>
+                    <p>したがって、両条件を満たすのは A社のみ。正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の【表2】はF社からJ社までの5社の四半期別売上高、【表3】は同5社の四半期別経費（単位はいずれも百万円）を示したものである。次の3つの条件をすべて満たす会社はどれか。
+            </div>
+
+            <div class="conditions-block">
+                <strong>条件①</strong>：第4四半期の利益率（＝(売上−経費)÷売上）が30%以上である。<br>
+                <strong>条件②</strong>：第4四半期の売上高が第1四半期の売上高の1.5倍以上である。<br>
+                <strong>条件③</strong>：4四半期すべてにおいて利益（＝売上−経費）が正である。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】5社の四半期別売上高（単位：百万円）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>会社</th>
+                            <th>第1四半期</th>
+                            <th>第2四半期</th>
+                            <th>第3四半期</th>
+                            <th>第4四半期</th>
+                        </tr>
+                        <tr><td>F</td><td>60</td><td>72</td><td>84</td><td>96</td></tr>
+                        <tr><td>G</td><td>50</td><td>60</td><td>72</td><td>88</td></tr>
+                        <tr><td>H</td><td>80</td><td>90</td><td>100</td><td>110</td></tr>
+                        <tr><td>I</td><td>70</td><td>80</td><td>90</td><td>100</td></tr>
+                        <tr><td>J</td><td>40</td><td>56</td><td>64</td><td>72</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表3】5社の四半期別経費（単位：百万円）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr>
+                            <th>会社</th>
+                            <th>第1四半期</th>
+                            <th>第2四半期</th>
+                            <th>第3四半期</th>
+                            <th>第4四半期</th>
+                        </tr>
+                        <tr><td>F</td><td>45</td><td>52</td><td>58</td><td>70</td></tr>
+                        <tr><td>G</td><td>38</td><td>44</td><td>50</td><td>58</td></tr>
+                        <tr><td>H</td><td>55</td><td>60</td><td>65</td><td>72</td></tr>
+                        <tr><td>I</td><td>50</td><td>55</td><td>60</td><td>75</td></tr>
+                        <tr><td>J</td><td>30</td><td>42</td><td>50</td><td>58</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>F社
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>G社
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>H社
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>I社
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>J社
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (2)）の解説</div>
+                <div class="explanation-content">
+                    <p>各条件を会社ごとに順に判定する。</p>
+                    <br>
+                    <p><strong>【条件①：第4四半期の利益率が30%以上】</strong></p>
+                    <p>利益率＝(売上−経費)÷売上 を計算する。</p>
+                    <p>・F社： (96−70)÷96 ＝ 26÷96 ≒ <strong>27.1%</strong> ⇒ 不適</p>
+                    <p>・G社： (88−58)÷88 ＝ 30÷88 ≒ <strong>34.1%</strong> ⇒ 適合</p>
+                    <p>・H社： (110−72)÷110 ＝ 38÷110 ≒ <strong>34.5%</strong> ⇒ 適合</p>
+                    <p>・I社： (100−75)÷100 ＝ <strong>25.0%</strong> ⇒ 不適</p>
+                    <p>・J社： (72−58)÷72 ＝ 14÷72 ≒ <strong>19.4%</strong> ⇒ 不適</p>
+                    <p>条件①を満たすのは <strong>G社、H社</strong>。</p>
+                    <br>
+                    <p><strong>【条件②：第4四半期売上が第1四半期売上の1.5倍以上】</strong></p>
+                    <p>・G社： 88÷50 ＝ <strong>1.76倍</strong> ⇒ 適合</p>
+                    <p>・H社： 110÷80 ＝ <strong>1.375倍</strong> ⇒ 不適</p>
+                    <p>条件②まで満たすのは <strong>G社のみ</strong>。</p>
+                    <br>
+                    <p><strong>【条件③：4四半期すべて利益が正】</strong></p>
+                    <p>G社の各四半期利益： 50−38＝12、 60−44＝16、 72−50＝22、 88−58＝30。</p>
+                    <p>すべて正であり、3条件すべてを満たす。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考170/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
