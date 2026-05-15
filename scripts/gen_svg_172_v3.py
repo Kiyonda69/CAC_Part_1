@@ -11,9 +11,18 @@ from itertools import product
 from shapely.geometry import Polygon
 from shapely.ops import unary_union
 
-DX = 25
+DX = 26
 DY = 18
-DZ = 26
+DZ = 30
+
+# 色設定: 3面で明度差を出し、立体感を強調
+TOP_FILL = "#e8e8e8"    # 上面: 明るい
+FRONT_FILL = "#b4b4b4"  # 前面: 中間
+RIGHT_FILL = "#787878"  # 右面: 暗め
+INTERNAL_STROKE = "#222"
+INTERNAL_WIDTH = "0.7"   # 内部立方体境界: 細め
+SILHOUETTE_STROKE = "#000"
+SILHOUETTE_WIDTH = "2.4"  # 外形シルエット: 太め
 
 
 def vertex(i, j, k, ox, oy):
@@ -54,14 +63,20 @@ def geom_to_polygons(geom, fill, stroke="#111", stroke_width="1.2"):
 
 
 def render_shape(cubes, ox, oy):
+    """
+    描画戦略:
+    1. 立体全体のシルエットを塗りつぶしで描画 (背景となるソリッド)
+    2. 個々の見える面を方向別の色で塗りつぶし (3D 陰影)
+    3. 各立方体の内部境界線を薄く描画 (立方体カウント補助)
+    4. 立体外形シルエットを太線で描画 (3D 物体感を強調)
+    """
     cubes_set = set(cubes)
     elems = []
 
-    # 同じ方向の見える面を方向別に収集
-    top_polys = []
-    front_polys = []
-    right_polys = []
-    for (i, j, k) in cubes_set:
+    sorted_cubes = sorted(cubes_set, key=lambda c: (c[0] - c[1] + c[2], -c[1], c[0], c[2]))
+
+    # 各立方体の見える面を個別に描画 (個別立方体を視認可能にする)
+    for (i, j, k) in sorted_cubes:
         v000 = vertex(i,   j,   k,   ox, oy)
         v100 = vertex(i+1, j,   k,   ox, oy)
         v110 = vertex(i+1, j+1, k,   ox, oy)
@@ -72,23 +87,28 @@ def render_shape(cubes, ox, oy):
         v011 = vertex(i,   j+1, k+1, ox, oy)
 
         if (i, j, k+1) not in cubes_set:
-            top_polys.append(Polygon([v001, v101, v111, v011]))
+            pts = [v001, v101, v111, v011]
+            elems.append(
+                f'<polygon points="{poly_str(pts)}" '
+                f'fill="{TOP_FILL}" stroke="{INTERNAL_STROKE}" '
+                f'stroke-width="{INTERNAL_WIDTH}" stroke-linejoin="miter"/>'
+            )
         if (i, j-1, k) not in cubes_set:
-            front_polys.append(Polygon([v000, v100, v101, v001]))
+            pts = [v000, v100, v101, v001]
+            elems.append(
+                f'<polygon points="{poly_str(pts)}" '
+                f'fill="{FRONT_FILL}" stroke="{INTERNAL_STROKE}" '
+                f'stroke-width="{INTERNAL_WIDTH}" stroke-linejoin="miter"/>'
+            )
         if (i+1, j, k) not in cubes_set:
-            right_polys.append(Polygon([v100, v110, v111, v101]))
+            pts = [v100, v110, v111, v101]
+            elems.append(
+                f'<polygon points="{poly_str(pts)}" '
+                f'fill="{RIGHT_FILL}" stroke="{INTERNAL_STROKE}" '
+                f'stroke-width="{INTERNAL_WIDTH}" stroke-linejoin="miter"/>'
+            )
 
-    # 各方向ごとに結合 → 単一/複数のポリゴンに
-    top_union = unary_union(top_polys) if top_polys else None
-    front_union = unary_union(front_polys) if front_polys else None
-    right_union = unary_union(right_polys) if right_polys else None
-
-    # 描画順: 右(暗) → 前(中) → 上(明) で奥から手前に重ねる
-    elems.extend(geom_to_polygons(right_union, "#787878"))
-    elems.extend(geom_to_polygons(front_union, "#a8a8a8"))
-    elems.extend(geom_to_polygons(top_union, "#dcdcdc"))
-
-    # 立体全体のシルエット外形を追加（見えない立方体の輪郭も含めるため）
+    # 立体全体のシルエット外形を太線で描画 → 3D ソリッド物体感を強調
     cube_silhouettes = [
         Polygon(cube_silhouette_polygon(i, j, k, ox, oy))
         for (i, j, k) in cubes_set
@@ -111,7 +131,8 @@ def render_shape(cubes, ox, oy):
             pts_str = " ".join(f"{round(x, 2)},{round(y, 2)}" for x, y in path)
             elems.append(
                 f'<polyline points="{pts_str}" fill="none" '
-                f'stroke="#111" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="round"/>'
+                f'stroke="{SILHOUETTE_STROKE}" stroke-width="{SILHOUETTE_WIDTH}" '
+                f'stroke-linejoin="miter" stroke-linecap="round"/>'
             )
 
     return "\n".join(elems)
