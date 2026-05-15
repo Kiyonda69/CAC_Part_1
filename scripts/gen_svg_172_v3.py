@@ -37,13 +37,31 @@ def cube_silhouette_polygon(i, j, k, ox, oy):
     return [v002, v102, v100, v110, v010, v012]
 
 
+def geom_to_polygons(geom, fill, stroke="#111", stroke_width="1.2"):
+    """Polygon/MultiPolygon を SVG polygon 要素群に変換"""
+    if geom is None or geom.is_empty:
+        return []
+    geoms = [geom] if geom.geom_type == "Polygon" else list(geom.geoms)
+    results = []
+    for g in geoms:
+        pts = list(g.exterior.coords)
+        pts_str = " ".join(f"{round(x, 2)},{round(y, 2)}" for x, y in pts)
+        results.append(
+            f'<polygon points="{pts_str}" '
+            f'fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}" stroke-linejoin="miter"/>'
+        )
+    return results
+
+
 def render_shape(cubes, ox, oy):
     cubes_set = set(cubes)
     elems = []
 
-    # 1. 見える面の polygon を描画 (top/front/right)
-    sorted_cubes = sorted(cubes_set, key=lambda c: (c[0] - c[1] + c[2], -c[1], c[0], c[2]))
-    for (i, j, k) in sorted_cubes:
+    # 同じ方向の見える面を方向別に収集
+    top_polys = []
+    front_polys = []
+    right_polys = []
+    for (i, j, k) in cubes_set:
         v000 = vertex(i,   j,   k,   ox, oy)
         v100 = vertex(i+1, j,   k,   ox, oy)
         v110 = vertex(i+1, j+1, k,   ox, oy)
@@ -54,25 +72,23 @@ def render_shape(cubes, ox, oy):
         v011 = vertex(i,   j+1, k+1, ox, oy)
 
         if (i, j, k+1) not in cubes_set:
-            pts = [v001, v101, v111, v011]
-            elems.append(
-                f'<polygon points="{poly_str(pts)}" '
-                f'fill="#dcdcdc" stroke="#111" stroke-width="1.2" stroke-linejoin="miter"/>'
-            )
+            top_polys.append(Polygon([v001, v101, v111, v011]))
         if (i, j-1, k) not in cubes_set:
-            pts = [v000, v100, v101, v001]
-            elems.append(
-                f'<polygon points="{poly_str(pts)}" '
-                f'fill="#a8a8a8" stroke="#111" stroke-width="1.2" stroke-linejoin="miter"/>'
-            )
+            front_polys.append(Polygon([v000, v100, v101, v001]))
         if (i+1, j, k) not in cubes_set:
-            pts = [v100, v110, v111, v101]
-            elems.append(
-                f'<polygon points="{poly_str(pts)}" '
-                f'fill="#787878" stroke="#111" stroke-width="1.2" stroke-linejoin="miter"/>'
-            )
+            right_polys.append(Polygon([v100, v110, v111, v101]))
 
-    # 2. 全立方体の2D投影の和集合の外周 = 立体のシルエット
+    # 各方向ごとに結合 → 単一/複数のポリゴンに
+    top_union = unary_union(top_polys) if top_polys else None
+    front_union = unary_union(front_polys) if front_polys else None
+    right_union = unary_union(right_polys) if right_polys else None
+
+    # 描画順: 右(暗) → 前(中) → 上(明) で奥から手前に重ねる
+    elems.extend(geom_to_polygons(right_union, "#787878"))
+    elems.extend(geom_to_polygons(front_union, "#a8a8a8"))
+    elems.extend(geom_to_polygons(top_union, "#dcdcdc"))
+
+    # 立体全体のシルエット外形を追加（見えない立方体の輪郭も含めるため）
     cube_silhouettes = [
         Polygon(cube_silhouette_polygon(i, j, k, ox, oy))
         for (i, j, k) in cubes_set
@@ -95,7 +111,7 @@ def render_shape(cubes, ox, oy):
             pts_str = " ".join(f"{round(x, 2)},{round(y, 2)}" for x, y in path)
             elems.append(
                 f'<polyline points="{pts_str}" fill="none" '
-                f'stroke="#111" stroke-width="1.8" stroke-linejoin="miter" stroke-linecap="round"/>'
+                f'stroke="#111" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="round"/>'
             )
 
     return "\n".join(elems)
