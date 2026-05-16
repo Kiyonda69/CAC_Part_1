@@ -1,0 +1,413 @@
+<!--
+================================================================================
+印刷173.html - 立方体組み合わせ問題セット（印刷用）
+================================================================================
+問1: 2×2×2立方体に組み合わせる立体を選ぶ（標準）
+問2: 3×3×3立方体に組み合わせる立体を選ぶ（高難度）
+
+※空間視覚化能力を測定する
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 20px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .options { margin-left: 20px; line-height: 2; }
+        .figure-container {
+            margin: 18px 0; padding: 15px; background-color: white;
+            border: 1px solid #dddddd; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .figure-content { display: inline-block; margin: 5px auto; }
+        .candidates-row {
+            display: flex; justify-content: space-around; align-items: flex-end;
+            flex-wrap: nowrap; gap: 6px;
+        }
+        .candidate-cell {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 0 4px;
+        }
+        .candidate-label { font-weight: bold; margin-top: 6px; font-size: 14px; }
+        svg { max-width: 100%; height: auto; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．小さな立方体を積み上げて接着し、下図のような立体Ａを作りました。立体Ａと、(1)〜(5)のうち1つの立体を回転させて組み合わせると、1辺が小立方体2個分の大きな立方体（小立方体8個でできた立方体）になります。組み合わせる立体として正しいものを、1つ選びなさい。（6点）</div>
+
+                <!--
+                図表仕様（問1 立体A）:
+                - SVG 113x114px、立方体辺長28px、等角投影
+                - 立体A: 4個のトリポッド（座標(0,0,0),(1,0,0),(0,1,0),(0,0,1)）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【立体Ａ】（小立方体4個）</div>
+                    <div class="figure-content">
+                        <svg width="113" height="114" viewBox="0 0 113.00 114.00">
+                            <polygon points="32.25,50.0 56.5,64.0 32.25,78.0 8.0,64.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="56.5,92.0 32.25,106.0 32.25,78.0 56.5,64.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="56.5,64.0 80.75,78.0 80.75,50.0 56.5,36.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="80.75,50.0 105.0,64.0 80.75,78.0 56.5,64.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="105.0,92.0 80.75,106.0 80.75,78.0 105.0,64.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="80.75,78.0 105.0,92.0 105.0,64.0 80.75,50.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="56.5,8.0 80.75,22.0 56.5,36.0 32.25,22.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="80.75,50.0 56.5,64.0 56.5,36.0 80.75,22.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="56.5,36.0 80.75,50.0 80.75,22.0 56.5,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様（問1 候補(1)〜(5)）:
+                - 各候補とも小立方体4個、立方体辺長22px
+                - (1) 2×2×1スラブ
+                - (2) トリポッド ← 正解
+                - (3) L字（平面、1×3 + 1）
+                - (4) T字（平面、1×3 + 1中央）
+                - (5) S字（平面、2 + 2ずれ）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【候補(1)〜(5)】</div>
+                    <div class="candidates-row">
+                        <div class="candidate-cell">
+                            <svg width="92" height="82" viewBox="0 0 92.22 82.00">
+                                <polygon points="27.06,19.0 46.11,30.0 27.06,41.0 8.0,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,8.0 65.16,19.0 46.11,30.0 27.06,19.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,30.0 65.16,41.0 65.16,19.0 46.11,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,30.0 65.16,41.0 46.11,52.0 27.06,41.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,63.0 46.11,74.0 46.11,52.0 65.16,41.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,19.0 84.22,30.0 65.16,41.0 46.11,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="84.22,52.0 65.16,63.0 65.16,41.0 84.22,30.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,41.0 84.22,52.0 84.22,30.0 65.16,19.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(1)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="92" height="93" viewBox="0 0 92.22 93.00">
+                                <polygon points="27.06,41.0 46.11,52.0 27.06,63.0 8.0,52.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,74.0 27.06,85.0 27.06,63.0 46.11,52.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,52.0 65.16,63.0 65.16,41.0 46.11,30.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,41.0 84.22,52.0 65.16,63.0 46.11,52.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="84.22,74.0 65.16,85.0 65.16,63.0 84.22,52.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,63.0 84.22,74.0 84.22,52.0 65.16,41.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,8.0 65.16,19.0 46.11,30.0 27.06,19.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,41.0 46.11,52.0 46.11,30.0 65.16,19.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,30.0 65.16,41.0 65.16,19.0 46.11,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(2)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="111" height="82" viewBox="0 0 111.27 82.00">
+                                <polygon points="27.06,19.0 46.11,30.0 27.06,41.0 8.0,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,52.0 27.06,63.0 27.06,41.0 46.11,30.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,8.0 65.16,19.0 46.11,30.0 27.06,19.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.11,30.0 65.16,41.0 65.16,19.0 46.11,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,19.0 84.22,30.0 65.16,41.0 46.11,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,41.0 84.22,52.0 84.22,30.0 65.16,19.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="84.22,30.0 103.27,41.0 84.22,52.0 65.16,41.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="103.27,63.0 84.22,74.0 84.22,52.0 103.27,41.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="84.22,52.0 103.27,63.0 103.27,41.0 84.22,30.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(3)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="92" height="82" viewBox="0 0 92.21 82.00">
+                                <polygon points="27.05,8.0 46.1,19.0 27.05,30.0 8.0,19.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="27.05,30.0 46.1,41.0 46.1,19.0 27.05,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="27.05,30.0 46.1,41.0 27.05,52.0 8.0,41.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,63.0 27.05,74.0 27.05,52.0 46.1,41.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,19.0 65.16,30.0 46.1,41.0 27.05,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,41.0 65.16,52.0 65.16,30.0 46.1,19.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,30.0 84.21,41.0 65.16,52.0 46.1,41.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="84.21,63.0 65.16,74.0 65.16,52.0 84.21,41.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,52.0 84.21,63.0 84.21,41.0 65.16,30.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(4)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="73" height="93" viewBox="0 0 73.16 93.00">
+                                <polygon points="27.05,8.0 46.1,19.0 27.05,30.0 8.0,19.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="27.05,30.0 46.1,41.0 46.1,19.0 27.05,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="27.05,30.0 46.1,41.0 27.05,52.0 8.0,41.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,19.0 65.16,30.0 46.1,41.0 27.05,30.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,52.0 46.1,63.0 46.1,41.0 65.16,30.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,41.0 65.16,52.0 65.16,30.0 46.1,19.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,41.0 65.16,52.0 46.1,63.0 27.05,52.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="65.16,74.0 46.1,85.0 46.1,63.0 65.16,52.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="46.1,63.0 65.16,74.0 65.16,52.0 46.1,41.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(5)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    立体Aと組み合わせて2×2×2の立方体を作る立体は (1)〜(5) のうちどれですか。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br><br>
+
+                <strong>【立体Aの形状分析】</strong><br>
+                立体Aは、1個の中心立方体から3方向（右・奥・上）に1個ずつ立方体が伸びた「トリポッド（3本足）」の形をしている。<br>
+                合計4個の小立方体からなる。<br><br>
+
+                <strong>【欠けた部分の形状】</strong><br>
+                2×2×2の大きな立方体は8個の小立方体からなる。立体Aは4個なので、欠けた部分も4個。<br>
+                Aの中心の対角にある頂点を中心とした、もう一つの「トリポッド」の形になる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2×2×1スラブ（4個の平面正方形） → 立体的に伸びていないので不適。<br>
+                ・(2) トリポッド（3軸方向に伸びた4個） → <strong>欠けた部分と同じ形。正解。</strong><br>
+                ・(3) 1×3直線+1（平面L字型） → 1辺3個分の長さがあり、2×2の範囲に収まらない。<br>
+                ・(4) 1×3直線+1中央（平面T字型） → 同様に長すぎる。<br>
+                ・(5) 2+2ずれ（平面S字型） → 同様に長すぎる。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．小さな立方体を積み上げて接着し、下図のような立体Ａを作りました。立体Ａと、(1)〜(5)のうち1つの立体を回転させて組み合わせると、1辺が小立方体3個分の大きな立方体（小立方体27個でできた立方体）になります。組み合わせる立体として正しいものを、1つ選びなさい。（6点）</div>
+
+                <!--
+                図表仕様（問2 立体A）:
+                - SVG 130x148px、立方体辺長22px、等角投影
+                - 立体A: 階段ピラミッド（18個）
+                  z=0: 3×3 (9個)、z=1: 3×2 y=0,1 (6個)、z=2: 3×1 y=0 (3個)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【立体Ａ】（小立方体18個）</div>
+                    <div class="figure-content">
+                        <svg width="130" height="148" viewBox="0 0 130.32 148.00">
+                            <polygon points="27.05,74.0 46.11,85.0 27.05,96.0 8.0,85.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="46.11,85.0 65.16,96.0 46.11,107.0 27.05,96.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,74.0 84.21,85.0 84.21,63.0 65.16,52.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,96.0 84.21,107.0 65.16,118.0 46.11,107.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,129.0 65.16,140.0 65.16,118.0 84.21,107.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="46.11,41.0 65.16,52.0 46.11,63.0 27.05,52.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,52.0 84.21,63.0 84.21,41.0 65.16,30.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,118.0 84.21,129.0 84.21,107.0 103.27,96.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,85.0 103.27,96.0 103.27,74.0 84.21,63.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,52.0 84.21,63.0 65.16,74.0 46.11,63.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,63.0 103.27,74.0 84.21,85.0 65.16,74.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,96.0 84.21,107.0 84.21,85.0 103.27,74.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,63.0 103.27,74.0 103.27,52.0 84.21,41.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,8.0 84.21,19.0 65.16,30.0 46.11,19.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="65.16,30.0 84.21,41.0 84.21,19.0 65.16,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="122.32,107.0 103.27,118.0 103.27,96.0 122.32,85.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,96.0 122.32,107.0 122.32,85.0 103.27,74.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="122.32,85.0 103.27,96.0 103.27,74.0 122.32,63.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,74.0 122.32,85.0 122.32,63.0 103.27,52.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,19.0 103.27,30.0 84.21,41.0 65.16,30.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="84.21,41.0 103.27,52.0 103.27,30.0 84.21,19.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,30.0 122.32,41.0 103.27,52.0 84.21,41.0" fill="white" stroke="black" stroke-width="1"/>
+                            <polygon points="122.32,63.0 103.27,74.0 103.27,52.0 122.32,41.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            <polygon points="103.27,52.0 122.32,63.0 122.32,41.0 103.27,30.0" fill="#888888" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様（問2 候補(1)〜(5)）:
+                - 各候補とも小立方体9個、立方体辺長18px
+                - (1) 小階段ピラミッド（1×3+2×3）← 正解
+                - (2) 3×3×1スラブ（正方形板）
+                - (3) 2×2×2立方体 + 1個突起
+                - (4) 5+3+1ピラミッド（平面内3層）
+                - (5) 3D螺旋ジグザグ（3層×3個）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【候補(1)〜(5)】</div>
+                    <div class="candidates-row">
+
+                        <div class="candidate-cell">
+                            <svg width="94" height="88" viewBox="0 0 93.95 88.00">
+                                <polygon points="39.18,44.0 54.77,53.0 54.77,35.0 39.18,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="23.59,17.0 39.18,26.0 23.59,35.0 8.0,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,53.0 70.36,62.0 70.36,44.0 54.77,35.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,8.0 54.77,17.0 39.18,26.0 23.59,17.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,26.0 54.77,35.0 54.77,17.0 39.18,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,26.0 54.77,35.0 39.18,44.0 23.59,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,35.0 70.36,44.0 54.77,53.0 39.18,44.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,62.0 54.77,71.0 54.77,53.0 70.36,44.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,17.0 70.36,26.0 54.77,35.0 39.18,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,35.0 70.36,44.0 70.36,26.0 54.77,17.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,71.0 70.36,80.0 70.36,62.0 85.95,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,62.0 85.95,71.0 85.95,53.0 70.36,44.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,26.0 85.95,35.0 70.36,44.0 54.77,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,53.0 70.36,62.0 70.36,44.0 85.95,35.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,44.0 85.95,53.0 85.95,35.0 70.36,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(1)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="110" height="88" viewBox="0 0 109.54 88.00">
+                                <polygon points="23.59,26.0 39.18,35.0 23.59,44.0 8.0,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,17.0 54.77,26.0 39.18,35.0 23.59,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,35.0 54.77,44.0 39.18,53.0 23.59,44.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,26.0 70.36,35.0 54.77,44.0 39.18,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,8.0 70.36,17.0 54.77,26.0 39.18,17.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,26.0 70.36,35.0 70.36,17.0 54.77,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,44.0 70.36,53.0 54.77,62.0 39.18,53.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,71.0 54.77,80.0 54.77,62.0 70.36,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,35.0 85.95,44.0 70.36,53.0 54.77,44.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,62.0 70.36,71.0 70.36,53.0 85.95,44.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,17.0 85.95,26.0 70.36,35.0 54.77,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,35.0 85.95,44.0 85.95,26.0 70.36,17.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,26.0 101.54,35.0 85.95,44.0 70.36,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="101.54,53.0 85.95,62.0 85.95,44.0 101.54,35.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,44.0 101.54,53.0 101.54,35.0 85.95,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(2)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="94" height="88" viewBox="0 0 93.95 88.00">
+                                <polygon points="54.77,71.0 39.18,80.0 39.18,62.0 54.77,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,44.0 54.77,53.0 54.77,35.0 39.18,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="23.59,17.0 39.18,26.0 23.59,35.0 8.0,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,53.0 70.36,62.0 70.36,44.0 54.77,35.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,8.0 54.77,17.0 39.18,26.0 23.59,17.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,26.0 54.77,35.0 54.77,17.0 39.18,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,26.0 54.77,35.0 39.18,44.0 23.59,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,53.0 39.18,62.0 39.18,44.0 54.77,35.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,17.0 70.36,26.0 54.77,35.0 39.18,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,44.0 54.77,53.0 54.77,35.0 70.36,26.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,35.0 70.36,44.0 70.36,26.0 54.77,17.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,44.0 85.95,53.0 70.36,62.0 54.77,53.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,71.0 70.36,80.0 70.36,62.0 85.95,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,62.0 85.95,71.0 85.95,53.0 70.36,44.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(3)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="110" height="106" viewBox="0 0 109.53 106.00">
+                                <polygon points="23.59,26.0 39.18,35.0 23.59,44.0 8.0,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="23.59,44.0 39.18,53.0 39.18,35.0 23.59,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,53.0 54.77,62.0 54.77,44.0 39.18,35.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,17.0 54.77,26.0 39.18,35.0 23.59,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,35.0 54.77,44.0 54.77,26.0 39.18,17.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,62.0 70.36,71.0 70.36,53.0 54.77,44.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,71.0 85.94,80.0 85.94,62.0 70.36,53.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,44.0 70.36,53.0 70.36,35.0 54.77,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,8.0 70.36,17.0 54.77,26.0 39.18,17.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,35.0 54.77,44.0 54.77,26.0 70.36,17.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,26.0 70.36,35.0 70.36,17.0 54.77,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="85.94,62.0 101.53,71.0 85.94,80.0 70.36,71.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="101.53,89.0 85.94,98.0 85.94,80.0 101.53,71.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="85.94,80.0 101.53,89.0 101.53,71.0 85.94,62.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,35.0 85.94,44.0 70.36,53.0 54.77,44.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="85.94,62.0 70.36,71.0 70.36,53.0 85.94,44.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,53.0 85.94,62.0 85.94,44.0 70.36,35.0" fill="#888888" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(4)</div>
+                        </div>
+                        <div class="candidate-cell">
+                            <svg width="110" height="88" viewBox="0 0 109.54 88.00">
+                                <polygon points="54.77,26.0 70.36,35.0 54.77,44.0 39.18,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,44.0 70.36,53.0 70.36,35.0 54.77,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="23.59,8.0 39.18,17.0 23.59,26.0 8.0,17.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="23.59,26.0 39.18,35.0 39.18,17.0 23.59,8.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,35.0 85.95,44.0 70.36,53.0 54.77,44.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,53.0 85.95,62.0 85.95,44.0 70.36,35.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,17.0 54.77,26.0 39.18,35.0 23.59,26.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="39.18,35.0 54.77,44.0 54.77,26.0 39.18,17.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,71.0 54.77,80.0 54.77,62.0 70.36,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,62.0 70.36,71.0 70.36,53.0 85.95,44.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="54.77,44.0 70.36,53.0 70.36,35.0 54.77,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="101.54,71.0 85.95,80.0 85.95,62.0 101.54,53.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,62.0 101.54,71.0 101.54,53.0 85.95,44.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,26.0 101.54,35.0 85.95,44.0 70.36,35.0" fill="white" stroke="black" stroke-width="1"/>
+                                <polygon points="101.54,53.0 85.95,62.0 85.95,44.0 101.54,35.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                                <polygon points="85.95,44.0 101.54,53.0 101.54,35.0 85.95,26.0" fill="#888888" stroke="black" stroke-width="1"/>
+                                <polygon points="70.36,53.0 54.77,62.0 54.77,44.0 70.36,35.0" fill="#cccccc" stroke="black" stroke-width="1"/>
+                            </svg>
+                            <div class="candidate-label">(5)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    立体Aと組み合わせて3×3×3の立方体を作る立体は (1)〜(5) のうちどれですか。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br><br>
+
+                <strong>【立体Aの形状分析】</strong><br>
+                立体Aは3層から成る階段ピラミッドである。<br>
+                ・1層目（底）: 3×3=9個の小立方体が敷き詰められた正方形<br>
+                ・2層目: 3×2=6個（奥行き2列分のみ）<br>
+                ・3層目（頂上）: 3×1=3個（手前1列のみ）<br>
+                合計 9+6+3=<strong>18個</strong>の小立方体からなる。<br><br>
+
+                <strong>【欠けた部分の分析】</strong><br>
+                3×3×3の大きな立方体は27個の小立方体からなる。<br>
+                欠けた部分は 27−18=<strong>9個</strong>。<br>
+                ・2層目で欠ける部分: 1×3=3個（奥側1列）<br>
+                ・3層目で欠ける部分: 2×3=6個（奥側2列）<br>
+                したがって欠けた部分は「2層目1列＋3層目2列」という小さい階段（2段）形状の立体。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 1×3＋2×3の小階段（9個、2段ピラミッド） → <strong>欠けた部分と同じ形。正解。</strong><br>
+                ・(2) 3×3×1の正方形板 → 平面で2段の段差がない。不適。<br>
+                ・(3) 2×2×2＋1個の突起 → 形状が全く異なる。不適。<br>
+                ・(4) 5＋3＋1の3段ピラミッド（平面内） → 3段階あり、欠けた部分は2段なので形が異なる。不適。<br>
+                ・(5) 3層×3個の3D螺旋 → 3層で各層3個の螺旋構造、欠けた部分の階段形とは異なる。不適。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+</body>
+</html>
