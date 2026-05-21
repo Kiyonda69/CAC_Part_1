@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white;
+            border: 1px solid #ddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．次の図は、ある立体を正面および上から見たものである。この立体の展開図として、正しいものを1つ選び、番号で答えよ。（6点）</div>
+
+            <!--
+            図表仕様（問1）:
+            - 五角形（家型・左右対称）: 頂点 (0,0),(4,0),(4,3),(2,4),(0,3)
+            - 1単位=15px、左上余白 (10,10)
+            - 正面図 SVG: 90x80
+            - 上面図 SVG: 70x50
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】立体の正面図と上から見た図</div>
+                <div class="figure-content">
+                    <svg width="320" height="100" viewBox="0 0 320 100">
+                        <!-- 正面図 -->
+                        <text x="20" y="20" class="svg-text" text-anchor="start">正面図</text>
+                        <g transform="translate(85,10)">
+                            <polygon points="0,60 60,60 60,15 30,0 0,15"
+                                     fill="none" stroke="black" stroke-width="2"/>
+                        </g>
+                        <!-- 上から見た図 -->
+                        <text x="170" y="20" class="svg-text" text-anchor="start">上から見た図</text>
+                        <g transform="translate(260,30)">
+                            <rect x="0" y="0" width="60" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="30" y1="0" x2="30" y2="30" stroke="black" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢SVG仕様:
+            - 各オプション: 120x110、viewBox 0 0 120 110
+            - 展開図は5枚の側面長方形を横一列(strip)に並べ、中央の底面長方形(幅4)に
+              上下から五角形端面を貼り付けるレイアウト
+            - 1単位=6px
+            - strip中心線 SVG y=55 ～ 67 (高さ12=奥行2×6)
+            - 底面: SVG x=18～42 (幅24=4単位)
+            - 右壁: SVG x=42～60 (幅18=3単位)
+            - 右斜辺: SVG x=60～73.4 (幅約13.4=√5×6)
+            - 左斜辺: SVG x=73.4～86.9 (幅約13.4)
+            - 左壁: SVG x=86.9～104.9 (幅18=3単位)
+            - 上ペンタ: x=18～42、y=55→31 (高さ24=4単位)、頂点(30,31)
+            - 下ペンタ: x=18～42、y=67→91 (高さ24)、頂点(30,91)
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-title">【図2】展開図の選択肢</div>
+                <div class="figure-content">
+                    <svg width="650" height="140" viewBox="0 0 660 140">
+
+                        <!-- (1) 屋根の斜辺長を sqrt(3)≈10.4px に短縮（不正解） -->
+                        <g transform="translate(0,0)">
+                            <text x="60" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                            <!-- strip -->
+                            <rect x="18" y="55" width="24" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="42" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="60" y="55" width="10.4" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="70.4" y="55" width="10.4" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="80.8" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <!-- 上ペンタ -->
+                            <polygon points="18,55 42,55 42,37 30,31 18,37" fill="none" stroke="black" stroke-width="1.5"/>
+                            <!-- 下ペンタ -->
+                            <polygon points="18,67 42,67 42,85 30,91 18,85" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (2) 正解: すべて正しい寸法 -->
+                        <g transform="translate(132,0)">
+                            <text x="60" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                            <rect x="18" y="55" width="24" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="42" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="60" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="73.42" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="86.84" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,55 42,55 42,37 30,31 18,37" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,67 42,67 42,85 30,91 18,85" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (3) 五角形端面が非対称（頂点が左にずれる）：x=22に頂点 -->
+                        <g transform="translate(264,0)">
+                            <text x="60" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                            <rect x="18" y="55" width="24" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="42" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="60" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="73.42" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="86.84" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,55 42,55 42,37 22,31 18,37" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,67 42,67 42,85 22,91 18,85" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (4) 底辺が 5 と長い：底24→30、五角形底辺も30に -->
+                        <g transform="translate(396,0)">
+                            <text x="60" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                            <rect x="15" y="55" width="30" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="45" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="63" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="76.42" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="89.84" y="55" width="18" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="15,55 45,55 45,37 30,31 15,37" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="15,67 45,67 45,85 30,91 15,85" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (5) 壁が 2 と低い：両端の壁が幅18→12、五角形側壁高も12に -->
+                        <g transform="translate(528,0)">
+                            <text x="60" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                            <rect x="18" y="55" width="24" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="42" y="55" width="12" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="54" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="67.42" y="55" width="13.42" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="80.84" y="55" width="12" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,55 42,55 42,43 30,37 18,43" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="18,67 42,67 42,79 30,85 18,79" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1(正解:(2))</strong><br>
+            正面図は対称な「家型」五角形であり、底辺=4、左右の壁=3、屋根の頂点は底辺中央の真上(高さ4)に位置する。上から見た図は4×2の長方形が中央の縦線で2等分されており、奥行2、屋根の頂点が前後方向に走る稜線として現れていることを示している。<br><br>
+
+            <strong>【立体の構造】</strong><br>
+            ・五角形の頂点: (0,0),(4,0),(4,3),(2,4),(0,3)（対称な家型）<br>
+            ・奥行: 2<br>
+            ・5本の辺長: 底4、右壁3、右斜辺√5、左斜辺√5、左壁3<br>
+            ・対称性より、左右の壁、左右の斜辺はそれぞれ同じ長さ<br><br>
+
+            <strong>【展開図の必要条件】</strong><br>
+            ・五角形端面を2枚（前面と背面）含む<br>
+            ・5枚の側面長方形（高さはすべて奥行2に等しい）を含む<br>
+            ・側面長方形の幅は、対応する五角形の辺と同じ長さ（底=4、壁=3、斜=√5）<br>
+            ・端面の五角形は対称（底4、壁3、頂点が底中央の真上で高さ4）<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 屋根の斜辺長が短い（√3相当）→ 五角形端面の斜辺と一致せず、折りたためない。<br>
+            ・(2) すべての辺長・対称性が条件を満たす → <strong>正解</strong>。<br>
+            ・(3) 五角形端面の頂点が左にずれて非対称 → 上から見た図の中央分割と整合しない。<br>
+            ・(4) 底面の幅が5になっており、正面図の底辺4と一致しない。<br>
+            ・(5) 壁の長方形が幅2しかなく、正面図の壁の長さ3と一致しない。<br><br>
+
+            したがって、正解は<strong>(2)</strong>である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．次の図は、ある立体を正面および上から見たものである。この立体の展開図として、正しいものを1つ選び、番号で答えよ。（6点）</div>
+
+            <!--
+            図表仕様（問2）:
+            - 五角形（家型・非対称）: 頂点 (0,0),(6,0),(6,2),(2,4),(0,4)
+              ・底=6、右壁=2、屋根斜辺=2√5、屋根上辺=2、左壁=4
+              ・屋根の頂点は底辺基準で x=2 の位置（左寄り）
+            - 奥行 D=3
+            - 上面図: 6×3 の長方形を x=2 で縦に2分割
+            - 正面図 SVG スケール: 1単位=10px、offset (85,10)
+              ・(0,0)→(85,50)、(6,0)→(145,50)、(6,2)→(145,30)、(2,4)→(105,10)、(0,4)→(85,10)
+            - 上面図 SVG スケール: 1単位=10px、offset (270,30)
+              ・rect (270,30)-(330,60)、分割線 x=290（=270+2*10）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】立体の正面図と上から見た図</div>
+                <div class="figure-content">
+                    <svg width="400" height="80" viewBox="0 0 400 80">
+                        <text x="20" y="20" class="svg-text" text-anchor="start">正面図</text>
+                        <g>
+                            <polygon points="85,55 145,55 145,35 105,15 85,15"
+                                     fill="none" stroke="black" stroke-width="2"/>
+                        </g>
+                        <text x="180" y="20" class="svg-text" text-anchor="start">上から見た図</text>
+                        <g>
+                            <rect x="280" y="30" width="60" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="300" y1="30" x2="300" y2="60" stroke="black" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢SVG仕様（問2、scale=4px/unit）:
+            - 五角形展開: [底6][右壁2][斜辺2√5][上辺2][左壁4]の帯
+            - 帯の高さ: 12px（奥行3×4）  y=35～47
+            - 帯の幅: 24+8+17.89+8+16 ≈ 73.89px、x=5～78.89
+            - 上ペンタ（apex左寄り x=2 → SVG x=13、y=19）:
+              points "5,35 29,35 29,27 13,19 5,19"
+            - 下ペンタ（上下反転）: points "5,47 29,47 29,55 13,63 5,63"
+            -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-title">【図2】展開図の選択肢</div>
+                <div class="figure-content">
+                    <svg width="650" height="160" viewBox="0 0 660 160">
+
+                        <!-- (1) 屋根斜辺が短い(sqrt(10)≈3.16単位、12.65px) -->
+                        <g transform="translate(0,0)">
+                            <text x="65" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                            <rect x="5"     y="35" width="24"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="29"    y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="37"    y="35" width="12.65" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="49.65" y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="57.65" y="35" width="16"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,35 29,35 29,27 13,19 5,19" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,47 29,47 29,55 13,63 5,63" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (2) 右壁が3単位(12px)と長い -->
+                        <g transform="translate(132,0)">
+                            <text x="65" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                            <rect x="5"     y="35" width="24"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="29"    y="35" width="12"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="41"    y="35" width="17.89" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="58.89" y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="66.89" y="35" width="16"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,35 29,35 29,27 13,19 5,19" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,47 29,47 29,55 13,63 5,63" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (3) 正解: すべて正しい寸法 -->
+                        <g transform="translate(264,0)">
+                            <text x="65" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                            <rect x="5"     y="35" width="24"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="29"    y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="37"    y="35" width="17.89" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="54.89" y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="62.89" y="35" width="16"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,35 29,35 29,27 13,19 5,19" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,47 29,47 29,55 13,63 5,63" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (4) 端面の屋根頂点が x=4(SVG21)にずれる -->
+                        <g transform="translate(396,0)">
+                            <text x="65" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                            <rect x="5"     y="35" width="24"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="29"    y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="37"    y="35" width="17.89" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="54.89" y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="62.89" y="35" width="16"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,35 29,35 29,27 21,19 5,19" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,47 29,47 29,55 21,63 5,63" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                        <!-- (5) 端面が左右反転(頂点が右側、右壁が長い) -->
+                        <g transform="translate(528,0)">
+                            <text x="65" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                            <rect x="5"     y="35" width="24"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="29"    y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="37"    y="35" width="17.89" height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="54.89" y="35" width="8"     height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <rect x="62.89" y="35" width="16"    height="12" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,35 29,35 29,19 21,19 5,27" fill="none" stroke="black" stroke-width="1.5"/>
+                            <polygon points="5,47 29,47 29,63 21,63 5,55" fill="none" stroke="black" stroke-width="1.5"/>
+                        </g>
+
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2(正解:(3))</strong><br>
+            正面図は<u>非対称</u>な「家型」五角形であり、底辺=6、右壁=2（短い）、左壁=4（長い）、屋根の頂点は底辺左端から測って x=2 の位置（左寄り）にある。上から見た図の中央分割線は x=2 にあり、屋根上辺(長さ2)と屋根斜辺(長さ2√5)の境界線が前後方向に走ることと整合している。<br><br>
+
+            <strong>【立体の構造】</strong><br>
+            ・五角形の頂点: (0,0),(6,0),(6,2),(2,4),(0,4)<br>
+            ・5本の辺長: 底6、右壁2、屋根斜辺=√((6-2)²+(4-2)²)=√20=2√5、屋根上辺=2、左壁=4<br>
+            ・奥行: 3<br><br>
+
+            <strong>【展開図の必要条件】</strong><br>
+            ・五角形端面2枚は、底辺6・右壁2・斜辺2√5・上辺2・左壁4 の<u>同一形状</u>でなければならない<br>
+            ・5枚の側面長方形の幅は、五角形の各辺と一致する（高さはすべて奥行3）<br>
+            ・側面長方形の並び順は五角形の周回順序と一致する<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 屋根斜辺の長方形が短い（√10相当）→ 五角形端面の斜辺2√5と一致せず折りたためない。<br>
+            ・(2) 右壁の長方形が幅3になっており、五角形の右壁長2と一致しない。<br>
+            ・(3) すべての辺長が正面図と一致し、端面の形状も非対称な家型のまま → <strong>正解</strong>。<br>
+            ・(4) 五角形端面の頂点が x=4 にずれており、正面図の頂点位置 x=2 と一致しない。<br>
+            ・(5) 五角形端面が左右反転（頂点が右側、右壁が長い）しており、正面図と整合しない。<br><br>
+
+            したがって、正解は<strong>(3)</strong>である。
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
