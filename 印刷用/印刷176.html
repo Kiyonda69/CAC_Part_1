@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #888;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; min-height: 100vh;
+        }
+        .question-section {
+            background-color: white; padding: 40px; margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px; height: calc(800px * 297 / 210);
+            overflow: hidden; position: relative; flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 10px; }
+        .figure-container { margin: 20px 0; padding: 20px; background-color: white; border: 1px solid #dddddd; text-align: center; }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        svg { max-width: 100%; height: auto; }
+        .svg-text { font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif; font-size: 14px; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section { box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible; }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<!--
+共通: 正面シルエット描画用のヘルパー
+- 各選択肢は3本の縦棒（コンテナ段数を示す）
+- ボックスサイズ30x30、ベースラインy=150
+- 段数N→ y方向にN個積み上げ
+-->
+
+<!-- ========== 問1 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問1．下図は、ある空港の貨物ターミナルで3×3に区切られたエリアに積まれた航空貨物用コンテナ（ULD）の段数を真上から見た平面図である。各マスの数字はそのマスに積まれているコンテナの段数を表す。観察者が南側（図の下方向）からこのコンテナ群を正面に見たときに見えるシルエット（各列の最も高い段数で形作られる輪郭）として正しいものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 360x340
+            - viewBox: 0 0 360 340
+            - 3×3グリッド、各セル80x80
+            - グリッド全体: 240x240, 中央配置 (60, 60)
+            - 北矢印: 上方 / 観察者: 下方
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】貨物コンテナの平面図（上から見た図）</div>
+                <div class="figure-content">
+                    <svg width="380" height="360" viewBox="0 0 380 360">
+                        <!-- 北矢印 -->
+                        <text x="190" y="22" class="svg-text" text-anchor="middle" font-weight="bold">北 ↑</text>
+
+                        <!-- グリッド (左上 (70,40), セル80) -->
+                        <g transform="translate(70, 40)">
+                            <!-- セル枠 -->
+                            <rect x="0" y="0" width="240" height="240" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="0" x2="80" y2="240" stroke="black" stroke-width="2"/>
+                            <line x1="160" y1="0" x2="160" y2="240" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="80" x2="240" y2="80" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="160" x2="240" y2="160" stroke="black" stroke-width="2"/>
+
+                            <!-- 数字: 行1 [2][1][3] -->
+                            <text x="40" y="50" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">2</text>
+                            <text x="120" y="50" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">1</text>
+                            <text x="200" y="50" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">3</text>
+
+                            <!-- 数字: 行2 [1][2][1] -->
+                            <text x="40" y="130" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">1</text>
+                            <text x="120" y="130" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">2</text>
+                            <text x="200" y="130" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">1</text>
+
+                            <!-- 数字: 行3 [2][3][2] -->
+                            <text x="40" y="210" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">2</text>
+                            <text x="120" y="210" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">3</text>
+                            <text x="200" y="210" class="svg-text" text-anchor="middle" font-size="28" font-weight="bold">2</text>
+                        </g>
+
+                        <!-- 観察者の位置 -->
+                        <text x="190" y="300" class="svg-text" text-anchor="middle">↑ この方向から正面に見る（南側）</text>
+                        <text x="190" y="325" class="svg-text" text-anchor="middle" font-weight="bold">▲ 観察者</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 5つの正面シルエット -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-content">
+                    <svg width="700" height="200" viewBox="0 0 700 200">
+                        <!-- (1) [2, 3, 2] -->
+                        <g transform="translate(20, 10)">
+                            <text x="55" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                            <!-- 列1: 2段 -->
+                            <rect x="10" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 列2: 3段 -->
+                            <rect x="45" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 列3: 2段 -->
+                            <rect x="80" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 地面ライン -->
+                            <line x1="0" y1="160" x2="120" y2="160" stroke="black" stroke-width="2"/>
+                        </g>
+
+                        <!-- (2) [3, 3, 3] -->
+                        <g transform="translate(160, 10)">
+                            <text x="55" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                            <rect x="10" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="160" x2="120" y2="160" stroke="black" stroke-width="2"/>
+                        </g>
+
+                        <!-- (3) [2, 3, 3] -->
+                        <g transform="translate(300, 10)">
+                            <text x="55" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                            <rect x="10" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="160" x2="120" y2="160" stroke="black" stroke-width="2"/>
+                        </g>
+
+                        <!-- (4) [1, 2, 3] -->
+                        <g transform="translate(440, 10)">
+                            <text x="55" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                            <rect x="10" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="160" x2="120" y2="160" stroke="black" stroke-width="2"/>
+                        </g>
+
+                        <!-- (5) [3, 2, 3] -->
+                        <g transform="translate(580, 10)">
+                            <text x="55" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                            <rect x="10" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="10" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="45" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="70" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="100" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="80" y="130" width="30" height="30" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="0" y1="160" x2="120" y2="160" stroke="black" stroke-width="2"/>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問1 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問1(正解:(3))</strong><br>
+            真上から見た平面図の各マスの数字は、そのマスに積まれているコンテナの段数を表す。<br>
+            観察者が南側（図の下方向）からコンテナ群を見ると、列ごとに最も高い段数のコンテナのシルエットが見える。<br>
+            （手前のコンテナが奥のコンテナを隠すため、各列で最大段数のみがシルエットとして残る。）<br><br>
+
+            <strong>【列ごとの最大段数を求める】</strong><br>
+            ・左列（列1）：上から 2、1、2 → 最大値は <strong>2</strong><br>
+            ・中央列（列2）：上から 1、2、3 → 最大値は <strong>3</strong><br>
+            ・右列（列3）：上から 3、1、2 → 最大値は <strong>3</strong><br><br>
+
+            よって、南側から見える正面シルエットは左から「<strong>2、3、3</strong>」となる。<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 2、3、2 → 右列が一段不足（実際は最大3段）。不正解。<br>
+            ・(2) 3、3、3 → 左列が一段超過（実際は最大2段）。不正解。<br>
+            ・(3) 2、3、3 → すべての列の最大段数と一致。<strong>正解</strong>。<br>
+            ・(4) 1、2、3 → 左・中央列がいずれも不足。不正解。<br>
+            ・(5) 3、2、3 → 左列が一段超過、中央列が一段不足。不正解。<br><br>
+
+            したがって、正解は<strong>(3)</strong>である。
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 問題ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="question">
+            <div class="question-number">問2．問1と同様に、ある空港の貨物ターミナルで3×3に区切られたエリアにコンテナが積まれている。今度は平面図（上面図）が分からない。観察者が「南側から見た正面シルエット」と「東側から見た右側面シルエット」を観測したところ、下図のようになった。このとき、コンテナの配置を真上から見た平面図として正しいものを、(1)〜(5)のうちから1つ選べ。なお、各マスには0〜3段のコンテナが積まれているものとする。（6点）</div>
+
+            <!-- 与えられたシルエット2つ -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】観測された2方向のシルエット</div>
+                <div class="figure-content">
+                    <svg width="660" height="220" viewBox="0 0 660 220">
+                        <!-- 正面シルエット (南から見る) [3, 3, 2] -->
+                        <g transform="translate(40, 20)">
+                            <text x="120" y="18" class="svg-text" text-anchor="middle" font-weight="bold">正面シルエット（南側から見た図）</text>
+                            <!-- 列1: 3段 -->
+                            <rect x="40" y="60" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="40" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="40" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 列2: 3段 -->
+                            <rect x="85" y="60" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="85" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="85" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 列3: 2段 -->
+                            <rect x="130" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="130" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 地面 -->
+                            <line x1="20" y1="180" x2="200" y2="180" stroke="black" stroke-width="2"/>
+                            <!-- 方向ラベル -->
+                            <text x="20" y="200" class="svg-text" text-anchor="start" font-size="12">← 西</text>
+                            <text x="200" y="200" class="svg-text" text-anchor="end" font-size="12">東 →</text>
+                        </g>
+
+                        <!-- 右側面シルエット (東から見る) [2, 3, 3] -->
+                        <g transform="translate(380, 20)">
+                            <text x="120" y="18" class="svg-text" text-anchor="middle" font-weight="bold">右側面シルエット（東側から見た図）</text>
+                            <!-- 行1: 2段 (北端) -->
+                            <rect x="40" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="40" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 行2: 3段 (中央) -->
+                            <rect x="85" y="60" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="85" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="85" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <!-- 行3: 3段 (南端) -->
+                            <rect x="130" y="60" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="130" y="100" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <rect x="130" y="140" width="40" height="40" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="20" y1="180" x2="200" y2="180" stroke="black" stroke-width="2"/>
+                            <text x="20" y="200" class="svg-text" text-anchor="start" font-size="12">← 北</text>
+                            <text x="200" y="200" class="svg-text" text-anchor="end" font-size="12">南 →</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 5つの上面図 -->
+            <div class="figure-container" style="border: none;">
+                <div class="figure-title">選択肢（上から見た平面図、数字は段数。上方向が北、下方向が南）</div>
+                <div class="figure-content">
+                    <svg width="700" height="160" viewBox="0 0 700 160">
+
+                        <!-- (1) [[2,1,3],[1,3,2],[3,2,1]] -->
+                        <g transform="translate(20, 20)">
+                            <text x="45" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(1)</text>
+                            <g transform="translate(0, 25)">
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="30" y1="0" x2="30" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="0" x2="60" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="30" x2="90" y2="30" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="60" x2="90" y2="60" stroke="black" stroke-width="2"/>
+                                <text x="15" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="45" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="75" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="15" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="75" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="15" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="45" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                            </g>
+                        </g>
+
+                        <!-- (2) [[2,1,2],[3,3,1],[1,2,1]] -->
+                        <g transform="translate(150, 20)">
+                            <text x="45" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(2)</text>
+                            <g transform="translate(0, 25)">
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="30" y1="0" x2="30" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="0" x2="60" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="30" x2="90" y2="30" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="60" x2="90" y2="60" stroke="black" stroke-width="2"/>
+                                <text x="15" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="45" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="75" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="15" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="45" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="75" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="15" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                            </g>
+                        </g>
+
+                        <!-- (3) [[3,2,3],[1,2,1],[2,1,2]] -->
+                        <g transform="translate(280, 20)">
+                            <text x="45" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(3)</text>
+                            <g transform="translate(0, 25)">
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="30" y1="0" x2="30" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="0" x2="60" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="30" x2="90" y2="30" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="60" x2="90" y2="60" stroke="black" stroke-width="2"/>
+                                <text x="15" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="45" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="15" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="15" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="45" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="75" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                            </g>
+                        </g>
+
+                        <!-- (4) [[1,2,1],[3,1,2],[2,3,1]] (正解) -->
+                        <g transform="translate(410, 20)">
+                            <text x="45" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(4)</text>
+                            <g transform="translate(0, 25)">
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="30" y1="0" x2="30" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="0" x2="60" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="30" x2="90" y2="30" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="60" x2="90" y2="60" stroke="black" stroke-width="2"/>
+                                <text x="15" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="15" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="45" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="75" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="15" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="45" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="75" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                            </g>
+                        </g>
+
+                        <!-- (5) [[1,3,1],[1,2,1],[3,1,2]] -->
+                        <g transform="translate(540, 20)">
+                            <text x="45" y="15" class="svg-text" text-anchor="middle" font-weight="bold">(5)</text>
+                            <g transform="translate(0, 25)">
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="30" y1="0" x2="30" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="60" y1="0" x2="60" y2="90" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="30" x2="90" y2="30" stroke="black" stroke-width="2"/>
+                                <line x1="0" y1="60" x2="90" y2="60" stroke="black" stroke-width="2"/>
+                                <text x="15" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="75" y="22" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="15" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="45" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                                <text x="75" y="52" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="15" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">3</text>
+                                <text x="45" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">1</text>
+                                <text x="75" y="82" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">2</text>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 問2 解説ページ ========== -->
+<div class="question-section question-page">
+    <div class="page-content">
+        <div class="explanation">
+            <strong>問2(正解:(4))</strong><br>
+            正面シルエット（南→北方向に見た図）は、各列の最大段数を示す。<br>
+            右側面シルエット（東→西方向に見た図）は、各行の最大段数を示す。<br>
+            観測されたシルエットから、次の条件が導かれる。<br><br>
+
+            <strong>【正面シルエットから（列の最大段数）】</strong><br>
+            ・列1（左）の最大段数 = <strong>3</strong><br>
+            ・列2（中）の最大段数 = <strong>3</strong><br>
+            ・列3（右）の最大段数 = <strong>2</strong><br>
+            つまり、<u>列3のすべてのマスは2段以下</u>でなければならない。<br><br>
+
+            <strong>【側面シルエットから（行の最大段数）】</strong><br>
+            ・行1（北）の最大段数 = <strong>2</strong><br>
+            ・行2（中）の最大段数 = <strong>3</strong><br>
+            ・行3（南）の最大段数 = <strong>3</strong><br>
+            つまり、<u>行1のすべてのマスは2段以下</u>でなければならない。<br><br>
+
+            <strong>【選択肢の検討】</strong><br>
+            ・(1) 列1最大=3、列2最大=3、列3最大=3 → 列3が2を超えるため<u>正面と矛盾</u>。不正解。<br>
+            ・(2) 列の最大は 3, 3, 2 で正面と一致。しかし行の最大は 2, 3, 2 で<u>行3が要求値3に届かず側面と矛盾</u>。不正解。<br>
+            ・(3) 列の最大は 3, 2, 3 → 列2と列3が要求値と異なり<u>正面と矛盾</u>。不正解。<br>
+            ・(4) 列の最大は 3, 3, 2 で正面と一致。行の最大は 2, 3, 3 で側面とも一致。<strong>両方一致するため正解</strong>。<br>
+            ・(5) 列の最大は 3, 3, 2 で正面と一致。しかし行の最大は 3, 2, 3 で<u>側面と矛盾</u>。不正解。<br><br>
+
+            したがって、正解は<strong>(4)</strong>である。
+        </div>
+    </div>
+</div>
+
+<script>
+function scalePages() {
+    const pages = document.querySelectorAll('.question-section');
+    const baseWidth = 800;
+    const viewportWidth = window.innerWidth;
+    const padding = 40;
+    const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+    pages.forEach(page => {
+        page.style.transform = `scale(${scale})`;
+        const originalHeight = page.offsetHeight / scale;
+        const scaledHeight = originalHeight * scale;
+        page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+    });
+}
+window.addEventListener('load', scalePages);
+window.addEventListener('resize', scalePages);
+</script>
+</body>
+</html>
