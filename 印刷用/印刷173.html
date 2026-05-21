@@ -1,0 +1,499 @@
+<!--
+================================================================================
+印刷173.html - セット173: 大規模データ資料穴埋め問題（印刷用）
+================================================================================
+問1（標準）: 製造業6工場 × 5製品ライン の月間生産台数（穴埋め4箇所）
+問2（高難度）: 国内8空港 × 4四半期 × 2指標 の年間統計データ（穴埋め5箇所）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page { page-break-after: always; }
+
+        .explanation { padding: 20px 0; }
+
+        .question { margin-bottom: 14px; page-break-inside: avoid; }
+
+        .question-number { font-weight: bold; margin-bottom: 8px; }
+
+        .question-text { margin-bottom: 12px; text-align: justify; }
+
+        .figure-container {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .figure-content { display: inline-block; margin: 4px auto; }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 1.5px solid #333;
+            padding: 3px 6px;
+            min-width: 36px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 12.5px;
+        }
+
+        .figure-table th {
+            border: 1.5px solid #333;
+            padding: 3px 5px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .figure-table tr.total-row td,
+        .figure-table tr.total-row th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .figure-table td.total-col,
+        .figure-table th.total-col {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .passage-box {
+            margin: 10px 0;
+            padding: 12px 18px;
+            border: 1px solid #999;
+            background-color: #fafafa;
+            text-align: justify;
+            font-size: 14.5px;
+            line-height: 1.78;
+        }
+
+        .passage-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 14.5px;
+        }
+
+        .blank-inline {
+            display: inline-block;
+            min-width: 50px;
+            padding: 0 8px;
+            border-bottom: 2px solid #000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .option-table {
+            margin: 6px auto;
+            border-collapse: collapse;
+        }
+
+        .option-table td, .option-table th {
+            border: 1px solid #333;
+            padding: 5px 10px;
+            text-align: center;
+            font-size: 13.5px;
+        }
+
+        .option-table th {
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .note {
+            font-size: 12.5px;
+            color: #444;
+            margin-top: 6px;
+            text-align: left;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料】および【表】を読み、文中の空欄（ア）〜（エ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】自動車部品メーカーM社 6工場の月間生産分析（2025年8月）</div>
+                    自動車部品メーカーM社は、国内6工場（工場A〜F）において、主力5製品ライン（製品①〜⑤）を製造している。下表は2025年8月の各工場における製品別の月間生産台数を集計したものである。表によれば、6工場の中で月間総生産台数（5製品ラインの合計）が最も多かった工場は<span class="blank-inline">（ア）</span>であり、ライン全体の生産能力を最大限に活用したことがわかる。一方、5製品ラインの中で6工場合計の生産台数が最も少なかった製品は<span class="blank-inline">（イ）</span>であった。なお、製品③の6工場合計生産台数は<span class="blank-inline">（ウ）</span>台、6工場・5製品ライン全体の月間総生産台数は<span class="blank-inline">（エ）</span>台となった。
+                </div>
+
+                <!-- 統計表 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】M社 工場別×製品ライン別 月間生産台数（2025年8月・単位：台）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>工場</th>
+                                <th>製品①</th>
+                                <th>製品②</th>
+                                <th>製品③</th>
+                                <th>製品④</th>
+                                <th>製品⑤</th>
+                                <th class="total-col">工場合計</th>
+                            </tr>
+                            <tr>
+                                <td>工場A</td>
+                                <td>120</td><td>80</td><td>150</td><td>60</td><td>100</td>
+                                <td class="total-col">510</td>
+                            </tr>
+                            <tr>
+                                <td>工場B</td>
+                                <td>80</td><td>110</td><td>90</td><td>70</td><td>130</td>
+                                <td class="total-col">480</td>
+                            </tr>
+                            <tr>
+                                <td>工場C</td>
+                                <td>200</td><td>150</td><td>180</td><td>120</td><td>250</td>
+                                <td class="total-col">900</td>
+                            </tr>
+                            <tr>
+                                <td>工場D</td>
+                                <td>100</td><td>90</td><td>110</td><td>80</td><td>140</td>
+                                <td class="total-col">520</td>
+                            </tr>
+                            <tr>
+                                <td>工場E</td>
+                                <td>60</td><td>70</td><td>80</td><td>50</td><td>90</td>
+                                <td class="total-col">350</td>
+                            </tr>
+                            <tr>
+                                <td>工場F</td>
+                                <td>140</td><td>130</td><td>160</td><td>100</td><td>170</td>
+                                <td class="total-col">700</td>
+                            </tr>
+                            <tr class="total-row">
+                                <th>製品合計</th>
+                                <td>700</td><td>630</td><td>770</td><td>480</td><td>880</td>
+                                <td class="total-col">3,460</td>
+                            </tr>
+                        </table>
+                        <div class="note">※「工場合計」は各工場の5製品ライン合計、「製品合計」は各製品ラインの6工場合計。空欄（ウ）（エ）は本表の合計欄に未掲載とみなして問う。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th>
+                            <th>（ア）</th>
+                            <th>（イ）</th>
+                            <th>（ウ）</th>
+                            <th>（エ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td><td>工場F</td><td>製品④</td><td>770</td><td>3,460</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td><td>工場C</td><td>製品②</td><td>770</td><td>3,460</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td><td>工場C</td><td>製品④</td><td>630</td><td>3,460</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td><td>工場C</td><td>製品④</td><td>770</td><td>2,580</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td><td>工場C</td><td>製品④</td><td>770</td><td>3,460</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br><br>
+
+                【表】の数値（6工場 × 5製品ライン ＝ 30セル）を用いて、各空欄を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）工場別合計の最大：A＝510／B＝480／<strong>C＝900</strong>／D＝520／E＝350／F＝700。最大は<strong>工場C</strong>（900台）。工場Fは700台で2位であり、首位ではない。<br><br>
+                ・（イ）製品別6工場合計の最小：①700／②630／③770／<strong>④480</strong>／⑤880。最小は<strong>製品④</strong>（480台）。製品②は630台で4位であり、最小ではない点に注意。<br><br>
+                ・（ウ）製品③の6工場合計：150＋90＋180＋110＋80＋160＝<strong>770台</strong>。製品②の合計630と取り違えやすいので注意。<br><br>
+                ・（エ）6工場・5製品ライン全体の月間総生産台数：工場別合計の総和510＋480＋900＋520＋350＋700＝<strong>3,460台</strong>。製品別合計の総和700＋630＋770＋480＋880＝3,460とも一致し、検算可能。製品①〜④の合計2,580と取り違えると誤答する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア＝工場F → 誤り。工場Fは700台で2位であり、最大は工場C（900台）である。<br>
+                ・(2) イ＝製品② → 誤り。製品②の6工場合計は630台であり、最小は製品④（480台）である。<br>
+                ・(3) ウ＝630 → 誤り。630は製品②の合計値であり、製品③の合計は770である。<br>
+                ・(4) エ＝2,580 → 誤り。2,580は製品①〜④のみの合計（製品⑤を除外）であり、全体合計は3,460である。<br>
+                ・(5) ア＝工場C／イ＝製品④／ウ＝770／エ＝3,460 → すべて整合 → <strong>正しい</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の【資料】および【表】を読み、文中の空欄（ア）〜（オ）に入る語句・数値の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!-- 資料（穴埋め文章） -->
+                <div class="passage-box">
+                    <div class="passage-title">【資料】国内主要8空港 四半期別 旅客・貨物統計（2025年度）</div>
+                    国土交通省は、国内主要8空港（札幌・仙台・東京・名古屋・大阪・福岡・那覇・広島）について、2025年度の四半期別「旅客数（千人）」と「貨物量（トン）」を集計した。8空港の年間旅客数を合計すると<span class="blank-inline">（ア）</span>千人に達し、最大はもちろん東京であった。各空港の輸送効率（旅客1人あたりの貨物量）を比較すると、最も高単価な貨物輸送を行っているのは<span class="blank-inline">（イ）</span>空港で、ハブ空港としての国際物流機能の強さがうかがえる。また、Q4（1-3月）の貨物量がQ1（4-6月）の貨物量の1.4倍以上に達した空港は<span class="blank-inline">（ウ）</span>空港存在し、年度後半に貨物需要が集中したことがわかる。年間貨物量が最大の空港の値は<span class="blank-inline">（エ）</span>トンであり、8空港の年間貨物量の総和は<span class="blank-inline">（オ）</span>トンであった。
+                </div>
+
+                <!-- 統計表（大規模データ） -->
+                <div class="figure-container">
+                    <div class="figure-title">【表】8空港別 四半期別 旅客・貨物統計（2025年度）</div>
+                    <div class="figure-content">
+                        <table class="figure-table" style="font-size:11.5px;">
+                            <tr>
+                                <th rowspan="2">空港</th>
+                                <th colspan="2">Q1（4-6月）</th>
+                                <th colspan="2">Q2（7-9月）</th>
+                                <th colspan="2">Q3（10-12月）</th>
+                                <th colspan="2">Q4（1-3月）</th>
+                                <th colspan="2" class="total-col">年間合計</th>
+                            </tr>
+                            <tr>
+                                <th>旅客</th><th>貨物</th>
+                                <th>旅客</th><th>貨物</th>
+                                <th>旅客</th><th>貨物</th>
+                                <th>旅客</th><th>貨物</th>
+                                <th class="total-col">旅客</th>
+                                <th class="total-col">貨物</th>
+                            </tr>
+                            <tr>
+                                <td>札幌</td>
+                                <td>220</td><td>80</td>
+                                <td>280</td><td>100</td>
+                                <td>240</td><td>90</td>
+                                <td>200</td><td>110</td>
+                                <td class="total-col">940</td><td class="total-col">380</td>
+                            </tr>
+                            <tr>
+                                <td>仙台</td>
+                                <td>90</td><td>30</td>
+                                <td>110</td><td>40</td>
+                                <td>100</td><td>35</td>
+                                <td>80</td><td>45</td>
+                                <td class="total-col">380</td><td class="total-col">150</td>
+                            </tr>
+                            <tr>
+                                <td>東京</td>
+                                <td>800</td><td>400</td>
+                                <td>900</td><td>450</td>
+                                <td>850</td><td>430</td>
+                                <td>820</td><td>460</td>
+                                <td class="total-col">3,370</td><td class="total-col">1,740</td>
+                            </tr>
+                            <tr>
+                                <td>名古屋</td>
+                                <td>220</td><td>100</td>
+                                <td>250</td><td>110</td>
+                                <td>240</td><td>105</td>
+                                <td>220</td><td>115</td>
+                                <td class="total-col">930</td><td class="total-col">430</td>
+                            </tr>
+                            <tr>
+                                <td>大阪</td>
+                                <td>450</td><td>200</td>
+                                <td>500</td><td>220</td>
+                                <td>470</td><td>210</td>
+                                <td>460</td><td>230</td>
+                                <td class="total-col">1,880</td><td class="total-col">860</td>
+                            </tr>
+                            <tr>
+                                <td>福岡</td>
+                                <td>280</td><td>110</td>
+                                <td>320</td><td>130</td>
+                                <td>300</td><td>120</td>
+                                <td>280</td><td>140</td>
+                                <td class="total-col">1,180</td><td class="total-col">500</td>
+                            </tr>
+                            <tr>
+                                <td>那覇</td>
+                                <td>180</td><td>60</td>
+                                <td>280</td><td>80</td>
+                                <td>220</td><td>70</td>
+                                <td>240</td><td>90</td>
+                                <td class="total-col">920</td><td class="total-col">300</td>
+                            </tr>
+                            <tr>
+                                <td>広島</td>
+                                <td>100</td><td>40</td>
+                                <td>120</td><td>50</td>
+                                <td>110</td><td>45</td>
+                                <td>90</td><td>55</td>
+                                <td class="total-col">420</td><td class="total-col">190</td>
+                            </tr>
+                            <tr class="total-row">
+                                <th>四半期合計</th>
+                                <td>2,340</td><td>1,020</td>
+                                <td>2,760</td><td>1,180</td>
+                                <td>2,530</td><td>1,105</td>
+                                <td>2,390</td><td>1,245</td>
+                                <td class="total-col">10,020</td><td class="total-col">4,550</td>
+                            </tr>
+                        </table>
+                        <div class="note">※「旅客」は旅客数（千人）、「貨物」は貨物量（トン）。旅客1人あたり貨物量＝（年間貨物量）÷（年間旅客数）。空欄（ア）〜（オ）は本表の合計欄に未掲載とみなして問う。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢 -->
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr>
+                            <th></th>
+                            <th>（ア）</th>
+                            <th>（イ）</th>
+                            <th>（ウ）</th>
+                            <th>（エ）</th>
+                            <th>（オ）</th>
+                        </tr>
+                        <tr>
+                            <td>(1)</td><td>9,600</td><td>東京</td><td>2</td><td>1,740</td><td>4,550</td>
+                        </tr>
+                        <tr>
+                            <td>(2)</td><td>10,020</td><td>大阪</td><td>2</td><td>1,740</td><td>4,550</td>
+                        </tr>
+                        <tr>
+                            <td>(3)</td><td>10,020</td><td>東京</td><td>2</td><td>1,740</td><td>4,550</td>
+                        </tr>
+                        <tr>
+                            <td>(4)</td><td>10,020</td><td>東京</td><td>4</td><td>1,740</td><td>4,550</td>
+                        </tr>
+                        <tr>
+                            <td>(5)</td><td>10,020</td><td>東京</td><td>2</td><td>3,370</td><td>4,550</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br><br>
+
+                【表】の数値（8空港 × 4四半期 × 2指標 ＝ 64セル）を用いて、5つの空欄を順に確定する。<br><br>
+
+                <strong>【各空欄の確定】</strong><br>
+                ・（ア）8空港の年間旅客数合計：940＋380＋3,370＋930＋1,880＋1,180＋920＋420＝<strong>10,020千人</strong>。四半期合計2,340＋2,760＋2,530＋2,390＝10,020とも一致し、検算可能。広島（420）を集計から落とすと9,600になる点に注意。<br><br>
+                ・（イ）旅客1人あたり貨物量（年間貨物量÷年間旅客数）：札幌380/940≒0.404／仙台150/380≒0.395／<strong>東京1,740/3,370≒0.516</strong>／名古屋430/930≒0.462／大阪860/1,880≒0.457／福岡500/1,180≒0.424／那覇300/920≒0.326／広島190/420≒0.452。最大は<strong>東京</strong>。大阪は0.457で4位であり最大ではない。<br><br>
+                ・（ウ）Q4貨物量がQ1貨物量の1.4倍以上の空港：札幌110÷80＝1.375（×）／<strong>仙台45÷30＝1.500（○）</strong>／東京460÷400＝1.150（×）／名古屋115÷100＝1.150（×）／大阪230÷200＝1.150（×）／福岡140÷110≒1.273（×）／<strong>那覇90÷60＝1.500（○）</strong>／広島55÷40＝1.375（×）。条件を満たすのは仙台・那覇の<strong>2空港</strong>。閾値を1.3倍に取り違えると札幌・仙台・那覇・広島の4空港となる。<br><br>
+                ・（エ）年間貨物量が最大の空港の値：380／150／<strong>1,740</strong>／430／860／500／300／190。最大は東京の<strong>1,740トン</strong>。3,370は東京の年間旅客数（千人）であり、貨物量と取り違えると誤答する。<br><br>
+                ・（オ）8空港の年間貨物量合計：380＋150＋1,740＋430＋860＋500＋300＋190＝<strong>4,550トン</strong>。四半期合計1,020＋1,180＋1,105＋1,245＝4,550とも一致し、検算可能。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア＝9,600 → 誤り。広島（420）を集計から漏らした値であり、正しい合計は10,020である。<br>
+                ・(2) イ＝大阪 → 誤り。大阪の効率は約0.457で4位、最大は東京（約0.516）である。<br>
+                ・(3) ア＝10,020／イ＝東京／ウ＝2／エ＝1,740／オ＝4,550 → すべて整合 → <strong>正しい</strong><br>
+                ・(4) ウ＝4 → 誤り。閾値を1.3倍と取り違えた値であり、1.4倍以上を満たすのは仙台・那覇の2空港のみである。<br>
+                ・(5) エ＝3,370 → 誤り。3,370は東京の年間旅客数（千人）であり、年間貨物量は1,740トンである。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
+
+
