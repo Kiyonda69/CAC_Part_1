@@ -1,0 +1,569 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図は、ある航空機を真上から見た図（上面図）と前方から見た図（正面図）である。この航空機を機体の右側面から見た図として最も適切なものを、(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】航空機の上面図と正面図</div>
+                    <div class="figure-content">
+                        <svg width="620" height="220" viewBox="0 0 620 220">
+                            <!-- 上面図 (機首は右) -->
+                            <g transform="translate(10, 20)">
+                                <text x="160" y="0" class="svg-text" text-anchor="middle" font-weight="bold">上面図（真上から見た図）</text>
+                                <ellipse cx="160" cy="100" rx="130" ry="10" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="288,94 305,100 288,106" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="195,92 130,35 110,42 175,92" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="195,108 130,165 110,158 175,108" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,95 30,65 15,70 45,95" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="55,105 30,135 15,130 45,105" fill="white" stroke="black" stroke-width="2"/>
+                                <line x1="15" y1="100" x2="55" y2="100" stroke="black" stroke-width="3"/>
+                                <ellipse cx="165" cy="60" rx="13" ry="5" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="165" cy="140" rx="13" ry="5" fill="white" stroke="black" stroke-width="1.5"/>
+                                <text x="310" y="104" class="svg-text">機首</text>
+                            </g>
+
+                            <!-- 正面図 -->
+                            <g transform="translate(370, 20)">
+                                <text x="125" y="0" class="svg-text" text-anchor="middle" font-weight="bold">正面図（前方から見た図）</text>
+                                <rect x="15" y="110" width="220" height="7" fill="white" stroke="black" stroke-width="2"/>
+                                <circle cx="125" cy="113" r="13" fill="white" stroke="black" stroke-width="2"/>
+                                <polygon points="121,50 129,50 127,103 123,103" fill="white" stroke="black" stroke-width="2"/>
+                                <circle cx="75" cy="130" r="10" fill="white" stroke="black" stroke-width="2"/>
+                                <circle cx="175" cy="130" r="10" fill="white" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-title">右側面図として正しいものは？</div>
+                    <div class="figure-content">
+                        <svg width="640" height="120" viewBox="0 0 640 120">
+                            <!-- (1) 機首が左向き -->
+                            <g transform="translate(5, 5)">
+                                <text x="60" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <ellipse cx="60" cy="65" rx="50" ry="9" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="15,59 0,65 15,71" fill="white" stroke="black" stroke-width="1.5"/>
+                                <line x1="45" y1="65" x2="80" y2="65" stroke="black" stroke-width="2.5"/>
+                                <line x1="100" y1="65" x2="115" y2="65" stroke="black" stroke-width="2.5"/>
+                                <polygon points="100,65 115,65 115,47" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="65" cy="77" rx="9" ry="4" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+
+                            <!-- (2) 垂直尾翼が機首側 -->
+                            <g transform="translate(135, 5)">
+                                <text x="60" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <ellipse cx="60" cy="65" rx="50" ry="9" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="105,59 120,65 105,71" fill="white" stroke="black" stroke-width="1.5"/>
+                                <line x1="40" y1="65" x2="75" y2="65" stroke="black" stroke-width="2.5"/>
+                                <line x1="13" y1="65" x2="28" y2="65" stroke="black" stroke-width="2.5"/>
+                                <polygon points="88,65 103,65 103,47" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="55" cy="77" rx="9" ry="4" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+
+                            <!-- (3) 正解 -->
+                            <g transform="translate(265, 5)">
+                                <text x="60" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <ellipse cx="60" cy="65" rx="50" ry="9" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="105,59 120,65 105,71" fill="white" stroke="black" stroke-width="1.5"/>
+                                <line x1="45" y1="65" x2="80" y2="65" stroke="black" stroke-width="2.5"/>
+                                <line x1="13" y1="65" x2="28" y2="65" stroke="black" stroke-width="2.5"/>
+                                <polygon points="13,65 28,65 28,47" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="65" cy="77" rx="9" ry="4" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+
+                            <!-- (4) 垂直尾翼が下 -->
+                            <g transform="translate(395, 5)">
+                                <text x="60" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <ellipse cx="60" cy="65" rx="50" ry="9" fill="white" stroke="black" stroke-width="1.5"/>
+                                <polygon points="105,59 120,65 105,71" fill="white" stroke="black" stroke-width="1.5"/>
+                                <line x1="45" y1="65" x2="80" y2="65" stroke="black" stroke-width="2.5"/>
+                                <line x1="13" y1="65" x2="28" y2="65" stroke="black" stroke-width="2.5"/>
+                                <polygon points="13,65 28,65 28,83" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="65" cy="50" rx="9" ry="4" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+
+                            <!-- (5) 機首が平ら -->
+                            <g transform="translate(525, 5)">
+                                <text x="60" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <ellipse cx="60" cy="65" rx="50" ry="9" fill="white" stroke="black" stroke-width="1.5"/>
+                                <line x1="110" y1="56" x2="110" y2="74" stroke="black" stroke-width="2"/>
+                                <line x1="45" y1="65" x2="80" y2="65" stroke="black" stroke-width="2.5"/>
+                                <line x1="13" y1="65" x2="28" y2="65" stroke="black" stroke-width="2.5"/>
+                                <polygon points="13,65 28,65 28,47" fill="white" stroke="black" stroke-width="1.5"/>
+                                <ellipse cx="65" cy="77" rx="9" ry="4" fill="white" stroke="black" stroke-width="1"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(3))</strong><br>
+                上面図と正面図から、航空機の三次元的な特徴を読み取り、右側面図を構成する。<br><br>
+
+                <strong>【上面図から読み取れる情報】</strong><br>
+                ・機首は右側（細く尖った先端）<br>
+                ・機尾は左側（垂直尾翼の根元・水平尾翼が配置）<br>
+                ・主翼は胴体中央付近に左右対称に広がる（後退翼）<br>
+                ・水平尾翼は機尾近くに左右対称に広がる<br>
+                ・エンジンは主翼下の左右に2基<br><br>
+
+                <strong>【正面図から読み取れる情報】</strong><br>
+                ・垂直尾翼は胴体の<strong>上方</strong>に伸びる三角形<br>
+                ・エンジンは主翼より<strong>下方</strong>にぶら下がる円形<br>
+                ・主翼は水平に左右に伸びる<br><br>
+
+                <strong>【右側面図に必要な特徴】</strong><br>
+                右側面（機体の右側から見た図）では、機首は右、機尾は左に来る（観察者は機体の右側に立ち、機首方向を右、機尾方向を左に見る）。<br>
+                ・機首：胴体の<strong>右端</strong>に尖った形<br>
+                ・垂直尾翼：胴体の<strong>後部（左側）の上方</strong>に三角形<br>
+                ・水平尾翼：胴体の<strong>後部（左側）</strong>に水平の薄い形<br>
+                ・主翼：胴体中央に水平の薄い形（横から見ると線状）<br>
+                ・エンジン：主翼下の<strong>下方</strong>に楕円<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 機首が左を向いている → 上面図と方向が逆 → 不正解<br>
+                ・(2) 垂直尾翼が機首側（前方）にある → 上面図では尾翼は機尾側 → 不正解<br>
+                ・(3) 機首が右、垂直尾翼が後部上方、エンジンが下方 → すべての条件と一致 → <strong>正解</strong><br>
+                ・(4) 垂直尾翼が胴体の下方にある → 正面図では尾翼は上方 → 不正解<br>
+                ・(5) 機首が尖っておらず平らになっている → 上面図では機首は尖った形 → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図は、立方体の展開図である。立方体の6つの面には、それぞれ航空に関係する文字（A：エアクラフト、B：ブルースカイ、C：コントロール、D：ダイヤモンド、E：エンジン、F：フラップ）が描かれている。この展開図を組み立て、Bの面が正面に、Cの面が下になるように立方体を置いた。このとき、右側面に見える文字として正しいものを、(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】立方体の展開図</div>
+                    <div class="figure-content">
+                        <svg width="500" height="380" viewBox="0 0 500 380">
+                            <!-- T字型展開図 -->
+                            <!-- A (左) -->
+                            <rect x="50" y="140" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="100" y="200" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">A</text>
+                            <!-- C (中央) -->
+                            <rect x="150" y="140" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="200" y="200" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">C</text>
+                            <!-- D (右1) -->
+                            <rect x="250" y="140" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="300" y="200" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">D</text>
+                            <!-- E (右2) -->
+                            <rect x="350" y="140" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="400" y="200" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">E</text>
+                            <!-- B (上、Cの上) -->
+                            <rect x="150" y="40" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="200" y="100" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">B</text>
+                            <!-- F (下、Cの下) -->
+                            <rect x="150" y="240" width="100" height="100" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="200" y="300" class="svg-text" text-anchor="middle" font-size="40" font-weight="bold">F</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-title">右側面に見える文字は？</div>
+                    <div class="options" style="text-align: center; font-size: 18px;">
+                        (1)&nbsp;F　　(2)&nbsp;D　　(3)&nbsp;A　　(4)&nbsp;E　　(5)&nbsp;C
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                展開図から立方体を組み立て、面の位置関係を空間的に把握する問題である。<br><br>
+
+                <strong>【展開図の構造】</strong><br>
+                T字型展開図において、Cの面を中心とすると、上下左右に隣接する面はCを正面とした際の各方向の面になる。<br>
+                ・C：中央（正面）<br>
+                ・B：Cの上に隣接 → Cを正面に置いたときの<strong>上面</strong><br>
+                ・F：Cの下に隣接 → Cを正面に置いたときの<strong>下面</strong><br>
+                ・A：Cの左に隣接 → Cを正面に置いたときの<strong>左側面</strong><br>
+                ・D：Cの右に隣接 → Cを正面に置いたときの<strong>右側面</strong><br>
+                ・E：Dの右端、つまり折り返して<strong>裏面（後面）</strong><br><br>
+
+                <strong>【標準向きの面配置（Cを正面）】</strong><br>
+                ・正面：C　・上：B　・下：F　・左：A　・右：D　・後：E<br><br>
+
+                <strong>【操作: Bを正面、Cを下にする】</strong><br>
+                これは「立方体を観察者側へ前傾90度倒す」操作に相当する。すなわち、もともと上にあったBを正面に持ってきて、もともと正面だったCを下に倒し込む。<br>
+                ・正面：B（元の上面）<br>
+                ・上：E（元の後面）<br>
+                ・下：C（元の正面）<br>
+                ・後：F（元の下面）<br>
+                ・左：A（不変）<br>
+                ・<strong>右：D（不変）</strong><br><br>
+
+                前後方向の回転では左右は変化しないため、AとDの位置は標準向きと同じである。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) F：操作後は後面 → 不正解<br>
+                ・(2) D：操作後も右側面のまま → <strong>正解</strong><br>
+                ・(3) A：操作後も左側面のまま → 不正解<br>
+                ・(4) E：操作後は上面 → 不正解<br>
+                ・(5) C：操作後は下面 → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
