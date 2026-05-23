@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .options-container {
+            margin: 20px 0;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2%;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%);
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%);
+                min-width: 60px;
+            }
+        }
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        .btn-secondary {
+            background-color: #666;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2;
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .progress-dot.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .progress-dot.completed {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .progress-dot.incorrect-dot {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                下図は、ある丘の等高線図である。図中の切断線P-Qに沿って地面を垂直に切り、P側を左にして見たときの断面の形（地形の高低）を正しく表しているものを、(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図1】丘の等高線図（数値は標高m、等高線の間隔は10m）</div>
+                <div class="figure-content">
+                    <svg width="420" height="300" viewBox="0 0 420 300">
+                        <path d="M90,150 Q205,70 320,150 Q205,230 90,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M105,150 Q190,90 275,150 Q190,210 105,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M118,150 Q174,105 230,150 Q174,195 118,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M128,150 Q156,120 185,150 Q156,180 128,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="155,143 149,154 161,154" fill="black"/>
+                        <text x="172" y="150" class="svg-text">45</text>
+                        <text x="190" y="170" class="svg-text">40</text>
+                        <text x="226" y="170" class="svg-text">30</text>
+                        <text x="270" y="170" class="svg-text">20</text>
+                        <text x="314" y="170" class="svg-text">10</text>
+                        <line x1="40" y1="150" x2="380" y2="150" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                        <circle cx="40" cy="150" r="3" fill="black"/>
+                        <circle cx="380" cy="150" r="3" fill="black"/>
+                        <text x="24" y="155" class="svg-text" font-weight="bold">P</text>
+                        <text x="388" y="155" class="svg-text" font-weight="bold">Q</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-figure" id="q1-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,93 35,90 62,32 90,90 115,93" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,90 35,82 90,30 108,90 115,92" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,38 35,44 62,88 90,44 115,38" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 32,90 50,30 90,72 115,88" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 32,38 62,66 92,36 115,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (4)）の解説</div>
+                <div class="explanation-content">
+                    <p>等高線の<strong>間隔</strong>から斜面の急緩を読む。間隔が狭いほど急、広いほど緩やか。</p>
+                    <p>・P（左）側は10m→20m→30m→40mの等高線が<strong>狭い間隔</strong>で現れ、すぐ頂上（約45m）に達する＝西斜面は<strong>急</strong>。</p>
+                    <p>・Q（右）側は等高線が<strong>広い間隔</strong>で並ぶ＝東斜面は<strong>緩やか</strong>。</p>
+                    <p>・頂上は中央より<strong>左寄り</strong>。</p>
+                    <p>よって「頂上が左寄り・左が急で右が緩やかな単峰」となり、正解は<strong>(4)</strong>。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下図は、2つの丘とその間の鞍部（コル）からなる地形の等高線図である。切断線P-Qに沿って地面を垂直に切り、P側を左にして見たときの断面の形を正しく表しているものを、(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図2】2つの丘の等高線図（数値は標高m、等高線の間隔は10m）</div>
+                <div class="figure-content">
+                    <svg width="420" height="300" viewBox="0 0 420 300">
+                        <path d="M50,150 Q132,95 215,150 Q132,205 50,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M62,150 Q84,110 105,150 Q84,190 62,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M145,150 Q170,115 195,150 Q170,185 145,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M72,150 Q85,125 98,150 Q85,175 72,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <path d="M152,150 Q166,130 180,150 Q166,170 152,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="85,143 79,154 91,154" fill="black"/>
+                        <text x="95" y="143" class="svg-text">40</text>
+                        <polygon points="166,143 160,154 172,154" fill="black"/>
+                        <text x="176" y="150" class="svg-text">32</text>
+                        <circle cx="125" cy="150" r="3" fill="white" stroke="black" stroke-width="1.5"/>
+                        <text x="118" y="140" class="svg-text">20</text>
+                        <text x="80" y="180" class="svg-text">30</text>
+                        <text x="80" y="196" class="svg-text">20</text>
+                        <text x="80" y="212" class="svg-text">10</text>
+                        <line x1="40" y1="150" x2="240" y2="150" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                        <circle cx="40" cy="150" r="3" fill="black"/>
+                        <circle cx="240" cy="150" r="3" fill="black"/>
+                        <text x="24" y="155" class="svg-text" font-weight="bold">P</text>
+                        <text x="248" y="155" class="svg-text" font-weight="bold">Q</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-figure" id="q2-options">
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 30,88 48,34 74,62 100,34 115,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 30,88 48,52 74,62 100,30 115,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 30,88 48,30 74,92 100,50 115,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 30,86 48,30 70,40 92,36 115,88" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <svg width="120" height="105" viewBox="0 0 120 105">
+                        <text x="60" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                        <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                        <polyline points="10,92 30,88 48,28 76,60 102,46 115,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (5)）の解説</div>
+                <div class="explanation-content">
+                    <p>2つの丘の地形では「2つの峰の高さの関係」と「鞍部がどこまで下がるか」を同時に確認する。</p>
+                    <p>・西（P側）の丘は頂上<strong>40m</strong>で高い。東（Q側）の丘は頂上<strong>32m</strong>で低い。</p>
+                    <p>・2つの丘の間（鞍部）は約<strong>20m</strong>まで下がるが、裾野（10m以下）までは下がらない＝<strong>中ほどの高さ</strong>でつながる。</p>
+                    <p>・(1)左右同じ高さ／(2)高低が逆／(3)谷が裾野まで深い／(4)谷がほとんど下がらない、はいずれも不適。</p>
+                    <p>よって「左に高い峰・右に低い峰・谷は中ほど」の<strong>(5)</strong>が正解。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考187/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+            }
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

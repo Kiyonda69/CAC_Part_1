@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page {
+            page-break-after: always;
+        }
+
+        .explanation {
+            padding: 20px 0;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .options {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block;
+            }
+
+            .question-section {
+                box-shadow: none;
+                page-break-after: always;
+                page-break-inside: avoid;
+                transform: none !important;
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible;
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下図は、ある丘の等高線図である。図中の切断線P-Qに沿って地面を垂直に切り、矢印の向き（PからQへP側を左にして）に見たときの断面の形（地形の高低）を正しく表しているものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図1】丘の等高線図（数値は標高、単位はm、等高線の間隔は10m）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVG 420x300 / viewBox 0 0 420 300
+                        切断線P-Qは y=150 の水平線（x=40〜380）
+                        等高線は y=150 で次のxを通る:
+                          10m:左90/右320  20m:左105/右275  30m:左118/右230  40m:左128/右185
+                        西（左）は等高線が密＝急、東（右）は疎＝緩やか。頂上は約45m、x≈155。
+                        -->
+                        <svg width="420" height="300" viewBox="0 0 420 300">
+                            <path d="M90,150 Q205,70 320,150 Q205,230 90,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M105,150 Q190,90 275,150 Q190,210 105,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M118,150 Q174,105 230,150 Q174,195 118,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M128,150 Q156,120 185,150 Q156,180 128,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <!-- 頂上（三角点）約45m -->
+                            <polygon points="155,143 149,154 161,154" fill="black"/>
+                            <text x="172" y="150" class="svg-text">45</text>
+                            <!-- 標高ラベル（東側） -->
+                            <text x="190" y="170" class="svg-text">40</text>
+                            <text x="226" y="170" class="svg-text">30</text>
+                            <text x="270" y="170" class="svg-text">20</text>
+                            <text x="314" y="170" class="svg-text">10</text>
+                            <!-- 切断線 P-Q -->
+                            <line x1="40" y1="150" x2="380" y2="150" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <circle cx="40" cy="150" r="3" fill="black"/>
+                            <circle cx="380" cy="150" r="3" fill="black"/>
+                            <text x="24" y="155" class="svg-text" font-weight="bold">P</text>
+                            <text x="388" y="155" class="svg-text" font-weight="bold">Q</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!-- 5つの断面図（左がP側・右がQ側）。正解は(4)。 -->
+                        <svg width="650" height="135" viewBox="0 0 650 135">
+                            <!-- (1) 中央対称の単峰 -->
+                            <g transform="translate(5,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(1)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,93 35,90 62,32 90,90 115,93" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 頂上が右・右が急 -->
+                            <g transform="translate(135,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(2)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,90 35,82 90,30 108,90 115,92" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 中央が谷（U字） -->
+                            <g transform="translate(265,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(3)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,38 35,44 62,88 90,44 115,38" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 頂上が左寄り・左が急で右が緩やか（正解） -->
+                            <g transform="translate(395,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(4)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 32,90 50,30 90,72 115,88" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 二峰（M字） -->
+                            <g transform="translate(525,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(5)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 32,38 62,66 92,36 115,90" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                        <div class="legend"><div class="legend-item">※各断面図とも、左端がP側、右端がQ側を表す。</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                等高線図の断面を読む基本は、(あ)切断線が等高線と交わる順に標高を追って高低の変化を捉えること、(い)等高線の間隔から斜面の急緩を読むこと、の2点である。等高線の間隔が狭いほど斜面は急、広いほど斜面は緩やかになる。<br><br>
+
+                <strong>【切断線P-Qの読み取り】</strong><br>
+                ・P（左・西）側からQへ向かうと、標高10m→20m→30m→40mの等高線が<strong>狭い間隔</strong>で次々と現れ、すぐに頂上（約45m）に達する。すなわち西斜面は<strong>急</strong>である。<br>
+                ・頂上を越えてQ（右・東）側へ向かうと、40m→30m→20m→10mの等高線が<strong>広い間隔</strong>で現れる。すなわち東斜面は<strong>緩やか</strong>である。<br>
+                ・頂上は切断線全体の中央より<strong>P側（左）に寄った位置</strong>にある。<br><br>
+
+                <strong>【断面の形】</strong><br>
+                したがって断面は「単一の峰で、頂上が左寄り、左（P側）が急で右（Q側）が緩やかな下り坂」となる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 頂上が中央で左右対称 → 斜面の急緩の違いを表せていないため不適。<br>
+                ・(2) 頂上が右寄りで右が急 → P側とQ側の急緩が逆。不適。<br>
+                ・(3) 中央がくぼんだ谷の形 → 等高線は閉じた丘を示しており谷ではない。不適。<br>
+                ・(4) 頂上が左寄りで、左が急・右が緩やか → 読み取りと一致。<strong>正解</strong>。<br>
+                ・(5) 峰が2つ → 頂上は1つだけなので不適。<br><br>
+
+                よって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下図は、2つの丘とその間の鞍部（コル）からなる地形の等高線図である。切断線P-Qに沿って地面を垂直に切り、P側を左にして見たときの断面の形を正しく表しているものを、次の(1)〜(5)の中から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】2つの丘の等高線図（数値は標高、単位はm、等高線の間隔は10m）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVG 420x300 / viewBox 0 0 420 300, 切断線 y=150 (x=40〜230)
+                        西の丘=高い(約40m, x≈85), 東の丘=低い(約32m, x≈166), 間の鞍部≈20m(x≈125)。
+                        -->
+                        <svg width="420" height="300" viewBox="0 0 420 300">
+                            <path d="M50,150 Q132,95 215,150 Q132,205 50,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M62,150 Q84,110 105,150 Q84,190 62,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M145,150 Q170,115 195,150 Q170,185 145,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M72,150 Q85,125 98,150 Q85,175 72,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <path d="M152,150 Q166,130 180,150 Q166,170 152,150 Z" fill="none" stroke="black" stroke-width="1.5"/>
+                            <!-- 西の丘 頂上40m -->
+                            <polygon points="85,143 79,154 91,154" fill="black"/>
+                            <text x="95" y="143" class="svg-text">40</text>
+                            <!-- 東の丘 頂上32m -->
+                            <polygon points="166,143 160,154 172,154" fill="black"/>
+                            <text x="176" y="150" class="svg-text">32</text>
+                            <!-- 鞍部 約20m -->
+                            <circle cx="125" cy="150" r="3" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="118" y="140" class="svg-text">20</text>
+                            <!-- 西斜面の標高ラベル -->
+                            <text x="80" y="180" class="svg-text">30</text>
+                            <text x="80" y="196" class="svg-text">20</text>
+                            <text x="80" y="212" class="svg-text">10</text>
+                            <!-- 切断線 P-Q -->
+                            <line x1="40" y1="150" x2="240" y2="150" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <circle cx="40" cy="150" r="3" fill="black"/>
+                            <circle cx="240" cy="150" r="3" fill="black"/>
+                            <text x="24" y="155" class="svg-text" font-weight="bold">P</text>
+                            <text x="248" y="155" class="svg-text" font-weight="bold">Q</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <!-- 5つの断面図。正解は(5): 左の峰が高く右の峰が低く、鞍部は中ほどの高さ。 -->
+                        <svg width="650" height="135" viewBox="0 0 650 135">
+                            <!-- (1) 左右の峰が同じ高さ -->
+                            <g transform="translate(5,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(1)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 30,88 48,34 74,62 100,34 115,90" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 左の峰が低く右の峰が高い -->
+                            <g transform="translate(135,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(2)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 30,88 48,52 74,62 100,30 115,90" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 左が高く右が低いが、鞍部が裾野まで深く落ちる -->
+                            <g transform="translate(265,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(3)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 30,88 48,30 74,92 100,50 115,90" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 左が高く右が低いが、鞍部がほとんど下がらない -->
+                            <g transform="translate(395,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(4)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 30,86 48,30 70,40 92,36 115,88" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 左の峰が高く右の峰が低く、鞍部は中ほどの高さ（正解） -->
+                            <g transform="translate(525,18)">
+                                <text x="60" y="10" class="svg-text" text-anchor="middle">(5)</text>
+                                <line x1="10" y1="95" x2="115" y2="95" stroke="#999" stroke-width="1"/>
+                                <polyline points="10,92 30,88 48,28 76,60 102,46 115,90" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                        <div class="legend"><div class="legend-item">※各断面図とも、左端がP側、右端がQ側を表す。</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                2つの丘がある地形では、断面を読む際に「2つの峰の高さの関係」と「その間の鞍部（コル）がどこまで下がるか」の2点を同時に確認する必要がある。<br><br>
+
+                <strong>【切断線P-Qの読み取り】</strong><br>
+                ・西（P側）の丘は頂上が<strong>40m</strong>。閉じた等高線が10m→20m→30mと現れ、最も高い。<br>
+                ・東（Q側）の丘は頂上が<strong>32m</strong>で、西の丘より<strong>低い</strong>。30mの等高線にわずかに囲まれる程度である。<br>
+                ・2つの丘の間（鞍部）は、いったん約<strong>20m</strong>まで下がるが、周囲の裾野（10m以下）までは下がらない。すなわち鞍部は<strong>中ほどの高さ</strong>でつながっている。<br><br>
+
+                <strong>【断面の形】</strong><br>
+                したがって断面は「左（P側）に高い峰、右（Q側）に低い峰があり、その間の谷は中ほどの高さまでしか下がらない」形になる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 左右の峰が同じ高さ → 西40m・東32mの高低差を表せていない。不適。<br>
+                ・(2) 左が低く右が高い → 高さの関係が逆。不適。<br>
+                ・(3) 左高・右低だが谷が裾野まで深く落ちる → 鞍部20mまでしか下がらない事実と矛盾。不適。<br>
+                ・(4) 左高・右低だが谷がほとんど下がらない → 約20mまで下がる鞍部を表せていない。不適。<br>
+                ・(5) 左に高い峰・右に低い峰、谷は中ほどの高さ → 読み取りと一致。<strong>正解</strong>。<br><br>
+
+                よって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
