@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .report-text {
+            text-align: justify; line-height: 2; margin: 20px 0;
+            padding: 18px 22px; background-color: #fafafa;
+            border-left: 4px solid #333; border-radius: 4px;
+        }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; overflow-x: auto; max-width: 100%; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td {
+            border: 2px solid #333; padding: 10px 12px;
+            min-width: 60px; text-align: center; vertical-align: middle;
+        }
+        .figure-table th {
+            border: 2px solid #333; padding: 10px 12px;
+            background-color: #e8e8e8; font-weight: bold;
+        }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .statements { margin: 18px 0; padding: 16px 20px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; line-height: 2; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%; background-color: #ddd;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の5図書館の年間利用統計を読み、各館の実績に関する記述として正しいものを(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                ある市の5つの図書館（A〜E）の年間統計である。A図書館は蔵書150千冊、年間貸出240千冊、登録者40千人、開館日数300日であった。B図書館は蔵書120千冊、貸出198千冊、登録者36千人、開館日数300日である。C図書館は蔵書200千冊、貸出280千冊、登録者56千人、開館日数280日であった。D図書館は蔵書90千冊、貸出168千冊、登録者24千人、開館日数280日にとどまる。E図書館は蔵書125千冊、貸出225千冊、登録者50千人、開館日数250日であった。なお、1人あたり年間貸出冊数は貸出冊数を登録者数で割った値、1日あたり貸出冊数は貸出冊数を開館日数で割った値、蔵書回転率は貸出冊数を蔵書数で割った値とする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】5図書館の年間利用統計</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>図書館</th><th>蔵書数<br>（千冊）</th><th>年間貸出<br>（千冊）</th><th>登録者数<br>（千人）</th><th>開館日数<br>（日）</th></tr>
+                        <tr><td>A</td><td>150</td><td>240</td><td>40</td><td>300</td></tr>
+                        <tr><td>B</td><td>120</td><td>198</td><td>36</td><td>300</td></tr>
+                        <tr><td>C</td><td>200</td><td>280</td><td>56</td><td>280</td></tr>
+                        <tr><td>D</td><td>90</td><td>168</td><td>24</td><td>280</td></tr>
+                        <tr><td>E</td><td>125</td><td>225</td><td>50</td><td>250</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>1人あたり年間貸出冊数が最も多いのはA図書館である。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>蔵書回転率が最も高いのはE図書館である。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>1日あたり貸出冊数が最も多いのはC図書館である。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>登録者1人あたり年間貸出冊数はC図書館がB図書館を上回る。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>1日あたり貸出冊数が最も少ないのはE図書館である。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各館の導出指標を計算する。</p>
+                    <br>
+                    <p><strong>【1人あたり年間貸出冊数】（貸出÷登録者）</strong></p>
+                    <p>A 6.0冊 / B 5.5冊 / C 5.0冊 / <strong>D 7.0冊</strong> / E 4.5冊</p>
+                    <br>
+                    <p><strong>【1日あたり貸出冊数】（貸出÷開館日数）</strong></p>
+                    <p>A 800冊 / B 660冊 / <strong>C 1,000冊</strong> / D 600冊 / E 900冊</p>
+                    <br>
+                    <p><strong>【蔵書回転率】（貸出÷蔵書）</strong></p>
+                    <p>A 1.60 / B 1.65 / C 1.40 / <strong>D 約1.87</strong> / E 1.80</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 1人あたり貸出最多はD(7.0冊)でありA(6.0冊)ではない → 誤</p>
+                    <p>・(2) 蔵書回転率最高はD(約1.87)でありE(1.80)ではない → 誤</p>
+                    <p>・(3) 1日あたり貸出最多はC(1,000冊) → <strong>正</strong></p>
+                    <p>・(4) C(5.0冊)はB(5.5冊)を下回り、上回らない → 誤</p>
+                    <p>・(5) 1日あたり貸出最少はD(600冊)でありE(900冊)ではない → 誤</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の6工場の月間生産データを読み、ア〜オの記述の正誤を判定して、正しいものの組み合わせを(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                ある企業の6工場（P〜U）の当月実績である。P工場は生産数8,000個、不良品160個、稼働時間200時間、作業員40人、電力使用量2,400kWh。Q工場は生産数9,000個、不良品270個、稼働時間250時間、作業員50人、電力使用量3,150kWh。R工場は生産数7,200個、不良品108個、稼働時間160時間、作業員45人、電力使用量2,880kWh。S工場は生産数10,000個、不良品250個、稼働時間200時間、作業員40人、電力使用量2,500kWh。T工場は生産数6,000個、不良品210個、稼働時間200時間、作業員40人、電力使用量2,700kWh。U工場は生産数8,400個、不良品84個、稼働時間240時間、作業員35人、電力使用量1,680kWh。なお、不良品率は不良品数を生産数で割った値、時間あたり生産数は生産数を稼働時間で割った値、1人あたり生産数は生産数を作業員数で割った値、製品1個あたり電力使用量は電力使用量を生産数で割った値とする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】6工場の月間生産データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>工場</th><th>生産数<br>（個）</th><th>不良品数<br>（個）</th><th>稼働時間<br>（h）</th><th>作業員数<br>（人）</th><th>電力使用量<br>（kWh）</th></tr>
+                        <tr><td>P</td><td>8,000</td><td>160</td><td>200</td><td>40</td><td>2,400</td></tr>
+                        <tr><td>Q</td><td>9,000</td><td>270</td><td>250</td><td>50</td><td>3,150</td></tr>
+                        <tr><td>R</td><td>7,200</td><td>108</td><td>160</td><td>45</td><td>2,880</td></tr>
+                        <tr><td>S</td><td>10,000</td><td>250</td><td>200</td><td>40</td><td>2,500</td></tr>
+                        <tr><td>T</td><td>6,000</td><td>210</td><td>200</td><td>40</td><td>2,700</td></tr>
+                        <tr><td>U</td><td>8,400</td><td>84</td><td>240</td><td>35</td><td>1,680</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="statements">
+                ア　不良品率が最も高い工場は、時間あたり生産数が最も少ない工場でもある。<br>
+                イ　1人あたり生産数が最も多い工場は、不良品率も最も高い。<br>
+                ウ　製品1個あたり電力使用量が最も少ない工場は、不良品率も最も低い。<br>
+                エ　時間あたり生産数が最も多い工場は、1人あたり生産数も最も多い。<br>
+                オ　製品1個あたり電力使用量が最も多い工場は、1人あたり生産数も最も多い。
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>ア・イ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>ア・ウ・エ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>イ・エ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>ウ・オ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>ア・エ・オ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>4種の導出指標を全工場について計算する。</p>
+                    <br>
+                    <p><strong>【不良品率】（不良品÷生産数）</strong></p>
+                    <p>P 2.0% / Q 3.0% / R 1.5% / S 2.5% / <strong>T 3.5%（最高）</strong> / <strong>U 1.0%（最低）</strong></p>
+                    <br>
+                    <p><strong>【時間あたり生産数】（生産数÷稼働時間）</strong></p>
+                    <p>P 40 / Q 36 / R 45 / <strong>S 50（最多）</strong> / <strong>T 30（最少）</strong> / U 35（個/h）</p>
+                    <br>
+                    <p><strong>【1人あたり生産数】（生産数÷作業員数）</strong></p>
+                    <p>P 200 / Q 180 / R 160 / <strong>S 250（最多）</strong> / <strong>T 150（最少）</strong> / U 240（個/人）</p>
+                    <br>
+                    <p><strong>【製品1個あたり電力使用量】（電力÷生産数）</strong></p>
+                    <p>P 0.30 / Q 0.35 / R 0.40 / S 0.25 / <strong>T 0.45（最多）</strong> / <strong>U 0.20（最少）</strong>（kWh）</p>
+                    <br>
+                    <p><strong>【記述の検討】</strong></p>
+                    <p>・ア 不良品率最高(T)＝時間あたり生産数最少(T) → 一致 → <strong>正</strong></p>
+                    <p>・イ 1人あたり最多(S)≠不良品率最高(T) → <strong>誤</strong></p>
+                    <p>・ウ 電力最少(U)＝不良品率最低(U) → 一致 → <strong>正</strong></p>
+                    <p>・エ 時間あたり最多(S)＝1人あたり最多(S) → 一致 → <strong>正</strong></p>
+                    <p>・オ 電力最多(T)≠1人あたり最多(S) → <strong>誤</strong></p>
+                    <br>
+                    <p>正しい記述はア・ウ・エ。したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考189/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
