@@ -46,6 +46,13 @@ def odd_count(n_vertices, edges):
     return sum(1 for d in degrees(n_vertices, edges).values() if d % 2 == 1)
 
 
+def min_strokes(n_vertices, edges):
+    """連結グラフの全辺を描く最小筆数 = max(1, 奇点数/2)"""
+    assert is_connected(n_vertices, edges)
+    oc = odd_count(n_vertices, edges)
+    return max(1, oc // 2)
+
+
 # ---- 立体の辺グラフ定義 ----
 # 正四面体: 4頂点・全結合(6辺)、各次数3
 tetra = (4, list(combinations(range(4), 2)))
@@ -75,6 +82,13 @@ octahedron = (6, [(2, 3), (3, 4), (4, 5), (5, 2),   # 赤道正方形
                   (0, 2), (0, 3), (0, 4), (0, 5),   # 上頂点
                   (1, 2), (1, 3), (1, 4), (1, 5)])   # 下頂点
 
+# 切妻屋根の家型立体: 0-3=底面正方形, 4-7=壁の上(天井)正方形, 8,9=屋根の棟の両端
+# 底面4頂点=次数3(奇), 天井4頂点=次数4(偶), 棟2頂点=次数3(奇) -> 奇点6個 -> 最小3筆
+house = (10, [(0, 1), (1, 2), (2, 3), (3, 0),       # 底面正方形
+              (0, 4), (1, 5), (2, 6), (3, 7),       # 垂直の柱
+              (4, 5), (5, 6), (6, 7), (7, 4),       # 天井(壁の上)正方形
+              (8, 4), (8, 5), (9, 6), (9, 7), (8, 9)])  # 屋根(妻面2枚+棟)
+
 solids = {
     "正四面体": tetra,
     "立方体": cube,
@@ -82,6 +96,7 @@ solids = {
     "四角錐": sq_pyramid,
     "三角双錐": tri_bipyramid,
     "正八面体": octahedron,
+    "切妻屋根の家": house,
 }
 
 print("=== 各立体の解析 ===")
@@ -104,16 +119,20 @@ print(f"一筆書き可能: {q1_ok}")
 assert q1_ok == ["三角双錐"], f"問1の解が一意でない: {q1_ok}"
 print("OK: 正解は三角双錐のみ")
 
-# ---- 問2: 一筆書きでき、かつ出発点に戻れる(閉路)ものは1つだけか ----
-q2_set = ["三角双錐", "四角錐", "立方体", "三角柱", "正八面体"]
-q2_ok = [name for name in q2_set
-         if is_connected(*solids[name]) and odd_count(*solids[name]) == 0]
-print("\n=== 問2(一筆書き+出発点に戻れる=閉路) ===")
-print(f"選択肢: {q2_set}")
-print(f"閉路可能: {q2_ok}")
-assert q2_ok == ["正八面体"], f"問2の解が一意でない: {q2_ok}"
-# 三角双錐は一筆書き可能だが閉路不可(罠)であることを確認
-assert odd_count(*solids["三角双錐"]) == 2, "三角双錐は奇数頂点2個のはず"
-print("OK: 正解は正八面体のみ(三角双錐は一筆書き可だが閉路不可の罠)")
+# ---- 問2: 切妻屋根の家型立体の全辺を描く最小筆数 ----
+n, edges = solids["切妻屋根の家"]
+print("\n=== 問2(家型立体の最小筆数) ===")
+deg = degrees(n, edges)
+print(f"辺数={len(edges)} 各頂点の次数={sorted(deg.values())}")
+oc = odd_count(n, edges)
+ms = min_strokes(n, edges)
+print(f"連結={is_connected(n, edges)} 奇点数={oc} 最小筆数={ms}")
+assert is_connected(n, edges), "家型が連結でない"
+assert oc == 6, f"奇点数が6でない: {oc}"
+assert ms == 3, f"最小筆数が3でない: {ms}"
+# 罠の確認: 底面のみ/天井のみを見ると誤る。底面4頂点(奇)+棟2頂点(奇)=6が正しい
+odd_vertices = sorted(v for v, d in deg.items() if d % 2 == 1)
+assert odd_vertices == [0, 1, 2, 3, 8, 9], f"奇点の位置が想定外: {odd_vertices}"
+print("OK: 最小筆数は3筆(奇点は底面4頂点と棟2頂点の計6個)")
 
 print("\n全検証パス")
