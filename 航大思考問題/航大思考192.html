@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8; background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .report-text {
+            text-align: justify; line-height: 2; margin: 20px 0;
+            padding: 18px 22px; background-color: #fafafa;
+            border-left: 4px solid #333; border-radius: 4px;
+        }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; overflow-x: auto; max-width: 100%; }
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+        .figure-table td {
+            border: 2px solid #333; padding: 10px 12px;
+            min-width: 60px; text-align: center; vertical-align: middle;
+        }
+        .figure-table th {
+            border: 2px solid #333; padding: 10px 12px;
+            background-color: #e8e8e8; font-weight: bold;
+        }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .statements { margin: 18px 0; padding: 16px 20px; background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px; line-height: 2; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%; background-color: #ddd;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666; transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の5社のECサイト月次データを読み、各社の実績に関する記述として正しいものを(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                あるグループ企業5社（A〜E）の自社ECサイトにおける当月実績である。A社はアクセス数200千件、購入件数4,000件、売上8,000千円、返品件数120件であった。B社はアクセス数150千件、購入件数3,600件、売上7,200千円、返品件数72件である。C社はアクセス数250千件、購入件数5,000件、売上9,000千円、返品件数200件であった。D社はアクセス数120千件、購入件数3,000件、売上6,600千円、返品件数60件にとどまる。E社はアクセス数180千件、購入件数3,600件、売上7,920千円、返品件数144件であった。なお、購入率はアクセス数に対する購入件数の割合、客単価は売上を購入件数で割った値、返品率は購入件数に対する返品件数の割合とする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表1】5社のECサイト月次データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>企業</th><th>アクセス数<br>（千件）</th><th>購入件数<br>（件）</th><th>売上<br>（千円）</th><th>返品件数<br>（件）</th></tr>
+                        <tr><td>A</td><td>200</td><td>4,000</td><td>8,000</td><td>120</td></tr>
+                        <tr><td>B</td><td>150</td><td>3,600</td><td>7,200</td><td>72</td></tr>
+                        <tr><td>C</td><td>250</td><td>5,000</td><td>9,000</td><td>200</td></tr>
+                        <tr><td>D</td><td>120</td><td>3,000</td><td>6,600</td><td>60</td></tr>
+                        <tr><td>E</td><td>180</td><td>3,600</td><td>7,920</td><td>144</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>客単価が最も高いのはD社のみである。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>返品率が最も高いのはC社である。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>購入率が最も高いのはD社である。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>客単価が最も低いのはB社である。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>返品率が最も低いのはA社である。
+                </button>
+            </div>
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各社の3指標を計算する。</p>
+                    <br>
+                    <p><strong>【購入率】（購入件数÷アクセス数）</strong></p>
+                    <p>A 2.0% / B 2.4% / C 2.0% / <strong>D 2.5%（最高）</strong> / E 2.0%</p>
+                    <br>
+                    <p><strong>【客単価】（売上÷購入件数）</strong></p>
+                    <p>A 2,000円 / B 2,000円 / C 1,800円 / <strong>D 2,200円</strong> / <strong>E 2,200円</strong></p>
+                    <br>
+                    <p><strong>【返品率】（返品件数÷購入件数）</strong></p>
+                    <p>A 3.0% / <strong>B 2.0%</strong> / C 4.0% / <strong>D 2.0%</strong> / E 4.0%</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 客単価最高はD(2,200円)とE(2,200円)の同値で「D社のみ」ではない → 誤</p>
+                    <p>・(2) 返品率最高はC(4.0%)とE(4.0%)の同値で、C社単独ではない → 誤</p>
+                    <p>・(3) 購入率最高はD(2.5%)でありB(2.4%)を上回る単独最高 → <strong>正</strong></p>
+                    <p>・(4) 客単価最低はC(1,800円)でありB(2,000円)ではない → 誤</p>
+                    <p>・(5) 返品率最低はB・D(2.0%)でありA(3.0%)ではない → 誤</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の6店舗の月次経営データ（表2・表3）を読み、ア〜オの記述の正誤を判定して、正しいものの組み合わせを(1)〜(5)の中から1つ選べ。
+            </div>
+
+            <div class="report-text">
+                あるカフェチェーン6店舗（A〜F）の当月実績を【表2】【表3】に示す。売上は来客数（千人）に客単価（円）を乗じた値（千円）とする。原価は売上に原価率を乗じた値であり、営業利益は売上から原価と月間固定費を差し引いた値とする。利益率は営業利益を売上で割った割合、1日あたり来客数は来客数を営業日数で割った値とする。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表2】6店舗の売上関連データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>店舗</th><th>来客数<br>（千人）</th><th>客単価<br>（円）</th><th>営業日数<br>（日）</th></tr>
+                        <tr><td>A</td><td>40</td><td>800</td><td>25</td></tr>
+                        <tr><td>B</td><td>30</td><td>1,000</td><td>30</td></tr>
+                        <tr><td>C</td><td>50</td><td>600</td><td>25</td></tr>
+                        <tr><td>D</td><td>25</td><td>1,200</td><td>20</td></tr>
+                        <tr><td>E</td><td>60</td><td>500</td><td>24</td></tr>
+                        <tr><td>F</td><td>36</td><td>900</td><td>24</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表3】6店舗の費用関連データ</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>店舗</th><th>月間固定費<br>（千円）</th><th>原価率<br>（%）</th></tr>
+                        <tr><td>A</td><td>10,000</td><td>60</td></tr>
+                        <tr><td>B</td><td>9,000</td><td>55</td></tr>
+                        <tr><td>C</td><td>12,000</td><td>50</td></tr>
+                        <tr><td>D</td><td>7,500</td><td>65</td></tr>
+                        <tr><td>E</td><td>9,600</td><td>58</td></tr>
+                        <tr><td>F</td><td>8,000</td><td>62</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="statements">
+                ア　売上が最も多い店舗は、営業利益も最も多い。<br>
+                イ　利益率が最も高い店舗は、1日あたり来客数が最も少ない。<br>
+                ウ　営業利益が最も少ない店舗は、利益率も最も低い。<br>
+                エ　1日あたり来客数が最も多い店舗は、売上も最も多い。<br>
+                オ　営業利益が最も多い店舗は、利益率も最も高い。
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>ア・イ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>ア・エ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>イ・ウ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>ウ・エ・オ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>イ・ウ・オ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>売上＝来客数（千人）×客単価（円）として各指標を計算する。</p>
+                    <br>
+                    <p><strong>【売上（千円）】</strong></p>
+                    <p>A 32,000 / B 30,000 / C 30,000 / D 30,000 / E 30,000 / <strong>F 32,400（最多）</strong></p>
+                    <br>
+                    <p><strong>【営業利益（千円）】（売上−原価−固定費）</strong></p>
+                    <p><strong>A 2,800（最少）</strong> / <strong>B 4,500（最多）</strong> / C 3,000 / D 3,000 / E 3,000 / F 4,312</p>
+                    <br>
+                    <p><strong>【利益率】（営業利益÷売上）</strong></p>
+                    <p><strong>A 8.75%（最低）</strong> / <strong>B 15.0%（最高）</strong> / C 10.0% / D 10.0% / E 10.0% / F 約13.3%</p>
+                    <br>
+                    <p><strong>【1日あたり来客数（人）】（来客数÷営業日数）</strong></p>
+                    <p>A 1,600 / <strong>B 1,000（最少）</strong> / C 2,000 / D 1,250 / <strong>E 2,500（最多）</strong> / F 1,500</p>
+                    <br>
+                    <p><strong>【記述の検討】</strong></p>
+                    <p>・ア 売上最多(F)≠営業利益最多(B) → <strong>誤</strong></p>
+                    <p>・イ 利益率最高(B)＝1日あたり来客最少(B) → <strong>正</strong></p>
+                    <p>・ウ 営業利益最少(A)＝利益率最低(A) → <strong>正</strong></p>
+                    <p>・エ 1日あたり来客最多(E)≠売上最多(F) → <strong>誤</strong></p>
+                    <p>・オ 営業利益最多(B)＝利益率最高(B) → <strong>正</strong></p>
+                    <br>
+                    <p>正しい記述はイ・ウ・オ。したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_05/航大思考192/問${questionNum}`,
+                        selectedOption, correctOption, isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
