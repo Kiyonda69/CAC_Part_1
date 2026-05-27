@@ -1,0 +1,517 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <div class="question-number">問1．次の資料は、あるカフェチェーン3店舗の第1四半期（1〜3月）の来客数をまとめたものである。表中の一部は空欄になっている。空欄〔ア〕に入る「かえで店の3月の来客数」として正しいものを、下の選択肢から1つ選べ。（単位：百人）（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料1】店舗別 来客数（第1四半期・単位：百人）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>店舗</th><th>1月</th><th>2月</th><th>3月</th>
+                                <th>当期<br>合計</th><th>前年<br>同期計</th><th>前年比</th>
+                            </tr>
+                            <tr>
+                                <td>さくら店</td><td>35</td><td>32</td><td>38</td>
+                                <td>105</td><td>100</td><td>105％</td>
+                            </tr>
+                            <tr>
+                                <td>かえで店</td><td>40</td><td>36</td>
+                                <td><strong>〔ア〕</strong></td>
+                                <td>（　）</td><td>125</td><td>96％</td>
+                            </tr>
+                            <tr>
+                                <td>くすのき店</td><td>28</td><td>30</td><td>42</td>
+                                <td>100</td><td>80</td><td>125％</td>
+                            </tr>
+                            <tr>
+                                <th>月別合計</th><td>103</td><td>98</td><td>（　）</td>
+                                <td>325</td><td>305</td><td>—</td>
+                            </tr>
+                        </table>
+                        <div class="legend">
+                            <div class="legend-item">注1）「当期合計」は当期（今年）の1〜3月の合計来客数。</div>
+                            <div class="legend-item">注2）「前年比」＝当期合計 ÷ 前年同期合計 ×100（小数第1位を四捨五入）。</div>
+                            <div class="legend-item">注3）数値はすべて百人単位（例：35＝3,500人）。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="options">
+                        （1）44　　（2）42　　（3）46　　（4）40　　（5）48
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(1))</strong><br>
+                空欄〔ア〕は「かえで店の3月」。多数の数値の中から、かえで店の行に着目するのがポイント。<br><br>
+
+                <strong>【着眼点】</strong><br>
+                かえで店は「当期合計」も空欄だが、「前年同期合計＝125」と「前年比＝96％」が与えられている。前年比の定義（注2）から当期合計を逆算できる。<br><br>
+
+                <strong>【計算手順】</strong><br>
+                ① 当期合計 ＝ 前年同期合計 × 前年比 ＝ 125 × 0.96 ＝ <strong>120</strong>（百人）<br>
+                ② 〔ア〕＝ 当期合計 − 1月 − 2月 ＝ 120 − 40 − 36 ＝ <strong>44</strong>（百人＝4,400人）<br><br>
+
+                <strong>【別解】</strong><br>
+                当期の総合計325から他2店の当期合計を引いても求められる。<br>
+                かえで店当期合計 ＝ 325 − 105（さくら）− 100（くすのき）＝ 120 → 同じく〔ア〕＝120 − 40 − 36 ＝ 44。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 44 → 上記の通り正解。<br>
+                ・(2) 42 → くすのき店3月の値を取り違えた誤り。<br>
+                ・(3) 46 → 当期合計を122と誤算した場合の値。<br>
+                ・(4) 40 → 1月の値をそのまま転記した誤り。<br>
+                ・(5) 48 → 前年同期125から1・2月を引いた誤り（前年比を無視）。<br><br>
+
+                さくら店・くすのき店の前年比などは解答に不要な撹乱情報である。したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の資料は、ある会社の4部署における四半期別経費（単位：万円）をまとめたものである。表中の〔ア〕〜〔エ〕は空欄である。下の【条件】も用いて、空欄〔エ〕（開発部の第4四半期の経費）に入る値として正しいものを1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料2】部署別・四半期別 経費（単位：万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部署</th><th>第1Q</th><th>第2Q</th><th>第3Q</th>
+                                <th>第4Q</th><th>部門計</th><th>構成比</th>
+                            </tr>
+                            <tr>
+                                <td>営業部</td><td>180</td><td><strong>〔ア〕</strong></td><td>220</td>
+                                <td><strong>〔ウ〕</strong></td><td>760</td><td>27.9％</td>
+                            </tr>
+                            <tr>
+                                <td>開発部</td><td>150</td><td><strong>〔イ〕</strong></td><td>140</td>
+                                <td><strong>〔エ〕</strong></td><td>650</td><td>23.9％</td>
+                            </tr>
+                            <tr>
+                                <td>総務部</td><td>90</td><td>100</td><td>110</td>
+                                <td>120</td><td>420</td><td>15.4％</td>
+                            </tr>
+                            <tr>
+                                <td>製造部</td><td>210</td><td>230</td><td>250</td>
+                                <td>200</td><td>890</td><td>32.7％</td>
+                            </tr>
+                            <tr>
+                                <th>四半期計</th><td>630</td><td>700</td><td>720</td>
+                                <td>670</td><td>2720</td><td>100％</td>
+                            </tr>
+                        </table>
+                        <div class="legend">
+                            <div class="legend-item">注1）「部門計」は各部署の4四半期合計、「四半期計」は各四半期の4部署合計。</div>
+                            <div class="legend-item">注2）「構成比」＝部門計 ÷ 総計（2720）×100（小数第1位を四捨五入。参考値）。</div>
+                            <div class="legend-item">【条件】営業部の第2四半期の経費は、営業部の第4四半期より40多い。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="options">
+                        （1）180　　（2）190　　（3）200　　（4）170　　（5）210
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                空欄を a＝〔ア〕（営業第2Q）、b＝〔イ〕（開発第2Q）、c＝〔ウ〕（営業第4Q）、d＝〔エ〕（開発第4Q）とおく。行合計・列合計と【条件】から連立して解く。<br><br>
+
+                <strong>【式を立てる】</strong><br>
+                ・営業部の行： 180 ＋ a ＋ 220 ＋ c ＝ 760　→　a ＋ c ＝ 360　…①<br>
+                ・【条件】： a ＝ c ＋ 40　…②<br>
+                ・第2Qの列： a ＋ b ＋ 100 ＋ 230 ＝ 700　→　a ＋ b ＝ 370　…③<br>
+                ・開発部の行： 150 ＋ b ＋ 140 ＋ d ＝ 650　→　b ＋ d ＝ 360　…④<br><br>
+
+                <strong>【解く】</strong><br>
+                ①②より、a ＝ 200、c ＝ 160（〔ア〕＝200、〔ウ〕＝160）。<br>
+                ③に a＝200 を代入し、b ＝ 370 − 200 ＝ 170（〔イ〕＝170）。<br>
+                ④に b＝170 を代入し、<strong>d ＝ 360 − 170 ＝ 190</strong>（〔エ〕＝190）。<br><br>
+
+                <strong>【検算】</strong><br>
+                第4Qの列： c ＋ d ＋ 120 ＋ 200 ＝ 160 ＋ 190 ＋ 320 ＝ 670 となり四半期計に一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 180 → 製造部第4Qと混同した誤り。<br>
+                ・(2) 190 → 上記の通り正解。<br>
+                ・(3) 200 → 〔ア〕の値（営業第2Q）を取り違えた誤り。<br>
+                ・(4) 170 → 〔イ〕の値（開発第2Q）を取り違えた誤り。<br>
+                ・(5) 210 → 条件を「40少ない」と誤読した場合の値。<br><br>
+
+                構成比の列は解答に不要な参考情報である。したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
