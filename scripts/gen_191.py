@@ -41,22 +41,44 @@ Q1_ORDER = ["正四面体", "立方体", "三角双錐", "三角柱", "四角錐
 Q2_ORDER = ["三角双錐", "四角錐", "立方体", "正八面体", "三角柱"]   # 正解=位置4
 
 
-def solid_lines(name, ox=0, oy=0):
-    """立体の線分と頂点ドットを返す(オフセットox,oy)。viewBox基準の座標。"""
-    co = COORDS[name]
+def _bbox(name):
+    xs = [p[0] for p in COORDS[name].values()]
+    ys = [p[1] for p in COORDS[name].values()]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def fit_coords(name, rx0, ry0, rx1, ry1):
+    """立体の頂点を矩形[rx0,ry0]-[rx1,ry1]に縦横比保持で最大化配置。"""
+    x0, y0, x1, y1 = _bbox(name)
+    w, h = x1 - x0, y1 - y0
+    s = min((rx1 - rx0) / w, (ry1 - ry0) / h)
+    ox = rx0 + ((rx1 - rx0) - w * s) / 2 - x0 * s
+    oy = ry0 + ((ry1 - ry0) - h * s) / 2 - y0 * s
+    co = {v: (round(p[0] * s + ox, 1), round(p[1] * s + oy, 1))
+          for v, p in COORDS[name].items()}
+    return co, s
+
+
+def solid_lines(name, rect):
+    """立体を矩形rect=(x0,y0,x1,y1)いっぱいに描く線分と頂点ドットを返す。"""
+    co, s = fit_coords(name, *rect)
+    sw = round(2.2 * s, 2)        # 実線の太さ
+    dw = round(1.7 * s, 2)        # 破線の太さ
+    r = round(3.4 * s, 2)         # 頂点ドット半径
+    dash = f"{round(5*s,1)},{round(3.5*s,1)}"
     out = []
     for a, b in SOLID[name]:
         x1, y1 = co[a]
         x2, y2 = co[b]
-        out.append(f'<line x1="{x1+ox}" y1="{y1+oy}" x2="{x2+ox}" y2="{y2+oy}" '
-                   f'stroke="black" stroke-width="2"/>')
+        out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
+                   f'stroke="black" stroke-width="{sw}" stroke-linecap="round"/>')
     for a, b in DASH[name]:
         x1, y1 = co[a]
         x2, y2 = co[b]
-        out.append(f'<line x1="{x1+ox}" y1="{y1+oy}" x2="{x2+ox}" y2="{y2+oy}" '
-                   f'stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>')
+        out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" '
+                   f'stroke="black" stroke-width="{dw}" stroke-dasharray="{dash}"/>')
     for (x, y) in co.values():
-        out.append(f'<circle cx="{x+ox}" cy="{y+oy}" r="3.2" fill="black"/>')
+        out.append(f'<circle cx="{x}" cy="{y}" r="{r}" fill="black"/>')
     return "\n            ".join(out)
 
 

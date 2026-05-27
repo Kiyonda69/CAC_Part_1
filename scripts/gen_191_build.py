@@ -42,18 +42,22 @@ Q2_EXP = """<strong>問2(正解:(4))</strong><br>
 
 
 def static_choice_svg(order, solid_lines):
-    """印刷用: 5立体を横並びにしたSVG文字列。"""
+    """印刷用: 5立体を横並びにしたSVG文字列(各立体をセルいっぱいに拡大)。"""
+    cw = 132            # 1セル幅
     groups = []
     for i, name in enumerate(order):
-        ox = i * 110 + 8
-        body = solid_lines(name, ox=ox, oy=20)
+        base = i * cw
+        rect = (base + 12, 36, base + cw - 12, 208)
+        body = solid_lines(name, rect)
         groups.append(
             f'    <g>\n'
-            f'        <text x="{ox+52}" y="14" class="svg-text" text-anchor="middle">({i+1})</text>\n'
+            f'        <text x="{base + cw // 2}" y="22" class="svg-text" '
+            f'style="font-size:18px" text-anchor="middle">({i+1})</text>\n'
             f'        {body}\n'
             f'    </g>')
     inner = "\n".join(groups)
-    return (f'<svg width="100%" height="auto" viewBox="0 0 568 150">\n{inner}\n</svg>')
+    total = cw * len(order)
+    return (f'<svg width="100%" height="auto" viewBox="0 0 {total} 220">\n{inner}\n</svg>')
 
 
 def static_question_section(num, text, points_time, choice_svg):
@@ -108,12 +112,15 @@ def dyn_options(qnum, order, correct, solid_lines):
     btns = []
     for i, name in enumerate(order):
         opt = i + 1
-        body = solid_lines(name, ox=0, oy=20)
+        rect = (10, 30, 130, 192)
+        body = solid_lines(name, rect)
         btns.append(
             f'                <button class="option-figure-button" data-option="{opt}" '
+            f'style="max-width:170px" '
             f'onclick="selectAnswer({qnum}, {opt}, {correct})">\n'
-            f'                    <svg width="100" height="128" viewBox="0 0 105 128">\n'
-            f'                        <text x="52" y="14" class="svg-text" text-anchor="middle">({opt})</text>\n'
+            f'                    <svg width="100%" height="auto" viewBox="0 0 140 200">\n'
+            f'                        <text x="70" y="20" class="svg-text" '
+            f'style="font-size:18px" text-anchor="middle">({opt})</text>\n'
             f'                        {body}\n'
             f'                    </svg>\n'
             f'                </button>')
