@@ -282,183 +282,59 @@ template_static.html - 静的問題テンプレート（印刷用）
     </style>
 </head>
 <body>
-    <!-- ========== 問1 問題ページ ========== -->
-    <!--
-    各ページは .question-section で囲む
-    - .question-page クラスで印刷時の改ページを指定
-    - .page-content でコンテンツを囲む
-    -->
     <div class="question-section question-page">
-        <div class="page-content">
-            <!-- 問題コンテナ -->
-            <div class="question">
-
-                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
-                <!--
-                印刷用では問題番号と問題文を一体で記述
-                配点は末尾に括弧で記載
-                -->
-                <div class="question-number">問1．ここに問題文を記述します。（配点）</div>
-
-                <!-- 図表エリア -->
-                <!--
-                SVGを使用して図表を作成
-                - viewBox: 座標系の定義（x, y, 幅, 高さ）
-                - width/height: 実際の表示サイズ
-
-                【座標系の設計指針】
-                - 各図形は概ね80〜100pxのボックス内に収める
-                - transform="translate(x, y)" でグループを配置
-                - 多角形は polygon points で頂点座標を列挙
-                -->
-                <div class="figure-container">
-                    <div class="figure-title">【図1】タイトル</div>
-                    <div class="figure-content">
-                        <!--
-                        SVGコメント例:
-                        座標系定義:
-                        - 各図形は100x100のボックス内に配置
-                        - 多角形の中心: (50, 50)、半径: 35
-                        - 内部の点: 中心付近に配置
-                        -->
-                        <svg width="600" height="120" viewBox="0 0 600 120">
-                            <!-- A: ラベルと図形 -->
-                            <g transform="translate(10, 10)">
-                                <!-- ラベルテキスト -->
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">A</text>
-                                <!-- 三角形の例 -->
-                                <polygon points="40,25 10,85 70,85" fill="none" stroke="black" stroke-width="2"/>
-                                <!-- 内部の点 -->
-                                <circle cx="40" cy="65" r="4" fill="black"/>
-                            </g>
-
-                            <!-- 矢印記号 -->
-                            <text x="95" y="60" class="svg-text">→</text>
-
-                            <!-- B: 四角形の例 -->
-                            <g transform="translate(110, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">B</text>
-                                <polygon points="10,25 70,25 70,85 10,85" fill="none" stroke="black" stroke-width="2"/>
-                            </g>
-
-                            <!-- 続く図形... -->
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- 選択肢エリア -->
-                <!--
-                選択肢はSVGで描画し、figure-container内に配置
-                印刷用では枠線なしのシンプルな表示
-                -->
-                <div class="figure-container" style="border: none; box-shadow: none;">
-                    <div class="figure-content">
-                        <svg width="600" height="200" viewBox="0 0 600 200">
-                            <!-- 選択肢(1) -->
-                            <g transform="translate(10, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
-                                <!-- 選択肢1の図形 -->
-                            </g>
-
-                            <!-- 選択肢(2) -->
-                            <g transform="translate(110, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
-                                <!-- 選択肢2の図形 -->
-                            </g>
-
-                            <!-- 選択肢(3) - 正解の場合はコメントで記載 -->
-                            <g transform="translate(210, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
-                                <!-- 選択肢3の図形（正解） -->
-                            </g>
-
-                            <!-- 選択肢(4) -->
-                            <g transform="translate(310, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
-                                <!-- 選択肢4の図形 -->
-                            </g>
-
-                            <!-- 選択肢(5) -->
-                            <g transform="translate(410, 10)">
-                                <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
-                                <!-- 選択肢5の図形 -->
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-            </div><!-- /.question -->
-        </div><!-- /.page-content -->
-    </div><!-- /.question-section -->
-
-    <!-- ========== 問1 解説ページ ========== -->
-    <!--
-    解説は別ページで作成
-    問題ページの直後に配置することで、印刷時に続けて出力される
-    -->
-    <div class="question-section question-page">
-        <div class="page-content">
-            <div class="explanation">
-                <!-- 正解と解説 -->
-                <!--
-                解説の記述形式:
-                - 冒頭に「問N(正解:(X))」
-                - 規則の発見、計算過程、選択肢の検討を順に説明
-                - <br> タグで改行
-                - <strong> タグで強調
-                -->
-                <strong>問1(正解:(X))</strong><br>
-                ここに解説を記述します。<br><br>
-
-                <strong>【規則の発見】</strong><br>
-                ・ポイント1<br>
-                ・ポイント2<br><br>
-
-                <strong>【選択肢の検討】</strong><br>
-                ・(1) 説明 → 不正解の理由<br>
-                ・(2) 説明 → 不正解の理由<br>
-                ・(3) 説明 → 正解の理由<br>
-                ・(4) 説明 → 不正解の理由<br>
-                ・(5) 説明 → 不正解の理由<br><br>
-
-                したがって、正解は<strong>(X)</strong>である。
-            </div>
+      <div class="page-content">
+        <div class="question">
+          <div class="question-number">問1．ある工場の製品別・月別生産台数を下の【表1】に示す。各行（製品）には行合計、各列（月）には月別合計、右下に総合計が与えられている。表中の空欄ア・イ・ウに入る数値を求め、<strong>ア＋イ＋ウ</strong>の値を答えよ。（6点）</div>
+          <div class="figure-container">
+            <div class="figure-title">【表1】製品別・月別生産台数（単位：台）</div>
+            <div class="figure-content"><table class="figure-table"><tr><th>製品</th><th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>行合計</th></tr><tr><th>A</th><td>120</td><td>150</td><td style="background-color:#e0e0e0;font-weight:bold;">ア</td><td>180</td><td>600</td></tr><tr><th>B</th><td style="background-color:#e0e0e0;font-weight:bold;">イ</td><td>200</td><td>170</td><td>160</td><td>700</td></tr><tr><th>C</th><td>140</td><td style="background-color:#e0e0e0;font-weight:bold;">ウ</td><td>190</td><td>210</td><td>720</td></tr><tr><th>月別合計</th><td>430</td><td>530</td><td>510</td><td>550</td><td>2020</td></tr></table></div>
+          </div>
+          <div class="options">
+        (1) 480<br>
+        (2) 490<br>
+        (3) 510<br>
+        (4) 500<br>
+        (5) 520
+      </div>
         </div>
+      </div>
     </div>
-
-    <!-- ========== 問2 問題ページ ========== -->
-    <!--
-    2問目以降も同様の構造で追加
-    - 問題ページ → 解説ページ の順番で配置
-    -->
     <div class="question-section question-page">
-        <div class="page-content">
-            <div class="question">
-                <div class="question-number">問2．ここに問題文を記述します。（配点）</div>
-
-                <!-- 図表と選択肢 -->
-                <!-- ... -->
-
-            </div>
+      <div class="page-content">
+        <div class="explanation">
+          <strong>問1(正解:(4))</strong><br>
+          各製品の行合計から、その行で1つだけ空いているマスを引き算で求める。<br>ア（製品A・3月）＝600−(120＋150＋180)＝<strong>150</strong><br>イ（製品B・1月）＝700−(200＋170＋160)＝<strong>170</strong><br>ウ（製品C・2月）＝720−(140＋190＋210)＝<strong>180</strong><br>よって ア＋イ＋ウ＝150＋170＋180＝<strong>500</strong>。<br>月別合計（430・530・510・550）および総合計2020とも矛盾しない。
         </div>
+      </div>
     </div>
-
-    <!-- ========== 問2 解説ページ ========== -->
     <div class="question-section question-page">
-        <div class="page-content">
-            <div class="explanation">
-                <strong>問2(正解:(X))</strong><br>
-                問2の解説をここに記述します。
-            </div>
+      <div class="page-content">
+        <div class="question">
+          <div class="question-number">問2．ある企業の部門別・四半期別の人件費（単位：万円）を下の【表2】に示す。各行（部門）には行合計、各列（四半期）には四半期合計、右下に総合計が与えられている。表中の空欄ア〜キに入る数値を順に求め、<strong>営業部の第1四半期（空欄ア）</strong>の人件費を答えよ。（6点）</div>
+          <div class="figure-container">
+            <div class="figure-title">【表2】部門別・四半期別人件費（単位：万円）</div>
+            <div class="figure-content"><table class="figure-table"><tr><th>部門</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>行合計</th></tr><tr><th>営業部</th><td style="background-color:#e0e0e0;font-weight:bold;">ア</td><td style="background-color:#e0e0e0;font-weight:bold;">イ</td><td>350</td><td>400</td><td>1400</td></tr><tr><th>製造部</th><td>300</td><td style="background-color:#e0e0e0;font-weight:bold;">ウ</td><td style="background-color:#e0e0e0;font-weight:bold;">エ</td><td>510</td><td>1770</td></tr><tr><th>開発部</th><td>280</td><td>260</td><td style="background-color:#e0e0e0;font-weight:bold;">オ</td><td style="background-color:#e0e0e0;font-weight:bold;">カ</td><td>1190</td></tr><tr><th>管理部</th><td>180</td><td>190</td><td>210</td><td style="background-color:#e0e0e0;font-weight:bold;">キ</td><td>780</td></tr><tr><th>四半期合計</th><td>1090</td><td>1240</td><td>1350</td><td>1460</td><td>5140</td></tr></table></div>
+          </div>
+          <div class="options">
+        (1) 310<br>
+        (2) 320<br>
+        (3) 330<br>
+        (4) 340<br>
+        (5) 350
+      </div>
         </div>
+      </div>
     </div>
-
-    <!-- ==================== JavaScript ==================== -->
-    <!--
-    印刷用テンプレートのJavaScriptは最小限
-    - ページのスケーリング機能のみ
-    - インタラクティブな機能は不要
-    -->
-    <script>
+    <div class="question-section question-page">
+      <div class="page-content">
+        <div class="explanation">
+          <strong>問2(正解:(3))</strong><br>
+          「行または列で空欄が1つだけのところ」から順に確定していくと、次の一通りの順序でしか解けない。<br>キ（管理部Q4）＝780−(180＋190＋210)＝<strong>200</strong><br>カ（開発部Q4）：Q4列より 1460−(400＋510＋200)＝<strong>350</strong><br>オ（開発部Q3）：開発部行より 1190−(280＋260＋350)＝<strong>300</strong><br>エ（製造部Q3）：Q3列より 1350−(350＋300＋210)＝<strong>490</strong><br>ウ（製造部Q2）：製造部行より 1770−(300＋490＋510)＝<strong>470</strong><br>イ（営業部Q2）：Q2列より 1240−(470＋260＋190)＝<strong>320</strong><br>ア（営業部Q1）：営業部行より 1400−(320＋350＋400)＝<strong>330</strong><br>よって営業部の第1四半期の人件費は<strong>330万円</strong>。
+        </div>
+      </div>
+    </div>
+<script>
         /**
          * ページをビューポートサイズに合わせてスケーリング
          *
