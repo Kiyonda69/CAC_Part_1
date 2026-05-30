@@ -1,0 +1,347 @@
+<!--
+================================================================================
+印刷193.html - セット193: 多段計算クロス参照 資料読み取り問題（印刷用）
+================================================================================
+問1（標準）: 5物流センター × 2表（売上→営業利益→利益率→1日あたりの多段計算）
+問2（高難度）: 6ホテル × 2表（売上→変動費→営業利益→利益率→1室あたりの多段計算）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .question-page { page-break-after: always; }
+
+        .explanation { padding: 20px 0; font-size: 14.5px; }
+
+        .question { margin-bottom: 14px; page-break-inside: avoid; }
+
+        .question-number { font-weight: bold; margin-bottom: 8px; }
+
+        .figure-container {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .figure-content { display: inline-block; margin: 4px auto; }
+
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 1.5px solid #333;
+            padding: 4px 8px;
+            min-width: 40px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+
+        .figure-table th {
+            border: 1.5px solid #333;
+            padding: 4px 7px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 12.5px;
+        }
+
+        .figure-table tr.total-row td,
+        .figure-table tr.total-row th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        .passage-box {
+            margin: 10px 0;
+            padding: 12px 18px;
+            border: 1px solid #999;
+            background-color: #fafafa;
+            text-align: justify;
+            font-size: 14px;
+            line-height: 1.75;
+        }
+
+        .passage-title { font-weight: bold; margin-bottom: 6px; font-size: 14px; }
+
+        .statements {
+            margin: 8px 0;
+            padding: 10px 18px;
+            font-size: 14px;
+            line-height: 1.85;
+        }
+
+        .statements .st { margin-bottom: 3px; }
+
+        .option-table { margin: 6px auto; border-collapse: collapse; }
+
+        .option-table td, .option-table th {
+            border: 1px solid #333;
+            padding: 5px 14px;
+            text-align: center;
+            font-size: 13.5px;
+        }
+
+        .option-table th { background-color: #e8e8e8; font-weight: bold; }
+
+        .note { font-size: 12px; color: #444; margin-top: 6px; text-align: left; }
+
+        .twin-tables { display: flex; gap: 14px; justify-content: center; align-items: flex-start; }
+
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料】および【表1】【表2】を読み、下の記述ア〜エのうち正しいものの組合せとして最も適切なものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="passage-box">
+                    <div class="passage-title">【資料】宅配会社W社 5物流センターの月次採算分析（2025年9月）</div>
+                    宅配会社W社は、5つの物流センター（A〜E）を運営している。各センターの月間売上高は「取扱個数×1個あたり配送料」で計算される。月間営業利益は、売上高から「変動費（売上高×変動費率）」「人件費」「その他固定費」を差し引いて求める。なお、営業利益率は営業利益÷売上高で算出する。下の【表1】は各センターの取扱データ、【表2】は費用データである。これらを用いて、各センターの採算性を比較せよ。
+                </div>
+
+                <div class="figure-container">
+                    <div class="twin-tables">
+                        <div class="figure-content">
+                            <div class="figure-title">【表1】取扱データ</div>
+                            <table class="figure-table">
+                                <tr><th>センター</th><th>取扱個数<br>(千個)</th><th>配送料<br>(円/個)</th><th>稼働<br>日数(日)</th></tr>
+                                <tr><td>A</td><td>300</td><td>500</td><td>25</td></tr>
+                                <tr><td>B</td><td>250</td><td>600</td><td>25</td></tr>
+                                <tr><td>C</td><td>400</td><td>400</td><td>25</td></tr>
+                                <tr><td>D</td><td>200</td><td>700</td><td>25</td></tr>
+                                <tr><td>E</td><td>360</td><td>500</td><td>30</td></tr>
+                            </table>
+                        </div>
+                        <div class="figure-content">
+                            <div class="figure-title">【表2】費用データ</div>
+                            <table class="figure-table">
+                                <tr><th>センター</th><th>変動費率<br>(%)</th><th>人件費<br>(万円)</th><th>固定費<br>(万円)</th></tr>
+                                <tr><td>A</td><td>55</td><td>3,000</td><td>1,500</td></tr>
+                                <tr><td>B</td><td>50</td><td>3,500</td><td>1,800</td></tr>
+                                <tr><td>C</td><td>60</td><td>2,800</td><td>1,600</td></tr>
+                                <tr><td>D</td><td>45</td><td>3,200</td><td>2,000</td></tr>
+                                <tr><td>E</td><td>58</td><td>3,400</td><td>2,000</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="note">※売上高(万円)＝取扱個数(千個)×配送料(円)÷10。1日あたり取扱個数＝取扱個数÷稼働日数。</div>
+                </div>
+
+                <div class="statements">
+                    <div class="st">ア．月間売上高が最も高いのはE物流センターである。</div>
+                    <div class="st">イ．月間営業利益が最も大きいのはD物流センターである。</div>
+                    <div class="st">ウ．営業利益率が15％以上の物流センターは2つある。</div>
+                    <div class="st">エ．1日あたり取扱個数が最も多いのはE物流センターである。</div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr><th>(1)</th><td>ア・イ</td></tr>
+                        <tr><th>(2)</th><td>ア・ウ</td></tr>
+                        <tr><th>(3)</th><td>ア・イ・ウ</td></tr>
+                        <tr><th>(4)</th><td>イ・ウ・エ</td></tr>
+                        <tr><th>(5)</th><td>ア・イ・エ</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br><br>
+
+                各センターの売上高・営業利益・利益率・1日あたり取扱個数を順に計算する。<br><br>
+
+                <strong>【各指標の計算】</strong><br>
+                ・A：売上＝300×500÷10＝<strong>15,000万</strong>、変動費＝15,000×0.55＝8,250、利益＝15,000−8,250−3,000−1,500＝<strong>2,250万</strong>、利益率＝<strong>15.00％</strong>、1日＝300,000÷25＝12,000個<br>
+                ・B：売上＝250×600÷10＝<strong>15,000万</strong>、変動費＝7,500、利益＝15,000−7,500−3,500−1,800＝<strong>2,200万</strong>、利益率＝14.67％、1日＝250,000÷25＝10,000個<br>
+                ・C：売上＝400×400÷10＝<strong>16,000万</strong>、変動費＝9,600、利益＝16,000−9,600−2,800−1,600＝<strong>2,000万</strong>、利益率＝12.50％、1日＝400,000÷25＝<strong>16,000個</strong><br>
+                ・D：売上＝200×700÷10＝<strong>14,000万</strong>、変動費＝6,300、利益＝14,000−6,300−3,200−2,000＝<strong>2,500万</strong>、利益率＝<strong>17.86％</strong>、1日＝200,000÷25＝8,000個<br>
+                ・E：売上＝360×500÷10＝<strong>18,000万</strong>、変動費＝10,440、利益＝18,000−10,440−3,400−2,000＝<strong>2,160万</strong>、利益率＝12.00％、1日＝360,000÷30＝12,000個<br><br>
+
+                <strong>【記述の判定】</strong><br>
+                ・ア：売上高はA15,000／B15,000／C16,000／D14,000／<strong>E18,000</strong>。最大はE。<strong>正しい</strong>。<br>
+                ・イ：営業利益はA2,250／B2,200／C2,000／<strong>D2,500</strong>／E2,160。最大はD。<strong>正しい</strong>。<br>
+                ・ウ：利益率15％以上は<strong>A（15.00％）とD（17.86％）の2つ</strong>。<strong>正しい</strong>。<br>
+                ・エ：1日あたり取扱個数はA12,000／B10,000／<strong>C16,000</strong>／D8,000／E12,000。最大はCであり、Eではない。<strong>誤り</strong>（売上最大のEと混同する罠）。<br><br>
+
+                正しい記述はア・イ・ウの3つ。したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の【資料】および【表1】【表2】を読み、下の記述ア〜オのうち正しいものの組合せとして最も適切なものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="passage-box">
+                    <div class="passage-title">【資料】ホテルチェーンH社 6ホテルの月次経営分析（2025年9月）</div>
+                    ホテルチェーンH社は、6つのホテル（A〜F）を運営している。各ホテルの月間売上高は「延べ宿泊室数×平均客室単価」で求められる。月間営業利益は、売上高から「変動費（売上高×変動費率：清掃・アメニティ費等）」「人件費」「その他固定費」を差し引いて算出する。営業利益率は営業利益÷売上高で求める。下の【表1】は宿泊データ、【表2】は費用データである。各ホテルの収益構造を比較せよ。
+                </div>
+
+                <div class="figure-container">
+                    <div class="twin-tables">
+                        <div class="figure-content">
+                            <div class="figure-title">【表1】宿泊データ</div>
+                            <table class="figure-table">
+                                <tr><th>ホテル</th><th>延べ宿泊<br>室数(室)</th><th>客室単価<br>(円/室)</th><th>営業<br>日数(日)</th></tr>
+                                <tr><td>A</td><td>9,000</td><td>12,000</td><td>30</td></tr>
+                                <tr><td>B</td><td>12,000</td><td>9,000</td><td>30</td></tr>
+                                <tr><td>C</td><td>9,600</td><td>12,500</td><td>30</td></tr>
+                                <tr><td>D</td><td>15,000</td><td>8,000</td><td>30</td></tr>
+                                <tr><td>E</td><td>6,000</td><td>20,000</td><td>30</td></tr>
+                                <tr><td>F</td><td>10,500</td><td>10,000</td><td>30</td></tr>
+                            </table>
+                        </div>
+                        <div class="figure-content">
+                            <div class="figure-title">【表2】費用データ</div>
+                            <table class="figure-table">
+                                <tr><th>ホテル</th><th>変動費率<br>(%)</th><th>人件費<br>(万円)</th><th>固定費<br>(万円)</th></tr>
+                                <tr><td>A</td><td>30</td><td>2,000</td><td>1,500</td></tr>
+                                <tr><td>B</td><td>35</td><td>1,800</td><td>1,300</td></tr>
+                                <tr><td>C</td><td>25</td><td>2,500</td><td>2,000</td></tr>
+                                <tr><td>D</td><td>40</td><td>2,200</td><td>1,400</td></tr>
+                                <tr><td>E</td><td>20</td><td>3,000</td><td>2,500</td></tr>
+                                <tr><td>F</td><td>30</td><td>2,000</td><td>1,500</td></tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="note">※売上高(万円)＝延べ宿泊室数(室)×客室単価(円)÷10,000。1日あたり宿泊室数＝延べ宿泊室数÷営業日数。</div>
+                </div>
+
+                <div class="statements">
+                    <div class="st">ア．月間営業利益が最も大きいのはホテルCである。</div>
+                    <div class="st">イ．営業利益率が最も高いのはホテルCである。</div>
+                    <div class="st">ウ．営業利益率が35％以上のホテルは4つある。</div>
+                    <div class="st">エ．1日あたり宿泊室数が最も多いのはホテルDである。</div>
+                    <div class="st">オ．月間売上高が最も高いのはホテルAとホテルBである。</div>
+                </div>
+
+                <div class="figure-container" style="border: none;">
+                    <table class="option-table">
+                        <tr><th>(1)</th><td>ア・ウ</td></tr>
+                        <tr><th>(2)</th><td>イ・ウ・エ</td></tr>
+                        <tr><th>(3)</th><td>ア・エ・オ</td></tr>
+                        <tr><th>(4)</th><td>ア・ウ・エ</td></tr>
+                        <tr><th>(5)</th><td>ア・イ・ウ・エ</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br><br>
+
+                各ホテルの売上高・変動費・営業利益・利益率・1日あたり宿泊室数を計算する。<br><br>
+
+                <strong>【各指標の計算】</strong><br>
+                ・A：売上＝9,000×12,000÷10,000＝<strong>10,800万</strong>、変動費＝3,240、利益＝10,800−3,240−2,000−1,500＝<strong>4,060万</strong>、利益率＝<strong>37.59％</strong>、1日＝300室<br>
+                ・B：売上＝12,000×9,000÷10,000＝<strong>10,800万</strong>、変動費＝3,780、利益＝3,920万、利益率＝36.30％、1日＝400室<br>
+                ・C：売上＝9,600×12,500÷10,000＝<strong>12,000万</strong>、変動費＝3,000、利益＝<strong>4,500万</strong>、利益率＝37.50％、1日＝320室<br>
+                ・D：売上＝15,000×8,000÷10,000＝<strong>12,000万</strong>、変動費＝4,800、利益＝3,600万、利益率＝30.00％、1日＝<strong>500室</strong><br>
+                ・E：売上＝6,000×20,000÷10,000＝<strong>12,000万</strong>、変動費＝2,400、利益＝4,100万、利益率＝34.17％、1日＝200室<br>
+                ・F：売上＝10,500×10,000÷10,000＝<strong>10,500万</strong>、変動費＝3,150、利益＝3,850万、利益率＝36.67％、1日＝350室<br><br>
+
+                <strong>【記述の判定】</strong><br>
+                ・ア：営業利益はA4,060／B3,920／<strong>C4,500</strong>／D3,600／E4,100／F3,850。最大はC。<strong>正しい</strong>。<br>
+                ・イ：利益率は<strong>A37.59％</strong>／B36.30／C37.50／D30.00／E34.17／F36.67。最大はAであり、Cは2位。<strong>誤り</strong>（営業利益最大のCと混同する罠）。<br>
+                ・ウ：利益率35％以上は<strong>A・B・C・Fの4つ</strong>（E34.17％とD30.00％は未満）。<strong>正しい</strong>。<br>
+                ・エ：1日あたり宿泊室数はA300／B400／C320／<strong>D500</strong>／E200／F350。最大はD。<strong>正しい</strong>。<br>
+                ・オ：売上高はA10,800／B10,800／<strong>C・D・E＝12,000</strong>／F10,500。最大は12,000のC・D・Eであり、A・Bではない。<strong>誤り</strong>（A・Bは室数×単価が等しいが額は2位グループ）。<br><br>
+
+                正しい記述はア・ウ・エの3つ。したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
