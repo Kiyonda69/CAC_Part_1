@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .passage {
+            margin: 15px 0; padding: 18px 22px;
+            background-color: #fafafa; border: 1px solid #ddd; border-radius: 4px;
+            line-height: 1.9; text-align: justify;
+        }
+        .passage p { margin-bottom: 10px; }
+        .passage p:last-child { margin-bottom: 0; }
+        .statements {
+            margin: 15px 0; padding: 15px 22px;
+            background-color: #fff; border-left: 4px solid #666;
+            line-height: 1.9;
+        }
+        .statements p { margin-bottom: 8px; }
+        .statements p:last-child { margin-bottom: 0; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) {
+            border-color: #666; background-color: #f9f9f9;
+        }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+        <div class="question-text">
+            次の文章は、ある総合スポーツクラブの年次報告書の抜粋である。文章を読み、後の問いに答えよ。
+        </div>
+        <div class="passage">
+            <p>当クラブは2025年度において、合計1,800名の会員を擁し、これは前年度の1,500名から20%の増加となった。会員区分は「個人会員」「家族会員」「シニア会員」「学生会員」の4種類である。</p>
+            <p>個人会員は最も多く、全会員の45%を占めた。家族会員は360名であった。シニア会員の数は、学生会員の数のちょうど2倍にあたる。</p>
+            <p>年会費は、個人会員が72,000円、家族会員が108,000円、シニア会員が48,000円、学生会員が36,000円である。年度途中の入退会はなかったものとする。</p>
+        </div>
+        <div class="question-text">
+            このとき、当クラブの2025年度の年会費収入の総額として正しいものはどれか。
+        </div>
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                <span class="option-label">(1)</span>1億2,492万円
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                <span class="option-label">(2)</span>1億2,288万円
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                <span class="option-label">(3)</span>1億2,696万円
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                <span class="option-label">(4)</span>1億2,888万円
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                <span class="option-label">(5)</span>1億3,092万円
+            </button>
+        </div>
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">問1（正解: (1)）</div>
+            <div class="explanation-content">
+                <p><strong>【会員数の算出】</strong></p>
+                <p>・全会員数 1,800名（前年度1,500名×1.20で整合）</p>
+                <p>・個人会員 = 1,800 × 45% = <strong>810名</strong></p>
+                <p>・家族会員 = <strong>360名</strong>（本文に明記）</p>
+                <p>・シニア＋学生 = 1,800 − 810 − 360 = 630名</p>
+                <p>・シニア = 学生 × 2 より、学生 = <strong>210名</strong>、シニア = <strong>420名</strong></p>
+                <br>
+                <p><strong>【年会費収入の計算】</strong></p>
+                <p>・個人: 810名 × 72,000円 = 58,320,000円</p>
+                <p>・家族: 360名 × 108,000円 = 38,880,000円</p>
+                <p>・シニア: 420名 × 48,000円 = 20,160,000円</p>
+                <p>・学生: 210名 × 36,000円 = 7,560,000円</p>
+                <p>・合計 = <strong>124,920,000円 = 1億2,492万円</strong></p>
+                <br>
+                <p>したがって、正解は<strong>(1)</strong>である。</p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+        <div class="question-text">
+            次の文章は、電子部品メーカーM社の月次品質管理レポートからの抜粋である。文章を読み、後の記述ア〜エのうち正しいもののみの組み合わせを選べ。
+        </div>
+        <div class="passage">
+            <p>当社は4つの製造拠点（α工場、β工場、γ工場、δ工場）を持ち、2026年5月の各工場の業績は以下のとおりであった。</p>
+            <p>α工場は当月50,000個の電子部品を生産し、品質検査における不良率は1.5%であった。生産能力に対する稼働率は90%、製造ラインの従業員数は120名である。</p>
+            <p>β工場は前月の生産数50,000個から30%増加させ、当月は65,000個を生産した。不良率は1.0%と4工場の中で最も低い水準である。稼働率は95%、従業員数は140名である。</p>
+            <p>γ工場の生産数は、β工場の生産数より5,000個少なく、不良率はα工場と同じ値であった。稼働率は85%、従業員数は130名である。</p>
+            <p>δ工場は、α・β・γの3工場の合計生産数の40%に相当する量を生産した。不良率は1.2%、稼働率は80%、従業員数は90名である。</p>
+        </div>
+        <div class="statements">
+            <p>ア．従業員1人あたりの月間生産数が最も多いのはβ工場である。</p>
+            <p>イ．不良品の総数が最も多いのは、生産数が最大であるδ工場である。</p>
+            <p>ウ．α工場とγ工場の月間生産数の差は、δ工場の月間生産数のちょうど7分の1である。</p>
+            <p>エ．稼働率が90%以上の工場は2工場存在し、その2工場の月間生産数の合計は11万個を超える。</p>
+        </div>
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                <span class="option-label">(1)</span>ア・ウ
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                <span class="option-label">(2)</span>ア・エ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                <span class="option-label">(3)</span>イ・ウ
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                <span class="option-label">(4)</span>ウのみ
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                <span class="option-label">(5)</span>ウ・エ
+            </button>
+        </div>
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">問2（正解: (5)）</div>
+            <div class="explanation-content">
+                <p><strong>【4工場のデータ整理】</strong></p>
+                <p>・α: 50,000個、1.5%、稼働90%、120名</p>
+                <p>・β: 65,000個（50,000×1.30）、1.0%、稼働95%、140名</p>
+                <p>・γ: 60,000個（β−5,000）、1.5%（αと同じ）、稼働85%、130名</p>
+                <p>・δ: 70,000個（175,000×0.4）、1.2%、稼働80%、90名</p>
+                <br>
+                <p><strong>【記述ア：誤】</strong> 1人あたり生産数</p>
+                <p>α:416.7／β:464.3／γ:461.5／<strong>δ:777.8</strong>個。最大はδでβではない。</p>
+                <br>
+                <p><strong>【記述イ：誤】</strong> 不良品数</p>
+                <p>α:750／β:650／<strong>γ:900</strong>／δ:840個。最多はγ。生産数最大のδと一致しない。</p>
+                <br>
+                <p><strong>【記述ウ：正】</strong></p>
+                <p>|α−γ| = |50,000−60,000| = 10,000個。δ÷7 = 70,000÷7 = 10,000個。一致。</p>
+                <br>
+                <p><strong>【記述エ：正】</strong></p>
+                <p>稼働率90%以上はα(90%)とβ(95%)の2工場。合計 = 50,000+65,000 = 115,000個 > 110,000個。</p>
+                <br>
+                <p>正しいのは<strong>ウ</strong>と<strong>エ</strong>。したがって正解は<strong>(5)</strong>である。</p>
+            </div>
+        </div>
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">次の問題</button>
+        </div>
+    </div>
+</main>
+
+<script>
+const state = { currentQuestion: 1, answers: {} };
+
+function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function goToQuestion(questionNum) {
+    state.currentQuestion = questionNum;
+    showScreen(`q${questionNum}-question`);
+    if (state.answers[questionNum] === undefined) {
+        document.querySelectorAll('.progress-dot').forEach(dot => {
+            const dotNum = parseInt(dot.textContent);
+            if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+        });
+        document.getElementById(`progress-${questionNum}`).classList.add('active');
+    }
+}
+
+function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+function selectAnswer(questionNum, selectedOption, correctOption) {
+    const optionsContainer = document.getElementById(`q${questionNum}-options`);
+    const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+    if (state.answers[questionNum] !== undefined) {
+        state.answers[questionNum] = undefined;
+        buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+        document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+        const progressDot = document.getElementById(`progress-${questionNum}`);
+        progressDot.classList.remove('completed', 'incorrect-dot');
+        progressDot.classList.add('active');
+        return;
+    }
+
+    state.answers[questionNum] = selectedOption;
+    const isCorrect = selectedOption === correctOption;
+
+    try {
+        if (window.parent && window.parent.recordAnswer) {
+            window.parent.recordAnswer(
+                `2026_06/航大思考198/問${questionNum}`,
+                selectedOption, correctOption, isCorrect
+            );
+        }
+    } catch (e) {}
+
+    buttons.forEach(btn => {
+        btn.classList.remove('selected', 'correct', 'incorrect');
+        const option = parseInt(btn.dataset.option);
+        if (option === selectedOption) {
+            btn.classList.add('selected');
+            if (!isCorrect) btn.classList.add('incorrect');
+        }
+        if (option === correctOption) btn.classList.add('correct');
+    });
+
+    const progressDot = document.getElementById(`progress-${questionNum}`);
+    progressDot.classList.remove('active');
+    progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+    const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+    explanationSection.classList.add('show');
+    document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+    setTimeout(() => {
+        explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('progress-1').classList.add('active');
+});
+</script>
+</body>
+</html>
