@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .passage-container {
+            margin: 20px 0;
+            padding: 25px 30px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            line-height: 2;
+        }
+        .passage-title { font-weight: bold; margin-bottom: 12px; font-size: 15px; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容と一致するものを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】鳥類の生態観察報告</div>
+                ある研究所が、特定の地域に生息する3種類の鳥類（A、B、C）の行動パターンを5年間にわたり観察した。観察の結果、種Aは夜明け前から活動を始め、日中はほとんど休息する習性が確認された。一方、種Bは日中に活発に活動し、夕方になると群れを成して塒（ねぐら）に戻る。種Cは特定の季節にのみ姿を見せ、それ以外の時期は他の地域へ移動していることが分かった。さらに、種Aと種Bの間では餌場をめぐる競合が観察されたが、種Aは早朝に、種Bは日中にそれぞれ採食を行うため、時間帯による棲み分けが成立していると考えられる。研究所はこの観察結果に基づき、種Aの保護には早朝の餌場の維持が、種Cの保護には移動経路の保全が重要であると結論付けた。
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>種Aと種Bは活動時間帯が異なるため、餌場をめぐる競合があっても棲み分けが成立している。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>種Cは一年を通して同じ地域に生息しているが、姿を見せる季節は限られている。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>種Bは早朝から活動を開始し、夕方には群れを成して塒に戻る。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>研究所は、種Aの保護には移動経路の保全が最も重要だと結論付けた。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>5年間の観察により、3種類の鳥類はすべて同じ餌場を共有していることが分かった。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>本文の記述と各選択肢の整合性を一つずつ確認する。</p>
+                    <br>
+                    <p><strong>【本文の要点整理】</strong></p>
+                    <p>・種A：夜明け前から活動、日中は休息（早朝採食）</p>
+                    <p>・種B：日中に活発、夕方に群れで塒に戻る（日中採食）</p>
+                    <p>・種C：特定の季節のみ姿を見せ、他の時期は他地域へ移動</p>
+                    <p>・種Aと種Bは時間帯による棲み分けが成立</p>
+                    <p>・保護方針：種Aは早朝の餌場維持、種Cは移動経路の保全</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 種Aと種Bの活動時間帯の違いと棲み分けの成立は本文に明記されており、整合する。<strong>正解</strong></p>
+                    <p>・(2) 種Cは「他の時期は他地域へ移動」であり、「一年を通して同じ地域に生息」とする本選択肢は本文と矛盾する。</p>
+                    <p>・(3) 「早朝から活動」「夕方に塒に戻る」を組み合わせているが、早朝活動は種A、夕方の塒帰巣は種Bの特徴であり、両者を種Bに帰している点が誤り。</p>
+                    <p>・(4) 「移動経路の保全」は種Cに対する保護方針であり、種Aの保護方針（早朝の餌場維持）とは異なる。</p>
+                    <p>・(5) 本文では種Aと種Bの餌場の競合に触れているのみで、種Cを含む3種が同じ餌場を共有しているという記述はない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容として最も適切なものを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】公共図書館の利用実態に関する報告</div>
+                X市は、過去10年間で公共図書館の蔵書数を約1.5倍に増やしてきた。しかし、市民一人あたりの貸出冊数は、5年前と比較してわずかな増加にとどまっており、蔵書数の伸びに見合った成果が得られているとは言い難い状況にある。一方、隣接するY市では、蔵書数は据え置きながらも、移動図書館サービスや夜間開館の導入により、市民一人あたりの貸出冊数を大幅に伸ばしている。X市の文化政策担当者は、蔵書数の量的拡大だけではなく、利用者の利便性向上が今後の課題であると述べている。ただし、Y市の取り組みがそのままX市にも適用可能とは限らず、両市の人口構成や地理的条件の違いを踏まえた検討が必要である。なお、両市ともに電子書籍の貸出制度はまだ導入されていない。
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>X市の市民一人あたりの貸出冊数は、過去10年間で約1.5倍に増えている。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>Y市は蔵書数を増やすことで、市民一人あたりの貸出冊数を伸ばすことに成功している。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>X市の文化政策担当者は、蔵書数を増やすだけでは利用増加に十分つながらないとの認識を示している。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>Y市で成果を上げた施策は、X市でもそのまま導入すれば同等の成果が見込まれる。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>X市・Y市の両市では、電子書籍の貸出サービスがすでに広く利用されている。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>本問は、数値の対応関係（何が1.5倍か、何がわずかか）、主語と述語の対応関係（X市とY市の取り組みと結果）、および本文の条件付き記述（「そのまま適用可能とは限らず」）を正確に読み取る必要がある。</p>
+                    <br>
+                    <p><strong>【本文の要点整理】</strong></p>
+                    <p>・X市：蔵書数は10年で1.5倍、貸出冊数は5年前比でわずかな増加</p>
+                    <p>・Y市：蔵書数据え置き、移動図書館・夜間開館により貸出冊数を大幅増</p>
+                    <p>・X市担当者：「蔵書数の量的拡大だけでなく利便性向上が課題」</p>
+                    <p>・Y市施策のX市への適用：そのまま適用可能とは限らない（人口・地理条件の違い）</p>
+                    <p>・電子書籍：両市とも未導入</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 「1.5倍」は蔵書数に関する数値であり、貸出冊数は「わずかな増加にとどまる」とされている。主語と数値の対応を取り違えており誤り。</p>
+                    <p>・(2) Y市の蔵書数は「据え置き」であり、貸出冊数を伸ばしたのは「移動図書館サービスや夜間開館の導入」による。原因と結果の対応が誤っている。</p>
+                    <p>・(3) X市担当者の発言「蔵書数の量的拡大だけではなく、利用者の利便性向上が今後の課題」を端的に言い換えた選択肢であり、本文の内容と整合する。<strong>正解</strong></p>
+                    <p>・(4) 本文は「Y市の取り組みがそのままX市にも適用可能とは限らず、両市の人口構成や地理的条件の違いを踏まえた検討が必要」としており、本選択肢の「そのまま導入すれば同等の成果」は本文と明確に矛盾する。</p>
+                    <p>・(5) 本文末尾に「両市ともに電子書籍の貸出制度はまだ導入されていない」と明記されており、「すでに広く利用されている」は誤り。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考200/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
