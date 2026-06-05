@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .passage-container {
+            margin: 20px 0;
+            padding: 25px 30px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            line-height: 2;
+        }
+        .passage-title { font-weight: bold; margin-bottom: 12px; font-size: 15px; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容と一致するものを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】航空会社A社の燃費改善に関する取り組み報告</div>
+                航空会社A社は、過去10年間で1機あたりの燃料消費量を約15%削減することに成功した。この成果は、主に新型機材の導入と運航ルートの最適化によるものである。新型機材は従来機に比べて翼端形状の改良により空気抵抗が低減されており、巡航時の燃費が向上している。一方、運航ルートの最適化では、上空の風向きや高度別の気温データを活用し、所要時間と燃料消費の双方を考慮した飛行計画が立案されている。なお、座席数の増加による旅客一人あたりの燃料消費量の削減効果も無視できず、A社は燃費改善の評価指標として「1機あたり」と「旅客一人あたり」の双方を併用している。ただし、運航本数の増加に伴い、A社全体の総燃料消費量自体は微増している点に留意が必要である。
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>A社は新型機材の導入により、過去10年間で総燃料消費量を約15%削減した。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>新型機材は座席数の増加により、巡航時の空気抵抗が低減されている。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>A社は燃費改善の評価指標として、「1機あたり」と「旅客一人あたり」の両方の指標を併用している。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>運航ルートの最適化では、上空の風向きのみを考慮して飛行計画が立案されている。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>過去10年間でA社全体の総燃料消費量は減少している。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>本問は、数値の対応関係（何が15%削減か）、原因と結果の対応関係（空気抵抗低減の理由）、および本文末尾の留保事項（総燃料消費量は微増）を正確に読み取る必要がある。</p>
+                    <br>
+                    <p><strong>【本文の要点整理】</strong></p>
+                    <p>・1機あたりの燃料消費量：過去10年で約15%削減</p>
+                    <p>・空気抵抗低減の理由：翼端形状の改良</p>
+                    <p>・ルート最適化：風向き＋高度別気温データの双方を活用</p>
+                    <p>・燃費評価指標：「1機あたり」と「旅客一人あたり」の双方を併用</p>
+                    <p>・A社全体の総燃料消費量：運航本数の増加に伴い微増</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 「約15%削減」は「1機あたり」の値であり、「総燃料消費量」を取り違えている。本文末尾で「総燃料消費量自体は微増」と明記されており矛盾する。</p>
+                    <p>・(2) 空気抵抗低減の理由は「翼端形状の改良」であり、「座席数の増加」ではない。原因と結果の対応が誤り。</p>
+                    <p>・(3) 「『1機あたり』と『旅客一人あたり』の双方を併用」は本文の記述と完全に一致する。<strong>正解</strong></p>
+                    <p>・(4) ルート最適化では「上空の風向きや高度別の気温データを活用」とされており、「風向きのみ」とする本選択肢は誤り。</p>
+                    <p>・(5) 本文に「A社全体の総燃料消費量自体は微増」と明記されており、「減少している」は誤り。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容として最も適切なものを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】国内主要空港における定時運航維持のための要因分析報告</div>
+                国内の主要空港X、Y、Zにおける航空便の遅延状況を3年間にわたり調査したところ、空港ごとに遅延の主要因が異なることが明らかとなった。X空港では、滑走路1本のみで運用しているため、ピーク時間帯の離着陸待機による遅延が全体の約6割を占めた。Y空港では複数の滑走路を備えており、離着陸待機による遅延は比較的少ないものの、悪天候時に視界不良で出発便が地上待機となる事例が遅延の最大要因であった。Z空港では、駐機スポットの不足により到着後の機材牽引待ちが頻発し、これが遅延の中心となっていた。なお、いずれの空港でも、定時運航維持のための対策として地上ハンドリング作業の効率化が共通して進められているが、根本的な遅延要因の解消には至っていない。3年間の調査期間を通じて、X空港の総遅延時間は徐々に短縮した一方、Y空港・Z空港の総遅延時間に大きな変化は見られなかった。
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>Y空港では滑走路の数が少ないため、ピーク時間帯の離着陸待機による遅延が最も多い。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>Z空港では、悪天候時の視界不良による出発便の地上待機が遅延の主要因となっている。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>X空港・Y空港・Z空港の3空港すべてで、3年間の調査期間中に総遅延時間が短縮した。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>地上ハンドリング作業の効率化は、いずれの空港でも遅延の根本的な解消につながった。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>Z空港では、駐機スポットの不足による到着後の機材牽引待ちが遅延の中心となっている。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>本問は、空港ごとの遅延主要因の対応関係、3年間の総遅延時間の推移、および地上ハンドリング作業の効果の限界（根本的解消には至っていない）を正確に読み取る必要がある。空港X・Y・Zの特徴を取り違えないように整理することが鍵となる。</p>
+                    <br>
+                    <p><strong>【本文の要点整理】</strong></p>
+                    <p>・X空港：滑走路1本→ピーク時の離着陸待機が遅延の約6割</p>
+                    <p>・Y空港：複数滑走路→悪天候時の視界不良による出発便地上待機が最大要因</p>
+                    <p>・Z空港：駐機スポット不足→到着後の機材牽引待ちが遅延の中心</p>
+                    <p>・地上ハンドリング効率化：3空港共通の対策だが根本解消には至らず</p>
+                    <p>・3年間の総遅延時間推移：X空港は短縮、Y・Z空港は大きな変化なし</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) Y空港は「複数の滑走路を備えており、離着陸待機による遅延は比較的少ない」とあり、ピーク時離着陸待機が多いのはX空港の特徴。主語と特徴の対応が誤り。</p>
+                    <p>・(2) 「悪天候時の視界不良による出発便の地上待機」はY空港の特徴であり、Z空港の特徴ではない。主語の取り違えが誤り。</p>
+                    <p>・(3) 本文は「X空港の総遅延時間は徐々に短縮した一方、Y空港・Z空港の総遅延時間に大きな変化は見られなかった」と明記しており、「3空港すべて短縮」は矛盾する。</p>
+                    <p>・(4) 本文は「根本的な遅延要因の解消には至っていない」と明確に否定しており、「根本的な解消につながった」は誤り。</p>
+                    <p>・(5) Z空港の遅延の中心が「駐機スポット不足による到着後の機材牽引待ち」であることは本文の記述と完全に一致する。<strong>正解</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考201/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
