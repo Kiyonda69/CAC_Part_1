@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #888;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+            transform-origin: top center;
+        }
+        .page-content { width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .question-page { page-break-after: always; }
+        .explanation { padding: 20px 0; }
+        .question { margin-bottom: 30px; page-break-inside: avoid; }
+        .question-number { font-weight: bold; margin-bottom: 15px; }
+        .question-text { margin-bottom: 15px; text-align: justify; }
+        .passage-container {
+            margin: 16px 0;
+            padding: 20px 25px;
+            background-color: #fafafa;
+            border: 1px solid #999;
+            text-align: justify;
+            line-height: 1.95;
+            font-size: 15px;
+        }
+        .passage-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+        .statements { margin: 12px 0 12px 10px; line-height: 2.0; font-size: 15px; }
+        .statements .row { margin: 4px 0; }
+        .options { margin-left: 20px; line-height: 2.2; }
+        .option-item { margin: 6px 0; text-align: justify; font-size: 15px; }
+        .calc-table { margin: 10px auto; border-collapse: collapse; font-size: 14px; }
+        .calc-table th, .calc-table td {
+            border: 1px solid #666; padding: 5px 10px; text-align: center;
+        }
+        .calc-table th { background-color: #f0f0f0; }
+        @media print {
+            body { background-color: white; padding: 0; min-height: auto; display: block; }
+            .question-section {
+                box-shadow: none; page-break-after: always; page-break-inside: avoid;
+                transform: none !important; width: 100%; height: auto; min-height: auto;
+                margin: 0; padding: 20px; overflow: visible;
+            }
+            .page-content { height: auto; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の文章は、ある製薬会社A社の令和7年度組織再編に関する報告書である。本文を読み、再編実施後における4部門（研究・開発・製造・営業）の人員数の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="passage-container">
+                    <div class="passage-title">【資料】A社 令和7年度 組織再編報告書（抜粋）</div>
+                    A社では、令和7年度に大規模な組織再編を実施した。再編前の令和7年4月1日時点における人員構成は、研究部門120名、開発部門80名、製造部門200名、営業部門150名、管理部門50名の計600名であった。<br>
+                    まず第1段階として、部門間の異動が次のとおり実施された。研究部門から開発部門へ20名、製造部門から研究部門へ15名、営業部門から開発部門へ10名、管理部門から営業部門へ5名の異動である。<br>
+                    続く第2段階では、新卒採用として研究部門に25名、開発部門に10名、製造部門に30名を新たに配属した。営業部門および管理部門への新規採用は行われなかった。<br>
+                    第3段階では、年度内の退職者として製造部門15名、営業部門10名が確認された。研究・開発両部門には退職者はいなかった。<br>
+                    最後に第4段階として、研究・開発・製造・営業の4部門体制への移行を完了させるため、第3段階終了時点で管理部門に残っていた人員の全員は、新設された「経営企画本部」へそのまま統合された（この本部は4部門には含まれない）。
+                </div>
+
+                <div class="options">
+                    <div class="option-item">(1) 研究115名 / 開発110名 / 製造185名 / 営業145名</div>
+                    <div class="option-item">(2) 研究115名 / 開発120名 / 製造200名 / 営業135名</div>
+                    <div class="option-item">(3) 研究140名 / 開発120名 / 製造215名 / 営業145名</div>
+                    <div class="option-item">(4) 研究140名 / 開発130名 / 製造200名 / 営業125名</div>
+                    <div class="option-item">(5) 研究140名 / 開発120名 / 製造200名 / 営業135名</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                本文の段階的記述に従い、各部門の人員数を逐次更新して算出する。<br><br>
+
+                <strong>【再編前（令和7年4月1日時点）】</strong><br>
+                研究120 / 開発80 / 製造200 / 営業150 / 管理50 ＝ 計600名<br><br>
+
+                <strong>【第1段階 部門間異動】</strong><br>
+                ・研究→開発20名: 研究 120−20＝100 / 開発 80+20＝100<br>
+                ・製造→研究15名: 製造 200−15＝185 / 研究 100+15＝115<br>
+                ・営業→開発10名: 営業 150−10＝140 / 開発 100+10＝110<br>
+                ・管理→営業5名: 管理 50−5＝45 / 営業 140+5＝145<br>
+                小計: 研究115 / 開発110 / 製造185 / 営業145 / 管理45<br><br>
+
+                <strong>【第2段階 新卒採用】</strong><br>
+                ・研究 115+25＝140 / 開発 110+10＝120 / 製造 185+30＝215<br>
+                小計: 研究140 / 開発120 / 製造215 / 営業145 / 管理45<br><br>
+
+                <strong>【第3段階 退職処理】</strong><br>
+                ・製造 215−15＝200 / 営業 145−10＝135<br>
+                小計: 研究140 / 開発120 / 製造200 / 営業135 / 管理45<br><br>
+
+                <strong>【第4段階 4部門体制移行】</strong><br>
+                ・管理部門45名は「経営企画本部」へ統合（4部門には含まれない）<br>
+                最終: 研究140 / 開発120 / 製造200 / 営業135<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 第1段階のみ反映で新卒採用・退職を考慮していない誤り。<br>
+                ・(2) 新卒採用25/10/30名分を計上し忘れた誤り。<br>
+                ・(3) 製造15名・営業10名の退職を計上し忘れた誤り。<br>
+                ・(4) 営業→開発10名の異動方向を取り違え、開発の増加分と営業の減少分が逆転した誤り。<br>
+                ・(5) 4段階すべてを正しく反映した値。 → <strong>正解</strong><br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の文章は、ある総合商社C社における海外拠点再編に関する令和7年度年次報告書の抜粋である。本文を読み、続く4つの記述ア〜エのうち、本文の内容と整合するものをすべて選んだ組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="passage-container">
+                    <div class="passage-title">【資料】C社 令和7年度 海外拠点再編報告書（抜粋）</div>
+                    C社は令和7年度期首において、北米80名、欧州60名、アジア120名、中東30名、南米10名の計300名を5つの海外拠点に配置していた。本年度はこれらの拠点構成を見直し、以下の6段階の手続きによって再編を実施した。<br>
+                    第1段階として、政情不安に伴い中東拠点を年度途中で閉鎖した。同拠点に在籍していた30名のうち、18名は欧州拠点へ、12名は本社直轄の北米拠点へ異動となった。<br>
+                    第2段階として、南米拠点の縮小を決定し、同拠点の10名のうち5名を北米拠点へ異動させ、残る5名はいずれも会社都合により退職とした。これにより南米拠点も実質閉鎖となった。<br>
+                    第3段階では、欧州拠点内に新設された駐在ポストを補充するため、アジア拠点から15名を欧州拠点へ異動させた。<br>
+                    第4段階では、新規拠点としてオセアニア拠点を開設し、北米拠点から22名、アジア拠点から18名を異動させて計40名で立ち上げた。<br>
+                    第5段階では、年度末に向けた現地新規採用を実施し、北米10名、欧州12名、アジア20名、オセアニア5名をそれぞれ採用した。<br>
+                    第6段階として、年度内の自己都合退職者は北米8名、欧州6名、アジア12名であった（オセアニアでは退職者は出なかった）。
+                </div>
+
+                <div class="statements">
+                    <div class="row"><strong>ア</strong>：再編後の海外拠点総人員は、再編前の総人員より16名増加している。</div>
+                    <div class="row"><strong>イ</strong>：本年度の再編による人員の純増減で、欧州拠点の増加数はすべての拠点の中で最も大きい。</div>
+                    <div class="row"><strong>ウ</strong>：アジア拠点は本年度の再編により、人員が30名減少した。</div>
+                    <div class="row"><strong>エ</strong>：本年度に退職した社員は、会社都合・自己都合を合わせて合計31名である。</div>
+                </div>
+
+                <div class="options">
+                    <div class="option-item">(1) ア・イ</div>
+                    <div class="option-item">(2) イ・ウ</div>
+                    <div class="option-item">(3) ウ・エ</div>
+                    <div class="option-item">(4) ア・エ</div>
+                    <div class="option-item">(5) イ・エ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                6段階の手続きを順次反映して、各拠点の最終人員と退職者数を確定する。<br><br>
+
+                <strong>【再編前】</strong><br>
+                北米80 / 欧州60 / アジア120 / 中東30 / 南米10 ＝ 計300名<br><br>
+
+                <strong>【第1段階 中東閉鎖】</strong> 北米 80+12＝92 / 欧州 60+18＝78 / 中東 0<br>
+                <strong>【第2段階 南米縮小】</strong> 北米 92+5＝97 / 南米 0 / 退職 5名<br>
+                <strong>【第3段階 アジア→欧州15】</strong> アジア 120−15＝105 / 欧州 78+15＝93<br>
+                <strong>【第4段階 オセアニア開設】</strong> 北米 97−22＝75 / アジア 105−18＝87 / オセアニア 40<br>
+                <strong>【第5段階 新規採用】</strong> 北米 75+10＝85 / 欧州 93+12＝105 / アジア 87+20＝107 / オセアニア 40+5＝45<br>
+                <strong>【第6段階 自己都合退職】</strong> 北米 85−8＝77 / 欧州 105−6＝99 / アジア 107−12＝95 / 退職 8+6+12＝26名<br><br>
+
+                <strong>【最終人員と純増減】</strong><br>
+                ・北米77（−3） / 欧州99（＋39） / アジア95（−25） / オセアニア45（＋45） / 中東0（−30） / 南米0（−10）<br>
+                ・再編後合計：77+99+95+45＝316名（再編前300名から＋16名）<br>
+                ・退職者合計：会社都合5名＋自己都合26名＝31名<br><br>
+
+                <strong>【記述の正誤判定】</strong><br>
+                ・ア：再編後総人員316名は再編前300名より16名増加 → 本文と整合 → <strong>正</strong><br>
+                ・イ：欧州の純増は＋39名だが、オセアニアの純増は＋45名であり最大ではない → <strong>誤</strong><br>
+                ・ウ：アジアの純減は−25名であり、30名ではない → <strong>誤</strong><br>
+                ・エ：退職者合計31名（会社都合5＋自己都合26） → 本文と整合 → <strong>正</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) アは正だがイは誤。 → 不正解<br>
+                ・(2) イ・ウともに誤。 → 不正解<br>
+                ・(3) ウは誤、エは正。 → 不正解<br>
+                ・(4) ア・エともに正で本文と整合。 → <strong>正解</strong><br>
+                ・(5) イは誤、エは正。 → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
