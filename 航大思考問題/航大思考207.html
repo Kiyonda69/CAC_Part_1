@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .passage-container {
+            margin: 20px 0;
+            padding: 25px 30px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            line-height: 2;
+        }
+        .passage-title { font-weight: bold; margin-bottom: 12px; font-size: 15px; }
+        .statements-container {
+            margin: 20px 0;
+            padding: 20px 25px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            line-height: 1.9;
+        }
+        .statements-container .stmt { margin: 6px 0; text-align: justify; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容と一致するものを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】A市観光振興5か年計画の概要</div>
+                A市は、令和8年度から「観光振興5か年計画」を新たに策定し、地域経済の活性化に取り組むこととした。過去5年間（令和3〜7年度）におけるA市の年間観光客数は、平均で約80万人と横ばいの状況が続いている。本計画では、令和12年度までに年間観光客数120万人の到達を目標として掲げる。重点施策は、「歴史文化資源の活用」「自然体験型観光の推進」「外国人観光客への対応」の3本柱で構成される。なお、大型ホテルの新規誘致については、市の財政負担が大きく投資回収に長期間を要すると判断されたため計画には含めず、既存宿泊施設の改修や受入態勢の充実支援に切り替える方針である。5年間の総事業費は12億円で、その財源は国・県の補助金が4割、市の一般財源が6割を占める。事業の進め方としては、計画初年度を案内表示や交通アクセスなどの基盤整備に重点を置く期間とし、中期（2〜4年度）に各種事業を本格展開、最終年度（5年度）に成果検証と次期計画への引継ぎを行う構成とする。
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>A市の過去5年間の年間観光客数は、約120万人で推移していた。
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>本計画では、新たな大型ホテルの誘致が重点施策の一つとして掲げられている。
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>5年間の総事業費12億円のうち、約8億円は国・県の補助金で賄われる予定である。
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>A市は5年間で年間観光客数を約1.5倍に増やすことを目標としている。
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>計画初年度から各種事業を本格展開し、3年目には成果検証を行う予定である。
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>本文に記された数値・施策の位置づけ・スケジュールを、各選択肢と一つずつ突き合わせて整合性を確認する。</p>
+                    <br>
+                    <p><strong>【本文の要点整理】</strong></p>
+                    <p>・過去5年間の年間観光客数：平均約80万人で横ばい</p>
+                    <p>・令和12年度までの目標観光客数：120万人</p>
+                    <p>・重点施策（3本柱）：歴史文化資源の活用／自然体験型観光の推進／外国人観光客への対応</p>
+                    <p>・大型ホテル誘致：計画に含めず、既存施設の改修・受入態勢支援に切替</p>
+                    <p>・総事業費：5年間で12億円。財源は国・県補助金4割、市一般財源6割</p>
+                    <p>・スケジュール：初年度＝基盤整備、中期（2〜4年度）＝本格展開、最終年度＝成果検証</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 「約120万人」は令和12年度の<u>目標値</u>であり、過去5年間の平均は約80万人。数値の取り違えで誤り。</p>
+                    <p>・(2) 本文は「大型ホテルの新規誘致については計画には含めず」と明記しており、重点施策ではない。誤り。</p>
+                    <p>・(3) 補助金比率は4割であり、12億円×0.4＝4.8億円。約8億円は市一般財源（6割＝7.2億円）に近い値で、補助金分とする本選択肢は誤り。</p>
+                    <p>・(4) 80万人→120万人は120÷80＝1.5倍。本文の数値関係と一致する。<strong>正解</strong></p>
+                    <p>・(5) 初年度は「基盤整備に重点」、本格展開は「中期（2〜4年度）」、成果検証は「最終年度（5年度）」であり、初年度から本格展開・3年目に成果検証とする本選択肢はスケジュールを取り違えている。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章を読み、本文の内容に関する記述ア〜エのうち、正しいものの組合せを下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage-container">
+                <div class="passage-title">【資料】精密機器メーカーD社 中期経営計画（令和8〜10年度）</div>
+                D社の令和7年度実績は、売上高200億円、営業利益16億円、従業員数800名であった。本計画では、令和10年度までに売上高を令和7年度比で25％増加させることを目標とし、これに伴い営業利益率も令和7年度実績から3ポイント引き上げて事業効率の向上を図る。事業構成については、令和7年度に売上の60％を占めていた主力の産業用センサ部門に依存した収益構造を見直す。新規参入する医療機器部門の拡大により、令和10年度の売上構成比を、産業用センサ部門45％、医療機器部門30％、その他既存部門25％とする計画である。3年間の設備投資総額は60億円とし、うち初年度に40％を集中投資して研究開発拠点の新設を行う。人員面では、計画期間中に150名を新規採用する一方、定年退職などにより50名の自然減が生じるため、令和10年度の従業員数は900名となる見込みである。
+            </div>
+
+            <div class="statements-container">
+                <div class="stmt">ア．令和10年度の売上高目標は、令和7年度実績と比べて50億円の増加である。</div>
+                <div class="stmt">イ．令和10年度の営業利益率の目標は、令和7年度実績より3ポイント高い11％である。</div>
+                <div class="stmt">ウ．令和10年度には、医療機器部門の売上高が産業用センサ部門の売上高を上回る計画となっている。</div>
+                <div class="stmt">エ．計画期間中に新規採用される150名のうち、約3分の1に相当する人数が定年退職などにより離職する見込みである。</div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>ア・イ
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>ア・ウ
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>イ・ウ
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>ウ・エ
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>ア・イ・エ
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>長文資料から複数の数値を段階的に抽出し、4記述ア〜エそれぞれの真偽を独立に検証する。</p>
+                    <br>
+                    <p><strong>【本文からの数値抽出】</strong></p>
+                    <p>・令和7年度実績：売上高200億円、営業利益16億円、従業員数800名</p>
+                    <p>・令和10年度目標：売上高は7年度比25％増、営業利益率は7年度比＋3pt</p>
+                    <p>・令和10年度売上構成比：産業用センサ45％／医療機器30％／その他25％</p>
+                    <p>・人員：新規採用150名、自然減50名、最終年度900名（800＋150−50＝900で整合）</p>
+                    <br>
+                    <p><strong>【各記述の検証】</strong></p>
+                    <p>・<strong>ア（正）</strong>：令和10年度売上＝200×1.25＝250億円。増加額＝250−200＝<u>50億円</u>。本文と一致。</p>
+                    <p>・<strong>イ（正）</strong>：令和7年度の営業利益率＝16÷200×100＝<u>8％</u>。これに＋3ptで令和10年度目標＝<u>11％</u>。本文と一致。</p>
+                    <p>・<strong>ウ（誤）</strong>：令和10年度の医療機器売上＝250×0.30＝75億円、産業用センサ売上＝250×0.45＝112.5億円。<u>センサ部門が上回る</u>ため、「医療機器が上回る」は誤り。</p>
+                    <p>・<strong>エ（正）</strong>：自然減÷新規採用＝50÷150＝1/3≒33.3％。「約3分の1」の表現と一致。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>正しい記述の組合せは <u>ア・イ・エ</u> である。</p>
+                    <p>・(1) ア・イ → エが抜けており不十分。</p>
+                    <p>・(2) ア・ウ → ウは誤、イ・エが抜けている。</p>
+                    <p>・(3) イ・ウ → ウは誤、ア・エが抜けている。</p>
+                    <p>・(4) ウ・エ → ウは誤、ア・イが抜けている。</p>
+                    <p>・(5) ア・イ・エ → 正しい記述を過不足なく含む。<strong>正解</strong></p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+                document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考207/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) btn.classList.add('incorrect');
+                }
+                if (option === correctOption) btn.classList.add('correct');
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
