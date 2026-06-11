@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px; line-height: 1.8;
+            background-color: #f5f5f5; min-height: 100vh;
+        }
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+        .screen {
+            display: none; background-color: white; padding: 30px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .screen.active { display: block; }
+        .question-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #333;
+        }
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+        .figure-container {
+            margin: 20px 0; padding: 20px; background-color: #fafafa;
+            border: 1px solid #ddd; border-radius: 4px; text-align: center;
+        }
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+        .data-table {
+            margin: 0 auto; border-collapse: collapse;
+            font-size: 14px; background-color: white;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #555; padding: 6px 10px; text-align: center;
+        }
+        .data-table th { background-color: #e8e8e8; font-weight: bold; }
+        .data-table .row-header { background-color: #f0f0f0; font-weight: bold; }
+        .conditions-box {
+            border: 2px solid #333; padding: 15px 20px; margin: 15px 0;
+            background-color: #fffdf6; text-align: left;
+        }
+        .conditions-box .cond-title { font-weight: bold; margin-bottom: 8px; }
+        .multi-table-wrapper {
+            display: flex; flex-wrap: wrap; gap: 20px;
+            justify-content: center; margin: 15px 0;
+        }
+        .sub-table-block {
+            border: 1px solid #999; padding: 10px;
+            background-color: white; border-radius: 4px;
+        }
+        .sub-table-title { font-weight: bold; font-size: 14px; margin-bottom: 8px; text-align: center; }
+        .calc-table { margin: 8px auto; border-collapse: collapse; font-size: 13px; }
+        .calc-table td, .calc-table th {
+            border: 1px solid #666; padding: 4px 8px; text-align: center;
+        }
+        .calc-table th { background-color: #eaeaea; }
+        .options-container { margin: 20px 0; }
+        .option-button {
+            display: block; width: 100%; padding: 15px 20px; margin: 10px 0;
+            background-color: white; border: 2px solid #ddd; border-radius: 8px;
+            text-align: left; cursor: pointer; transition: all 0.2s ease;
+            font-family: inherit; font-size: 16px;
+        }
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+        .btn {
+            padding: 12px 30px; font-size: 16px; font-family: inherit;
+            border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+        .explanation-section {
+            display: none; margin-top: 30px; padding: 25px;
+            background-color: #f8f9fa; border: 1px solid #ddd; border-radius: 8px;
+        }
+        .explanation-section.show { display: block; }
+        .explanation-header {
+            font-weight: bold; font-size: 16px; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 2px solid #333;
+        }
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .progress-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background-color: #ddd; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: bold; color: #666;
+            transition: all 0.2s ease;
+        }
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+        .nav-buttons {
+            display: flex; justify-content: space-between;
+            margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;
+        }
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+<main class="main-content">
+    <div class="progress-bar">
+        <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+        <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+    </div>
+
+    <!-- ========== 問1 ========== -->
+    <div class="screen active" id="q1-question">
+        <div class="question-header">
+            <span class="question-number">問1</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+        </div>
+        <div class="question-text">
+            次の【資料】はある雑誌に掲載された都内10店舗のレストラン情報である。次の【条件】を<strong>すべて満たす</strong>店舗として、最も適切なものを下の(1)〜(5)から1つ選べ。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【資料】都内レストラン情報一覧</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>店舗</th><th>料理</th><th>平均単価</th><th>評価</th>
+                        <th>営業時間</th><th>駅徒歩</th><th>個室</th><th>定休日</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td class="row-header">店1</td><td>中華</td><td>5,200円</td><td>4.4</td><td>11:00-23:00</td><td>4分</td><td>有</td><td>火</td></tr>
+                    <tr><td class="row-header">店2</td><td>和食</td><td>4,500円</td><td>4.2</td><td>11:00-22:00</td><td>5分</td><td>有</td><td>水</td></tr>
+                    <tr><td class="row-header">店3</td><td>洋食</td><td>4,800円</td><td>4.5</td><td>17:00-23:00</td><td>3分</td><td>有</td><td>月</td></tr>
+                    <tr><td class="row-header">店4</td><td>和食</td><td>4,200円</td><td>4.6</td><td>11:00-22:00</td><td>8分</td><td>有</td><td>木</td></tr>
+                    <tr><td class="row-header">店5</td><td>中華</td><td>3,800円</td><td>4.3</td><td>11:00-23:00</td><td>6分</td><td>無</td><td>火</td></tr>
+                    <tr><td class="row-header">店6</td><td>和食</td><td>6,500円</td><td>4.7</td><td>17:00-23:00</td><td>2分</td><td>有</td><td>日</td></tr>
+                    <tr><td class="row-header">店7</td><td>洋食</td><td>4,900円</td><td>4.5</td><td>11:00-23:00</td><td>5分</td><td>有</td><td>月</td></tr>
+                    <tr><td class="row-header">店8</td><td>中華</td><td>3,500円</td><td>4.1</td><td>11:00-22:00</td><td>9分</td><td>無</td><td>水</td></tr>
+                    <tr><td class="row-header">店9</td><td>和食</td><td>5,500円</td><td>4.4</td><td>11:00-22:00</td><td>4分</td><td>有</td><td>木</td></tr>
+                    <tr><td class="row-header">店10</td><td>洋食</td><td>4,400円</td><td>4.0</td><td>11:00-23:00</td><td>6分</td><td>有</td><td>火</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="conditions-box">
+            <div class="cond-title">【条件】次の条件をすべて満たすこと</div>
+            A．平均単価が5,000円以下である<br>
+            B．評価が4.3以上である<br>
+            C．最寄駅から徒歩6分以内である<br>
+            D．個室がある<br>
+            E．ランチ営業（11:00開店）を行っている
+        </div>
+
+        <div class="options-container" id="q1-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                <span class="option-label">(1)</span>店3
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                <span class="option-label">(2)</span>店4
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                <span class="option-label">(3)</span>店9
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                <span class="option-label">(4)</span>店1
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                <span class="option-label">(5)</span>店7
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q1-explanation">
+            <div class="explanation-header">問1（正解: (5)）</div>
+            <div class="explanation-content">
+                <p>5つの条件A〜Eを順に各店舗に適用して判定する。</p>
+                <br>
+                <p><strong>【判定の手順】</strong></p>
+                <p>選択肢に挙がった5店舗について、それぞれ条件A〜Eの満たし方を表にまとめる。</p>
+                <table class="calc-table">
+                    <thead>
+                        <tr><th>店</th><th>A:単価≦5000</th><th>B:評価≧4.3</th><th>C:徒歩≦6分</th><th>D:個室</th><th>E:ランチ</th><th>判定</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>(1) 店3</td><td>○ 4,800</td><td>○ 4.5</td><td>○ 3分</td><td>○ 有</td><td><strong>× 17時開</strong></td><td>×</td></tr>
+                        <tr><td>(2) 店4</td><td>○ 4,200</td><td>○ 4.6</td><td><strong>× 8分</strong></td><td>○ 有</td><td>○ 11時開</td><td>×</td></tr>
+                        <tr><td>(3) 店9</td><td><strong>× 5,500</strong></td><td>○ 4.4</td><td>○ 4分</td><td>○ 有</td><td>○ 11時開</td><td>×</td></tr>
+                        <tr><td>(4) 店1</td><td><strong>× 5,200</strong></td><td>○ 4.4</td><td>○ 4分</td><td>○ 有</td><td>○ 11時開</td><td>×</td></tr>
+                        <tr><td>(5) 店7</td><td>○ 4,900</td><td>○ 4.5</td><td>○ 5分</td><td>○ 有</td><td>○ 11時開</td><td>○</td></tr>
+                    </tbody>
+                </table>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) 店3：洋食店で評価4.5・徒歩3分と魅力的だが、営業開始が<strong>17時</strong>のためランチ営業がなく条件Eを満たさない。</p>
+                <p>・(2) 店4：単価・評価・個室・ランチは満たすが、駅徒歩<strong>8分</strong>で条件Cの「6分以内」を満たさない。</p>
+                <p>・(3) 店9：他の条件は満たすが、平均単価<strong>5,500円</strong>で条件Aの「5,000円以下」を超えている。</p>
+                <p>・(4) 店1：駅徒歩4分・評価4.4と好条件だが、平均単価<strong>5,200円</strong>で条件Aを超えている。</p>
+                <p>・(5) 店7：単価4,900円・評価4.5・徒歩5分・個室有・11時開店で<strong>全条件を満たす</strong>。</p>
+                <br>
+                <p>したがって、正解は<strong>(5) 店7</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q1-nav" style="display: none;">
+            <button class="btn btn-secondary hidden">前の問題</button>
+            <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+        </div>
+    </div>
+
+    <!-- ========== 問2 ========== -->
+    <div class="screen" id="q2-question">
+        <div class="question-header">
+            <span class="question-number">問2</span>
+            <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+        </div>
+        <div class="question-text">
+            次の【プラン表】【追加オプション料金表】【割引規定】【顧客要望】を参照し、顧客の<strong>すべての条件</strong>を満たすツアープランとして、最も適切なものを下の(1)〜(5)から1つ選べ。なお、料金はすべて1人あたりの金額である。
+        </div>
+
+        <div class="figure-container">
+            <div class="figure-title">【プラン表】基本ツアー情報</div>
+            <table class="data-table">
+                <thead>
+                    <tr><th>プラン</th><th>行先</th><th>日数</th><th>基本料金</th><th>出発曜日</th><th>食事回数</th><th>ホテル等級</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="row-header">プランP</td><td>北海道</td><td>3日</td><td>38,000円</td><td>金</td><td>4回</td><td>★4</td></tr>
+                    <tr><td class="row-header">プランQ</td><td>京都</td><td>2日</td><td>32,000円</td><td>土</td><td>3回</td><td>★3</td></tr>
+                    <tr><td class="row-header">プランR</td><td>沖縄</td><td>4日</td><td>60,000円</td><td>木</td><td>5回</td><td>★5</td></tr>
+                    <tr><td class="row-header">プランS</td><td>九州</td><td>3日</td><td>41,000円</td><td>金</td><td>1回</td><td>★4</td></tr>
+                    <tr><td class="row-header">プランT</td><td>東北</td><td>2日</td><td>28,000円</td><td>火</td><td>3回</td><td>★3</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="multi-table-wrapper">
+            <div class="sub-table-block">
+                <div class="sub-table-title">【追加オプション料金表】</div>
+                <table class="calc-table">
+                    <thead><tr><th>オプション</th><th>料金</th></tr></thead>
+                    <tbody>
+                        <tr><td>送迎</td><td>3,500円</td></tr>
+                        <tr><td>保険</td><td>2,800円</td></tr>
+                        <tr><td>夕食追加(+1回)</td><td>4,200円</td></tr>
+                        <tr><td>個室宿泊</td><td>5,500円</td></tr>
+                        <tr><td>現地ガイド</td><td>6,800円</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="sub-table-block">
+                <div class="sub-table-title">【割引規定】</div>
+                <table class="calc-table">
+                    <thead><tr><th>区分</th><th>適用</th></tr></thead>
+                    <tbody>
+                        <tr><td>木曜出発</td><td>基本料金 8%引</td></tr>
+                        <tr><td>★5ホテル</td><td>個室宿泊が無料</td></tr>
+                        <tr><td>4日以上の旅程</td><td>保険が半額</td></tr>
+                        <tr><td>食事5回以上</td><td>夕食追加 不要</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="conditions-box">
+            <div class="cond-title">【顧客要望】次のすべてを満たすこと</div>
+            ① 1人あたり総額が<strong>55,000円以下</strong>であること<br>
+            ② オプション「<strong>送迎・保険・個室宿泊</strong>」をすべて付帯すること<br>
+            ③ 食事回数が（夕食追加分を含めて）<strong>4回以上</strong>であること<br>
+            ④ 出発曜日が<strong>木曜または金曜</strong>であること
+        </div>
+
+        <div class="options-container" id="q2-options">
+            <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                <span class="option-label">(1)</span>プランP
+            </button>
+            <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                <span class="option-label">(2)</span>プランQ
+            </button>
+            <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                <span class="option-label">(3)</span>プランR
+            </button>
+            <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                <span class="option-label">(4)</span>プランS
+            </button>
+            <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                <span class="option-label">(5)</span>プランT
+            </button>
+        </div>
+
+        <div class="explanation-section" id="q2-explanation">
+            <div class="explanation-header">問2（正解: (1)）</div>
+            <div class="explanation-content">
+                <p>各プランの総額を計算し、条件①〜④を判定する。</p>
+                <br>
+                <p><strong>【計算方法】</strong></p>
+                <p>総額 = 実質基本料金 + オプション合計 + 夕食追加（食事不足時のみ）</p>
+                <p>・実質基本料金: 木曜出発は基本料金×0.92、それ以外は基本料金そのまま</p>
+                <p>・オプション合計: 送迎3,500 + 保険(4日以上は半額1,400) + 個室(★5は無料)</p>
+                <p>・夕食追加: 食事数が4回未満なら 4,200円を加算（+1回として食事に反映）</p>
+                <br>
+                <p><strong>【総額計算表】</strong></p>
+                <table class="calc-table">
+                    <thead>
+                        <tr><th>プラン</th><th>実質基本</th><th>送迎</th><th>保険</th><th>個室</th><th>夕食追加</th><th>総額</th><th>食事</th><th>曜日</th><th>判定</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>(1) P</td><td>38,000</td><td>3,500</td><td>2,800</td><td>5,500</td><td>0</td><td><strong>49,800</strong></td><td>4回○</td><td>金○</td><td><strong>○</strong></td></tr>
+                        <tr><td>(2) Q</td><td>32,000</td><td>3,500</td><td>2,800</td><td>5,500</td><td>4,200</td><td>48,000</td><td>4回○</td><td><strong>土×</strong></td><td>×</td></tr>
+                        <tr><td>(3) R</td><td>55,200</td><td>3,500</td><td>1,400</td><td>0</td><td>0</td><td><strong>60,100</strong></td><td>5回○</td><td>木○</td><td>×</td></tr>
+                        <tr><td>(4) S</td><td>41,000</td><td>3,500</td><td>2,800</td><td>5,500</td><td>4,200</td><td>57,000</td><td><strong>2回×</strong></td><td>金○</td><td>×</td></tr>
+                        <tr><td>(5) T</td><td>28,000</td><td>3,500</td><td>2,800</td><td>5,500</td><td>4,200</td><td>44,000</td><td>4回○</td><td><strong>火×</strong></td><td>×</td></tr>
+                    </tbody>
+                </table>
+                <br>
+                <p><strong>【選択肢の検討】</strong></p>
+                <p>・(1) P：金曜出発・4食。総額49,800円。すべての条件①〜④を満たす。</p>
+                <p>・(2) Q：土曜出発のため条件④不適合。</p>
+                <p>・(3) R：木曜出発で8%引、★5で個室無料、4日以上で保険半額となるが、基本料金が高く<strong>総額60,100円</strong>で予算超過。</p>
+                <p>・(4) S：食事1回＋夕食追加で計2回となり、条件③（4回以上）を満たさない（総額も57,000円で予算超過）。</p>
+                <p>・(5) T：火曜出発のため条件④不適合。</p>
+                <br>
+                <p>したがって、正解は<strong>(1) プランP</strong>である。</p>
+            </div>
+        </div>
+
+        <div class="nav-buttons" id="q2-nav" style="display: none;">
+            <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+            <button class="btn btn-secondary hidden">（空欄）</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    const state = { currentQuestion: 1, answers: {} };
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    function goToQuestion(questionNum) {
+        state.currentQuestion = questionNum;
+        showScreen(`q${questionNum}-question`);
+        if (state.answers[questionNum] === undefined) {
+            document.querySelectorAll('.progress-dot').forEach(dot => {
+                const dotNum = parseInt(dot.textContent);
+                if (state.answers[dotNum] === undefined) dot.classList.remove('active');
+            });
+            document.getElementById(`progress-${questionNum}`).classList.add('active');
+        }
+    }
+    function startQuestion(questionNum) { goToQuestion(questionNum); }
+    function selectAnswer(questionNum, selectedOption, correctOption) {
+        const optionsContainer = document.getElementById(`q${questionNum}-options`);
+        const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+        if (state.answers[questionNum] !== undefined) {
+            state.answers[questionNum] = undefined;
+            buttons.forEach(btn => btn.classList.remove('selected', 'correct', 'incorrect'));
+            document.getElementById(`q${questionNum}-explanation`).classList.remove('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+            const pd = document.getElementById(`progress-${questionNum}`);
+            pd.classList.remove('completed', 'incorrect-dot');
+            pd.classList.add('active');
+            return;
+        }
+        state.answers[questionNum] = selectedOption;
+        const isCorrect = selectedOption === correctOption;
+        try {
+            if (window.parent && window.parent.recordAnswer) {
+                window.parent.recordAnswer(
+                    `2026_06/航大思考210/問${questionNum}`,
+                    selectedOption, correctOption, isCorrect
+                );
+            }
+        } catch (e) {}
+        buttons.forEach(btn => {
+            btn.classList.remove('selected', 'correct', 'incorrect');
+            const option = parseInt(btn.dataset.option);
+            if (option === selectedOption) {
+                btn.classList.add('selected');
+                if (!isCorrect) btn.classList.add('incorrect');
+            }
+            if (option === correctOption) btn.classList.add('correct');
+        });
+        const pd = document.getElementById(`progress-${questionNum}`);
+        pd.classList.remove('active');
+        pd.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+        const ex = document.getElementById(`q${questionNum}-explanation`);
+        ex.classList.add('show');
+        document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+        setTimeout(() => ex.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('progress-1').classList.add('active');
+    });
+</script>
+</body>
+</html>
