@@ -1,0 +1,543 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下の図1のように、縦3cm、横4cm、高さ5cmの直方体がある。この直方体の表面全体にペンキを塗った。その後、この直方体を1cmごとに切断して、1辺1cmの小立方体60個に切り分けた。このとき、ちょうど2つの面だけにペンキが塗られている小立方体の個数として正しいものを、下の(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x340px
+                - viewBox: 0 0 460 340
+                - 余白: 上下左右20px以上
+
+                座標系定義（斜投影）:
+                - 1cm = 40px、奥行き1cm = (+20, -20)px
+                - 前面: (100,80)-(260,80)-(260,280)-(100,280)（横4×高さ5）
+                - 上面: (100,80)-(260,80)-(320,20)-(160,20)（奥行き3）
+                - 右面: (260,80)-(320,20)-(320,220)-(260,280)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】直方体（縦3cm・横4cm・高さ5cm）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="340" viewBox="0 0 460 340">
+                            <!-- 外形 -->
+                            <polygon points="100,80 260,80 260,280 100,280" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="100,80 260,80 320,20 160,20" fill="#f2f2f2" stroke="black" stroke-width="2"/>
+                            <polygon points="260,80 320,20 320,220 260,280" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                            <!-- 前面の格子（横4×高さ5） -->
+                            <line x1="140" y1="80" x2="140" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="180" y1="80" x2="180" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="220" y1="80" x2="220" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="120" x2="260" y2="120" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="160" x2="260" y2="160" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="200" x2="260" y2="200" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="240" x2="260" y2="240" stroke="black" stroke-width="1"/>
+                            <!-- 上面の格子（横4×奥行き3） -->
+                            <line x1="140" y1="80" x2="200" y2="20" stroke="black" stroke-width="1"/>
+                            <line x1="180" y1="80" x2="240" y2="20" stroke="black" stroke-width="1"/>
+                            <line x1="220" y1="80" x2="280" y2="20" stroke="black" stroke-width="1"/>
+                            <line x1="120" y1="60" x2="280" y2="60" stroke="black" stroke-width="1"/>
+                            <line x1="140" y1="40" x2="300" y2="40" stroke="black" stroke-width="1"/>
+                            <!-- 右面の格子（奥行き3×高さ5） -->
+                            <line x1="280" y1="60" x2="280" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="300" y1="40" x2="300" y2="240" stroke="black" stroke-width="1"/>
+                            <line x1="260" y1="120" x2="320" y2="60" stroke="black" stroke-width="1"/>
+                            <line x1="260" y1="160" x2="320" y2="100" stroke="black" stroke-width="1"/>
+                            <line x1="260" y1="200" x2="320" y2="140" stroke="black" stroke-width="1"/>
+                            <line x1="260" y1="240" x2="320" y2="180" stroke="black" stroke-width="1"/>
+                            <!-- 寸法ラベル -->
+                            <text x="180" y="306" class="svg-text" text-anchor="middle">4cm</text>
+                            <text x="72" y="186" class="svg-text" text-anchor="middle">5cm</text>
+                            <text x="318" y="266" class="svg-text" text-anchor="start">3cm</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　20個<br>
+                    (2)　24個<br>
+                    (3)　22個<br>
+                    (4)　28個<br>
+                    (5)　32個
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br>
+                ペンキがちょうど2つの面に塗られるのは、直方体の「辺」の上にあって「頂点」ではない小立方体である。<br><br>
+
+                <strong>【考え方】</strong><br>
+                ・3つの面に塗られる小立方体 → 直方体の頂点にある（8個）<br>
+                ・2つの面に塗られる小立方体 → 辺の上にあり、両端の頂点を除いたもの<br>
+                ・1つの面に塗られる小立方体 → 各面の内部にあるもの<br><br>
+
+                <strong>【計算】</strong><br>
+                直方体の辺は12本あり、長さ別に3cmの辺・4cmの辺・5cmの辺が4本ずつある。<br>
+                各辺の上に並ぶ小立方体のうち、両端の頂点の分（2個）を除くと、<br>
+                ・3cmの辺: 3 − 2 = 1個 → 1 × 4本 = 4個<br>
+                ・4cmの辺: 4 − 2 = 2個 → 2 × 4本 = 8個<br>
+                ・5cmの辺: 5 − 2 = 3個 → 3 × 4本 = 12個<br>
+                合計: 4 + 8 + 12 = <strong>24個</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                ・3面: 頂点の8個<br>
+                ・2面: 24個（上記）<br>
+                ・1面: 各面の内部 → (3−2)(4−2)×2 + (3−2)(5−2)×2 + (4−2)(5−2)×2 = 4 + 6 + 12 = 22個<br>
+                ・0面: 内部 → (3−2)(4−2)(5−2) = 6個<br>
+                合計 8 + 24 + 22 + 6 = 60個となり、全体の個数と一致する。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．下の図2のように、1辺5cmの立方体が床の上に置かれている。この立方体の表面のうち、床に接している底面を除いた5つの面にペンキを塗った。その後、この立方体を1cmごとに切断して、1辺1cmの小立方体125個に切り分けた。このとき、ちょうど1つの面だけにペンキが塗られている小立方体の個数として正しいものを、下の(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x310px
+                - viewBox: 0 0 460 310
+                - 余白: 上下左右20px以上
+
+                座標系定義（斜投影）:
+                - 1cm = 32px、奥行き1cm = (+12, -12)px
+                - 前面: (90,100)-(250,100)-(250,260)-(90,260)
+                - 上面: (90,100)-(250,100)-(310,40)-(150,40)
+                - 右面: (250,100)-(310,40)-(310,200)-(250,260)
+                - 床ライン: y=260
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】床に置かれた1辺5cmの立方体（底面は塗らない）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="310" viewBox="0 0 460 310">
+                            <!-- 床ライン -->
+                            <line x1="30" y1="260" x2="430" y2="260" stroke="black" stroke-width="2"/>
+                            <line x1="50" y1="275" x2="65" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="350" y1="275" x2="365" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="390" y1="275" x2="405" y2="260" stroke="black" stroke-width="1"/>
+                            <text x="420" y="285" class="svg-text" text-anchor="middle">床</text>
+                            <!-- 外形 -->
+                            <polygon points="90,100 250,100 250,260 90,260" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="90,100 250,100 310,40 150,40" fill="#f2f2f2" stroke="black" stroke-width="2"/>
+                            <polygon points="250,100 310,40 310,200 250,260" fill="#e0e0e0" stroke="black" stroke-width="2"/>
+                            <!-- 前面の格子（5×5） -->
+                            <line x1="122" y1="100" x2="122" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="154" y1="100" x2="154" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="186" y1="100" x2="186" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="218" y1="100" x2="218" y2="260" stroke="black" stroke-width="1"/>
+                            <line x1="90" y1="132" x2="250" y2="132" stroke="black" stroke-width="1"/>
+                            <line x1="90" y1="164" x2="250" y2="164" stroke="black" stroke-width="1"/>
+                            <line x1="90" y1="196" x2="250" y2="196" stroke="black" stroke-width="1"/>
+                            <line x1="90" y1="228" x2="250" y2="228" stroke="black" stroke-width="1"/>
+                            <!-- 上面の格子（5×5） -->
+                            <line x1="122" y1="100" x2="182" y2="40" stroke="black" stroke-width="1"/>
+                            <line x1="154" y1="100" x2="214" y2="40" stroke="black" stroke-width="1"/>
+                            <line x1="186" y1="100" x2="246" y2="40" stroke="black" stroke-width="1"/>
+                            <line x1="218" y1="100" x2="278" y2="40" stroke="black" stroke-width="1"/>
+                            <line x1="102" y1="88" x2="262" y2="88" stroke="black" stroke-width="1"/>
+                            <line x1="114" y1="76" x2="274" y2="76" stroke="black" stroke-width="1"/>
+                            <line x1="126" y1="64" x2="286" y2="64" stroke="black" stroke-width="1"/>
+                            <line x1="138" y1="52" x2="298" y2="52" stroke="black" stroke-width="1"/>
+                            <!-- 右面の格子（5×5） -->
+                            <line x1="262" y1="88" x2="262" y2="248" stroke="black" stroke-width="1"/>
+                            <line x1="274" y1="76" x2="274" y2="236" stroke="black" stroke-width="1"/>
+                            <line x1="286" y1="64" x2="286" y2="224" stroke="black" stroke-width="1"/>
+                            <line x1="298" y1="52" x2="298" y2="212" stroke="black" stroke-width="1"/>
+                            <line x1="250" y1="132" x2="310" y2="72" stroke="black" stroke-width="1"/>
+                            <line x1="250" y1="164" x2="310" y2="104" stroke="black" stroke-width="1"/>
+                            <line x1="250" y1="196" x2="310" y2="136" stroke="black" stroke-width="1"/>
+                            <line x1="250" y1="228" x2="310" y2="168" stroke="black" stroke-width="1"/>
+                            <!-- 寸法ラベル -->
+                            <text x="170" y="290" class="svg-text" text-anchor="middle">5cm</text>
+                            <text x="62" y="186" class="svg-text" text-anchor="middle">5cm</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　54個<br>
+                    (2)　57個<br>
+                    (3)　45個<br>
+                    (4)　48個<br>
+                    (5)　61個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                底面が塗られていない点に注意して、ペンキが1面だけに塗られている小立方体を数える。<br><br>
+
+                <strong>【上面（5×5＝25個）】</strong><br>
+                上面で1面だけ塗られるのは、縁を除いた中央の 3×3 = <strong>9個</strong>。<br>
+                （縁の小立方体は側面のペンキも付くため2面以上になる）<br><br>
+
+                <strong>【側面（4つの面）】</strong><br>
+                各側面 5×5 = 25個のうち、<br>
+                ・最上段（5個）→ 上面のペンキも付くため2面以上<br>
+                ・左右の端の列 → 隣の側面のペンキも付くため2面以上<br>
+                ・2〜4段目の中央3列 → 側面1面のみ: 3×3 = 9個<br>
+                ・<strong>最下段の中央3個 → 底面は塗られていないので、側面1面のみ: 3個</strong><br>
+                よって各側面で 9 + 3 = 12個、4側面で 12 × 4 = <strong>48個</strong>。<br><br>
+
+                <strong>【合計】</strong><br>
+                9 + 48 = <strong>57個</strong><br><br>
+
+                <strong>【誤りやすい点】</strong><br>
+                ・全6面を塗ったと誤読すると、各面の中央3×3×6面 = 54個 → (1)は誤り<br>
+                ・最下段の3個×4側面を見落とすと、9 + 36 = 45個 → (3)は誤り<br>
+                ・上面の9個を忘れると、48個 → (4)は誤り<br><br>
+
+                <strong>【検算（全数調査）】</strong><br>
+                0面: 内部27個＋底面の内部9個 = 36個 ／ 1面: 57個 ／ 2面: 上面の縁の非頂点12個＋縦の辺の下4段16個 = 28個 ／ 3面: 上の頂点4個<br>
+                合計 36 + 57 + 28 + 4 = 125個となり、全体の個数と一致する。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
