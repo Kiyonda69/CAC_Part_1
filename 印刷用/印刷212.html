@@ -1,0 +1,611 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．同じ大きさの小立方体27個をすき間なく積み上げて、3×3×3の大きな立方体を作った。小立方体の位置を、左からの「列」（列1〜列3）、手前からの「行」（行1〜行3）、下からの「段」（段1〜段3）で表す。図1のように、前面の黒マスの位置（列2・段2）から面に垂直に反対側まで貫通する穴A、右面の黒マスの位置（行1・段2）から貫通する穴B、上面の黒マスの位置（列2・行2）から貫通する穴Cの3本の穴をあけた。穴は小立方体単位でくり抜かれ、途中で曲がったり止まったりしない。穴をあけたあとに残っている小立方体の個数として正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 560x200px / viewBox: 0 0 560 200
+                座標系定義:
+                - 3面図を横並び配置（前面・右面・上面）
+                - 各グリッド: セル36px、グループ内左上(40,26)起点、外枠108x108
+                - 前面図グループ: translate(10,10) / 右面図: translate(200,10) / 上面図: translate(390,10)
+                - 黒塗りセル = 穴の入口（前面:列2段2=(76,62) 右面:行1段2=(40,62) 上面:列2行2=(76,62)）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】各面から見た穴の入口の位置（黒いマス）</div>
+                    <div class="figure-content">
+                        <svg width="560" height="200" viewBox="0 0 560 200">
+                            <!-- 前面図: 横=列(左→右)・縦=段(下→上) / 穴A=列2・段2 -->
+                            <g transform="translate(10, 10)">
+                                <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">前面から見た図</text>
+                                <rect x="76" y="62" width="36" height="36" fill="#222"/>
+                                <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                                <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:段（下→上）</text>
+                                <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴A＝列2・段2</text>
+                            </g>
+                            <!-- 右面図: 横=行(手前→奥)・縦=段(下→上) / 穴B=行1・段2 -->
+                            <g transform="translate(200, 10)">
+                                <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">右面から見た図</text>
+                                <rect x="40" y="62" width="36" height="36" fill="#222"/>
+                                <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                                <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:行（手前→奥） 縦:段（下→上）</text>
+                                <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴B＝行1・段2</text>
+                            </g>
+                            <!-- 上面図: 横=列(左→右)・縦=行(下が手前) / 穴C=列2・行2 -->
+                            <g transform="translate(390, 10)">
+                                <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">上面から見た図</text>
+                                <rect x="76" y="62" width="36" height="36" fill="#222"/>
+                                <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                                <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:行（下が手前）</text>
+                                <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴C＝列2・行2</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1)　16個<br>
+                    (2)　17個<br>
+                    (3)　18個<br>
+                    (4)　19個<br>
+                    (5)　20個
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(5))</strong><br>
+                小立方体の位置を（列, 行, 段）の3つの数で表し、各穴が取り除く小立方体を整理する。<br><br>
+
+                <strong>【各穴が取り除く小立方体】</strong><br>
+                ・穴A（前面の列2・段2から行方向に貫通）: (2, 1, 2)、(2, 2, 2)、(2, 3, 2) の3個<br>
+                ・穴B（右面の行1・段2から列方向に貫通）: (1, 1, 2)、(2, 1, 2)、(3, 1, 2) の3個<br>
+                ・穴C（上面の列2・行2から段方向に貫通）: (2, 2, 1)、(2, 2, 2)、(2, 2, 3) の3個<br><br>
+
+                <strong>【穴の交わり（重複）の確認】</strong><br>
+                単純に 3個 × 3本 ＝ 9個 と数えると、複数の穴が通る小立方体を二重に数えてしまう。<br>
+                ・穴Aと穴B: どちらも (2, 1, 2) を通る → 1個が共通<br>
+                ・穴Aと穴C: どちらも中心 (2, 2, 2) を通る → 1個が共通<br>
+                ・穴Bと穴C: 穴Bは行1のみ、穴Cは行2のみを通るため共通なし<br><br>
+
+                <strong>【残りの個数の計算】</strong><br>
+                取り除かれる小立方体の個数 ＝ 9 − 2 ＝ <strong>7個</strong><br>
+                残っている小立方体の個数 ＝ 27 − 7 ＝ <strong>20個</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 16個 → 重複を二重に引くなどの誤り<br>
+                ・(2) 17個 → 計算誤り<br>
+                ・(3) 18個 → 27 − 9 ＝ 18。穴どうしの交わりを見落とした誤答<br>
+                ・(4) 19個 → 交わりを1か所しか見つけられなかった誤答<br>
+                ・(5) 20個 → 正しい<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．同じ大きさの小立方体64個をすき間なく積み上げて、4×4×4の大きな立方体を作った。小立方体の位置を、左からの「列」（列1〜列4）、手前からの「行」（行1〜行4）、下からの「段」（段1〜段4）で表す。図2のように、前面の2か所（P<sub>1</sub>＝列2・段3、P<sub>2</sub>＝列4・段1）、右面の2か所（Q<sub>1</sub>＝行2・段3、Q<sub>2</sub>＝行3・段2）、上面の2か所（R<sub>1</sub>＝列2・行2、R<sub>2</sub>＝列3・行3）の黒マスの位置から、それぞれ面に垂直に反対側まで貫通する穴を合計6本あけた。穴は小立方体単位でくり抜かれ、途中で曲がったり止まったりしない。穴をあけたあとに残っている小立方体の個数として正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 580x215px / viewBox: 0 0 580 215
+                座標系定義:
+                - 3面図を横並び配置（前面・右面・上面）
+                - 各グリッド: セル30px、グループ内左上(40,26)起点、外枠120x120
+                - 前面図グループ: translate(10,10) / 右面図: translate(205,10) / 上面図: translate(400,10)
+                - 黒塗りセル = 穴の入口
+                  前面: P1=列2段3=(70,56), P2=列4段1=(130,116)
+                  右面: Q1=行2段3=(70,56), Q2=行3段2=(100,86)
+                  上面: R1=列2行2=(70,86), R2=列3行3=(100,56)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】各面から見た穴の入口の位置（黒いマス）</div>
+                    <div class="figure-content">
+                        <svg width="580" height="215" viewBox="0 0 580 215">
+                            <!-- 前面図: 横=列(左→右)・縦=段(下→上) -->
+                            <g transform="translate(10, 10)">
+                                <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">前面から見た図</text>
+                                <rect x="70" y="56" width="30" height="30" fill="#222"/>
+                                <rect x="130" y="116" width="30" height="30" fill="#222"/>
+                                <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                                <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                                <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                                <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:段（下→上）</text>
+                                <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">P1＝列2・段3　P2＝列4・段1</text>
+                            </g>
+                            <!-- 右面図: 横=行(手前→奥)・縦=段(下→上) -->
+                            <g transform="translate(205, 10)">
+                                <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">右面から見た図</text>
+                                <rect x="70" y="56" width="30" height="30" fill="#222"/>
+                                <rect x="100" y="86" width="30" height="30" fill="#222"/>
+                                <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                                <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                                <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                                <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:行（手前→奥） 縦:段（下→上）</text>
+                                <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">Q1＝行2・段3　Q2＝行3・段2</text>
+                            </g>
+                            <!-- 上面図: 横=列(左→右)・縦=行(下が手前) -->
+                            <g transform="translate(400, 10)">
+                                <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">上面から見た図</text>
+                                <rect x="70" y="86" width="30" height="30" fill="#222"/>
+                                <rect x="100" y="56" width="30" height="30" fill="#222"/>
+                                <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                                <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                                <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                                <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                                <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                                <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                                <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                                <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                                <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                                <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                                <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                                <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:行（下が手前）</text>
+                                <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">R1＝列2・行2　R2＝列3・行3</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1)　40個<br>
+                    (2)　41個<br>
+                    (3)　42個<br>
+                    (4)　43個<br>
+                    (5)　44個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                小立方体の位置を（列, 行, 段）で表す。各穴は4個の小立方体を取り除くので、単純計算では 4個 × 6本 ＝ 24個 だが、複数の穴が通る小立方体の重複を正確に処理する必要がある。<br><br>
+
+                <strong>【各穴が通る小立方体】</strong><br>
+                ・P<sub>1</sub>（列2・段3、行方向）: (2, 1〜4, 3)<br>
+                ・P<sub>2</sub>（列4・段1、行方向）: (4, 1〜4, 1)<br>
+                ・Q<sub>1</sub>（行2・段3、列方向）: (1〜4, 2, 3)<br>
+                ・Q<sub>2</sub>（行3・段2、列方向）: (1〜4, 3, 2)<br>
+                ・R<sub>1</sub>（列2・行2、段方向）: (2, 2, 1〜4)<br>
+                ・R<sub>2</sub>（列3・行3、段方向）: (3, 3, 1〜4)<br><br>
+
+                <strong>【交わりの洗い出し】</strong><br>
+                2本の穴が交わるのは、3つの座標（列・行・段）がすべて一致する場合である。<br>
+                ・P<sub>1</sub>∩Q<sub>1</sub> ＝ (2, 2, 3)　・P<sub>1</sub>∩R<sub>1</sub> ＝ (2, 2, 3)　・Q<sub>1</sub>∩R<sub>1</sub> ＝ (2, 2, 3)<br>
+                　→ P<sub>1</sub>・Q<sub>1</sub>・R<sub>1</sub> の3本は、すべて同じ小立方体 (2, 2, 3) を通る（三重交差）。<br>
+                ・Q<sub>2</sub>∩R<sub>2</sub> ＝ (3, 3, 2)（二重交差）<br>
+                ・P<sub>2</sub> は段1・列4を通るが、Q<sub>1</sub>・Q<sub>2</sub>（段3・段2）、R<sub>1</sub>（列2）、R<sub>2</sub>（列3）とは座標が合わず交わらない。その他の組も同様に交わらない。<br><br>
+
+                <strong>【包除原理による計算】</strong><br>
+                取り除かれる個数 ＝ 24 −（2本の交わり4組: 各1個）＋（3本の交わり1個）＝ 24 − 4 ＋ 1 ＝ <strong>21個</strong><br>
+                ※ (2, 2, 3) は3本の穴で3回数えられているため、ペアの引き算（3回）だけでは引きすぎになり、1回足し戻す必要がある。<br>
+                残っている小立方体の個数 ＝ 64 − 21 ＝ <strong>43個</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 40個 → 64 − 24。穴どうしの交わりをすべて見落とした誤答<br>
+                ・(2) 41個 → 計算誤り<br>
+                ・(3) 42個 → 三重交差点 (2, 2, 3) を1回しか引かず、除去数を22個とした誤答<br>
+                ・(4) 43個 → 正しい<br>
+                ・(5) 44個 → ペア4組を引いたあと三重交差の足し戻しを忘れ、除去数を20個とした誤答<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
