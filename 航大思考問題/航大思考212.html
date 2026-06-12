@@ -1,0 +1,903 @@
+<!--
+================================================================================
+template_dynamic.html - 動的問題テンプレート（インタラクティブ版）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+インタラクティブに表示・解答できる形式のHTMLファイルです。
+ユーザーが選択肢をクリックすると、正解/不正解が表示され、
+解説が自動的に展開されます。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. selectAnswer() の引数で正解番号を設定
+4. recordAnswer() の問題名を適切に変更
+
+【注意事項】
+- 問題名は「YYYY_MM/航大思考N/問Q」の形式で指定すること
+- SVG図表は適切なサイズとviewBoxを設定すること
+- 選択肢の data-option 属性は1から順番に設定すること
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                同じ大きさの小立方体27個をすき間なく積み上げて、3×3×3の大きな立方体を作った。小立方体の位置を、左からの「列」（列1〜列3）、手前からの「行」（行1〜行3）、下からの「段」（段1〜段3）で表す。図1のように、前面の黒マスの位置（列2・段2）から面に垂直に反対側まで貫通する穴A、右面の黒マスの位置（行1・段2）から貫通する穴B、上面の黒マスの位置（列2・行2）から貫通する穴Cの3本の穴をあけた。穴は小立方体単位でくり抜かれ、途中で曲がったり止まったりしない。穴をあけたあとに残っている小立方体の個数として正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 560x200px / viewBox: 0 0 560 200
+            座標系定義:
+            - 3面図を横並び配置（前面・右面・上面）
+            - 各グリッド: セル36px、グループ内左上(40,26)起点、外枠108x108
+            - 前面図グループ: translate(10,10) / 右面図: translate(200,10) / 上面図: translate(390,10)
+            - 黒塗りセル = 穴の入口（前面:列2段2=(76,62) 右面:行1段2=(40,62) 上面:列2行2=(76,62)）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】各面から見た穴の入口の位置（黒いマス）</div>
+                <div class="figure-content">
+                    <svg width="560" height="200" viewBox="0 0 560 200">
+                        <!-- 前面図: 横=列(左→右)・縦=段(下→上) / 穴A=列2・段2 -->
+                        <g transform="translate(10, 10)">
+                            <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">前面から見た図</text>
+                            <rect x="76" y="62" width="36" height="36" fill="#222"/>
+                            <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                            <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:段（下→上）</text>
+                            <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴A＝列2・段2</text>
+                        </g>
+                        <!-- 右面図: 横=行(手前→奥)・縦=段(下→上) / 穴B=行1・段2 -->
+                        <g transform="translate(200, 10)">
+                            <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">右面から見た図</text>
+                            <rect x="40" y="62" width="36" height="36" fill="#222"/>
+                            <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                            <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:行（手前→奥） 縦:段（下→上）</text>
+                            <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴B＝行1・段2</text>
+                        </g>
+                        <!-- 上面図: 横=列(左→右)・縦=行(下が手前) / 穴C=列2・行2 -->
+                        <g transform="translate(390, 10)">
+                            <text x="94" y="16" class="svg-text" text-anchor="middle" font-weight="bold">上面から見た図</text>
+                            <rect x="76" y="62" width="36" height="36" fill="#222"/>
+                            <rect x="40" y="26" width="108" height="108" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="76" y1="26" x2="76" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="112" y1="26" x2="112" y2="134" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="62" x2="148" y2="62" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="98" x2="148" y2="98" stroke="black" stroke-width="1"/>
+                            <text x="32" y="49" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="85" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="121" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="58" y="150" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="94" y="150" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="130" y="150" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="94" y="170" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:行（下が手前）</text>
+                            <text x="94" y="188" class="svg-text" text-anchor="middle" font-size="11">穴C＝列2・行2</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>16個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>17個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>18個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>19個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>20個
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>小立方体の位置を（列, 行, 段）の3つの数で表し、各穴が取り除く小立方体を整理する。</p>
+                    <br>
+                    <p><strong>【各穴が取り除く小立方体】</strong></p>
+                    <p>・穴A（前面の列2・段2から行方向に貫通）: (2, 1, 2)、(2, 2, 2)、(2, 3, 2) の3個</p>
+                    <p>・穴B（右面の行1・段2から列方向に貫通）: (1, 1, 2)、(2, 1, 2)、(3, 1, 2) の3個</p>
+                    <p>・穴C（上面の列2・行2から段方向に貫通）: (2, 2, 1)、(2, 2, 2)、(2, 2, 3) の3個</p>
+                    <br>
+                    <p><strong>【穴の交わり（重複）の確認】</strong></p>
+                    <p>単純に 3個 × 3本 ＝ 9個 と数えると、複数の穴が通る小立方体を二重に数えてしまう。</p>
+                    <p>・穴Aと穴B: どちらも (2, 1, 2) を通る → 1個が共通</p>
+                    <p>・穴Aと穴C: どちらも中心 (2, 2, 2) を通る → 1個が共通</p>
+                    <p>・穴Bと穴C: 穴Bは行1のみ、穴Cは行2のみを通るため共通なし</p>
+                    <br>
+                    <p><strong>【残りの個数の計算】</strong></p>
+                    <p>取り除かれる小立方体 ＝ 9 − 2 ＝ <strong>7個</strong></p>
+                    <p>残っている小立方体 ＝ 27 − 7 ＝ <strong>20個</strong></p>
+                    <p>※ (3) 18個 は穴どうしの交わりを見落とした場合の誤答である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <!--
+            問題間移動用のボタン
+            - style="display: none;" で初期非表示
+            - 解答後にJavaScriptで表示される
+            -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <!-- 最初の問題では「前の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <!-- 2問目以降は同様の構造で追加 -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                同じ大きさの小立方体64個をすき間なく積み上げて、4×4×4の大きな立方体を作った。小立方体の位置を、左からの「列」（列1〜列4）、手前からの「行」（行1〜行4）、下からの「段」（段1〜段4）で表す。図2のように、前面の2か所（P<sub>1</sub>＝列2・段3、P<sub>2</sub>＝列4・段1）、右面の2か所（Q<sub>1</sub>＝行2・段3、Q<sub>2</sub>＝行3・段2）、上面の2か所（R<sub>1</sub>＝列2・行2、R<sub>2</sub>＝列3・行3）の黒マスの位置から、それぞれ面に垂直に反対側まで貫通する穴を合計6本あけた。穴は小立方体単位でくり抜かれ、途中で曲がったり止まったりしない。穴をあけたあとに残っている小立方体の個数として正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 580x215px / viewBox: 0 0 580 215
+            座標系定義:
+            - 3面図を横並び配置（前面・右面・上面）
+            - 各グリッド: セル30px、グループ内左上(40,26)起点、外枠120x120
+            - 前面図グループ: translate(10,10) / 右面図: translate(205,10) / 上面図: translate(400,10)
+            - 黒塗りセル = 穴の入口
+              前面: P1=列2段3=(70,56), P2=列4段1=(130,116)
+              右面: Q1=行2段3=(70,56), Q2=行3段2=(100,86)
+              上面: R1=列2行2=(70,86), R2=列3行3=(100,56)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】各面から見た穴の入口の位置（黒いマス）</div>
+                <div class="figure-content">
+                    <svg width="580" height="215" viewBox="0 0 580 215">
+                        <!-- 前面図: 横=列(左→右)・縦=段(下→上) -->
+                        <g transform="translate(10, 10)">
+                            <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">前面から見た図</text>
+                            <rect x="70" y="56" width="30" height="30" fill="#222"/>
+                            <rect x="130" y="116" width="30" height="30" fill="#222"/>
+                            <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                            <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                            <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                            <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:段（下→上）</text>
+                            <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">P1＝列2・段3　P2＝列4・段1</text>
+                        </g>
+                        <!-- 右面図: 横=行(手前→奥)・縦=段(下→上) -->
+                        <g transform="translate(205, 10)">
+                            <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">右面から見た図</text>
+                            <rect x="70" y="56" width="30" height="30" fill="#222"/>
+                            <rect x="100" y="86" width="30" height="30" fill="#222"/>
+                            <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                            <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                            <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                            <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:行（手前→奥） 縦:段（下→上）</text>
+                            <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">Q1＝行2・段3　Q2＝行3・段2</text>
+                        </g>
+                        <!-- 上面図: 横=列(左→右)・縦=行(下が手前) -->
+                        <g transform="translate(400, 10)">
+                            <text x="100" y="16" class="svg-text" text-anchor="middle" font-weight="bold">上面から見た図</text>
+                            <rect x="70" y="86" width="30" height="30" fill="#222"/>
+                            <rect x="100" y="56" width="30" height="30" fill="#222"/>
+                            <rect x="40" y="26" width="120" height="120" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="26" x2="70" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="100" y1="26" x2="100" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="130" y1="26" x2="130" y2="146" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="56" x2="160" y2="56" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="86" x2="160" y2="86" stroke="black" stroke-width="1"/>
+                            <line x1="40" y1="116" x2="160" y2="116" stroke="black" stroke-width="1"/>
+                            <text x="32" y="45" class="svg-text" text-anchor="end" font-size="12">4</text>
+                            <text x="32" y="75" class="svg-text" text-anchor="end" font-size="12">3</text>
+                            <text x="32" y="105" class="svg-text" text-anchor="end" font-size="12">2</text>
+                            <text x="32" y="135" class="svg-text" text-anchor="end" font-size="12">1</text>
+                            <text x="55" y="160" class="svg-text" text-anchor="middle" font-size="12">1</text>
+                            <text x="85" y="160" class="svg-text" text-anchor="middle" font-size="12">2</text>
+                            <text x="115" y="160" class="svg-text" text-anchor="middle" font-size="12">3</text>
+                            <text x="145" y="160" class="svg-text" text-anchor="middle" font-size="12">4</text>
+                            <text x="100" y="178" class="svg-text" text-anchor="middle" font-size="11">横:列（左→右） 縦:行（下が手前）</text>
+                            <text x="100" y="194" class="svg-text" text-anchor="middle" font-size="11">R1＝列2・行2　R2＝列3・行3</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>40個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>41個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>42個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>43個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>44個
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>小立方体の位置を（列, 行, 段）で表す。各穴は4個の小立方体を取り除くので、単純計算では 4個 × 6本 ＝ 24個 だが、複数の穴が通る小立方体の重複を正確に処理する必要がある。</p>
+                    <br>
+                    <p><strong>【各穴が通る小立方体】</strong></p>
+                    <p>・P<sub>1</sub>（列2・段3、行方向）: (2, 1〜4, 3)　・P<sub>2</sub>（列4・段1、行方向）: (4, 1〜4, 1)</p>
+                    <p>・Q<sub>1</sub>（行2・段3、列方向）: (1〜4, 2, 3)　・Q<sub>2</sub>（行3・段2、列方向）: (1〜4, 3, 2)</p>
+                    <p>・R<sub>1</sub>（列2・行2、段方向）: (2, 2, 1〜4)　・R<sub>2</sub>（列3・行3、段方向）: (3, 3, 1〜4)</p>
+                    <br>
+                    <p><strong>【交わりの洗い出し】</strong></p>
+                    <p>2本の穴が交わるのは、列・行・段の3つの座標がすべて一致する場合である。</p>
+                    <p>・P<sub>1</sub>∩Q<sub>1</sub> ＝ (2, 2, 3)　・P<sub>1</sub>∩R<sub>1</sub> ＝ (2, 2, 3)　・Q<sub>1</sub>∩R<sub>1</sub> ＝ (2, 2, 3)</p>
+                    <p>　→ P<sub>1</sub>・Q<sub>1</sub>・R<sub>1</sub> の3本は、すべて同じ小立方体 (2, 2, 3) を通る（三重交差）。</p>
+                    <p>・Q<sub>2</sub>∩R<sub>2</sub> ＝ (3, 3, 2)（二重交差）</p>
+                    <p>・P<sub>2</sub> は段1・列4を通るが、Q<sub>1</sub>・Q<sub>2</sub>（段3・段2）、R<sub>1</sub>（列2）、R<sub>2</sub>（列3）とは座標が合わず交わらない。その他の組も同様に交わらない。</p>
+                    <br>
+                    <p><strong>【包除原理による計算】</strong></p>
+                    <p>取り除かれる個数 ＝ 24 −（2本の交わり4組: 各1個）＋（3本の交わり1個）＝ 24 − 4 ＋ 1 ＝ <strong>21個</strong></p>
+                    <p>※ (2, 2, 3) は3本の穴で3回数えられているため、ペアの引き算（3回）だけでは引きすぎになり、1回足し戻す必要がある。</p>
+                    <p>残っている小立方体 ＝ 64 − 21 ＝ <strong>43個</strong></p>
+                    <br>
+                    <p><strong>【主な誤答】</strong></p>
+                    <p>・(1) 40個 ＝ 64 − 24（交わりをすべて見落とし）　・(3) 42個（三重交差点を1回しか引かない）　・(5) 44個（三重交差の足し戻しを忘れて 24 − 4 ＝ 20 個とした）</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <!-- 最後の問題では「次の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考212/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
