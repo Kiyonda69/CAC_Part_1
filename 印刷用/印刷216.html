@@ -1,0 +1,356 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図1の立体Aは、1辺が3マスの立方体（小立方体27個）から、いくつかの小立方体を取り除いてできた立体である。この立体Aに、(1)〜(5)のうちのある1つのピースをすき間なくはめ込むと、もとの3×3×3の立方体に戻る。はめ込むことができるピースを一つ選べ。ただし、ピースは向きを自由に回転してよいが、裏返して（鏡に映したように反転させて）使うことはできない。（6点）</div>
+                <div class="figure-container"><div class="figure-title">【図1】立体A（3×3×3から一部を取り除いた立体）</div><div class="figure-content"><svg width="250" height="240" viewBox="0 0 250 240"><polygon points="78.0,141.0 116.0,141.0 136.0,121.0 98.0,121.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="78.0,179.0 116.0,179.0 116.0,141.0 78.0,141.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,179.0 136.0,159.0 136.0,121.0 116.0,141.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,161.0 96.0,161.0 116.0,141.0 78.0,141.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,199.0 96.0,199.0 96.0,161.0 58.0,161.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,199.0 116.0,179.0 116.0,141.0 96.0,161.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="78.0,103.0 116.0,103.0 136.0,83.0 98.0,83.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="78.0,141.0 116.0,141.0 116.0,103.0 78.0,103.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,141.0 136.0,121.0 136.0,83.0 116.0,103.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,141.0 154.0,141.0 174.0,121.0 136.0,121.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,179.0 154.0,179.0 154.0,141.0 116.0,141.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,179.0 174.0,159.0 174.0,121.0 154.0,141.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="38.0,181.0 76.0,181.0 96.0,161.0 58.0,161.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="38.0,219.0 76.0,219.0 76.0,181.0 38.0,181.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="76.0,219.0 96.0,199.0 96.0,161.0 76.0,181.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,123.0 96.0,123.0 116.0,103.0 78.0,103.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,161.0 96.0,161.0 96.0,123.0 58.0,123.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,161.0 116.0,141.0 116.0,103.0 96.0,123.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="78.0,65.0 116.0,65.0 136.0,45.0 98.0,45.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="78.0,103.0 116.0,103.0 116.0,65.0 78.0,65.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,103.0 136.0,83.0 136.0,45.0 116.0,65.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,161.0 134.0,161.0 154.0,141.0 116.0,141.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,199.0 134.0,199.0 134.0,161.0 96.0,161.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,199.0 154.0,179.0 154.0,141.0 134.0,161.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,103.0 154.0,103.0 174.0,83.0 136.0,83.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,141.0 154.0,141.0 154.0,103.0 116.0,103.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,141.0 174.0,121.0 174.0,83.0 154.0,103.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,141.0 192.0,141.0 212.0,121.0 174.0,121.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,179.0 192.0,179.0 192.0,141.0 154.0,141.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="192.0,179.0 212.0,159.0 212.0,121.0 192.0,141.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,85.0 96.0,85.0 116.0,65.0 78.0,65.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="58.0,123.0 96.0,123.0 96.0,85.0 58.0,85.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,123.0 116.0,103.0 116.0,65.0 96.0,85.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="76.0,181.0 114.0,181.0 134.0,161.0 96.0,161.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="76.0,219.0 114.0,219.0 114.0,181.0 76.0,181.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,219.0 134.0,199.0 134.0,161.0 114.0,181.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,123.0 134.0,123.0 154.0,103.0 116.0,103.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,161.0 134.0,161.0 134.0,123.0 96.0,123.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,161.0 154.0,141.0 154.0,103.0 134.0,123.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,65.0 154.0,65.0 174.0,45.0 136.0,45.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="116.0,103.0 154.0,103.0 154.0,65.0 116.0,65.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,103.0 174.0,83.0 174.0,45.0 154.0,65.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,161.0 172.0,161.0 192.0,141.0 154.0,141.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,199.0 172.0,199.0 172.0,161.0 134.0,161.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="172.0,199.0 192.0,179.0 192.0,141.0 172.0,161.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,103.0 192.0,103.0 212.0,83.0 174.0,83.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,141.0 192.0,141.0 192.0,103.0 154.0,103.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="192.0,141.0 212.0,121.0 212.0,83.0 192.0,103.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="76.0,143.0 114.0,143.0 134.0,123.0 96.0,123.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="76.0,181.0 114.0,181.0 114.0,143.0 76.0,143.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,181.0 134.0,161.0 134.0,123.0 114.0,143.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,85.0 134.0,85.0 154.0,65.0 116.0,65.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="96.0,123.0 134.0,123.0 134.0,85.0 96.0,85.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,123.0 154.0,103.0 154.0,65.0 134.0,85.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,181.0 152.0,181.0 172.0,161.0 134.0,161.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,219.0 152.0,219.0 152.0,181.0 114.0,181.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="152.0,219.0 172.0,199.0 172.0,161.0 152.0,181.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,123.0 172.0,123.0 192.0,103.0 154.0,103.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="134.0,161.0 172.0,161.0 172.0,123.0 134.0,123.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="172.0,161.0 192.0,141.0 192.0,103.0 172.0,123.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,65.0 192.0,65.0 212.0,45.0 174.0,45.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="154.0,103.0 192.0,103.0 192.0,65.0 154.0,65.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="192.0,103.0 212.0,83.0 212.0,45.0 192.0,65.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,143.0 152.0,143.0 172.0,123.0 134.0,123.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="114.0,181.0 152.0,181.0 152.0,143.0 114.0,143.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="152.0,181.0 172.0,161.0 172.0,123.0 152.0,143.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg></div></div>
+                <div class="figure-container"><div class="figure-title">【図2】はめ込むピースの候補</div><div class="figure-content"><svg width="625" height="150" viewBox="0 0 625 150"><g transform="translate(0,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(1)</text><polygon points="-4.5,97.0 33.5,97.0 53.5,77.0 15.5,77.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,135.0 33.5,135.0 33.5,97.0 -4.5,97.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,135.0 53.5,115.0 53.5,77.0 33.5,97.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,59.0 33.5,59.0 53.5,39.0 15.5,39.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,97.0 33.5,97.0 33.5,59.0 -4.5,59.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,97.0 53.5,77.0 53.5,39.0 33.5,59.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,59.0 71.5,59.0 91.5,39.0 53.5,39.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,97.0 71.5,97.0 71.5,59.0 33.5,59.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,97.0 91.5,77.0 91.5,39.0 71.5,59.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,97.0 109.5,97.0 129.5,77.0 91.5,77.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,135.0 109.5,135.0 109.5,97.0 71.5,97.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,135.0 129.5,115.0 129.5,77.0 109.5,97.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,59.0 109.5,59.0 129.5,39.0 91.5,39.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,97.0 109.5,97.0 109.5,59.0 71.5,59.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,97.0 129.5,77.0 129.5,39.0 109.5,59.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(125,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(2)</text><polygon points="15.5,49.0 53.5,49.0 73.5,29.0 35.5,29.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="15.5,87.0 53.5,87.0 53.5,49.0 15.5,49.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,87.0 73.5,67.0 73.5,29.0 53.5,49.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,69.0 33.5,69.0 53.5,49.0 15.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,107.0 33.5,107.0 33.5,69.0 -4.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,107.0 53.5,87.0 53.5,49.0 33.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,69.0 71.5,69.0 91.5,49.0 53.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,107.0 71.5,107.0 71.5,69.0 33.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,107.0 91.5,87.0 91.5,49.0 71.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,107.0 109.5,107.0 129.5,87.0 91.5,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,145.0 109.5,145.0 109.5,107.0 71.5,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,145.0 129.5,125.0 129.5,87.0 109.5,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,69.0 109.5,69.0 129.5,49.0 91.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,107.0 109.5,107.0 109.5,69.0 71.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,107.0 129.5,87.0 129.5,49.0 109.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(250,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(3)</text><polygon points="15.5,68.0 53.5,68.0 73.5,48.0 35.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="15.5,106.0 53.5,106.0 53.5,68.0 15.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,106.0 73.5,86.0 73.5,48.0 53.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,88.0 33.5,88.0 53.5,68.0 15.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,126.0 33.5,126.0 33.5,88.0 -4.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,126.0 53.5,106.0 53.5,68.0 33.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,68.0 91.5,68.0 111.5,48.0 73.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,106.0 91.5,106.0 91.5,68.0 53.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="91.5,106.0 111.5,86.0 111.5,48.0 91.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,88.0 71.5,88.0 91.5,68.0 53.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,126.0 71.5,126.0 71.5,88.0 33.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,126.0 91.5,106.0 91.5,68.0 71.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,88.0 109.5,88.0 129.5,68.0 91.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,126.0 109.5,126.0 109.5,88.0 71.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,126.0 129.5,106.0 129.5,68.0 109.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(375,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(4)</text><polygon points="-14.5,107.0 23.5,107.0 43.5,87.0 5.5,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,145.0 23.5,145.0 23.5,107.0 -14.5,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,145.0 43.5,125.0 43.5,87.0 23.5,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,69.0 23.5,69.0 43.5,49.0 5.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,107.0 23.5,107.0 23.5,69.0 -14.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,107.0 43.5,87.0 43.5,49.0 23.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,69.0 61.5,69.0 81.5,49.0 43.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,107.0 61.5,107.0 61.5,69.0 23.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,107.0 81.5,87.0 81.5,49.0 61.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,49.0 119.5,49.0 139.5,29.0 101.5,29.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,87.0 119.5,87.0 119.5,49.0 81.5,49.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="119.5,87.0 139.5,67.0 139.5,29.0 119.5,49.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,69.0 99.5,69.0 119.5,49.0 81.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,107.0 99.5,107.0 99.5,69.0 61.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="99.5,107.0 119.5,87.0 119.5,49.0 99.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(500,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(5)</text><polygon points="-14.5,69.0 23.5,69.0 43.5,49.0 5.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,107.0 23.5,107.0 23.5,69.0 -14.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,107.0 43.5,87.0 43.5,49.0 23.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,69.0 61.5,69.0 81.5,49.0 43.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,107.0 61.5,107.0 61.5,69.0 23.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,107.0 81.5,87.0 81.5,49.0 61.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,107.0 99.5,107.0 119.5,87.0 81.5,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,145.0 99.5,145.0 99.5,107.0 61.5,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="99.5,145.0 119.5,125.0 119.5,87.0 99.5,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,49.0 119.5,49.0 139.5,29.0 101.5,29.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,87.0 119.5,87.0 119.5,49.0 81.5,49.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="119.5,87.0 139.5,67.0 139.5,29.0 119.5,49.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,69.0 99.5,69.0 119.5,49.0 81.5,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,107.0 99.5,107.0 99.5,69.0 61.5,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="99.5,107.0 119.5,87.0 119.5,49.0 99.5,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g></svg></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                    <p>立体Aから取り除かれた部分（穴）の形は、<strong>上面手前のふちに沿った3マスのバー</strong>に、その<strong>一方の端から下へ1マス</strong>、<strong>もう一方の端から奥へ1マス</strong>が付いた立体である。はめ込めるピースは、この穴と<strong>ぴったり同じ形（同じ向きのねじれ）</strong>でなければならない。</p>
+                    <br>
+                    <p>この穴は、下へ伸びる腕と奥へ伸びる腕が「バーの逆の端」に付いた<strong>立体的にねじれた形</strong>で、鏡に映すと左右が入れかわる（裏返さないと重ならない）。これが手がかりである。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 3マスのバーの両端がともに下へ折れた平面的なU字型。穴は平面ではないので合わない。</p>
+                    <p>・(2) 正解と同じ部品だが<strong>鏡像（左右反転）</strong>。下の腕と奥の腕の付く端が逆になっており、裏返しが禁止のため、回転だけでは穴に重ならない。最も間違えやすい罠。</p>
+                    <p>・(3) すべて同じ平面にある平面的なペントミノ。立体的なねじれがなく合わない。</p>
+                    <p>・(4) バーの一方の端から下へ1マス、もう一方の端から奥へ1マス。穴とまったく同じ形なので、回転させてはめ込める。<strong>正解</strong>。</p>
+                    <p>・(5) 下へ1マスと奥へ1マスが<strong>同じ端</strong>に付いた形。穴では別々の端なので合わない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。立体的にねじれた穴と、その鏡像とを見分けられるかが問われている。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．図3の直方体（2×2×3、小立方体12個）を、図4のピースPとピースQ、および(1)〜(5)のうちのもう1つのピースの合計3つで、すき間も重なりもなく組み立てたい。PとQはすでに形が決まっている。残り1つとして適切なピースを一つ選べ。ただし、各ピースは向きを自由に回転してよいが、裏返して使うことはできない。（P・Qはどちらも小立方体4個、選べるピースも小立方体4個からなる。）（6点）</div>
+                <div class="figure-container"><div class="figure-title">【図3】組み立てる直方体（2×2×3）</div><div class="figure-content"><svg width="170" height="220" viewBox="0 0 170 220"><polygon points="47.0,141.0 85.0,141.0 105.0,121.0 67.0,121.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,179.0 85.0,179.0 85.0,141.0 47.0,141.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,179.0 105.0,159.0 105.0,121.0 85.0,141.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,161.0 65.0,161.0 85.0,141.0 47.0,141.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,199.0 65.0,199.0 65.0,161.0 27.0,161.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,199.0 85.0,179.0 85.0,141.0 65.0,161.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,103.0 85.0,103.0 105.0,83.0 67.0,83.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,141.0 85.0,141.0 85.0,103.0 47.0,103.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,141.0 105.0,121.0 105.0,83.0 85.0,103.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,141.0 123.0,141.0 143.0,121.0 105.0,121.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,179.0 123.0,179.0 123.0,141.0 85.0,141.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="123.0,179.0 143.0,159.0 143.0,121.0 123.0,141.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,123.0 65.0,123.0 85.0,103.0 47.0,103.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,161.0 65.0,161.0 65.0,123.0 27.0,123.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,161.0 85.0,141.0 85.0,103.0 65.0,123.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,65.0 85.0,65.0 105.0,45.0 67.0,45.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,103.0 85.0,103.0 85.0,65.0 47.0,65.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,103.0 105.0,83.0 105.0,45.0 85.0,65.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,161.0 103.0,161.0 123.0,141.0 85.0,141.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,199.0 103.0,199.0 103.0,161.0 65.0,161.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="103.0,199.0 123.0,179.0 123.0,141.0 103.0,161.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,103.0 123.0,103.0 143.0,83.0 105.0,83.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,141.0 123.0,141.0 123.0,103.0 85.0,103.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="123.0,141.0 143.0,121.0 143.0,83.0 123.0,103.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,85.0 65.0,85.0 85.0,65.0 47.0,65.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,123.0 65.0,123.0 65.0,85.0 27.0,85.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,123.0 85.0,103.0 85.0,65.0 65.0,85.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,123.0 103.0,123.0 123.0,103.0 85.0,103.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,161.0 103.0,161.0 103.0,123.0 65.0,123.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="103.0,161.0 123.0,141.0 123.0,103.0 103.0,123.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,65.0 123.0,65.0 143.0,45.0 105.0,45.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,103.0 123.0,103.0 123.0,65.0 85.0,65.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="123.0,103.0 143.0,83.0 143.0,45.0 123.0,65.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,85.0 103.0,85.0 123.0,65.0 85.0,65.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,123.0 103.0,123.0 103.0,85.0 65.0,85.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="103.0,123.0 123.0,103.0 123.0,65.0 103.0,85.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg></div></div>
+                <div class="figure-container"><div class="figure-title">【図4】すでに形が決まっている2つのピース</div>
+                <div class="figure-content" style="display:flex;justify-content:center;gap:30px;align-items:flex-end;">
+                <div><div style="font-weight:bold;">ピースP</div><svg width="150" height="170" viewBox="0 0 150 170"><polygon points="47.0,87.0 85.0,87.0 105.0,67.0 67.0,67.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47.0,125.0 85.0,125.0 85.0,87.0 47.0,87.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="85.0,125.0 105.0,105.0 105.0,67.0 85.0,87.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,107.0 65.0,107.0 85.0,87.0 47.0,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,145.0 65.0,145.0 65.0,107.0 27.0,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,145.0 85.0,125.0 85.0,87.0 65.0,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,107.0 103.0,107.0 123.0,87.0 85.0,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,145.0 103.0,145.0 103.0,107.0 65.0,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="103.0,145.0 123.0,125.0 123.0,87.0 103.0,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,69.0 65.0,69.0 85.0,49.0 47.0,49.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="27.0,107.0 65.0,107.0 65.0,69.0 27.0,69.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="65.0,107.0 85.0,87.0 85.0,49.0 65.0,69.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+                <div><div style="font-weight:bold;">ピースQ</div><svg width="150" height="170" viewBox="0 0 150 170"><polygon points="17.0,117.0 55.0,117.0 75.0,97.0 37.0,97.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="17.0,155.0 55.0,155.0 55.0,117.0 17.0,117.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="55.0,155.0 75.0,135.0 75.0,97.0 55.0,117.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="75.0,97.0 113.0,97.0 133.0,77.0 95.0,77.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="75.0,135.0 113.0,135.0 113.0,97.0 75.0,97.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="113.0,135.0 133.0,115.0 133.0,77.0 113.0,97.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="55.0,117.0 93.0,117.0 113.0,97.0 75.0,97.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="55.0,155.0 93.0,155.0 93.0,117.0 55.0,117.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="93.0,155.0 113.0,135.0 113.0,97.0 93.0,117.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="75.0,59.0 113.0,59.0 133.0,39.0 95.0,39.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="75.0,97.0 113.0,97.0 113.0,59.0 75.0,59.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="113.0,97.0 133.0,77.0 133.0,39.0 113.0,59.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
+                </div></div>
+                <div class="figure-container"><div class="figure-title">【図5】残り1つのピースの候補</div><div class="figure-content"><svg width="625" height="150" viewBox="0 0 625 150"><g transform="translate(0,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(1)</text><polygon points="-14.5,88.0 23.5,88.0 43.5,68.0 5.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,126.0 23.5,126.0 23.5,88.0 -14.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,126.0 43.5,106.0 43.5,68.0 23.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="43.5,68.0 81.5,68.0 101.5,48.0 63.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="43.5,106.0 81.5,106.0 81.5,68.0 43.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,106.0 101.5,86.0 101.5,48.0 81.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,88.0 61.5,88.0 81.5,68.0 43.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,126.0 61.5,126.0 61.5,88.0 23.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,126.0 81.5,106.0 81.5,68.0 61.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,68.0 119.5,68.0 139.5,48.0 101.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,106.0 119.5,106.0 119.5,68.0 81.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="119.5,106.0 139.5,86.0 139.5,48.0 119.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(125,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(2)</text><polygon points="24.5,68.0 62.5,68.0 82.5,48.0 44.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="24.5,106.0 62.5,106.0 62.5,68.0 24.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="62.5,106.0 82.5,86.0 82.5,48.0 62.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="4.5,88.0 42.5,88.0 62.5,68.0 24.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="4.5,126.0 42.5,126.0 42.5,88.0 4.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="42.5,126.0 62.5,106.0 62.5,68.0 42.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="62.5,68.0 100.5,68.0 120.5,48.0 82.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="62.5,106.0 100.5,106.0 100.5,68.0 62.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="100.5,106.0 120.5,86.0 120.5,48.0 100.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="42.5,88.0 80.5,88.0 100.5,68.0 62.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="42.5,126.0 80.5,126.0 80.5,88.0 42.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="80.5,126.0 100.5,106.0 100.5,68.0 80.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(250,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(3)</text><polygon points="-4.5,88.0 33.5,88.0 53.5,68.0 15.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-4.5,126.0 33.5,126.0 33.5,88.0 -4.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,126.0 53.5,106.0 53.5,68.0 33.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,68.0 91.5,68.0 111.5,48.0 73.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="53.5,106.0 91.5,106.0 91.5,68.0 53.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="91.5,106.0 111.5,86.0 111.5,48.0 91.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,88.0 71.5,88.0 91.5,68.0 53.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="33.5,126.0 71.5,126.0 71.5,88.0 33.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,126.0 91.5,106.0 91.5,68.0 71.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,88.0 109.5,88.0 129.5,68.0 91.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71.5,126.0 109.5,126.0 109.5,88.0 71.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="109.5,126.0 129.5,106.0 129.5,68.0 109.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(375,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(4)</text><polygon points="34.5,87.0 72.5,87.0 92.5,67.0 54.5,67.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="34.5,125.0 72.5,125.0 72.5,87.0 34.5,87.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="72.5,125.0 92.5,105.0 92.5,67.0 72.5,87.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="14.5,107.0 52.5,107.0 72.5,87.0 34.5,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="14.5,145.0 52.5,145.0 52.5,107.0 14.5,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="52.5,145.0 72.5,125.0 72.5,87.0 52.5,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="34.5,49.0 72.5,49.0 92.5,29.0 54.5,29.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="34.5,87.0 72.5,87.0 72.5,49.0 34.5,49.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="72.5,87.0 92.5,67.0 92.5,29.0 72.5,49.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="52.5,107.0 90.5,107.0 110.5,87.0 72.5,87.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="52.5,145.0 90.5,145.0 90.5,107.0 52.5,107.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="90.5,145.0 110.5,125.0 110.5,87.0 90.5,107.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g><g transform="translate(500,0)"><text x="62.5" y="16" text-anchor="middle" font-size="15" font-weight="bold">(5)</text><polygon points="-14.5,88.0 23.5,88.0 43.5,68.0 5.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="-14.5,126.0 23.5,126.0 23.5,88.0 -14.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,126.0 43.5,106.0 43.5,68.0 23.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,88.0 61.5,88.0 81.5,68.0 43.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23.5,126.0 61.5,126.0 61.5,88.0 23.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,126.0 81.5,106.0 81.5,68.0 61.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,68.0 119.5,68.0 139.5,48.0 101.5,48.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="81.5,106.0 119.5,106.0 119.5,68.0 81.5,68.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="119.5,106.0 139.5,86.0 139.5,48.0 119.5,68.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,88.0 99.5,88.0 119.5,68.0 81.5,68.0" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="61.5,126.0 99.5,126.0 99.5,88.0 61.5,88.0" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="99.5,126.0 119.5,106.0 119.5,68.0 99.5,88.0" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></g></svg></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                    <p>直方体は小立方体12個ぶん。ピースPとQはそれぞれ4個なので、残りのピースも4個で、PとQを置いたあとに残る<strong>4マスのすき間にぴったり収まる形</strong>を選べばよい。</p>
+                    <br>
+                    <p>Pは1つの角から3方向（縦・横・高さ）へ腕が伸びた「三脚型」、Qは平面の3マスの端から1マスだけ高さ方向へ立ち上がった「ねじれ型」である。この2つを直方体の中にうまく置くと、残るすき間は必ず<strong>平面的なT字型（まっすぐ3マス＋中央から1マス）</strong>になる。</p>
+                    <br>
+                    <p>たとえば、Tを直方体の手前左の縦1列3マスと、その中段から右へ1マス出た形に置くと、残りにPの三脚型とQのねじれ型がちょうど収まる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) S字型（平面）。段違いに折れた形で、残るすき間に入らない。</p>
+                    <p>・(2) 田型（2×2の正方形）。平らな四角で、すき間の形と合わない。</p>
+                    <p>・(3) T字型（平面）。残る4マスのすき間とぴったり一致する。<strong>正解</strong>。</p>
+                    <p>・(4) ねじれ型だがQの<strong>鏡像（逆向きのねじれ）</strong>。裏返しが禁止のため、すき間を埋められない。立体のねじれの向きを見分ける罠。</p>
+                    <p>・(5) L字型（平面）。かぎ型に折れた形で、すき間に入らない。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。立体を組み合わせたときに残る空間の形を、頭の中で正確に思い描けるかが問われている。</p>
+            </div>
+        </div>
+    </div>
+
