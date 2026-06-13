@@ -1,118 +1,137 @@
 #!/usr/bin/env python3
-"""航大思考216 検証コード: 立体表面の最短経路（展開図で直線化）
+"""航大思考216 検証コード: 立体ピースの嵌め合わせ（計算を使わない空間認識）
 
-問1: 直方体（縦4cm・横3cm・高さ2cm）の頂点Aから対角頂点Gまで、
-     表面を伝う最短経路の長さを求める。
-問2: 正四角柱（底面1辺3cm・高さ8cm）の下底頂点Aから真上の上底頂点A'まで、
-     側面をちょうど2周巻き付けるひもの最短の長さを求める。
+問1: 3×3×3立方体から5マス欠けた立体Aに、ぴったり嵌めて立方体を完成させる
+     ピースを5つの候補から選ぶ。回転は自由、裏返し（鏡映）は不可。
+問2: 2×2×3の直方体を3つのピース（各4マス）で組み立てる。ピースP・Qが
+     与えられ、残り1つのピースを5つの候補から選ぶ。回転は自由。
 """
-import math
+import itertools
+
+
+def rotations24():
+    """3次元の回転24種（軸の置換と符号で行列式+1のもの）"""
+    mats = []
+    for p in itertools.permutations(range(3)):
+        for signs in itertools.product([1, -1], repeat=3):
+            inv = sum(1 for i in range(3) for j in range(i + 1, 3) if p[i] > p[j])
+            det = (-1) ** inv * signs[0] * signs[1] * signs[2]
+            if det == 1:
+                mats.append((p, signs))
+    return mats
+
+
+ROTS = rotations24()
+
+
+def rotate(cells, rot):
+    p, s = rot
+    return frozenset(tuple(s[i] * c[p[i]] for i in range(3)) for c in cells)
+
+
+def normalize(cells):
+    mn = [min(c[i] for c in cells) for i in range(3)]
+    return frozenset(tuple(c[i] - mn[i] for i in range(3)) for c in cells)
+
+
+def all_orientations(cells):
+    """回転24種の正規化形（鏡映は含まない）"""
+    return {normalize(rotate(frozenset(cells), r)) for r in ROTS}
+
+
+def fits_exactly(piece, cavity):
+    """pieceを回転・平行移動して空洞cavityと完全一致できるか"""
+    return normalize(frozenset(cavity)) in all_orientations(piece)
+
+
+def mirror(cells):
+    return frozenset((-x, y, z) for (x, y, z) in cells)
+
+
+# ========== 問1 ==========
+# 座標系: x=右(1..3), y=奥(1..3), z=上(1..3)
+# 欠け: 上面手前の1列3マス ＋ 左端の1段下 ＋ 右端の1マス奥
+CAVITY = frozenset({(3, 1, 3), (2, 1, 3), (1, 1, 3), (1, 1, 2), (3, 2, 3)})
+
+Q1_OPTIONS = {
+    1: ("U字型（バー3の両端に下向き1）",
+        frozenset({(1, 1, 2), (2, 1, 2), (3, 1, 2), (1, 1, 1), (3, 1, 1)})),
+    2: ("鏡像（正解を裏返した形）", mirror(CAVITY)),
+    3: ("平面P型ペントミノ",
+        frozenset({(1, 1, 1), (2, 1, 1), (3, 1, 1), (1, 2, 1), (2, 2, 1)})),
+    4: ("正解（バー3・一端に下1・他端に奥1）", CAVITY),
+    5: ("同端型（バー3・同じ端に下1と奥1）",
+        frozenset({(1, 1, 3), (2, 1, 3), (3, 1, 3), (3, 1, 2), (3, 2, 3)})),
+}
 
 
 def verify_q1():
-    """問1: 直方体 4x3x2 の対角頂点間の表面最短経路。
+    # 正解ピースがキラル＝鏡像ピースは回転だけでは一致しないことを確認
+    assert normalize(mirror(CAVITY)) not in all_orientations(CAVITY), \
+        "欠け形状がアキラルのため鏡像の罠が成立しない"
 
-    展開の仕方は3通り（どの2辺を「合算」するか）。
-    さらに数値的に経路を離散化して、展開図の最良値と一致することを確認する。
-    """
-    a, b, c = 4, 3, 2
-    candidates = {
-        "(a+b)とc": math.sqrt((a + b) ** 2 + c ** 2),  # √53
-        "(a+c)とb": math.sqrt((a + c) ** 2 + b ** 2),  # √45
-        "(b+c)とa": math.sqrt((b + c) ** 2 + a ** 2),  # √41
-    }
-    best_name = min(candidates, key=candidates.get)
-    best = candidates[best_name]
+    fitting = [n for n, (_, piece) in Q1_OPTIONS.items()
+               if fits_exactly(piece, CAVITY)]
+    assert fitting == [4], f"嵌まるピースが一意でない: {fitting}"
+    print("問1: 嵌まるピースは選択肢(4)の形状のみ（鏡像・U字・同端型・平面P型は不一致）")
+    for n, (name, piece) in Q1_OPTIONS.items():
+        print(f"  形状{n} {name}: 嵌まる={fits_exactly(piece, CAVITY)}")
 
-    # 数値検証: 2面をまたぐ経路を、共有辺上の通過点 t で離散化して最小化
-    # 展開すると幅 w1+w2・高さ h の長方形上の直線 → √((w1+w2)^2+h^2)
-    def two_face_min(w1, w2, h):
-        best_num = float("inf")
-        for i in range(100001):
-            t = h * i / 100000
-            d = math.sqrt(w1 ** 2 + t ** 2) + math.sqrt(w2 ** 2 + (h - t) ** 2)
-            best_num = min(best_num, d)
-        return best_num
 
-    num_results = [
-        two_face_min(b, c, a),  # 共有辺 a をまたぐ
-        two_face_min(a, c, b),  # 共有辺 b をまたぐ
-        two_face_min(a, b, c),  # 共有辺 c をまたぐ
-    ]
-    num_best = min(num_results)
-    assert abs(num_best - best) < 1e-4, f"数値検証不一致: {num_best} vs {best}"
+# ========== 問2 ==========
+BOX = frozenset((x, y, z) for x in (0, 1) for y in (0, 1) for z in (0, 1, 2))
 
-    traps = {
-        "√53 (4+3を合算)": math.sqrt(53),
-        "√45 (4+2を合算)": math.sqrt(45),
-        "9 (辺伝い 4+3+2)": a + b + c,
-        "√29 (内部の対角線)": math.sqrt(a * a + b * b + c * c),
-    }
-    for name, v in traps.items():
-        assert abs(v - best) > 0.1, f"罠 {name} が正解に近すぎる"
+P_TRIPOD = frozenset({(0, 0, 0), (1, 0, 0), (0, 1, 0), (0, 0, 1)})   # 三脚型
+Q_SKEW_L = frozenset({(0, 0, 0), (1, 0, 0), (1, 1, 0), (1, 1, 1)})   # ねじれ型(左)
 
-    print(f"問1 正解: √41 = {best:.4f} cm（展開 {best_name}）")
-    print(f"  数値最小化との一致確認 OK ({num_best:.4f})")
-    for name, v in sorted(traps.items(), key=lambda kv: kv[1]):
-        print(f"  罠: {name} = {v:.4f}")
-    return best
+Q2_OPTIONS = {
+    1: ("S字型（平面）", frozenset({(0, 0, 0), (1, 0, 0), (1, 1, 0), (2, 1, 0)})),
+    2: ("田型（2×2平面）", frozenset({(0, 0, 0), (1, 0, 0), (0, 1, 0), (1, 1, 0)})),
+    3: ("T字型（平面）", frozenset({(0, 0, 0), (1, 0, 0), (2, 0, 0), (1, 1, 0)})),
+    4: ("ねじれ型(右)＝Qの鏡像", mirror(Q_SKEW_L)),
+    5: ("L字型（平面）", frozenset({(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0)})),
+}
+
+
+def placements(piece, region):
+    """region内に収まるpieceの全配置（回転24種×平行移動）"""
+    out = set()
+    lo = [min(c[i] for c in region) for i in range(3)]
+    hi = [max(c[i] for c in region) for i in range(3)]
+    for ori in all_orientations(piece):
+        for dx in range(lo[0], hi[0] + 1):
+            for dy in range(lo[1], hi[1] + 1):
+                for dz in range(lo[2], hi[2] + 1):
+                    t = frozenset((c[0] + dx, c[1] + dy, c[2] + dz) for c in ori)
+                    if t <= region:
+                        out.add(t)
+    return out
+
+
+def can_complete(third):
+    """P・Q・thirdの3ピースでBOXを過不足なく組めるか（総当たり）"""
+    for a in placements(P_TRIPOD, BOX):
+        for b in placements(Q_SKEW_L, BOX - a):
+            rest = BOX - a - b
+            if normalize(rest) in all_orientations(third):
+                return True
+    return False
 
 
 def verify_q2():
-    """問2: 正四角柱（底面1辺3・高さ8）の側面をちょうど2周するひもの最短長。
+    # Qがキラル＝鏡像（選択肢のねじれ型(右)）はQと回転で一致しないことを確認
+    assert normalize(mirror(Q_SKEW_L)) not in all_orientations(Q_SKEW_L), \
+        "Qがアキラルのため鏡像の罠が成立しない"
 
-    側面を2周分展開すると 幅24×高さ8 の長方形 → 直線 √(24²+8²) = 8√10。
-    数値検証: 経路は8枚の面を順に通過し、7本の縦の辺を横切る。
-    各辺上の通過高さを変数として総延長を座標降下法で最小化する。
-    """
-    s, h = 3, 8
-    n_faces = 8  # 2周 = 4面 × 2
-    exact = math.sqrt((n_faces * s) ** 2 + h ** 2)  # 8√10
-
-    xs = [i * s for i in range(n_faces + 1)]
-    ys = [0.0] * (n_faces + 1)
-    ys[n_faces] = float(h)  # 始点(0,0)・終点(24,8)、中間は0から最適化
-
-    def total(ys_):
-        return sum(
-            math.hypot(xs[i + 1] - xs[i], ys_[i + 1] - ys_[i])
-            for i in range(n_faces)
-        )
-
-    for _ in range(200):  # 座標降下法 + 三分探索
-        for i in range(1, n_faces):
-            lo, hi = 0.0, float(h)
-            for _ in range(60):
-                m1 = lo + (hi - lo) / 3
-                m2 = hi - (hi - lo) / 3
-                y1, y2 = list(ys), list(ys)
-                y1[i], y2[i] = m1, m2
-                if total(y1) < total(y2):
-                    hi = m2
-                else:
-                    lo = m1
-            ys[i] = (lo + hi) / 2
-    num_best = total(ys)
-    assert abs(num_best - exact) < 1e-4, f"数値検証不一致: {num_best} vs {exact}"
-
-    traps = {
-        "20 (1周で高さ2倍と誤計算 √(12²+16²))": math.sqrt(12 ** 2 + 16 ** 2),
-        "4√13 (1周のみ √(12²+8²))": math.sqrt(12 ** 2 + 8 ** 2),
-        "8√13 (1周√208を2倍)": 2 * math.sqrt(12 ** 2 + 8 ** 2),
-        "32 (辺伝い 24+8)": 24 + 8,
-    }
-    for name, v in traps.items():
-        assert abs(v - exact) > 0.1, f"罠 {name} が正解に近すぎる"
-
-    print(f"問2 正解: 8√10 = {exact:.4f} cm")
-    print(f"  数値最小化との一致確認 OK ({num_best:.4f})")
-    for name, v in sorted(traps.items(), key=lambda kv: kv[1]):
-        print(f"  罠: {name} = {v:.4f}")
-    return exact
+    completing = [n for n, (_, piece) in Q2_OPTIONS.items() if can_complete(piece)]
+    assert completing == [3], f"完成できるピースが一意でない: {completing}"
+    print("問2: 直方体を完成できる第3ピースは選択肢(3)のT字型のみ")
+    for n, (name, piece) in Q2_OPTIONS.items():
+        print(f"  形状{n} {name}: 完成可能={can_complete(piece)}")
 
 
 if __name__ == "__main__":
     verify_q1()
     print()
     verify_q2()
-    print("\n検証完了: 両問とも展開図による厳密解と数値最小化が一致（唯一解）")
+    print("\n検証完了: 両問とも全候補の総当たり（回転24種×全配置）で唯一解を確認")
