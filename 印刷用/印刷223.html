@@ -1,0 +1,506 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <!--
+                印刷用では問題番号と問題文を一体で記述
+                配点は末尾に括弧で記載
+                -->
+                <div class="question-number">問1．下の【図1】は、ある飛行場を真上から見た地図である。地図は北を上、東を右とする。パイロットの自機（◆）は地図の位置にあり、機首を真東（東向き、図の矢印の方向）に向けて止まっている。パイロットが操縦席の正面の窓から前方（機首の向く側）を見たとき、4つの施設 A〜D は左から右へどの順に並んで見えるか。正しい並びを下の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様: 北を上とした飛行場の地図（正射図）
+                - SVGサイズ: 520x300px / viewBox 0 0 520 300
+                - 原点(自機): 画面(130,165)、1単位=38px、北が上(y減算)
+                - 自機は機首を東(右)に向ける。前方=東。北上の地図では、東を向くと北側が左・南側が右に見える。
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】飛行場の地図（北が上・自機は東向き）</div>
+                    <div class="figure-content">
+                        <svg width="520" height="300" viewBox="0 0 520 300">
+                            <rect x="2" y="2" width="516" height="296" fill="none" stroke="#ccc"/>
+                            <line x1="40" y1="74" x2="40" y2="40" stroke="#000" stroke-width="2"/><polygon points="40,34 34,46 46,46" fill="#000"/><text x="40" y="92" class="svg-text" text-anchor="middle" font-weight="bold">北</text>
+                            <line x1="130" y1="165" x2="200" y2="165" stroke="#111" stroke-width="2.5" stroke-dasharray="6,4"/><polygon points="200,165 190,171 190,159" fill="#111"/>
+                            <text x="208" y="160" class="svg-text">機首方向（東）</text>
+                            <g transform="translate(130,165) rotate(90) scale(0.6) translate(-45,-56)"><polygon points="45,22 48,50 72,63 48,61 48,80 57,90 45,84 33,90 42,80 42,61 18,63 42,50" fill="#444" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/></g>
+                            <text x="124" y="199" class="svg-text" text-anchor="middle">自機 ◆</text>
+                            <rect x="235" y="80" width="18" height="18" fill="#fff" stroke="#000" stroke-width="2"/><text x="244" y="94" class="svg-text" text-anchor="middle" font-weight="bold">A</text><text x="258" y="94" class="svg-text" text-anchor="start">管制塔</text>
+                            <rect x="197" y="118" width="18" height="18" fill="#fff" stroke="#000" stroke-width="2"/><text x="206" y="132" class="svg-text" text-anchor="middle" font-weight="bold">C</text><text x="220" y="132" class="svg-text" text-anchor="start">ターミナル</text>
+                            <rect x="273" y="194" width="18" height="18" fill="#fff" stroke="#000" stroke-width="2"/><text x="282" y="208" class="svg-text" text-anchor="middle" font-weight="bold">B</text><text x="296" y="208" class="svg-text" text-anchor="start">格納庫</text>
+                            <rect x="311" y="232" width="18" height="18" fill="#fff" stroke="#000" stroke-width="2"/><text x="320" y="246" class="svg-text" text-anchor="middle" font-weight="bold">D</text><text x="334" y="246" class="svg-text" text-anchor="start">給油車</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア（テキスト形式） -->
+                <div class="options">
+                    （左）……（右）の順<br>
+                    (1)　A → B → C → D<br>
+                    (2)　C → A → B → D<br>
+                    (3)　D → B → C → A<br>
+                    (4)　A → C → B → D<br>
+                    (5)　A → C → D → B
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(4))</strong><br>
+                自機は東を向いている。操縦席から前方（東）を見ると、地図の「北側」は自分の左手、「南側」は右手になる。つまり北を上にした地図を、東が上に来るように頭の中で時計回りに90°回し、上＝前方として左右の並びを読み取ればよい。各施設について、機首方向（東）を基準にした左右のずれ（相対方位）を考える。<br><br>
+
+                <strong>【左右の判定】</strong><br>
+                ・前方（東）に対し、より北寄りの施設ほど左、より南寄りの施設ほど右に見える。<br>
+                ・A 管制塔：北へ大きく寄る → もっとも左。<br>
+                ・C ターミナル：やや北寄り → 左から2番目。<br>
+                ・B 格納庫：やや南寄り → 右から2番目。<br>
+                ・D 給油車：南へ大きく寄る → もっとも右。<br><br>
+
+                よって左から右は <strong>A → C → B → D</strong>。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) A→B→C→D：中央2つ（B・C）の左右を取り違えている。<br>
+                ・(2) C→A→B→D：A と C の前後（北寄りの度合い）を逆にしている。<br>
+                ・(3) D→B→C→A：左右をまるごと反転（後方から見た並び）にしてしまっている。<br>
+                ・(4) A→C→B→D：北寄り＝左で正しく並べたもの。正解。<br>
+                ・(5) A→C→D→B：右側 B・D の左右を取り違えている。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の【図2】は、別の飛行場を真上から見た地図である。地図は北を上、東を右とする。自機（◆）は機首を南東（南東向き、図の矢印の方向）に向けて止まっている。パイロットが操縦席の正面の窓から前方（機首の向く側、正面に対して左右90°までの範囲）を見たとき、窓に見える施設を左から右へ並べたものとして正しいものを下の(1)〜(5)から1つ選べ。なお、機首の真横より後ろにある施設は窓には見えないものとする。（6点）</div>
+
+                <!--
+                図表仕様: 北を上とした飛行場の地図（正射図）
+                - SVGサイズ: 500x360px / viewBox 0 0 500 360
+                - 原点(自機): 画面(210,170)、1単位=52px、北が上(y減算)
+                - 自機は機首135°(南東)。前方=南東。T レーダー塔は北西で機首の真後ろ側 → 窓に見えない。
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】飛行場の地図（北が上・自機は南東向き）</div>
+                    <div class="figure-content">
+                        <svg width="500" height="360" viewBox="0 0 500 360">
+                            <rect x="2" y="2" width="496" height="356" fill="none" stroke="#ccc"/>
+                            <line x1="40" y1="74" x2="40" y2="40" stroke="#000" stroke-width="2"/><polygon points="40,34 34,46 46,46" fill="#000"/><text x="40" y="92" class="svg-text" text-anchor="middle" font-weight="bold">北</text>
+                            <line x1="210" y1="170" x2="244" y2="204" stroke="#111" stroke-width="2.5" stroke-dasharray="6,4"/><polygon points="244,204 232,201 241,192" fill="#111"/>
+                            <g transform="translate(210,170) rotate(135) scale(0.6) translate(-45,-56)"><polygon points="45,22 48,50 72,63 48,61 48,80 57,90 45,84 33,90 42,80 42,61 18,63 42,50" fill="#444" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/></g>
+                            <text x="184" y="144" class="svg-text" text-anchor="end">自機 ◆</text>
+                            <text x="132" y="288" class="svg-text" text-anchor="start">機首方向（南東）</text>
+                            <rect x="356" y="212" width="20" height="20" fill="#fff" stroke="#000" stroke-width="2"/><text x="366" y="227" class="svg-text" text-anchor="middle" font-weight="bold">P</text><text x="380" y="227" class="svg-text" text-anchor="start">管制塔</text>
+                            <rect x="408" y="264" width="20" height="20" fill="#fff" stroke="#000" stroke-width="2"/><text x="418" y="279" class="svg-text" text-anchor="middle" font-weight="bold">R</text><text x="432" y="279" class="svg-text" text-anchor="start">格納庫</text>
+                            <rect x="252" y="212" width="20" height="20" fill="#fff" stroke="#000" stroke-width="2"/><text x="262" y="227" class="svg-text" text-anchor="middle" font-weight="bold">S</text><text x="262" y="248" class="svg-text" text-anchor="middle">ターミナル</text>
+                            <rect x="252" y="316" width="20" height="20" fill="#fff" stroke="#000" stroke-width="2"/><text x="262" y="331" class="svg-text" text-anchor="middle" font-weight="bold">Q</text><text x="276" y="331" class="svg-text" text-anchor="start">給油車</text>
+                            <rect x="96" y="56" width="20" height="20" fill="#fff" stroke="#000" stroke-width="2"/><text x="106" y="71" class="svg-text" text-anchor="middle" font-weight="bold">T</text><text x="120" y="71" class="svg-text" text-anchor="start">レーダー塔</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア（テキスト形式） -->
+                <div class="options">
+                    （左）……（右）の順<br>
+                    (1)　P → R → S → Q → T<br>
+                    (2)　T → P → R → S → Q<br>
+                    (3)　Q → S → R → P<br>
+                    (4)　P → S → R → Q<br>
+                    (5)　P → R → S → Q
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                自機の機首は南東（北を0°として時計回りに135°）を向いている。各施設の方位を機首方向からの左右のずれ（相対方位）に直し、（1）真横より後ろにあるものは窓に見えないので除外し、（2）残りを左から右へ並べる。<br><br>
+
+                <strong>【前後の判定】</strong><br>
+                ・T レーダー塔は自機の北西、すなわち機首（南東）のちょうど真後ろ側にある。前方の窓（正面±90°）の外なので<strong>見えない</strong>。これがこの問題の最大のポイント。<br>
+                ・残る P・Q・R・S はいずれも前方側にあり、窓に見える。<br><br>
+
+                <strong>【左右の判定】</strong><br>
+                機首（南東）を基準に、反時計回り側（おおまかに北東寄り）が左、時計回り側（南西寄り）が右になる。<br>
+                ・P 管制塔：もっとも左。<br>
+                ・R 格納庫：左から2番目。<br>
+                ・S ターミナル：ほぼ正面（中央）。<br>
+                ・Q 給油車：もっとも右。<br><br>
+
+                よって窓に見える並びは <strong>P → R → S → Q</strong>（T は含まない）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) P→R→S→Q→T：並び自体は前方側で正しいが、後方の T を加えてしまっている。<br>
+                ・(2) T→P→R→S→Q：見えない T を含め、しかも左端に置いている。<br>
+                ・(3) Q→S→R→P：左右をまるごと反転させている。<br>
+                ・(4) P→S→R→Q：中央の R と S の左右を取り違えている。<br>
+                ・(5) P→R→S→Q：T を正しく除外し、左右の順も正しい。正解。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
