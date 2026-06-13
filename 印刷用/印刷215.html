@@ -1,0 +1,572 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <div class="question-number">問1．ある飛行機が、地点Oから機首方位「北」の状態で水平飛行を開始し、下の手順1〜5の順に飛行した。ここで「旋回」とはその場で機首の向きだけを変える操作であり、「右」「左」は進行方向に向かっての向きを表す。手順5を終えた時点における、地点Oから最終地点までの直線距離と、そのときの機首方位の組合せとして正しいものを、(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【飛行手順】</div>
+                    <div style="text-align: left; display: inline-block; line-height: 2;">
+                        手順1．そのまま 4km 直進する。<br>
+                        手順2．右に 90° 旋回し、6km 直進する。<br>
+                        手順3．左に 90° 旋回し、3km 直進する。<br>
+                        手順4．左に 90° 旋回し、3km 直進する。<br>
+                        手順5．左に 90° 旋回し、3km 直進する。
+                    </div>
+                </div>
+
+                <!-- 図表エリア -->
+                <!--
+                SVGを使用して図表を作成
+                - viewBox: 座標系の定義（x, y, 幅, 高さ）
+                - width/height: 実際の表示サイズ
+
+                【座標系の設計指針】
+                - 各図形は概ね80〜100pxのボックス内に収める
+                - transform="translate(x, y)" でグループを配置
+                - 多角形は polygon points で頂点座標を列挙
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】方位と旋回のきまり</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 500x200px / viewBox: 0 0 500 200 / 余白: 各辺20px
+                        座標系定義:
+                        - 左: 方位図の中心 (105, 100)、主軸の長さ各60px、45°斜線は中心から38px
+                        - 右: 旋回例の原点 (340, 130)、上向き矢印70px（旋回前）、右向き矢印70px（旋回後）
+                        -->
+                        <svg width="500" height="200" viewBox="0 0 500 200">
+                            <!-- 左: 8方位図 -->
+                            <g transform="translate(105, 100)">
+                                <line x1="-38" y1="-38" x2="38" y2="38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="-38" y1="38" x2="38" y2="-38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="0" y1="60" x2="0" y2="-60" stroke="black" stroke-width="1.5"/>
+                                <line x1="-60" y1="0" x2="60" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="0,-60 -5,-49 5,-49" fill="black"/>
+                                <text x="0" y="-70" class="svg-text" text-anchor="middle">北</text>
+                                <text x="74" y="5" class="svg-text" text-anchor="middle">東</text>
+                                <text x="0" y="84" class="svg-text" text-anchor="middle">南</text>
+                                <text x="-74" y="5" class="svg-text" text-anchor="middle">西</text>
+                                <text x="44" y="-44" class="svg-text" font-size="11">北東</text>
+                                <text x="44" y="52" class="svg-text" font-size="11">南東</text>
+                                <text x="-44" y="52" class="svg-text" font-size="11" text-anchor="end">南西</text>
+                                <text x="-44" y="-44" class="svg-text" font-size="11" text-anchor="end">北西</text>
+                            </g>
+                            <!-- 右: 右90°旋回の例 -->
+                            <g transform="translate(340, 130)">
+                                <line x1="0" y1="0" x2="0" y2="-66" stroke="black" stroke-width="2"/>
+                                <polygon points="0,-76 -5,-64 5,-64" fill="black"/>
+                                <line x1="0" y1="0" x2="66" y2="0" stroke="black" stroke-width="2"/>
+                                <polygon points="76,0 64,-5 64,5" fill="black"/>
+                                <path d="M 0 -48 A 48 48 0 0 1 34 -34" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                                <polygon points="40,-28 34,-41 27,-33" fill="#666"/>
+                                <text x="48" y="-52" class="svg-text" font-size="12">右に90°旋回</text>
+                                <text x="0" y="-86" class="svg-text" font-size="12" text-anchor="middle">旋回前（北向き）</text>
+                                <text x="38" y="20" class="svg-text" font-size="12" text-anchor="middle">旋回後（東向き）</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <!--
+                選択肢はSVGで描画し、figure-container内に配置
+                印刷用では枠線なしのシンプルな表示
+                -->
+                <div class="options">
+                    (1)　直線距離 5km ・ 機首方位「南」<br>
+                    (2)　直線距離 4km ・ 機首方位「南」<br>
+                    (3)　直線距離 5km ・ 機首方位「北」<br>
+                    (4)　直線距離 7km ・ 機首方位「南」<br>
+                    (5)　直線距離 5km ・ 機首方位「西」
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(1))</strong><br>
+                機首方位と位置を手順ごとに追跡する。地点Oを基準として、東西方向と南北方向の移動量を分けて記録するのがポイントである。<br><br>
+
+                <strong>【手順ごとの追跡】</strong><br>
+                ・手順1: 機首方位「北」のまま4km直進 → Oから（東0km、北4km）<br>
+                ・手順2: 北から右に90°旋回すると「東」。6km直進 → （東6km、北4km）<br>
+                ・手順3: 東から左に90°旋回すると「北」。3km直進 → （東6km、北7km）<br>
+                ・手順4: 北から左に90°旋回すると「西」。3km直進 → （東3km、北7km）<br>
+                ・手順5: 西から左に90°旋回すると「南」。3km直進 → （東3km、北4km）<br><br>
+
+                <strong>【直線距離の計算】</strong><br>
+                最終地点はOから東へ3km、北へ4kmの位置にある。三平方の定理より、Oからの直線距離は<br>
+                √(3<sup>2</sup> + 4<sup>2</sup>) = √(9 + 16) = √25 = 5km<br>
+                また、最終の機首方位は手順5の旋回で決まった「南」である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 5km・南 → 距離・方位とも一致 → 正解<br>
+                ・(2) 4km・南 → 北方向の成分4kmだけを直線距離と誤認したもの → 不正解<br>
+                ・(3) 5km・北 → 距離は正しいが、手順3を終えた時点の方位のまま止まっている → 不正解<br>
+                ・(4) 7km・南 → 東3kmと北4kmを単純に足した値で、直線距離ではない → 不正解<br>
+                ・(5) 5km・西 → 手順5の旋回を見落とし、手順4の方位「西」のままとした誤り → 不正解<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．別の飛行機が、地点Oから機首方位「東」の状態で水平飛行を開始し、下の手順1〜6の順に飛行した。旋回のきまりは問1と同じであり、方位は図2の8方位で表す。なお、斜め方向（北東・南東・南西・北西）に 2√2 km 直進すると、東西方向に2km・南北方向に2km進んだ位置に到達する。手順6を終えた飛行機が、最終地点から出発点Oの真上まで一直線に戻るためには、どちらへ何度旋回してから何km直進すればよいか。正しいものを(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【飛行手順】</div>
+                    <div style="text-align: left; display: inline-block; line-height: 2;">
+                        手順1．そのまま 4km 直進する。<br>
+                        手順2．左に 45° 旋回し、2√2 km 直進する。<br>
+                        手順3．左に 45° 旋回し、3km 直進する。<br>
+                        手順4．左に 90° 旋回し、8km 直進する。<br>
+                        手順5．左に 45° 旋回し、4√2 km 直進する。<br>
+                        手順6．右に 135° 旋回し、5km 直進する。
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】方位と旋回のきまり（問1と共通）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: 図1と同一（SVGサイズ500x200px / viewBox 0 0 500 200）
+                        -->
+                        <svg width="500" height="200" viewBox="0 0 500 200">
+                            <!-- 左: 8方位図 -->
+                            <g transform="translate(105, 100)">
+                                <line x1="-38" y1="-38" x2="38" y2="38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="-38" y1="38" x2="38" y2="-38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="0" y1="60" x2="0" y2="-60" stroke="black" stroke-width="1.5"/>
+                                <line x1="-60" y1="0" x2="60" y2="0" stroke="black" stroke-width="1.5"/>
+                                <polygon points="0,-60 -5,-49 5,-49" fill="black"/>
+                                <text x="0" y="-70" class="svg-text" text-anchor="middle">北</text>
+                                <text x="74" y="5" class="svg-text" text-anchor="middle">東</text>
+                                <text x="0" y="84" class="svg-text" text-anchor="middle">南</text>
+                                <text x="-74" y="5" class="svg-text" text-anchor="middle">西</text>
+                                <text x="44" y="-44" class="svg-text" font-size="11">北東</text>
+                                <text x="44" y="52" class="svg-text" font-size="11">南東</text>
+                                <text x="-44" y="52" class="svg-text" font-size="11" text-anchor="end">南西</text>
+                                <text x="-44" y="-44" class="svg-text" font-size="11" text-anchor="end">北西</text>
+                            </g>
+                            <!-- 右: 右90°旋回の例 -->
+                            <g transform="translate(340, 130)">
+                                <line x1="0" y1="0" x2="0" y2="-66" stroke="black" stroke-width="2"/>
+                                <polygon points="0,-76 -5,-64 5,-64" fill="black"/>
+                                <line x1="0" y1="0" x2="66" y2="0" stroke="black" stroke-width="2"/>
+                                <polygon points="76,0 64,-5 64,5" fill="black"/>
+                                <path d="M 0 -48 A 48 48 0 0 1 34 -34" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                                <polygon points="40,-28 34,-41 27,-33" fill="#666"/>
+                                <text x="48" y="-52" class="svg-text" font-size="12">右に90°旋回</text>
+                                <text x="0" y="-86" class="svg-text" font-size="12" text-anchor="middle">旋回前（北向き）</text>
+                                <text x="38" y="20" class="svg-text" font-size="12" text-anchor="middle">旋回後（東向き）</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　右に 135° 旋回し、6√2 km 直進する<br>
+                    (2)　左に 135° 旋回し、6√2 km 直進する<br>
+                    (3)　右に 45° 旋回し、6√2 km 直進する<br>
+                    (4)　右に 135° 旋回し、12km 直進する<br>
+                    (5)　右に 90° 旋回し、6km 直進する
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                問1と同様に機首方位と位置を手順ごとに追跡する。45°旋回が含まれるため方位は8方位で管理し、斜め方向の移動は東西成分と南北成分に分解する（d√2 kmの斜め移動 ＝ 東西方向d km ＋ 南北方向d km）。<br><br>
+
+                <strong>【手順ごとの追跡】</strong><br>
+                ・手順1: 機首方位「東」のまま4km直進 → Oから（東4km、北0km）<br>
+                ・手順2: 東から左に45°旋回すると「北東」。2√2 km直進＝東へ2km・北へ2km → （東6km、北2km）<br>
+                ・手順3: 北東から左に45°旋回すると「北」。3km直進 → （東6km、北5km）<br>
+                ・手順4: 北から左に90°旋回すると「西」。8km直進 → （西2km、北5km）<br>
+                ・手順5: 西から左に45°旋回すると「南西」。4√2 km直進＝西へ4km・南へ4km → （西6km、北1km）<br>
+                ・手順6: 南西から右に135°旋回すると、南西→西→北西→北と45°ずつ3段階回って「北」。5km直進 → （西6km、北6km）<br><br>
+
+                <strong>【帰投経路の計算】</strong><br>
+                最終地点はOから西へ6km、北へ6kmの位置にある。Oへ戻るには、ここから東へ6km・南へ6km移動すればよい。東向きと南向きの成分が等しいので、戻る方向はちょうど「南東」である。<br>
+                戻る距離は √(6<sup>2</sup> + 6<sup>2</sup>) = √72 = 6√2 km（約8.5km）。<br>
+                手順6を終えた時点の機首方位は「北」なので、南東を向くには北→北東→東→南東と右回りに45°×3＝135°旋回すればよい（左回りでは225°必要で、遠回りになる）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 右135°・6√2 km → 旋回方向・角度・距離のすべてが一致 → 正解<br>
+                ・(2) 左135°・6√2 km → 左に135°旋回すると「南西」を向き、Oから遠ざかる → 不正解<br>
+                ・(3) 右45°・6√2 km → 「北東」を向いてしまい、Oの方向（南東）と一致しない → 不正解<br>
+                ・(4) 右135°・12km → 東6kmと南6kmを単純に足した値で、直線距離ではない → 不正解<br>
+                ・(5) 右90°・6km → 「東」を向いて東西成分6kmだけ進む誤り。南北成分6kmが残る → 不正解<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

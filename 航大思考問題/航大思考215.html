@@ -1,0 +1,859 @@
+<!--
+================================================================================
+template_dynamic.html - 動的問題テンプレート（インタラクティブ版）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+インタラクティブに表示・解答できる形式のHTMLファイルです。
+ユーザーが選択肢をクリックすると、正解/不正解が表示され、
+解説が自動的に展開されます。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. selectAnswer() の引数で正解番号を設定
+4. recordAnswer() の問題名を適切に変更
+
+【注意事項】
+- 問題名は「YYYY_MM/航大思考N/問Q」の形式で指定すること
+- SVG図表は適切なサイズとviewBoxを設定すること
+- 選択肢の data-option 属性は1から順番に設定すること
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                ある飛行機が、地点Oから機首方位「北」の状態で水平飛行を開始し、下の手順1〜5の順に飛行した。ここで「旋回」とはその場で機首の向きだけを変える操作であり、「右」「左」は進行方向に向かっての向きを表す。手順5を終えた時点における、地点Oから最終地点までの直線距離と、そのときの機首方位の組合せとして正しいものを、(1)〜(5)のうちから一つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【飛行手順】</div>
+                <div style="text-align: left; display: inline-block; line-height: 2;">
+                    手順1．そのまま 4km 直進する。<br>
+                    手順2．右に 90° 旋回し、6km 直進する。<br>
+                    手順3．左に 90° 旋回し、3km 直進する。<br>
+                    手順4．左に 90° 旋回し、3km 直進する。<br>
+                    手順5．左に 90° 旋回し、3km 直進する。
+                </div>
+            </div>
+
+            <!-- 図表エリア -->
+            <!--
+            SVGを使用して図表を作成
+            - viewBox で座標系を定義
+            - width/height で表示サイズを指定
+            - g タグで要素をグループ化し、transform で位置調整
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】方位と旋回のきまり</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x200px / viewBox: 0 0 500 200 / 余白: 各辺20px
+                    座標系定義:
+                    - 左: 方位図の中心 (105, 100)、主軸の長さ各60px、45°斜線は中心から38px
+                    - 右: 旋回例の原点 (340, 130)、上向き矢印70px（旋回前）、右向き矢印70px（旋回後）
+                    -->
+                    <svg width="500" height="200" viewBox="0 0 500 200">
+                        <!-- 左: 8方位図 -->
+                        <g transform="translate(105, 100)">
+                            <line x1="-38" y1="-38" x2="38" y2="38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="-38" y1="38" x2="38" y2="-38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="0" y1="60" x2="0" y2="-60" stroke="black" stroke-width="1.5"/>
+                            <line x1="-60" y1="0" x2="60" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="0,-60 -5,-49 5,-49" fill="black"/>
+                            <text x="0" y="-70" class="svg-text" text-anchor="middle">北</text>
+                            <text x="74" y="5" class="svg-text" text-anchor="middle">東</text>
+                            <text x="0" y="84" class="svg-text" text-anchor="middle">南</text>
+                            <text x="-74" y="5" class="svg-text" text-anchor="middle">西</text>
+                            <text x="44" y="-44" class="svg-text" font-size="11">北東</text>
+                            <text x="44" y="52" class="svg-text" font-size="11">南東</text>
+                            <text x="-44" y="52" class="svg-text" font-size="11" text-anchor="end">南西</text>
+                            <text x="-44" y="-44" class="svg-text" font-size="11" text-anchor="end">北西</text>
+                        </g>
+                        <!-- 右: 右90°旋回の例 -->
+                        <g transform="translate(340, 130)">
+                            <line x1="0" y1="0" x2="0" y2="-66" stroke="black" stroke-width="2"/>
+                            <polygon points="0,-76 -5,-64 5,-64" fill="black"/>
+                            <line x1="0" y1="0" x2="66" y2="0" stroke="black" stroke-width="2"/>
+                            <polygon points="76,0 64,-5 64,5" fill="black"/>
+                            <path d="M 0 -48 A 48 48 0 0 1 34 -34" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                            <polygon points="40,-28 34,-41 27,-33" fill="#666"/>
+                            <text x="48" y="-52" class="svg-text" font-size="12">右に90°旋回</text>
+                            <text x="0" y="-86" class="svg-text" font-size="12" text-anchor="middle">旋回前（北向き）</text>
+                            <text x="38" y="20" class="svg-text" font-size="12" text-anchor="middle">旋回後（東向き）</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>直線距離 5km ・ 機首方位「南」
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>直線距離 4km ・ 機首方位「南」
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>直線距離 5km ・ 機首方位「北」
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>直線距離 7km ・ 機首方位「南」
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>直線距離 5km ・ 機首方位「西」
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <!--
+            解答後に自動展開される解説エリア
+            - id="q{N}-explanation" の形式でIDを付与
+            - 解説内容は .explanation-content 内に記述
+            -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>機首方位と位置を手順ごとに追跡する。地点Oを基準として、東西方向と南北方向の移動量を分けて記録するのがポイントである。</p>
+                    <br>
+                    <p><strong>【手順ごとの追跡】</strong></p>
+                    <p>・手順1: 機首方位「北」のまま4km直進 → Oから（東0km、北4km）</p>
+                    <p>・手順2: 北から右に90°旋回すると「東」。6km直進 → （東6km、北4km）</p>
+                    <p>・手順3: 東から左に90°旋回すると「北」。3km直進 → （東6km、北7km）</p>
+                    <p>・手順4: 北から左に90°旋回すると「西」。3km直進 → （東3km、北7km）</p>
+                    <p>・手順5: 西から左に90°旋回すると「南」。3km直進 → （東3km、北4km）</p>
+                    <br>
+                    <p><strong>【直線距離の計算】</strong></p>
+                    <p>最終地点はOから東へ3km、北へ4kmの位置にある。三平方の定理より、Oからの直線距離は √(3<sup>2</sup> + 4<sup>2</sup>) = √25 = 5km。最終の機首方位は手順5の旋回で決まった「南」である。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(2) 4km・南 → 北方向の成分4kmだけを直線距離と誤認したもの</p>
+                    <p>・(3) 5km・北 → 距離は正しいが、手順3を終えた時点の方位のまま止まっている</p>
+                    <p>・(4) 7km・南 → 東3kmと北4kmを単純に足した値で、直線距離ではない</p>
+                    <p>・(5) 5km・西 → 手順5の旋回を見落とし、手順4の方位「西」のままとした誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <!--
+            問題間移動用のボタン
+            - style="display: none;" で初期非表示
+            - 解答後にJavaScriptで表示される
+            -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <!-- 最初の問題では「前の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <!-- 2問目以降は同様の構造で追加 -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                別の飛行機が、地点Oから機首方位「東」の状態で水平飛行を開始し、下の手順1〜6の順に飛行した。旋回のきまりは問1と同じであり、方位は図2の8方位で表す。なお、斜め方向（北東・南東・南西・北西）に 2√2 km 直進すると、東西方向に2km・南北方向に2km進んだ位置に到達する。手順6を終えた飛行機が、最終地点から出発点Oの真上まで一直線に戻るためには、どちらへ何度旋回してから何km直進すればよいか。正しいものを(1)〜(5)のうちから一つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【飛行手順】</div>
+                <div style="text-align: left; display: inline-block; line-height: 2;">
+                    手順1．そのまま 4km 直進する。<br>
+                    手順2．左に 45° 旋回し、2√2 km 直進する。<br>
+                    手順3．左に 45° 旋回し、3km 直進する。<br>
+                    手順4．左に 90° 旋回し、8km 直進する。<br>
+                    手順5．左に 45° 旋回し、4√2 km 直進する。<br>
+                    手順6．右に 135° 旋回し、5km 直進する。
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図2】方位と旋回のきまり（問1と共通）</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様: 図1と同一（SVGサイズ500x200px / viewBox 0 0 500 200）
+                    -->
+                    <svg width="500" height="200" viewBox="0 0 500 200">
+                        <!-- 左: 8方位図 -->
+                        <g transform="translate(105, 100)">
+                            <line x1="-38" y1="-38" x2="38" y2="38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="-38" y1="38" x2="38" y2="-38" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="0" y1="60" x2="0" y2="-60" stroke="black" stroke-width="1.5"/>
+                            <line x1="-60" y1="0" x2="60" y2="0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="0,-60 -5,-49 5,-49" fill="black"/>
+                            <text x="0" y="-70" class="svg-text" text-anchor="middle">北</text>
+                            <text x="74" y="5" class="svg-text" text-anchor="middle">東</text>
+                            <text x="0" y="84" class="svg-text" text-anchor="middle">南</text>
+                            <text x="-74" y="5" class="svg-text" text-anchor="middle">西</text>
+                            <text x="44" y="-44" class="svg-text" font-size="11">北東</text>
+                            <text x="44" y="52" class="svg-text" font-size="11">南東</text>
+                            <text x="-44" y="52" class="svg-text" font-size="11" text-anchor="end">南西</text>
+                            <text x="-44" y="-44" class="svg-text" font-size="11" text-anchor="end">北西</text>
+                        </g>
+                        <!-- 右: 右90°旋回の例 -->
+                        <g transform="translate(340, 130)">
+                            <line x1="0" y1="0" x2="0" y2="-66" stroke="black" stroke-width="2"/>
+                            <polygon points="0,-76 -5,-64 5,-64" fill="black"/>
+                            <line x1="0" y1="0" x2="66" y2="0" stroke="black" stroke-width="2"/>
+                            <polygon points="76,0 64,-5 64,5" fill="black"/>
+                            <path d="M 0 -48 A 48 48 0 0 1 34 -34" fill="none" stroke="#666" stroke-width="1.5" stroke-dasharray="5,3"/>
+                            <polygon points="40,-28 34,-41 27,-33" fill="#666"/>
+                            <text x="48" y="-52" class="svg-text" font-size="12">右に90°旋回</text>
+                            <text x="0" y="-86" class="svg-text" font-size="12" text-anchor="middle">旋回前（北向き）</text>
+                            <text x="38" y="20" class="svg-text" font-size="12" text-anchor="middle">旋回後（東向き）</text>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>右に 135° 旋回し、6√2 km 直進する
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>左に 135° 旋回し、6√2 km 直進する
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>右に 45° 旋回し、6√2 km 直進する
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>右に 135° 旋回し、12km 直進する
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>右に 90° 旋回し、6km 直進する
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>問1と同様に機首方位と位置を手順ごとに追跡する。45°旋回が含まれるため方位は8方位で管理し、斜め方向の移動は東西成分と南北成分に分解する（d√2 kmの斜め移動 ＝ 東西方向d km ＋ 南北方向d km）。</p>
+                    <br>
+                    <p><strong>【手順ごとの追跡】</strong></p>
+                    <p>・手順1: 機首方位「東」のまま4km直進 → Oから（東4km、北0km）</p>
+                    <p>・手順2: 東から左に45°旋回すると「北東」。2√2 km直進＝東へ2km・北へ2km → （東6km、北2km）</p>
+                    <p>・手順3: 北東から左に45°旋回すると「北」。3km直進 → （東6km、北5km）</p>
+                    <p>・手順4: 北から左に90°旋回すると「西」。8km直進 → （西2km、北5km）</p>
+                    <p>・手順5: 西から左に45°旋回すると「南西」。4√2 km直進＝西へ4km・南へ4km → （西6km、北1km）</p>
+                    <p>・手順6: 南西から右に135°旋回すると、南西→西→北西→北と45°ずつ3段階回って「北」。5km直進 → （西6km、北6km）</p>
+                    <br>
+                    <p><strong>【帰投経路の計算】</strong></p>
+                    <p>最終地点はOから西へ6km、北へ6kmの位置にある。Oへ戻るには、ここから東へ6km・南へ6km移動すればよい。東向きと南向きの成分が等しいので、戻る方向はちょうど「南東」である。</p>
+                    <p>戻る距離は √(6<sup>2</sup> + 6<sup>2</sup>) = √72 = 6√2 km（約8.5km）。</p>
+                    <p>手順6を終えた時点の機首方位は「北」なので、南東を向くには北→北東→東→南東と右回りに45°×3＝135°旋回すればよい（左回りでは225°必要で、遠回りになる）。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(2) 左135° → 「南西」を向き、Oから遠ざかる</p>
+                    <p>・(3) 右45° → 「北東」を向いてしまい、Oの方向（南東）と一致しない</p>
+                    <p>・(4) 12km → 東6kmと南6kmを単純に足した値で、直線距離ではない</p>
+                    <p>・(5) 右90°・6km → 「東」を向いて東西成分だけ進む誤り。南北成分6kmが残る</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <!-- 最後の問題では「次の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考215/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
