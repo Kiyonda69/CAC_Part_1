@@ -118,8 +118,8 @@ def filmstrip1():
              f'<polygon points="{lx},{top-8} {lx+6},{top-12} {lx+6},{top-4}" '
              f'fill="#000"/>')
     P.append(circled(ax + 4 * c, top + 8 * c + 14, "1"))
-    # 軸目盛 0,4,8
-    for t in (0, 4, 8):
+    # 軸目盛 0,8
+    for t in (0, 8):
         tx, ty = toA(t, 0)
         P.append(f'<text x="{tx}" y="{ty+13}" class="svg-text" '
                  f'text-anchor="middle" font-size="10">{t}</text>')
@@ -152,11 +152,14 @@ def filmstrip1():
 
 
 def filmstrip2():
-    """問2: 直交2折り + 対角折り + 穴あけ の4パネル。"""
+    """問2: 直交2折り + 対角折り + 穴あけ の4パネル。
+    半分の高さのパネルB/C/DはパネルAの上下中央にそろえる。"""
     c = 10
     top = 16
+    half = top + 2 * c   # 半高パネルの上端(Aの中央にそろえる)
+    midy = top + 4 * c    # パネルの中央y(遷移矢印の高さ)
     P = []
-    cap_y = top + 8 * c + 14
+    cap_y = top + 8 * c + 16   # ステップ番号の行
     # パネルA: 8x8, y=4 で上→下
     ax = 10
     a, toA = grid_region(0, 0, 8, 8, ax, top, c)
@@ -172,10 +175,10 @@ def filmstrip2():
              f'<polygon points="{ux},{dy} {ux-4},{dy-6} {ux+4},{dy-6}" '
              f'fill="#000"/>')
     P.append(circled(ax + 4 * c, cap_y, "1"))
-    P.append(harrow(ax + 8 * c + 4, top + 4 * c, ax + 8 * c + 22))
-    # パネルB: 8x4, x=4 で右→左
+    P.append(harrow(ax + 8 * c + 4, midy, ax + 8 * c + 22))
+    # パネルB: 8x4, x=4 で右→左 (中央そろえ)
     bx = ax + 8 * c + 26
-    b, toB = grid_region(0, 0, 8, 4, bx, top, c)
+    b, toB = grid_region(0, 0, 8, 4, bx, half, c)
     P += b
     fx, fyt = toB(4, 4)
     _, fyb = toB(4, 0)
@@ -188,10 +191,10 @@ def filmstrip2():
              f'<polygon points="{l2x},{r2y} {l2x+6},{r2y-4} {l2x+6},{r2y+4}" '
              f'fill="#000"/>')
     P.append(circled(bx + 4 * c, cap_y, "2"))
-    P.append(harrow(bx + 8 * c + 4, top + 4 * c, bx + 8 * c + 22))
-    # パネルC: 4x4, 対角 y=x で折る
+    P.append(harrow(bx + 8 * c + 4, midy, bx + 8 * c + 22))
+    # パネルC: 4x4, 対角 y=x で折る (中央そろえ)
     cx = bx + 8 * c + 26
-    cc, toC = grid_region(0, 0, 4, 4, cx, top, c)
+    cc, toC = grid_region(0, 0, 4, 4, cx, half, c)
     P += cc
     d0 = toC(0, 0)
     d1 = toC(4, 4)
@@ -205,10 +208,10 @@ def filmstrip2():
              f'<polygon points="{s1[0]},{s1[1]} {s1[0]-7},{s1[1]-1} '
              f'{s1[0]-1},{s1[1]+6}" fill="#000"/>')
     P.append(circled(cx + 2 * c, cap_y, "3"))
-    P.append(harrow(cx + 4 * c + 4, top + 4 * c, cx + 4 * c + 22))
-    # パネルD: 下三角形 + 穴(3,1)
+    P.append(harrow(cx + 4 * c + 4, midy, cx + 4 * c + 22))
+    # パネルD: 下三角形 + 穴(3,1) (中央そろえ)
     dx = cx + 4 * c + 26
-    dd, toD = grid_region(0, 0, 4, 4, dx, top, c)
+    dd, toD = grid_region(0, 0, 4, 4, dx, half, c)
     P += dd
     t0 = toD(0, 0)
     t1 = toD(4, 0)
@@ -217,11 +220,12 @@ def filmstrip2():
              f'{t2[0]},{t2[1]}" fill="#eee" stroke="#000" stroke-width="2"/>')
     hx, hy = toD(3, 1)
     P.append(f'<circle cx="{hx}" cy="{hy}" r="5" fill="#000"/>')
-    P.append(f'<text x="{hx-2}" y="{hy-9}" class="svg-text" '
-             f'font-size="10">(3,1)</text>')
+    # 穴の座標ラベルはパネル下に置き、三角形の対角線と重ならないようにする
+    P.append(f'<text x="{dx+2*c}" y="{half+4*c+14}" class="svg-text" '
+             f'text-anchor="middle" font-size="10">(3,1)</text>')
     P.append(circled(dx + 2 * c, cap_y, "4"))
     vbw = dx + 4 * c + 30
-    vbh = top + 8 * c + 30
+    vbh = cap_y + 14
     inner = "\n        ".join(P)
     return (f'<svg width="{vbw}" height="{vbh}" viewBox="0 0 {vbw} {vbh}">\n'
             f'        {inner}\n      </svg>')
