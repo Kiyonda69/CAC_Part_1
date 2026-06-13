@@ -1,0 +1,531 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下図のような立方体ABCD-EFGH（底面ABCD、上面EFGH、AE・BF・CG・DHが垂直な辺）がある。頂点Aに集まる3辺の先の頂点B、D、Eを通る平面でこの立方体を切断し、頂点Aを含む角を切り落とした。このときの切り口（断面）の形として正しいものを、下の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様: 立方体の斜投影
+                - viewBox: 0 0 300 300
+                - 投影 proj(x,y,z) = (60 + 20x + 7y, 240 - 18z - 5y)  (一辺6)
+                - 頂点 A(60,240) B(180,240) C(222,210) D(102,210)
+                          E(60,132) F(180,132) G(222,102) H(102,102)
+                - 隠れ辺(CD,DA,DH)は破線、切断面BDEは灰色で塗る
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体ABCD-EFGHと切断面（△BDE）</div>
+                    <div class="figure-content">
+                        <svg width="320" height="300" viewBox="0 0 300 300">
+                            <!-- 切断面 BDE（半透明の灰色） -->
+                            <polygon points="180,240 102,210 60,132" fill="#bbbbbb" fill-opacity="0.55" stroke="none"/>
+
+                            <!-- 隠れ辺（破線） -->
+                            <line x1="222" y1="210" x2="102" y2="210" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="102" y1="210" x2="60" y2="240" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="102" y1="210" x2="102" y2="102" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+
+                            <!-- 見える辺（実線） -->
+                            <line x1="60" y1="240" x2="180" y2="240" stroke="black" stroke-width="2"/>
+                            <line x1="180" y1="240" x2="222" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="60" y1="240" x2="60" y2="132" stroke="black" stroke-width="2"/>
+                            <line x1="180" y1="240" x2="180" y2="132" stroke="black" stroke-width="2"/>
+                            <line x1="222" y1="210" x2="222" y2="102" stroke="black" stroke-width="2"/>
+                            <line x1="60" y1="132" x2="180" y2="132" stroke="black" stroke-width="2"/>
+                            <line x1="180" y1="132" x2="222" y2="102" stroke="black" stroke-width="2"/>
+                            <line x1="222" y1="102" x2="102" y2="102" stroke="black" stroke-width="2"/>
+                            <line x1="102" y1="102" x2="60" y2="132" stroke="black" stroke-width="2"/>
+
+                            <!-- 切断面の辺（太線） -->
+                            <line x1="180" y1="240" x2="102" y2="210" stroke="black" stroke-width="2.5"/>
+                            <line x1="102" y1="210" x2="60" y2="132" stroke="black" stroke-width="2.5"/>
+                            <line x1="60" y1="132" x2="180" y2="240" stroke="black" stroke-width="2.5"/>
+
+                            <!-- 頂点 -->
+                            <circle cx="60" cy="240" r="3" fill="black"/>
+                            <circle cx="180" cy="240" r="4.5" fill="black"/>
+                            <circle cx="222" cy="210" r="3" fill="black"/>
+                            <circle cx="102" cy="210" r="4.5" fill="black"/>
+                            <circle cx="60" cy="132" r="4.5" fill="black"/>
+                            <circle cx="180" cy="132" r="3" fill="black"/>
+                            <circle cx="222" cy="102" r="3" fill="black"/>
+                            <circle cx="102" cy="102" r="3" fill="black"/>
+
+                            <!-- 頂点ラベル -->
+                            <text x="50" y="256" class="svg-text">A</text>
+                            <text x="186" y="258" class="svg-text">B</text>
+                            <text x="230" y="214" class="svg-text">C</text>
+                            <text x="86" y="226" class="svg-text">D</text>
+                            <text x="44" y="130" class="svg-text">E</text>
+                            <text x="186" y="128" class="svg-text">F</text>
+                            <text x="230" y="100" class="svg-text">G</text>
+                            <text x="88" y="98" class="svg-text">H</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="150" viewBox="0 0 600 150">
+                            <!-- (1) 直角二等辺三角形 -->
+                            <g transform="translate(0, 0)">
+                                <text x="55" y="20" class="svg-text" text-anchor="middle">(1)</text>
+                                <polygon points="25,42 25,102 85,102" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 正方形 -->
+                            <g transform="translate(120, 0)">
+                                <text x="55" y="20" class="svg-text" text-anchor="middle">(2)</text>
+                                <polygon points="28,45 82,45 82,99 28,99" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 正三角形（正解） -->
+                            <g transform="translate(240, 0)">
+                                <text x="55" y="20" class="svg-text" text-anchor="middle">(3)</text>
+                                <polygon points="55,42 25,94 85,94" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 長方形 -->
+                            <g transform="translate(360, 0)">
+                                <text x="55" y="20" class="svg-text" text-anchor="middle">(4)</text>
+                                <polygon points="22,52 88,52 88,92 22,92" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 正六角形 -->
+                            <g transform="translate(480, 0)">
+                                <text x="55" y="20" class="svg-text" text-anchor="middle">(5)</text>
+                                <polygon points="55,42 79.2,56 79.2,84 55,98 30.8,84 30.8,56" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                頂点Aには、辺AB・辺AD・辺AEの3本の辺が集まっている。切断面はこれら3辺の先の頂点B、D、Eを通るので、切り口は三角形BDEとなる。<br><br>
+
+                <strong>【3辺の長さを比べる】</strong><br>
+                立方体の一辺の長さを <em>a</em> とする。BD、DE、EBはいずれも、立方体の1つの面の対角線にあたる。<br>
+                ・BD：底面ABCDの対角線 → 長さ √2 <em>a</em><br>
+                ・DE：左側面ADHEの対角線 → 長さ √2 <em>a</em><br>
+                ・EB：前面ABFEの対角線 → 長さ √2 <em>a</em><br>
+                3辺の長さがすべて √2 <em>a</em> で等しいので、三角形BDEは<strong>正三角形</strong>である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 直角二等辺三角形 → 3辺が等しいので不適。<br>
+                ・(2) 正方形 → 切り口は三角形であり不適。<br>
+                ・(3) 正三角形 → 3辺がすべて等しい。正しい。<br>
+                ・(4) 長方形 → 切り口は三角形であり不適。<br>
+                ・(5) 正六角形 → 6本の辺を持つが、切り口は3辺なので不適。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．1つの平面で立方体を切断すると、その切り口にはさまざまな多角形が現れる。次の(1)〜(5)の形のうち、立方体をどのように1つの平面で切断しても、切り口（断面）として決して現れないものを1つ選べ。（6点）</div>
+
+                <!-- 選択肢エリア（形の名前つき） -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="155" viewBox="0 0 600 155">
+                            <!-- (1) 正五角形（正解：現れ得ない） -->
+                            <g transform="translate(0, 0)">
+                                <text x="55" y="18" class="svg-text" text-anchor="middle">(1)</text>
+                                <polygon points="55,30 83.5,50.7 72.6,84.3 37.4,84.3 26.5,50.7" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="55" y="120" class="svg-text" text-anchor="middle">正五角形</text>
+                            </g>
+                            <!-- (2) 正三角形 -->
+                            <g transform="translate(120, 0)">
+                                <text x="55" y="18" class="svg-text" text-anchor="middle">(2)</text>
+                                <polygon points="55,32 27,84 83,84" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="55" y="120" class="svg-text" text-anchor="middle">正三角形</text>
+                            </g>
+                            <!-- (3) 正方形 -->
+                            <g transform="translate(240, 0)">
+                                <text x="55" y="18" class="svg-text" text-anchor="middle">(3)</text>
+                                <polygon points="29,40 81,40 81,92 29,92" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="55" y="120" class="svg-text" text-anchor="middle">正方形</text>
+                            </g>
+                            <!-- (4) 正六角形 -->
+                            <g transform="translate(360, 0)">
+                                <text x="55" y="18" class="svg-text" text-anchor="middle">(4)</text>
+                                <polygon points="55,34 79.2,48 79.2,76 55,90 30.8,76 30.8,48" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="55" y="120" class="svg-text" text-anchor="middle">正六角形</text>
+                            </g>
+                            <!-- (5) 台形 -->
+                            <g transform="translate(480, 0)">
+                                <text x="55" y="18" class="svg-text" text-anchor="middle">(5)</text>
+                                <polygon points="38,42 72,42 86,90 24,90" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="55" y="120" class="svg-text" text-anchor="middle">台形</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                立方体の切り口は、平面が立方体の何枚の面を横切るかで辺の数が決まる。三角形・四角形・五角形・六角形のいずれも作ることができるが、「正五角形」だけは作れない。<br><br>
+
+                <strong>【平行な面と平行な辺の関係】</strong><br>
+                立方体には、向かい合う平行な面が3組ある。平面が平行な2つの面の両方を横切ると、その2つの切り口の線（断面の辺）は必ず<strong>平行</strong>になる。<br><br>
+
+                <strong>【五角形の切り口は必ず平行な辺を持つ】</strong><br>
+                五角形の切り口は、立方体の5枚の面を横切ってできる。立方体の面は全部で6枚で、3組の平行な組に分かれている。5枚を選ぶと、少なくとも1組は平行な2面の「両方」が選ばれる（鳩の巣の考え方）。したがって五角形の切り口には<strong>必ず平行な辺の組が少なくとも1つ存在する</strong>。<br>
+                一方、正五角形には平行な辺の組が1つも存在しない。よって正五角形の切り口は決して作れない。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 正五角形 → 上記の理由により作れない。これが正解。<br>
+                ・(2) 正三角形 → 問1のように1つの頂点に集まる3辺の先の頂点を通る平面で作れる。<br>
+                ・(3) 正方形 → 1組の面に平行な平面で切れば作れる。<br>
+                ・(4) 正六角形 → 立方体の中心を通り対角線に垂直な平面で、各辺の中点6個を通る切り口として作れる。<br>
+                ・(5) 台形 → 平行な1組の辺を持つ四角形として作れる。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
