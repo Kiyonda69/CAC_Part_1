@@ -1,0 +1,800 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+  <div class="question-section question-page">
+    <div class="page-content">
+      <div class="question">
+        <div class="question-number">問1．正方形の航空図を机の上に置き、2回折りたたむ。図の格子は紙の位置を表し、左下を原点として横方向をx・縦方向をyとする（いずれも0〜8）。次の手順で折る。<br>① 右半分を左半分にぴったり重ねるように、折り線 x=4 で折る。<br>② 続けて、上半分を下半分に重ねるように、折り線 y=4 で折る。<br>折りたたんでできた小さな正方形の、点(3,1)の位置にきりで穴を1つあける（穴は重なった紙の全ての層を貫く）。再び元の正方形に広げたとき、穴の位置を表す図として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+        <div class="figure-container">
+          <div class="figure-title">【図1】折りの手順（格子は0〜8、左下が原点）</div>
+          <div class="figure-content"><svg width="278" height="134" viewBox="0 0 278 134">
+        <line x1="10" y1="104" x2="10" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="104" x2="21" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="32" y1="104" x2="32" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="43" y1="104" x2="43" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="54" y1="104" x2="54" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="65" y1="104" x2="65" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="76" y1="104" x2="76" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="87" y1="104" x2="87" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="98" y1="104" x2="98" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="104" x2="98" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="93" x2="98" y2="93" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="82" x2="98" y2="82" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="71" x2="98" y2="71" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="60" x2="98" y2="60" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="49" x2="98" y2="49" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="38" x2="98" y2="38" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="27" x2="98" y2="27" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="16" x2="98" y2="16" stroke="#ccc" stroke-width="1"/>
+        <rect x="10" y="16" width="88" height="88" fill="none" stroke="#000" stroke-width="2"/>
+        <line x1="54" y1="16" x2="54" y2="104" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="76" y1="8" x2="38" y2="8" stroke="#000" stroke-width="1.5"/><polygon points="32,8 38,4 38,12" fill="#000"/>
+        <circle cx="54" cy="118" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="54" y="122" class="svg-text" text-anchor="middle" font-size="12">1</text>
+        <text x="10" y="117" class="svg-text" text-anchor="middle" font-size="10">0</text>
+        <text x="98" y="117" class="svg-text" text-anchor="middle" font-size="10">8</text>
+        <line x1="102" y1="60" x2="114" y2="60" stroke="#000" stroke-width="2"/><polygon points="120,60 113,56 113,64" fill="#000"/>
+        <line x1="124" y1="104" x2="124" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="135" y1="104" x2="135" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="146" y1="104" x2="146" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="157" y1="104" x2="157" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="168" y1="104" x2="168" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="104" x2="168" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="93" x2="168" y2="93" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="82" x2="168" y2="82" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="71" x2="168" y2="71" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="60" x2="168" y2="60" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="49" x2="168" y2="49" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="38" x2="168" y2="38" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="27" x2="168" y2="27" stroke="#ccc" stroke-width="1"/>
+        <line x1="124" y1="16" x2="168" y2="16" stroke="#ccc" stroke-width="1"/>
+        <rect x="124" y="16" width="44" height="88" fill="none" stroke="#000" stroke-width="2"/>
+        <line x1="124" y1="60" x2="168" y2="60" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>
+        <circle cx="146" cy="118" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="146" y="122" class="svg-text" text-anchor="middle" font-size="12">2</text>
+        <line x1="172" y1="60" x2="184" y2="60" stroke="#000" stroke-width="2"/><polygon points="190,60 183,56 183,64" fill="#000"/>
+        <line x1="194" y1="60" x2="194" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="205" y1="60" x2="205" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="216" y1="60" x2="216" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="227" y1="60" x2="227" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="238" y1="60" x2="238" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="194" y1="60" x2="238" y2="60" stroke="#ccc" stroke-width="1"/>
+        <line x1="194" y1="49" x2="238" y2="49" stroke="#ccc" stroke-width="1"/>
+        <line x1="194" y1="38" x2="238" y2="38" stroke="#ccc" stroke-width="1"/>
+        <line x1="194" y1="27" x2="238" y2="27" stroke="#ccc" stroke-width="1"/>
+        <line x1="194" y1="16" x2="238" y2="16" stroke="#ccc" stroke-width="1"/>
+        <rect x="194" y="16" width="44" height="44" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="227" cy="49" r="5" fill="#000"/>
+        <text x="240" y="53" class="svg-text" font-size="10">(3,1)</text>
+        <circle cx="216" cy="118" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="216" y="122" class="svg-text" text-anchor="middle" font-size="12">3</text>
+      </svg></div>
+        </div>
+        <div class="figure-container" style="border: none; box-shadow: none;">
+        <div class="figure-content">
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(1)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="92" r="4.5" fill="#000"/>
+        <circle cx="69" cy="92" r="4.5" fill="#000"/>
+        <circle cx="45" cy="44" r="4.5" fill="#000"/>
+        <circle cx="69" cy="44" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(2)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="21" cy="80" r="4.5" fill="#000"/>
+        <circle cx="93" cy="80" r="4.5" fill="#000"/>
+        <circle cx="21" cy="56" r="4.5" fill="#000"/>
+        <circle cx="93" cy="56" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(3)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="80" r="4.5" fill="#000"/>
+        <circle cx="69" cy="80" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(4)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="21" cy="104" r="4.5" fill="#000"/>
+        <circle cx="93" cy="104" r="4.5" fill="#000"/>
+        <circle cx="21" cy="32" r="4.5" fill="#000"/>
+        <circle cx="93" cy="32" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(5)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="32" r="4.5" fill="#000"/>
+        <circle cx="69" cy="32" r="4.5" fill="#000"/>
+      </svg>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-section question-page">
+    <div class="page-content">
+      <div class="explanation">
+        <strong>問1(正解:(5))</strong><br>
+        穴は、折り線をまたいで戻すたびに、その折り線に関して鏡像対称な位置に増えていく。<br>
+<strong>【手順をさかのぼる】</strong><br>
+・折り②（y=4）を戻す：穴 y=1 は y=4 を軸に折ったので、広げると y=7（=8−1）にも対称に現れる。<br>
+・折り①（x=4）を戻す：穴 x=3 は x=4 を軸に折ったので、広げると x=5（=8−3）にも対称に現れる。<br>
+よって穴は <strong>(3,1)・(5,1)・(3,7)・(5,7)</strong> の4個。直線 x=4 と y=4 の両方について対称な配置になる。<br>
+<strong>【選択肢の検討】</strong><br>
+・(1) 中心からの距離が誤り（y=2,6）→ 不正解<br>
+・(2) 折る向きを取り違え、x と y が入れ替わっている → 不正解<br>
+・(3) 折り②を戻し忘れ、下半分(y=1,3)だけ → 不正解<br>
+・(4) 穴の位置を隅(1,1)と誤認 → 不正解<br>
+・(5) 正しい4個の配置 → <strong>正解</strong><br>
+したがって、正解は<strong>(5)</strong>である。<br>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-section question-page">
+    <div class="page-content">
+      <div class="question">
+        <div class="question-number">問2．同じ正方形の航空図（格子は0〜8、左下が原点）を、今度は3回折りたたむ。<br>① 上半分を下半分にぴったり重ねるように、折り線 y=4 で折る。<br>② 続けて、右半分を左半分に重ねるように、折り線 x=4 で折る。<br>③ 続けて、対角線 y=x に沿って折り、対角線より上側を下側にぴったり重ねる。<br>こうしてできた直角三角形の、点(3,1)の位置にきりで穴を1つあける（穴は全ての層を貫く）。再び元の正方形に広げたとき、穴の位置を表す図として正しいものを(1)〜(5)から1つ選べ。（6点）</div>
+        <div class="figure-container">
+          <div class="figure-title">【図2】折りの手順（格子は0〜8、左下が原点）</div>
+          <div class="figure-content"><svg width="358" height="126" viewBox="0 0 358 126">
+        <line x1="10" y1="96" x2="10" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="20" y1="96" x2="20" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="30" y1="96" x2="30" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="40" y1="96" x2="40" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="50" y1="96" x2="50" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="60" y1="96" x2="60" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="70" y1="96" x2="70" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="80" y1="96" x2="80" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="90" y1="96" x2="90" y2="16" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="96" x2="90" y2="96" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="86" x2="90" y2="86" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="76" x2="90" y2="76" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="66" x2="90" y2="66" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="56" x2="90" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="46" x2="90" y2="46" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="36" x2="90" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="26" x2="90" y2="26" stroke="#ccc" stroke-width="1"/>
+        <line x1="10" y1="16" x2="90" y2="16" stroke="#ccc" stroke-width="1"/>
+        <rect x="10" y="16" width="80" height="80" fill="none" stroke="#000" stroke-width="2"/>
+        <line x1="10" y1="56" x2="90" y2="56" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="20" y1="36" x2="20" y2="70" stroke="#000" stroke-width="1.5"/><polygon points="20,76 16,70 24,70" fill="#000"/>
+        <circle cx="50" cy="112" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="50" y="116" class="svg-text" text-anchor="middle" font-size="12">1</text>
+        <line x1="94" y1="56" x2="106" y2="56" stroke="#000" stroke-width="2"/><polygon points="112,56 105,52 105,60" fill="#000"/>
+        <line x1="116" y1="76" x2="116" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="126" y1="76" x2="126" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="136" y1="76" x2="136" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="146" y1="76" x2="146" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="156" y1="76" x2="156" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="166" y1="76" x2="166" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="176" y1="76" x2="176" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="186" y1="76" x2="186" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="196" y1="76" x2="196" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="116" y1="76" x2="196" y2="76" stroke="#ccc" stroke-width="1"/>
+        <line x1="116" y1="66" x2="196" y2="66" stroke="#ccc" stroke-width="1"/>
+        <line x1="116" y1="56" x2="196" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="116" y1="46" x2="196" y2="46" stroke="#ccc" stroke-width="1"/>
+        <line x1="116" y1="36" x2="196" y2="36" stroke="#ccc" stroke-width="1"/>
+        <rect x="116" y="36" width="80" height="40" fill="none" stroke="#000" stroke-width="2"/>
+        <line x1="156" y1="36" x2="156" y2="76" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="176" y1="46" x2="142" y2="46" stroke="#000" stroke-width="1.5"/><polygon points="136,46 142,42 142,50" fill="#000"/>
+        <circle cx="156" cy="112" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="156" y="116" class="svg-text" text-anchor="middle" font-size="12">2</text>
+        <line x1="200" y1="56" x2="212" y2="56" stroke="#000" stroke-width="2"/><polygon points="218,56 211,52 211,60" fill="#000"/>
+        <line x1="222" y1="76" x2="222" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="232" y1="76" x2="232" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="242" y1="76" x2="242" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="252" y1="76" x2="252" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="262" y1="76" x2="262" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="222" y1="76" x2="262" y2="76" stroke="#ccc" stroke-width="1"/>
+        <line x1="222" y1="66" x2="262" y2="66" stroke="#ccc" stroke-width="1"/>
+        <line x1="222" y1="56" x2="262" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="222" y1="46" x2="262" y2="46" stroke="#ccc" stroke-width="1"/>
+        <line x1="222" y1="36" x2="262" y2="36" stroke="#ccc" stroke-width="1"/>
+        <rect x="222" y="36" width="40" height="40" fill="none" stroke="#000" stroke-width="2"/>
+        <line x1="222" y1="76" x2="262" y2="36" stroke="#000" stroke-width="2" stroke-dasharray="5,3"/>
+        <line x1="232" y1="46" x2="252" y2="66" stroke="#000" stroke-width="1.5"/><polygon points="252,66 245,65 251,72" fill="#000"/>
+        <circle cx="242" cy="112" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="242" y="116" class="svg-text" text-anchor="middle" font-size="12">3</text>
+        <line x1="266" y1="56" x2="278" y2="56" stroke="#000" stroke-width="2"/><polygon points="284,56 277,52 277,60" fill="#000"/>
+        <line x1="288" y1="76" x2="288" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="298" y1="76" x2="298" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="308" y1="76" x2="308" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="318" y1="76" x2="318" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="328" y1="76" x2="328" y2="36" stroke="#ccc" stroke-width="1"/>
+        <line x1="288" y1="76" x2="328" y2="76" stroke="#ccc" stroke-width="1"/>
+        <line x1="288" y1="66" x2="328" y2="66" stroke="#ccc" stroke-width="1"/>
+        <line x1="288" y1="56" x2="328" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="288" y1="46" x2="328" y2="46" stroke="#ccc" stroke-width="1"/>
+        <line x1="288" y1="36" x2="328" y2="36" stroke="#ccc" stroke-width="1"/>
+        <rect x="288" y="36" width="40" height="40" fill="none" stroke="#000" stroke-width="2"/>
+        <polygon points="288,76 328,76 328,36" fill="#eee" stroke="#000" stroke-width="2"/>
+        <circle cx="318" cy="66" r="5" fill="#000"/>
+        <text x="308" y="90" class="svg-text" text-anchor="middle" font-size="10">(3,1)</text>
+        <circle cx="308" cy="112" r="9" fill="none" stroke="#000" stroke-width="1.5"/><text x="308" y="116" class="svg-text" text-anchor="middle" font-size="12">4</text>
+      </svg></div>
+        </div>
+        <div class="figure-container" style="border: none; box-shadow: none;">
+        <div class="figure-content">
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(1)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="32" r="4.5" fill="#000"/>
+        <circle cx="69" cy="32" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(2)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="21" cy="80" r="4.5" fill="#000"/>
+        <circle cx="93" cy="80" r="4.5" fill="#000"/>
+        <circle cx="21" cy="56" r="4.5" fill="#000"/>
+        <circle cx="93" cy="56" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(3)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="32" r="4.5" fill="#000"/>
+        <circle cx="69" cy="32" r="4.5" fill="#000"/>
+        <circle cx="33" cy="80" r="4.5" fill="#000"/>
+        <circle cx="81" cy="80" r="4.5" fill="#000"/>
+        <circle cx="33" cy="56" r="4.5" fill="#000"/>
+        <circle cx="81" cy="56" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(4)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="32" r="4.5" fill="#000"/>
+        <circle cx="69" cy="32" r="4.5" fill="#000"/>
+        <circle cx="21" cy="80" r="4.5" fill="#000"/>
+        <circle cx="93" cy="80" r="4.5" fill="#000"/>
+        <circle cx="21" cy="56" r="4.5" fill="#000"/>
+        <circle cx="93" cy="56" r="4.5" fill="#000"/>
+      </svg>
+          <svg width="114" height="125" viewBox="0 0 114 125">
+        <text x="57" y="14" class="svg-text" text-anchor="middle">(5)</text>
+        <line x1="9" y1="116" x2="9" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="21" y1="116" x2="21" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="33" y1="116" x2="33" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="45" y1="116" x2="45" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="57" y1="116" x2="57" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="69" y1="116" x2="69" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="81" y1="116" x2="81" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="93" y1="116" x2="93" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="105" y1="116" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="116" x2="105" y2="116" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="104" x2="105" y2="104" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="92" x2="105" y2="92" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="80" x2="105" y2="80" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="68" x2="105" y2="68" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="56" x2="105" y2="56" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="44" x2="105" y2="44" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="32" x2="105" y2="32" stroke="#ccc" stroke-width="1"/>
+        <line x1="9" y1="20" x2="105" y2="20" stroke="#ccc" stroke-width="1"/>
+        <rect x="9" y="20" width="96" height="96" fill="none" stroke="#000" stroke-width="2"/>
+        <circle cx="45" cy="104" r="4.5" fill="#000"/>
+        <circle cx="69" cy="104" r="4.5" fill="#000"/>
+        <circle cx="45" cy="32" r="4.5" fill="#000"/>
+        <circle cx="69" cy="32" r="4.5" fill="#000"/>
+        <circle cx="21" cy="92" r="4.5" fill="#000"/>
+        <circle cx="93" cy="92" r="4.5" fill="#000"/>
+        <circle cx="21" cy="44" r="4.5" fill="#000"/>
+        <circle cx="93" cy="44" r="4.5" fill="#000"/>
+      </svg>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="question-section question-page">
+    <div class="page-content">
+      <div class="explanation">
+        <strong>問2(正解:(4))</strong><br>
+        3回折ったので、3本の折り線 y=4・x=4・y=x のそれぞれについて鏡像が生じる。手順を逆順に戻して穴を増やす。<br>
+<strong>【手順をさかのぼる】</strong><br>
+・折り③（対角線 y=x）を戻す：穴(3,1)は y=x に関して(1,3)にも対称に現れる。三角形内の穴は (3,1)・(1,3) の2個。<br>
+・折り②（x=4）を戻す：各穴に x→8−x の像が加わり (5,1)・(7,3) が増える。<br>
+・折り①（y=4）を戻す：各穴に y→8−y の像が加わり (3,7)・(1,5)・(5,7)・(7,5) が増える。<br>
+よって穴は <strong>(3,1)・(5,1)・(3,7)・(5,7)・(1,3)・(7,3)・(1,5)・(7,5)</strong> の8個。中心と両対角線について対称な配置になる。<br>
+<strong>【選択肢の検討】</strong><br>
+・(1) 対角折り③を無視した4個 → 不正解<br>
+・(2) 直交2折りを無視した4個 → 不正解<br>
+・(3) 対角折りで生じる像の位置が誤り（x=2,6）→ 不正解<br>
+・(4) 正しい8個の配置 → <strong>正解</strong><br>
+・(5) 対角を別の向きで反映し位置が誤り（y=2,6）→ 不正解<br>
+したがって、正解は<strong>(4)</strong>である。<br>
+      </div>
+    </div>
+  </div>
+
+        <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
