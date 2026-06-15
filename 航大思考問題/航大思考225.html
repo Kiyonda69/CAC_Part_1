@@ -1,0 +1,888 @@
+<!--
+================================================================================
+template_dynamic.html - 動的問題テンプレート（インタラクティブ版）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+インタラクティブに表示・解答できる形式のHTMLファイルです。
+ユーザーが選択肢をクリックすると、正解/不正解が表示され、
+解説が自動的に展開されます。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. selectAnswer() の引数で正解番号を設定
+4. recordAnswer() の問題名を適切に変更
+
+【注意事項】
+- 問題名は「YYYY_MM/航大思考N/問Q」の形式で指定すること
+- SVG図表は適切なサイズとviewBoxを設定すること
+- 選択肢の data-option 属性は1から順番に設定すること
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                下の【図1】は、一辺の長さが等しい立方体の形をした航空貨物コンテナ（ULD）である。8つの頂点を A〜H とする。このコンテナを、上面の手前の辺 <strong>EF</strong> と、底面の奥の辺 <strong>DC</strong> をともに通る平面で、まっすぐ1回切断する（図の網かけ部分が切断する平面）。<br>
+                切り分けたときに新しくあらわれる切断面（コンテナの断面）の形として正しいものを、下の(1)〜(5)から1つ選べ。
+            </div>
+
+            <!-- 図表エリア -->
+            <!--
+            SVGを使用して図表を作成
+            - viewBox で座標系を定義
+            - width/height で表示サイズを指定
+            - g タグで要素をグループ化し、transform で位置調整
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】立方体コンテナと切断する平面（網かけ）</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 340x270px, viewBox 0 0 340 270
+                    - キャビネット投影（前面ABFEが正方形, 奥行きは右上45°×0.5）
+                    - 頂点 A(70,235) B(226,235) C(281,180) D(125,180)
+                            E(70,79) F(226,79) G(281,24) H(125,24)
+                    - 切断面 E-F-C-D を網かけ
+                    -->
+                    <svg width="340" height="270" viewBox="0 0 340 270">
+                        <!-- 切断面 EFCD（網かけ） -->
+                        <polygon points="70,79 226,79 281.2,179.8 125.2,179.8" fill="#cccccc" fill-opacity="0.6" stroke="#333" stroke-width="1.5" stroke-dasharray="4,3"/>
+                        <!-- 隠れ辺（破線）: D につながる辺 A-D, D-C, D-H -->
+                        <line x1="70" y1="235" x2="125.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="125.2" y1="179.8" x2="281.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="125.2" y1="179.8" x2="125.2" y2="23.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <!-- 可視辺（実線） -->
+                        <polyline points="70,235 226,235 281.2,179.8 281.2,23.8 125.2,23.8 70,79 70,235" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="226" y1="235" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                        <line x1="70" y1="79" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                        <line x1="226" y1="79" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                        <line x1="226" y1="79" x2="226" y2="235" stroke="black" stroke-width="2"/>
+                        <line x1="281.2" y1="179.8" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                        <!-- 切断面の4隅を強調 -->
+                        <circle cx="70" cy="79" r="4" fill="black"/>
+                        <circle cx="226" cy="79" r="4" fill="black"/>
+                        <circle cx="281.2" cy="179.8" r="4" fill="black"/>
+                        <circle cx="125.2" cy="179.8" r="4" fill="black"/>
+                        <!-- 頂点ラベル -->
+                        <text x="58" y="250" class="svg-text">A</text>
+                        <text x="226" y="252" class="svg-text" text-anchor="middle">B</text>
+                        <text x="290" y="184" class="svg-text">C</text>
+                        <text x="108" y="174" class="svg-text" text-anchor="end">D</text>
+                        <text x="58" y="76" class="svg-text" text-anchor="end">E</text>
+                        <text x="232" y="72" class="svg-text">F</text>
+                        <text x="290" y="24" class="svg-text">G</text>
+                        <text x="120" y="18" class="svg-text" text-anchor="end">H</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（図形選択肢の場合） -->
+            <!--
+            図形選択肢を使用する場合は .options-figure を使用
+            - 各ボタンに data-option="N" で選択肢番号を設定
+            - onclick="selectAnswer(問題番号, 選択した番号, 正解番号)" を設定
+            -->
+            <div class="options-figure" id="q1-options">
+                <!-- 選択肢(1) 縦長の長方形（正解） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <rect x="23" y="28" width="44" height="64" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2) 正方形 -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <rect x="20" y="35" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3) ひし形 -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <polygon points="45,28 70,60 45,92 20,60" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4) 平行四辺形 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <polygon points="32,32 74,32 58,90 16,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5) 等脚台形 -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <polygon points="30,32 60,32 76,90 14,90" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!--
+            テキスト選択肢を使用する場合の例:
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>選択肢1のテキスト
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>選択肢2のテキスト
+                </button>
+                ...
+            </div>
+            -->
+
+            <!-- 解説セクション -->
+            <!--
+            解答後に自動展開される解説エリア
+            - id="q{N}-explanation" の形式でIDを付与
+            - 解説内容は .explanation-content 内に記述
+            -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>立方体の一辺の長さを 6 とする。切断面は、上面の辺 EF と底面の辺 DC を結ぶ4点 E・F・C・D を頂点とする四角形である。</p>
+                    <br>
+                    <p><strong>【4つの辺の長さ】</strong></p>
+                    <p>・辺 EF と辺 DC は、いずれも立方体の辺そのものなので長さ <strong>6</strong>。</p>
+                    <p>・辺 FC と辺 ED は、立方体の側面の対角線なので長さ <strong>6√2 ≈ 8.5</strong>。</p>
+                    <p>向かい合う辺どうしが等しいので、平行四辺形であることがわかる。</p>
+                    <br>
+                    <p><strong>【角が直角であること】</strong></p>
+                    <p>EF は立方体の幅方向の辺、FC は側面（手前から奥へ下りる面）の対角線で、両者は垂直に交わる。よって4つの角はすべて直角となり、切断面は<strong>長方形</strong>である。</p>
+                    <br>
+                    <p>辺の比は 6 : 6√2 = 1 : √2 で正方形ではない。したがって正解は<strong>(1)</strong>の縦長の長方形である。</p>
+                    <br>
+                    <p>(2)正方形：隣り合う辺が 6 と 6√2 で長さが異なるため誤り。(3)ひし形・(4)平行四辺形：角が直角になるため当てはまらない。(5)台形：向かい合う辺が平行かつ等長なので当てはまらない。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <!--
+            問題間移動用のボタン
+            - style="display: none;" で初期非表示
+            - 解答後にJavaScriptで表示される
+            -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <!-- 最初の問題では「前の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <!-- 2問目以降は同様の構造で追加 -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ立方体コンテナ（頂点 A〜H）を考える。今度は、次の3つの辺の中点 P・Q・R をすべて通る平面で、まっすぐ1回切断する。<br>
+                ・P：上面の手前の辺 <strong>EF</strong> の中点<br>
+                ・Q：左奥の縦の辺 <strong>DH</strong> の中点<br>
+                ・R：右手前の底の辺 <strong>BC</strong> の中点<br>
+                このとき、コンテナにあらわれる切断面（断面）の形として正しいものを、下の(1)〜(5)から1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図2】立方体コンテナと3つの中点 P・Q・R</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様: 340x270 viewBox。問1と同一の立方体。
+                    P=EF中点(148,79) Q=DH中点(125.2,101.8) R=BC中点(253.6,207.4)
+                    -->
+                    <svg width="340" height="270" viewBox="0 0 340 270">
+                        <!-- 隠れ辺（破線）: A-D, D-C, D-H -->
+                        <line x1="70" y1="235" x2="125.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="125.2" y1="179.8" x2="281.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="125.2" y1="179.8" x2="125.2" y2="23.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <!-- 可視辺（実線） -->
+                        <polyline points="70,235 226,235 281.2,179.8 281.2,23.8 125.2,23.8 70,79 70,235" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="226" y1="235" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                        <line x1="70" y1="79" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                        <line x1="226" y1="79" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                        <line x1="281.2" y1="179.8" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                        <!-- 中点 P, Q, R -->
+                        <circle cx="148" cy="79" r="4.5" fill="black"/>
+                        <circle cx="125.2" cy="101.8" r="4.5" fill="black"/>
+                        <circle cx="253.6" cy="207.4" r="4.5" fill="black"/>
+                        <text x="148" y="70" class="svg-text" text-anchor="middle" font-weight="bold">P</text>
+                        <text x="110" y="105" class="svg-text" text-anchor="end" font-weight="bold">Q</text>
+                        <text x="262" y="212" class="svg-text" font-weight="bold">R</text>
+                        <!-- 頂点ラベル -->
+                        <text x="58" y="250" class="svg-text">A</text>
+                        <text x="226" y="252" class="svg-text" text-anchor="middle">B</text>
+                        <text x="290" y="184" class="svg-text">C</text>
+                        <text x="108" y="174" class="svg-text" text-anchor="end">D</text>
+                        <text x="58" y="76" class="svg-text" text-anchor="end">E</text>
+                        <text x="232" y="72" class="svg-text">F</text>
+                        <text x="290" y="24" class="svg-text">G</text>
+                        <text x="120" y="18" class="svg-text" text-anchor="end">H</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="options-figure" id="q2-options">
+                <!-- 選択肢(1) 正三角形 -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <polygon points="45,28 72,88 18,88" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2) 正方形 -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <rect x="20" y="36" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3) 正五角形 -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <polygon points="45,32 73.5,52.7 62.6,86.3 27.4,86.3 16.5,52.7" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4) 長方形 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <rect x="16" y="42" width="58" height="38" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5) 正六角形（正解） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <polygon points="45,30 71,45 71,75 45,90 19,75 19,45" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>3点 P・Q・R を結ぶだけでは三角形に見えるが、切断面とは「平面がコンテナの<strong>各面と交わってできる線</strong>」を一周つないだ図形であることに注意する。平面はコンテナを貫いて反対側まで延びるため、通過する面の数だけ辺ができる。</p>
+                    <br>
+                    <p><strong>【座標で確認】</strong></p>
+                    <p>一辺を 6 とし、A を原点、各辺方向を x・y・z とすると、P=(3,0,6)、Q=(0,6,3)、R=(6,3,0)。この3点を通る平面は <strong>x+y+z=9</strong> である。</p>
+                    <br>
+                    <p><strong>【面との交わり】</strong></p>
+                    <p>x+y+z=9 は、立方体の6つの面すべてと交わり、交点は各辺の中点6か所：(3,0,6)(0,3,6)(0,6,3)(3,6,0)(6,3,0)(6,0,3) となる。これらを順につなぐと<strong>六角形</strong>になる。</p>
+                    <br>
+                    <p>さらに、6つの辺はいずれも面の対角線の半分で長さが等しく（各 3√2）、対称性から内角もすべて等しい。よって切断面は<strong>正六角形</strong>であり、正解は<strong>(5)</strong>。</p>
+                    <br>
+                    <p>(1)正三角形：P・Q・Rだけを結んだ誤答。実際の平面はさらに3つの中点も通る。(2)(3)(4)：通過する面が6つあるため辺は6本になり当てはまらない。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <!-- 最後の問題では「次の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考225/問${questionNum}`,  // 航大思考225
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>

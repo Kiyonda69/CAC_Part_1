@@ -1,0 +1,571 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <!--
+                印刷用では問題番号と問題文を一体で記述
+                配点は末尾に括弧で記載
+                -->
+                <div class="question-number">問1．下の【図1】は、一辺の長さが等しい立方体の形をした航空貨物コンテナ（ULD）である。8つの頂点を A〜H とする。このコンテナを、上面の手前の辺 EF と、底面の奥の辺 DC をともに通る平面で、まっすぐ1回切断する（図の網かけ部分が切断する平面）。切り分けたときに新しくあらわれる切断面（コンテナの断面）の形として正しいものを、下の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!-- 図表エリア -->
+                <!--
+                SVGを使用して図表を作成
+                - viewBox: 座標系の定義（x, y, 幅, 高さ）
+                - width/height: 実際の表示サイズ
+
+                【座標系の設計指針】
+                - 各図形は概ね80〜100pxのボックス内に収める
+                - transform="translate(x, y)" でグループを配置
+                - 多角形は polygon points で頂点座標を列挙
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体コンテナと切断する平面（網かけ）</div>
+                    <div class="figure-content">
+                        <!-- キャビネット投影。頂点 A(70,235) B(226,235) C(281,180) D(125,180) E(70,79) F(226,79) G(281,24) H(125,24)。切断面 EFCD を網かけ -->
+                        <svg width="340" height="270" viewBox="0 0 340 270">
+                            <polygon points="70,79 226,79 281.2,179.8 125.2,179.8" fill="#cccccc" fill-opacity="0.6" stroke="#333" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="70" y1="235" x2="125.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="125.2" y1="179.8" x2="281.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="125.2" y1="179.8" x2="125.2" y2="23.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <polyline points="70,235 226,235 281.2,179.8 281.2,23.8 125.2,23.8 70,79 70,235" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="226" y1="235" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="79" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                            <line x1="226" y1="79" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                            <line x1="281.2" y1="179.8" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                            <circle cx="70" cy="79" r="4" fill="black"/>
+                            <circle cx="226" cy="79" r="4" fill="black"/>
+                            <circle cx="281.2" cy="179.8" r="4" fill="black"/>
+                            <circle cx="125.2" cy="179.8" r="4" fill="black"/>
+                            <text x="58" y="250" class="svg-text">A</text>
+                            <text x="226" y="252" class="svg-text" text-anchor="middle">B</text>
+                            <text x="290" y="184" class="svg-text">C</text>
+                            <text x="108" y="174" class="svg-text" text-anchor="end">D</text>
+                            <text x="58" y="76" class="svg-text" text-anchor="end">E</text>
+                            <text x="232" y="72" class="svg-text">F</text>
+                            <text x="290" y="24" class="svg-text">G</text>
+                            <text x="120" y="18" class="svg-text" text-anchor="end">H</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <!--
+                選択肢はSVGで描画し、figure-container内に配置
+                印刷用では枠線なしのシンプルな表示
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="130" viewBox="0 0 600 130">
+                            <!-- 選択肢(1) 縦長の長方形（正解） -->
+                            <g transform="translate(10, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="18" y="25" width="44" height="64" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(2) 正方形 -->
+                            <g transform="translate(110, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="15" y="32" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(3) ひし形 -->
+                            <g transform="translate(210, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <polygon points="40,25 65,57 40,89 15,57" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(4) 平行四辺形 -->
+                            <g transform="translate(310, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <polygon points="27,28 69,28 53,86 11,86" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+
+                            <!-- 選択肢(5) 等脚台形 -->
+                            <g transform="translate(410, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <polygon points="25,28 55,28 71,86 9,86" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(1))</strong><br>
+                立方体の一辺の長さを 6 とする。切断面は、上面の辺 EF と底面の辺 DC を結ぶ4点 E・F・C・D を頂点とする四角形である。<br><br>
+
+                <strong>【4つの辺の長さ】</strong><br>
+                ・辺 EF と辺 DC は、いずれも立方体の辺そのものなので長さ 6。<br>
+                ・辺 FC と辺 ED は、立方体の側面の対角線なので長さ 6√2 ≈ 8.5。<br>
+                向かい合う辺どうしが等しいので、平行四辺形であることがわかる。<br><br>
+
+                <strong>【角が直角であること】</strong><br>
+                EF は立方体の幅方向の辺、FC は側面（手前から奥へ下りる面）の対角線で、両者は垂直に交わる。よって4つの角はすべて直角となり、切断面は長方形である。辺の比は 6 : 6√2 = 1 : √2 で正方形ではない。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 縦横比 1:√2 の長方形 → 正解。<br>
+                ・(2) 正方形 → 隣り合う辺が 6 と 6√2 で長さが異なるため誤り。<br>
+                ・(3) ひし形 → 角が直角になるため誤り。<br>
+                ・(4) 平行四辺形 → 角が直角になるため誤り。<br>
+                ・(5) 台形 → 向かい合う辺が平行かつ等長なので誤り。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ立方体コンテナ（頂点 A〜H）を考える。今度は、次の3つの辺の中点 P・Q・R をすべて通る平面で、まっすぐ1回切断する。P：上面の手前の辺 EF の中点、Q：左奥の縦の辺 DH の中点、R：右手前の底の辺 BC の中点。このとき、コンテナにあらわれる切断面（断面）の形として正しいものを、下の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】立方体コンテナと3つの中点 P・Q・R</div>
+                    <div class="figure-content">
+                        <!-- 問1と同一の立方体。P=EF中点(148,79) Q=DH中点(125,102) R=BC中点(254,207) -->
+                        <svg width="340" height="270" viewBox="0 0 340 270">
+                            <line x1="70" y1="235" x2="125.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="125.2" y1="179.8" x2="281.2" y2="179.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="125.2" y1="179.8" x2="125.2" y2="23.8" stroke="#999" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <polyline points="70,235 226,235 281.2,179.8 281.2,23.8 125.2,23.8 70,79 70,235" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="226" y1="235" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="79" x2="226" y2="79" stroke="black" stroke-width="2"/>
+                            <line x1="226" y1="79" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                            <line x1="281.2" y1="179.8" x2="281.2" y2="23.8" stroke="black" stroke-width="2"/>
+                            <circle cx="148" cy="79" r="4.5" fill="black"/>
+                            <circle cx="125.2" cy="101.8" r="4.5" fill="black"/>
+                            <circle cx="253.6" cy="207.4" r="4.5" fill="black"/>
+                            <text x="148" y="70" class="svg-text" text-anchor="middle" font-weight="bold">P</text>
+                            <text x="110" y="105" class="svg-text" text-anchor="end" font-weight="bold">Q</text>
+                            <text x="262" y="212" class="svg-text" font-weight="bold">R</text>
+                            <text x="58" y="250" class="svg-text">A</text>
+                            <text x="226" y="252" class="svg-text" text-anchor="middle">B</text>
+                            <text x="290" y="184" class="svg-text">C</text>
+                            <text x="108" y="174" class="svg-text" text-anchor="end">D</text>
+                            <text x="58" y="76" class="svg-text" text-anchor="end">E</text>
+                            <text x="232" y="72" class="svg-text">F</text>
+                            <text x="290" y="24" class="svg-text">G</text>
+                            <text x="120" y="18" class="svg-text" text-anchor="end">H</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="130" viewBox="0 0 600 130">
+                            <!-- (1) 正三角形 -->
+                            <g transform="translate(10, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <polygon points="40,25 67,85 13,85" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 正方形 -->
+                            <g transform="translate(110, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="15" y="33" width="50" height="50" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 正五角形 -->
+                            <g transform="translate(210, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <polygon points="40,28 68.5,48.7 57.6,82.3 22.4,82.3 11.5,48.7" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 長方形 -->
+                            <g transform="translate(310, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="11" y="38" width="58" height="38" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 正六角形（正解） -->
+                            <g transform="translate(410, 10)">
+                                <text x="40" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <polygon points="40,26 66,41 66,71 40,86 14,71 14,41" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                3点 P・Q・R を結ぶだけでは三角形に見えるが、切断面とは「平面がコンテナの各面と交わってできる線」を一周つないだ図形であることに注意する。平面はコンテナを貫いて反対側まで延びるため、通過する面の数だけ辺ができる。<br><br>
+
+                <strong>【座標で確認】</strong><br>
+                一辺を 6 とし、A を原点、各辺方向を x・y・z とすると、P=(3,0,6)、Q=(0,6,3)、R=(6,3,0)。この3点を通る平面は x+y+z=9 である。<br><br>
+
+                <strong>【面との交わり】</strong><br>
+                x+y+z=9 は立方体の6つの面すべてと交わり、交点は各辺の中点6か所：(3,0,6)(0,3,6)(0,6,3)(3,6,0)(6,3,0)(6,0,3) となる。これらを順につなぐと六角形になる。さらに6つの辺はいずれも面の対角線の半分で長さが等しく（各 3√2）、対称性から内角もすべて等しい。よって切断面は正六角形である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 正三角形 → P・Q・Rだけを結んだ誤答。実際の平面はさらに3つの中点も通る。<br>
+                ・(2) 正方形・(3) 正五角形・(4) 長方形 → 通過する面が6つあるため辺は6本になり当てはまらない。<br>
+                ・(5) 正六角形 → 正解。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
