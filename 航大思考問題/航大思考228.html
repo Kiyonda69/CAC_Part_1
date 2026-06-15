@@ -1,0 +1,458 @@
+<!--
+================================================================================
+航大思考228.html - セット228: 情報量の多い資料穴埋め問題（インタラクティブ版）
+================================================================================
+問1（標準）: 市立図書館 地区別・分野別 貸出冊数報告書の穴埋め（4地区×3分野クロス集計・3空欄）
+問2（高難度）: 製造会社 四半期別・製品別 売上高報告書の穴埋め（4四半期×3製品クロス集計・3空欄・連鎖推論）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .main-content { max-width: 800px; margin: 0 auto; padding: 20px 20px 40px; }
+
+        .screen {
+            display: none;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .screen.active { display: block; }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333;
+        }
+
+        .question-number { font-weight: bold; font-size: 18px; }
+        .question-meta { font-size: 14px; color: #666; }
+        .question-text { margin-bottom: 20px; text-align: justify; }
+
+        .passage {
+            margin: 20px 0;
+            padding: 20px 22px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: justify;
+            font-size: 15px;
+            line-height: 1.9;
+        }
+
+        .passage-title { font-weight: bold; margin-bottom: 10px; font-size: 15px; }
+
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .figure-title { font-weight: bold; margin-bottom: 15px; font-size: 15px; }
+        .figure-content { display: inline-block; margin: 10px auto; }
+
+        .figure-table { margin: 0 auto; border-collapse: collapse; background-color: white; }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 12px 18px;
+            min-width: 80px;
+            min-height: 50px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        .blank-cell { font-weight: bold; background-color: #fff8e1; }
+
+        .options-container { margin: 20px 0; }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .option-button:hover:not(.disabled) { border-color: #666; background-color: #f9f9f9; }
+        .option-button.selected { border-color: #2196F3; background-color: #e3f2fd; }
+        .option-button.correct { border-color: #4CAF50; background-color: #e8f5e9; }
+        .option-button.incorrect { border-color: #f44336; background-color: #ffebee; }
+        .option-button.disabled { cursor: default; opacity: 0.8; }
+        .option-button .option-label { font-weight: bold; margin-right: 10px; }
+
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary { background-color: #2196F3; color: white; }
+        .btn-primary:hover { background-color: #1976D2; }
+        .btn-secondary { background-color: #666; color: white; }
+        .btn-secondary:hover { background-color: #555; }
+
+        .explanation-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .explanation-section.show { display: block; }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content { line-height: 2; }
+        .explanation-content strong { color: #333; }
+
+        .progress-bar { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #ddd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover { transform: scale(1.1); }
+        .progress-dot.active { background-color: #2196F3; color: white; }
+        .progress-dot.completed { background-color: #4CAF50; color: white; }
+        .progress-dot.incorrect-dot { background-color: #f44336; color: white; }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn { min-width: 120px; }
+        .nav-buttons .btn.hidden { visibility: hidden; }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章は、ある市の市立図書館事務局がまとめた、2025年度上半期における地区別・分野別の貸出冊数に関する報告書である。この文章と下表をもとに、表中の空欄（ア）（イ）（ウ）に入る数値の組合せとして正しいものを、下の(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage">
+                <div class="passage-title">【貸出冊数報告書（抜粋）】</div>
+                本市の市立図書館は、東・西・南・北の4地区に分館を置き、図書を「文学」「実用」「児童」の3分野に区分して貸出統計を集計している。2025年度上半期（4月～9月）の貸出冊数について、以下のとおり報告する。<br><br>
+                当期の4地区を合わせた総貸出冊数は2,580冊であった。分野別にみると、文学分野の貸出は4地区合計で1,140冊を占め、これは3分野のうち最も多かった。<br><br>
+                地区別では、南地区の当期の貸出冊数の合計は550冊であり、4地区の中で最も少なかった。なお、各地区・各分野の確定値および一部の合計は下表のとおりである。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】2025年度上半期 地区別・分野別 貸出冊数（単位: 冊）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>地区</th><th>文学</th><th>実用</th><th>児童</th><th>合計</th></tr>
+                        <tr><td>東</td><td>320</td><td>180</td><td>150</td><td>650</td></tr>
+                        <tr><td>西</td><td>280</td><td>220</td><td>200</td><td>700</td></tr>
+                        <tr><td>南</td><td>240</td><td>160</td><td class="blank-cell">（ア）</td><td>550</td></tr>
+                        <tr><td>北</td><td class="blank-cell">（イ）</td><td>200</td><td>180</td><td class="blank-cell">（ウ）</td></tr>
+                        <tr><td>分野合計</td><td>1,140</td><td>760</td><td>680</td><td>2,580</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>ア＝150　イ＝280　ウ＝660
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>ア＝160　イ＝300　ウ＝680
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>ア＝150　イ＝320　ウ＝700
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>ア＝150　イ＝300　ウ＝680
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>ア＝130　イ＝300　ウ＝660
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>表の確定値と、報告文・表に示された合計から、3つの空欄を順に求める。</p>
+                    <br>
+                    <p><strong>【ア：南地区の児童】</strong></p>
+                    <p>表より南地区の合計は550冊、文学は240冊、実用は160冊である。</p>
+                    <p>ア ＝ 550 − 240 − 160 ＝ <strong>150冊</strong></p>
+                    <br>
+                    <p><strong>【イ：北地区の文学】</strong></p>
+                    <p>文学分野の4地区合計は1,140冊（報告文・表）。東320・西280・南240であるから、</p>
+                    <p>イ ＝ 1,140 − 320 − 280 − 240 ＝ <strong>300冊</strong></p>
+                    <br>
+                    <p><strong>【ウ：北地区の合計】</strong></p>
+                    <p>北地区の各分野は文学（イ＝300）・実用200・児童180である。</p>
+                    <p>ウ ＝ 300 ＋ 200 ＋ 180 ＝ <strong>680冊</strong></p>
+                    <p>（別解: 総合計2,580 − 東650 − 西700 − 南550 ＝ 680冊 で一致）</p>
+                    <br>
+                    <p><strong>【検算】</strong></p>
+                    <p>各地区合計の和 ＝ 650 ＋ 700 ＋ 550 ＋ 680 ＝ 2,580冊 → 総合計と一致</p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) ウ＝660 → 北合計を求める際にイ＝280と誤った値を用いた結果</p>
+                    <p>・(2) ア＝160 → 南の実用160をそのまま児童欄に転記した誤り</p>
+                    <p>・(3) イ＝320 → 文学合計から引く地区を取り違えた誤り</p>
+                    <p>・(5) ア＝130 → 550−240−180（実用を180と取り違え）とした誤り</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の文章は、ある製造会社が2025年度の四半期別・製品別の売上高についてまとめた報告書である。この文章と下表をもとに、表中の空欄（ア）（イ）（ウ）に入る数値の組合せとして正しいものを、下の(1)～(5)のうちから1つ選べ。
+            </div>
+
+            <div class="passage">
+                <div class="passage-title">【売上高報告書（抜粋）】</div>
+                当社は製品X、製品Y、製品Zの3製品を扱っており、2025年度（第1～第4四半期）の四半期別売上高を以下のとおり報告する（単位: 万円）。<br><br>
+                第3四半期（Q3）の製品Xの売上高は、第1四半期（Q1）の製品Xの1.2倍であった。<br><br>
+                第4四半期（Q4）については、製品Yの売上高がQ4の合計の30%を占めた。製品Zの売上高は、Q4の合計から製品X・製品Yを差し引いた残りである。<br><br>
+                各四半期の合計および確定値は下表のとおりであり、参考として製品別の年間合計も付記する。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】2025年度 四半期別・製品別 売上高（単位: 万円）</div>
+                <div class="figure-content">
+                    <table class="figure-table">
+                        <tr><th>四半期</th><th>製品X</th><th>製品Y</th><th>製品Z</th><th>合計</th></tr>
+                        <tr><td>Q1</td><td>1,500</td><td>1,200</td><td>900</td><td>3,600</td></tr>
+                        <tr><td>Q2</td><td>1,650</td><td>1,140</td><td>900</td><td>3,690</td></tr>
+                        <tr><td>Q3</td><td class="blank-cell">（ア）</td><td>1,260</td><td>990</td><td>4,050</td></tr>
+                        <tr><td>Q4</td><td>1,980</td><td class="blank-cell">（イ）</td><td class="blank-cell">（ウ）</td><td>4,200</td></tr>
+                        <tr><td>年間合計</td><td>6,930</td><td>4,860</td><td>3,750</td><td>15,540</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>ア＝1,980　イ＝1,260　ウ＝960
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>ア＝1,800　イ＝1,290　ウ＝930
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>ア＝1,980　イ＝1,260　ウ＝990
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>ア＝1,800　イ＝1,260　ウ＝1,140
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>ア＝1,800　イ＝1,260　ウ＝960
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>報告文の各条件を順に適用し、3つの空欄を求める。値が連鎖して確定する点に注意する。</p>
+                    <br>
+                    <p><strong>【ア：Q3の製品X】</strong></p>
+                    <p>「Q3の製品XはQ1の製品Xの1.2倍」とある。Q1の製品Xは表より1,500万円。</p>
+                    <p>ア ＝ 1,500 × 1.2 ＝ <strong>1,800万円</strong></p>
+                    <p>（検算: Q3合計 ＝ 1,800 ＋ 1,260 ＋ 990 ＝ 4,050万円 → 表と一致）</p>
+                    <br>
+                    <p><strong>【イ：Q4の製品Y】</strong></p>
+                    <p>「Q4の製品YはQ4合計の30%」とあり、Q4合計は表より4,200万円。</p>
+                    <p>イ ＝ 4,200 × 0.30 ＝ <strong>1,260万円</strong></p>
+                    <br>
+                    <p><strong>【ウ：Q4の製品Z】</strong></p>
+                    <p>Q4合計から製品X（1,980）と製品Y（イ＝1,260）を差し引く。</p>
+                    <p>ウ ＝ 4,200 − 1,980 − 1,260 ＝ <strong>960万円</strong></p>
+                    <p>（検算: 製品Zの年間合計 ＝ 900 ＋ 900 ＋ 990 ＋ 960 ＝ 3,750万円 → 表と一致）</p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) ア＝1,980 → 「1.2倍」の基準をQ1ではなくQ4の製品Xと取り違えた誤り</p>
+                    <p>・(2) イ＝1,290・ウ＝930 → Q4合計を4,300等と誤って30%を計算した結果</p>
+                    <p>・(3) ウ＝990 → Q4の製品ZをQ3の製品Z（990）と同じと早合点した誤り</p>
+                    <p>・(4) ウ＝1,140 → 4,200から1,800（アの値）と1,260を誤って差し引いた結果</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const state = { currentQuestion: 1, answers: {} };
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        function startQuestion(questionNum) { goToQuestion(questionNum); }
+
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            if (state.answers[questionNum] !== undefined) {
+                state.answers[questionNum] = undefined;
+                buttons.forEach(btn => { btn.classList.remove('selected', 'correct', 'incorrect'); });
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+                return;
+            }
+
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_06/航大思考228/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {}
+
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) { btn.classList.add('incorrect'); }
+                }
+                if (option === correctOption) { btn.classList.add('correct'); }
+            });
+
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
