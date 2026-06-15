@@ -1,0 +1,653 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <!--
+                印刷用では問題番号と問題文を一体で記述
+                配点は末尾に括弧で記載
+                -->
+                <div class="question-number">問1．格納庫の床に正方形のマスが並んでおり、一辺がちょうど1マス分の立方体の点検ユニットが置かれている。床は真上から見て上を北、右を東とする。立方体の6つの面には A・B・C・D・E・F の文字が1つずつ書かれている。出発時、上面が A、底面（床に接する面）が B、北を向く面が C、南を向く面が D、東を向く面が E、西を向く面が F である。この立方体を、次の【図1】の矢印の順に、1マスずつ転がして（接する辺を軸にして倒して）移動させる。①東へ1マス ②北へ1マス ③東へ1マス。到着したとき、上を向いている面の文字として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!-- 図表エリア -->
+                <!--
+                SVGを使用して図表を作成
+                - viewBox: 座標系の定義（x, y, 幅, 高さ）
+                - width/height: 実際の表示サイズ
+
+                【座標系の設計指針】
+                - 各図形は概ね80〜100pxのボックス内に収める
+                - transform="translate(x, y)" でグループを配置
+                - 多角形は polygon points で頂点座標を列挙
+                -->
+                <!--
+                図表仕様（問1）:
+                - 初期配置図: 真上から見た立方体（上面A、四方の面、底面B）
+                - 経路図: 4列×3行の格子、出発(0,0)→東→北→東→到着(2,1)
+                  cx=60+x*55, cy=220-y*55, セル一辺55px
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体の初期の向きと移動経路</div>
+                    <div class="figure-content">
+                        <div style="font-size:14px;margin-bottom:5px;">＜立方体の初期の向き（真上から見た図）＞</div>
+                        <svg width="300" height="220" viewBox="0 0 300 220">
+                            <!-- 方位コンパス -->
+                            <line x1="40" y1="55" x2="40" y2="25" stroke="black" stroke-width="1.5"/>
+                            <polygon points="40,20 36,28 44,28" fill="black"/>
+                            <text x="40" y="16" class="svg-text" text-anchor="middle" font-size="11">北</text>
+                            <line x1="40" y1="55" x2="70" y2="55" stroke="black" stroke-width="1.5"/>
+                            <polygon points="75,55 67,51 67,59" fill="black"/>
+                            <text x="84" y="59" class="svg-text" font-size="11">東</text>
+                            <!-- 上面 -->
+                            <rect x="110" y="70" width="80" height="80" fill="none" stroke="black" stroke-width="2"/>
+                            <text x="150" y="106" class="svg-text" text-anchor="middle">上面</text>
+                            <text x="150" y="128" class="svg-text" text-anchor="middle" font-size="22" font-weight="bold">A</text>
+                            <!-- 四方の面 -->
+                            <text x="150" y="55" class="svg-text" text-anchor="middle">北の面 C</text>
+                            <text x="150" y="175" class="svg-text" text-anchor="middle">南の面 D</text>
+                            <text x="235" y="114" class="svg-text" text-anchor="middle">東の面 E</text>
+                            <text x="65" y="114" class="svg-text" text-anchor="middle">西の面 F</text>
+                            <text x="150" y="200" class="svg-text" text-anchor="middle" font-size="13">（底面 B）</text>
+                        </svg>
+                        <div style="font-size:14px;margin:10px 0 5px;">＜移動経路（出発から到着まで）＞</div>
+                        <svg width="320" height="280" viewBox="0 0 320 280">
+                            <defs>
+                                <marker id="arr1" markerWidth="9" markerHeight="9" refX="7" refY="3"
+                                        orient="auto" markerUnits="strokeWidth">
+                                    <path d="M0,0 L7,3 L0,6 Z" fill="black"/>
+                                </marker>
+                            </defs>
+                            <!-- コンパス -->
+                            <line x1="40" y1="45" x2="40" y2="22" stroke="black" stroke-width="1.5"/>
+                            <polygon points="40,18 36,25 44,25" fill="black"/>
+                            <text x="40" y="14" class="svg-text" text-anchor="middle" font-size="11">北</text>
+                            <line x1="40" y1="45" x2="63" y2="45" stroke="black" stroke-width="1.5"/>
+                            <polygon points="68,45 60,41 60,49" fill="black"/>
+                            <text x="77" y="49" class="svg-text" font-size="11">東</text>
+                            <!-- 格子（4列×3行） -->
+                            <g fill="none" stroke="#999" stroke-width="1">
+                                <rect x="32.5" y="192.5" width="55" height="55"/>
+                                <rect x="87.5" y="192.5" width="55" height="55"/>
+                                <rect x="142.5" y="192.5" width="55" height="55"/>
+                                <rect x="197.5" y="192.5" width="55" height="55"/>
+                                <rect x="32.5" y="137.5" width="55" height="55"/>
+                                <rect x="87.5" y="137.5" width="55" height="55"/>
+                                <rect x="142.5" y="137.5" width="55" height="55"/>
+                                <rect x="197.5" y="137.5" width="55" height="55"/>
+                                <rect x="32.5" y="82.5" width="55" height="55"/>
+                                <rect x="87.5" y="82.5" width="55" height="55"/>
+                                <rect x="142.5" y="82.5" width="55" height="55"/>
+                                <rect x="197.5" y="82.5" width="55" height="55"/>
+                            </g>
+                            <!-- 出発・到着 -->
+                            <text x="60" y="224" class="svg-text" text-anchor="middle" font-weight="bold">出発</text>
+                            <text x="170" y="169" class="svg-text" text-anchor="middle" font-weight="bold">到着</text>
+                            <!-- 経路矢印 -->
+                            <line x1="78" y1="220" x2="100" y2="220" stroke="black" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="89" y="211" class="svg-text" text-anchor="middle" font-size="13">①</text>
+                            <line x1="115" y1="203" x2="115" y2="182" stroke="black" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="129" y="195" class="svg-text" font-size="13">②</text>
+                            <line x1="133" y1="165" x2="155" y2="165" stroke="black" stroke-width="2" marker-end="url(#arr1)"/>
+                            <text x="144" y="156" class="svg-text" text-anchor="middle" font-size="13">③</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <!--
+                選択肢はSVGで描画し、figure-container内に配置
+                印刷用では枠線なしのシンプルな表示
+                -->
+                <!-- 選択肢: (1)A (2)C (3)D (4)B(正解) (5)E -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="110" viewBox="0 0 600 110">
+                            <g transform="translate(10, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">A</text>
+                            </g>
+                            <g transform="translate(128, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">C</text>
+                            </g>
+                            <g transform="translate(246, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">D</text>
+                            </g>
+                            <g transform="translate(364, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">B</text>
+                            </g>
+                            <g transform="translate(482, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">E</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(4))</strong><br>
+                立方体が1マス転がると、進行方向の辺を軸にして倒れる。各方向に転がるときの面の移り変わりは次の通り。<br><br>
+
+                <strong>【転がりの規則】</strong><br>
+                ・東へ転がる：新上面＝（旧）西面、新東面＝（旧）上面、新底面＝（旧）東面、新西面＝（旧）底面（北・南は不変）<br>
+                ・北へ転がる：新上面＝（旧）南面、新北面＝（旧）上面、新底面＝（旧）北面、新南面＝（旧）底面（東・西は不変）<br><br>
+
+                <strong>【各面の追跡】</strong><br>
+                出発時：上A／底B／北C／南D／東E／西F<br>
+                ①東へ：上F／底E／北C／南D／東A／西B<br>
+                ②北へ：上D／底C／北F／南E／東A／西B<br>
+                ③東へ：上B／底A／北F／南E／東D／西C<br>
+                到着時の上面は <strong>B</strong> となる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) A：底面（床に接する面）であり上面ではない → 不正解<br>
+                ・(2) C：西を向く面 → 不正解<br>
+                ・(3) D：東を向く面 → 不正解<br>
+                ・(4) B：上を向く面 → 正解<br>
+                ・(5) E：南を向く面 → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ点検ユニットを使う。初期の向きも問1と同じで、上面が A、底面が B、北を向く面が C、南を向く面が D、東を向く面が E、西を向く面が F である。今度は下の【図2】の矢印の順に、①東へ1マス ②東へ1マス ③北へ1マス ④西へ1マス ⑤北へ1マス ⑥東へ1マス ⑦北へ1マス と、1マスずつ転がして移動させる。到着したとき、東を向いている面の文字として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様（問2）:
+                - 経路図: 3列×4行の格子
+                  cx=60+x*55, cy=230-y*55, セル一辺55px
+                  (0,0)→E→E→N→W→N→E→N→(2,3)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】移動経路</div>
+                    <div class="figure-content">
+                        <svg width="260" height="290" viewBox="0 0 260 290">
+                            <defs>
+                                <marker id="arr2" markerWidth="9" markerHeight="9" refX="7" refY="3"
+                                        orient="auto" markerUnits="strokeWidth">
+                                    <path d="M0,0 L7,3 L0,6 Z" fill="black"/>
+                                </marker>
+                            </defs>
+                            <!-- コンパス -->
+                            <line x1="35" y1="40" x2="35" y2="18" stroke="black" stroke-width="1.5"/>
+                            <polygon points="35,14 31,21 39,21" fill="black"/>
+                            <text x="35" y="11" class="svg-text" text-anchor="middle" font-size="11">北</text>
+                            <line x1="35" y1="40" x2="57" y2="40" stroke="black" stroke-width="1.5"/>
+                            <polygon points="62,40 54,36 54,44" fill="black"/>
+                            <text x="71" y="44" class="svg-text" font-size="11">東</text>
+                            <!-- 格子（3列×4行） -->
+                            <g fill="none" stroke="#999" stroke-width="1">
+                                <rect x="32.5" y="202.5" width="55" height="55"/>
+                                <rect x="87.5" y="202.5" width="55" height="55"/>
+                                <rect x="142.5" y="202.5" width="55" height="55"/>
+                                <rect x="32.5" y="147.5" width="55" height="55"/>
+                                <rect x="87.5" y="147.5" width="55" height="55"/>
+                                <rect x="142.5" y="147.5" width="55" height="55"/>
+                                <rect x="32.5" y="92.5" width="55" height="55"/>
+                                <rect x="87.5" y="92.5" width="55" height="55"/>
+                                <rect x="142.5" y="92.5" width="55" height="55"/>
+                                <rect x="32.5" y="37.5" width="55" height="55"/>
+                                <rect x="87.5" y="37.5" width="55" height="55"/>
+                                <rect x="142.5" y="37.5" width="55" height="55"/>
+                            </g>
+                            <!-- 出発・到着 -->
+                            <text x="60" y="234" class="svg-text" text-anchor="middle" font-weight="bold">出発</text>
+                            <text x="170" y="69" class="svg-text" text-anchor="middle" font-weight="bold">到着</text>
+                            <!-- 経路矢印 ①〜⑦ -->
+                            <line x1="78" y1="230" x2="100" y2="230" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="89" y="222" class="svg-text" text-anchor="middle" font-size="12">①</text>
+                            <line x1="133" y1="230" x2="155" y2="230" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="144" y="222" class="svg-text" text-anchor="middle" font-size="12">②</text>
+                            <line x1="170" y1="213" x2="170" y2="192" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="183" y="205" class="svg-text" font-size="12">③</text>
+                            <line x1="152" y1="175" x2="130" y2="175" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="141" y="167" class="svg-text" text-anchor="middle" font-size="12">④</text>
+                            <line x1="115" y1="158" x2="115" y2="137" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="128" y="150" class="svg-text" font-size="12">⑤</text>
+                            <line x1="133" y1="120" x2="155" y2="120" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="144" y="112" class="svg-text" text-anchor="middle" font-size="12">⑥</text>
+                            <line x1="170" y1="103" x2="170" y2="82" stroke="black" stroke-width="2" marker-end="url(#arr2)"/>
+                            <text x="183" y="95" class="svg-text" font-size="12">⑦</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢: (1)E (2)A(正解) (3)C (4)D (5)B -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="110" viewBox="0 0 600 110">
+                            <g transform="translate(10, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">E</text>
+                            </g>
+                            <g transform="translate(128, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">A</text>
+                            </g>
+                            <g transform="translate(246, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">C</text>
+                            </g>
+                            <g transform="translate(364, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">D</text>
+                            </g>
+                            <g transform="translate(482, 10)">
+                                <text x="50" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="5" y="22" width="90" height="70" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="50" y="72" class="svg-text" text-anchor="middle" font-size="26" font-weight="bold">B</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                問1と同じ転がりの規則で、上面だけでなく東を向く面まで含めて6面すべてを追跡する。表記は「上／底／北／南／東／西」の順とする。<br><br>
+
+                <strong>【6面の追跡】</strong><br>
+                出発：A／B／C／D／E／F<br>
+                ①東：F／E／C／D／A／B<br>
+                ②東：B／A／C／D／F／E<br>
+                ③北：D／C／B／A／F／E<br>
+                ④西：F／E／B／A／C／D<br>
+                ⑤北：A／B／F／E／C／D<br>
+                ⑥東：D／C／F／E／A／B<br>
+                ⑦北：E／F／D／C／A／B<br>
+                到着時、東を向く面は <strong>A</strong> である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) E：上を向く面 → 不正解<br>
+                ・(2) A：東を向く面 → 正解<br>
+                ・(3) C：南を向く面 → 不正解<br>
+                ・(4) D：北を向く面 → 不正解<br>
+                ・(5) B：西を向く面 → 不正解<br><br>
+
+                東西方向の面は、③④などの南北・東西混在の転がりで入れ替わるため、上面だけを追う方法では誤りやすい。各ステップで6面すべてを書き出すことが確実である。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
