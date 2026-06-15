@@ -1,0 +1,573 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <div class="question-number">問1．下のグラフは、ある地方空港の四半期ごとの旅客数（国内線・国際線、単位：万人）を示したものである。各四半期において、国際線旅客数が空港全体（国内線＋国際線）の旅客数に占める割合が最も高いのはどの四半期か。最も適切なものを1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様（グループ棒グラフ）:
+                - SVGサイズ: 560x320px / viewBox: 0 0 560 320
+                - 縦軸: 旅客数(万人) 0〜200, 1万人=1px, 基線 y=250, 上端 y=50
+                - 横軸: 第1〜第4四半期, グループ中心 x=140,250,360,470
+                - 国内線=黒(width30, 中心-32), 国際線=灰#999(width30, 中心+2)
+                - 数値ラベルを各棒の上に表示（精密な読み取り用）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】四半期別 旅客数（万人）</div>
+                    <div class="figure-content">
+                        <svg width="560" height="320" viewBox="0 0 560 320">
+                            <!-- 縦軸目盛りとグリッド線 -->
+                            <text x="70" y="42" class="svg-text" text-anchor="middle">(万人)</text>
+                            <line x1="70" y1="250" x2="530" y2="250" stroke="black" stroke-width="1.5"/>
+                            <line x1="70" y1="50" x2="70" y2="250" stroke="black" stroke-width="1.5"/>
+                            <g class="svg-text" text-anchor="end">
+                                <line x1="66" y1="250" x2="70" y2="250" stroke="black"/><text x="62" y="255">0</text>
+                                <line x1="66" y1="200" x2="70" y2="200" stroke="black"/><text x="62" y="205">50</text>
+                                <line x1="66" y1="150" x2="70" y2="150" stroke="black"/><text x="62" y="155">100</text>
+                                <line x1="66" y1="100" x2="70" y2="100" stroke="black"/><text x="62" y="105">150</text>
+                                <line x1="66" y1="50" x2="70" y2="50" stroke="black"/><text x="62" y="55">200</text>
+                            </g>
+                            <!-- 凡例 -->
+                            <g transform="translate(90, 56)">
+                                <rect x="0" y="0" width="14" height="14" fill="black"/>
+                                <text x="20" y="12" class="svg-text">国内線</text>
+                                <rect x="80" y="0" width="14" height="14" fill="#999"/>
+                                <text x="100" y="12" class="svg-text">国際線</text>
+                            </g>
+                            <!-- 第1四半期 (国内100, 国際25) -->
+                            <rect x="108" y="150" width="30" height="100" fill="black"/>
+                            <rect x="142" y="225" width="30" height="25" fill="#999"/>
+                            <text x="123" y="145" class="svg-text" text-anchor="middle">100</text>
+                            <text x="157" y="220" class="svg-text" text-anchor="middle">25</text>
+                            <text x="140" y="268" class="svg-text" text-anchor="middle">第1四半期</text>
+                            <!-- 第2四半期 (国内120, 国際48) -->
+                            <rect x="218" y="130" width="30" height="120" fill="black"/>
+                            <rect x="252" y="202" width="30" height="48" fill="#999"/>
+                            <text x="233" y="125" class="svg-text" text-anchor="middle">120</text>
+                            <text x="267" y="197" class="svg-text" text-anchor="middle">48</text>
+                            <text x="250" y="268" class="svg-text" text-anchor="middle">第2四半期</text>
+                            <!-- 第3四半期 (国内160, 国際56) -->
+                            <rect x="328" y="90" width="30" height="160" fill="black"/>
+                            <rect x="362" y="194" width="30" height="56" fill="#999"/>
+                            <text x="343" y="85" class="svg-text" text-anchor="middle">160</text>
+                            <text x="377" y="189" class="svg-text" text-anchor="middle">56</text>
+                            <text x="360" y="268" class="svg-text" text-anchor="middle">第3四半期</text>
+                            <!-- 第4四半期 (国内200, 国際60) -->
+                            <rect x="438" y="50" width="30" height="200" fill="black"/>
+                            <rect x="472" y="190" width="30" height="60" fill="#999"/>
+                            <text x="453" y="45" class="svg-text" text-anchor="middle">200</text>
+                            <text x="487" y="185" class="svg-text" text-anchor="middle">60</text>
+                            <text x="470" y="268" class="svg-text" text-anchor="middle">第4四半期</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1) 第1四半期<br>
+                    (2) 第2四半期<br>
+                    (3) 第3四半期<br>
+                    (4) 第4四半期<br>
+                    (5) すべて等しい
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(2))</strong><br>
+                問われているのは「国際線旅客数の絶対値」ではなく、空港全体に占める<strong>国際線の比率</strong>である。各四半期で 国際線 ÷（国内線＋国際線）を計算する。<br><br>
+
+                <strong>【各四半期の比率の計算】</strong><br>
+                ・第1四半期：25 ÷（100＋25）＝25 ÷ 125 ＝ 0.200（20.0％）<br>
+                ・第2四半期：48 ÷（120＋48）＝48 ÷ 168 ＝ 0.286（28.6％）<br>
+                ・第3四半期：56 ÷（160＋56）＝56 ÷ 216 ＝ 0.259（25.9％）<br>
+                ・第4四半期：60 ÷（200＋60）＝60 ÷ 260 ＝ 0.231（23.1％）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 第1四半期は20.0％で最も低い → 不正解<br>
+                ・(2) 第2四半期は28.6％で最も高い → 正解<br>
+                ・(3) 第3四半期は25.9％で2番目 → 不正解<br>
+                ・(4) 第4四半期は国際線旅客数の絶対値（60万人）は最大だが、国内線も最大のため比率は23.1％にとどまる → 不正解（このグラフで最も背の高い棒に惑わされやすい）<br>
+                ・(5) 比率は四半期ごとに異なる → 不正解<br><br>
+
+                棒の高さ（絶対値）ではなく比率で比較する点が要点である。したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の【図2】は、ある航空会社のある路線における月別の就航便数（棒グラフ・便）と平均搭乗率（折れ線・％）を、【表1】は同じ各月の平均座席数（席／便）を示している。旅客数は「就航便数 × 平均座席数 × 平均搭乗率」で求められるものとする。旅客数が最も多かった月はどれか。最も適切なものを1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様（複合グラフ：棒＝就航便数 / 折れ線＝平均搭乗率）:
+                - SVGサイズ: 580x340px / viewBox: 0 0 580 340
+                - 基線 y=260, x軸 70〜540
+                - 左軸(便): 0〜350, 1便=0.5714px (300便→y89)
+                - 右軸(%): 60〜90, 1%=6.667px (80%→y127)
+                - 月の中心 x=130,220,310,400,490
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】月別 就航便数（棒）と平均搭乗率（折れ線）</div>
+                    <div class="figure-content">
+                        <svg width="580" height="340" viewBox="0 0 580 340">
+                            <line x1="70" y1="260" x2="540" y2="260" stroke="black" stroke-width="1.5"/>
+                            <line x1="70" y1="60" x2="70" y2="260" stroke="black" stroke-width="1.5"/>
+                            <line x1="540" y1="60" x2="540" y2="260" stroke="black" stroke-width="1.5"/>
+                            <text x="70" y="50" class="svg-text" text-anchor="middle">(便)</text>
+                            <text x="540" y="50" class="svg-text" text-anchor="middle">(%)</text>
+                            <!-- 左軸目盛り(便) -->
+                            <g class="svg-text" text-anchor="end">
+                                <text x="62" y="265">0</text>
+                                <text x="62" y="208">100</text>
+                                <text x="62" y="151">200</text>
+                                <text x="62" y="94">300</text>
+                            </g>
+                            <!-- 右軸目盛り(%) -->
+                            <g class="svg-text" text-anchor="start">
+                                <text x="548" y="265">60</text>
+                                <text x="548" y="198">70</text>
+                                <text x="548" y="132">80</text>
+                                <text x="548" y="65">90</text>
+                            </g>
+                            <!-- 棒グラフ（就航便数, 白抜き＋黒枠, 中に便数） -->
+                            <rect x="108" y="111" width="44" height="149" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="130" y="127" class="svg-text" text-anchor="middle">260</text>
+                            <rect x="198" y="77" width="44" height="183" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="220" y="93" class="svg-text" text-anchor="middle">320</text>
+                            <rect x="288" y="89" width="44" height="171" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="310" y="105" class="svg-text" text-anchor="middle">300</text>
+                            <rect x="378" y="134" width="44" height="126" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="400" y="150" class="svg-text" text-anchor="middle">220</text>
+                            <rect x="468" y="100" width="44" height="160" fill="white" stroke="black" stroke-width="1.5"/>
+                            <text x="490" y="116" class="svg-text" text-anchor="middle">280</text>
+                            <!-- 折れ線（平均搭乗率） -->
+                            <polyline points="130,127 220,140 310,153 400,93 490,133" fill="none" stroke="black" stroke-width="2" stroke-dasharray="5,3"/>
+                            <g fill="black">
+                                <circle cx="130" cy="127" r="4"/><circle cx="220" cy="140" r="4"/>
+                                <circle cx="310" cy="153" r="4"/><circle cx="400" cy="93" r="4"/>
+                                <circle cx="490" cy="133" r="4"/>
+                            </g>
+                            <g class="svg-text" text-anchor="middle">
+                                <text x="130" y="120">80%</text><text x="240" y="138">78%</text>
+                                <text x="330" y="151">76%</text><text x="400" y="85">85%</text>
+                                <text x="490" y="125">79%</text>
+                            </g>
+                            <!-- 月ラベル -->
+                            <g class="svg-text" text-anchor="middle">
+                                <text x="130" y="278">4月</text><text x="220" y="278">5月</text>
+                                <text x="310" y="278">6月</text><text x="400" y="278">7月</text>
+                                <text x="490" y="278">8月</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 表1：平均座席数 -->
+                <div class="figure-container">
+                    <div class="figure-title">【表1】月別 平均座席数（席／便）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr><th>月</th><th>4月</th><th>5月</th><th>6月</th><th>7月</th><th>8月</th></tr>
+                            <tr><th>平均座席数</th><td>210</td><td>170</td><td>180</td><td>220</td><td>190</td></tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1) 4月<br>
+                    (2) 5月<br>
+                    (3) 6月<br>
+                    (4) 7月<br>
+                    (5) 8月
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                旅客数 ＝ 就航便数 × 平均座席数 × 平均搭乗率 で、3つの図表の値を組み合わせて各月を計算する。便数・座席数・搭乗率のいずれか1つが最大の月が答えとは限らない点に注意する。<br><br>
+
+                <strong>【各月の旅客数の計算】</strong><br>
+                ・4月：260 × 210 × 0.80 ＝ 43,680 人<br>
+                ・5月：320 × 170 × 0.78 ＝ 42,432 人<br>
+                ・6月：300 × 180 × 0.76 ＝ 41,040 人<br>
+                ・7月：220 × 220 × 0.85 ＝ 41,140 人<br>
+                ・8月：280 × 190 × 0.79 ＝ 42,028 人<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 4月は43,680人で最大 → 正解（便数・座席数・搭乗率のどれでも単独1位ではないが、積が最大）<br>
+                ・(2) 5月は就航便数が最大（320便）だが座席数・搭乗率が低く42,432人 → 不正解<br>
+                ・(3) 6月は41,040人 → 不正解<br>
+                ・(4) 7月は平均座席数（220席）と平均搭乗率（85％）がともに最大だが、便数が最少（220便）で41,140人 → 不正解（最も惑わされやすい）<br>
+                ・(5) 8月は42,028人 → 不正解<br><br>
+
+                単一の指標で最大の月（便数最大の5月、座席・搭乗率最大の7月）に引きずられず、3要素の積で判断する点が要点である。したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
