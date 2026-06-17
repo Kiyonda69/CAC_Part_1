@@ -1,0 +1,482 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある雑貨店の1か月の商品別売上をまとめた下表がある。「売上高＝販売数×単価」「構成比＝その商品の売上高÷総売上高×100」の関係が成り立つが、表には多くの空欄がある。与えられた数値から各欄を順に復元できるとき、表中の<strong>ア</strong>（商品Cの販売数）に入る数として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】商品別 月間売上集計（販売数：個、単価・売上高：円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>商品</th><th>販売数</th><th>単価</th><th>売上高</th><th>構成比</th>
+                            </tr>
+                            <tr>
+                                <th>A</th><td>500</td><td>800</td><td></td><td>16%</td>
+                            </tr>
+                            <tr>
+                                <th>B</th><td>250</td><td></td><td>500,000</td><td></td>
+                            </tr>
+                            <tr>
+                                <th>C</th><td><strong>ア</strong></td><td>1,400</td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <th>D</th><td></td><td>1,200</td><td>450,000</td><td>18%</td>
+                            </tr>
+                            <tr>
+                                <th>E</th><td>150</td><td>1,600</td><td></td><td></td>
+                            </tr>
+                            <tr>
+                                <th>合計</th><td></td><td>—</td><td></td><td>100%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 600個&nbsp;&nbsp;&nbsp;(2) 650個&nbsp;&nbsp;&nbsp;(3) 627個&nbsp;&nbsp;&nbsp;(4) 700個&nbsp;&nbsp;&nbsp;(5) 580個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br>
+                <strong>ア</strong>（商品Cの販売数）を直接求める手がかりはない。まず総売上高を確定させ、そこからC売上高を逆算する段取りが必要となる。<br><br>
+
+                <strong>【手順1】総売上高を求める</strong><br>
+                商品Aは販売数500個・単価800円なので、A売上高＝500×800＝<strong>400,000円</strong>。<br>
+                これが構成比16％にあたるので、総売上高＝400,000÷0.16＝<strong>2,500,000円</strong>。<br><br>
+
+                <strong>【手順2】他商品の売上高をそろえる</strong><br>
+                ・B売上高＝500,000円（与件）<br>
+                ・D売上高＝450,000円（与件）<br>
+                ・E売上高＝150×1,600＝<strong>240,000円</strong><br><br>
+
+                <strong>【手順3】C売上高を求める</strong><br>
+                ・C売上高＝総売上高−（A＋B＋D＋E）<br>
+                　＝2,500,000−（400,000＋500,000＋450,000＋240,000）<br>
+                　＝2,500,000−1,590,000＝<strong>910,000円</strong><br><br>
+
+                <strong>【手順4】アを求める</strong><br>
+                ・ア＝C売上高÷C単価＝910,000÷1,400＝<strong>650個</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1)600個 → C売上高を840,000円と取り違えた誤り。<br>
+                ・(2)650個 → 正しい。<br>
+                ・(3)627個 → C単価を1,450円と読み違えた誤り（910,000÷1,450）。<br>
+                ・(4)700個 → E売上高の加算を忘れ、C売上高を980,000円とした誤り。<br>
+                ・(5)580個 → 総売上高を2,400,000円と誤って計算した結果。<br><br>
+
+                ポイントは「構成比から総売上高を復元し、未知の売上高を差し引きで求める」二段構えの段取りである。したがって正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある企業の5部門（A〜E）の月次損益をまとめた下表がある。各部門で「売上総利益＝売上高−売上原価」「営業利益＝売上総利益−販管費」「営業利益率＝営業利益÷売上高×100」が成り立つ。表には多くの空欄があるが、与えられた数値からすべての欄を復元できる。このとき、<strong>全社の営業利益率（全社営業利益÷全社売上高×100）</strong>として最も近いものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】部門別 月次損益（単位：万円）</div>
+                    <div class="figure-content">
+                        <table class="figure-table">
+                            <tr>
+                                <th>部門</th><th>売上高</th><th>売上原価</th><th>売上総利益</th><th>販管費</th><th>営業利益</th>
+                            </tr>
+                            <tr>
+                                <th>A</th><td>5,000</td><td>3,000</td><td>2,000</td><td>1,200</td><td>800</td>
+                            </tr>
+                            <tr>
+                                <th>B</th><td>8,000</td><td>5,600</td><td>2,400</td><td>1,500</td><td>900</td>
+                            </tr>
+                            <tr>
+                                <th>C</th><td>6,000</td><td></td><td></td><td>1,400</td><td>700</td>
+                            </tr>
+                            <tr>
+                                <th>D</th><td><strong>ア</strong></td><td>4,200</td><td></td><td>1,800</td><td>1,000</td>
+                            </tr>
+                            <tr>
+                                <th>E</th><td>4,000</td><td>2,800</td><td>1,200</td><td></td><td>500</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 11%&nbsp;&nbsp;&nbsp;(2) 12%&nbsp;&nbsp;&nbsp;(3) 14%&nbsp;&nbsp;&nbsp;(4) 13%&nbsp;&nbsp;&nbsp;(5) 13.5%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                求める全社営業利益率には全社の売上高と営業利益の合計が必要。空欄の部門C・D・Eを関係式から復元してから集計する。<br><br>
+
+                <strong>【手順1】部門Cの空欄</strong><br>
+                営業利益＝売上総利益−販管費より、売上総利益＝営業利益＋販管費。<br>
+                ・C売上総利益＝700＋1,400＝<strong>2,100万円</strong><br>
+                ・C売上原価＝6,000−2,100＝<strong>3,900万円</strong><br><br>
+
+                <strong>【手順2】部門Dの売上高（ア）</strong><br>
+                同様に、D売上総利益＝1,000＋1,800＝<strong>2,800万円</strong>。<br>
+                売上高＝売上原価＋売上総利益なので、<br>
+                ・ア＝4,200＋2,800＝<strong>7,000万円</strong><br><br>
+
+                <strong>【手順3】部門Eの販管費</strong><br>
+                ・E販管費＝売上総利益−営業利益＝1,200−500＝<strong>700万円</strong>（集計には不要だが整合確認）<br><br>
+
+                <strong>【手順4】全社営業利益率</strong><br>
+                ・全社売上高＝5,000＋8,000＋6,000＋7,000＋4,000＝<strong>30,000万円</strong><br>
+                ・全社営業利益＝800＋900＋700＋1,000＋500＝<strong>3,900万円</strong><br>
+                ・営業利益率＝3,900÷30,000×100＝<strong>13%</strong><br><br>
+
+                <strong>【誤答の検討】</strong><br>
+                ・(1)11% → B単独の営業利益率（900÷8,000≒11.3%）に引きずられた誤り。<br>
+                ・(3)14% → D営業利益率（1,000÷7,000≒14.3%）を全社値と取り違えた誤り。<br>
+                ・(5)13.5% → 各部門営業利益率の単純平均（約13.1%）を概数で誤って選んだもの。全社率は規模で重み付けされる。<br><br>
+
+                ポイントは「営業利益→売上総利益→売上高」と逆算してD売上高を確定し、率は合計値どうしの比で求める点。したがって正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
