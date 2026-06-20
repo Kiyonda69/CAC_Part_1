@@ -1,0 +1,499 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <div class="question-number">問1．滑走路には、その滑走路が向いている方位を表す「番号」が両端に描かれている。番号は、真北を360°（＝北）とし時計回りに測った方位（東＝90°、南＝180°、西＝270°）を10で割り、小数第一位を四捨五入（0.5は切り上げ）して2桁で表したものである（北＝36、東＝09、南＝18、西＝27）。各端には、その端から滑走路に沿って進み始めるときの進行方位に対応する番号が描かれる。下の【図1】は、ある飛行場を真上から見た地図で、図の上が北である。図には2本の滑走路がある。1機の航空機が南西側から進入し、北東に向かってまっすぐ着陸する。この航空機が最初に通過する滑走路末端に描かれている番号として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様（飛行場 真上図・北が上）:
+                - SVGサイズ: 520x370px / viewBox: 0 0 520 370
+                - 方位盤: 北(N)=上向き矢印
+                - 滑走路A: 南北(縦) / 滑走路B: 南西-北東の対角(45°)
+                - 進入矢印: 南西から北東へ
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】飛行場（真上から見た図／上が北）</div>
+                    <div class="figure-content">
+                        <svg width="520" height="370" viewBox="0 0 520 370">
+                            <defs>
+                                <marker id="arrowP1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6 Z" fill="black"/>
+                                </marker>
+                            </defs>
+                            <!-- 方位盤(北=上) -->
+                            <line x1="60" y1="68" x2="60" y2="30" stroke="black" stroke-width="2" marker-end="url(#arrowP1)"/>
+                            <text x="60" y="24" class="svg-text" text-anchor="middle">北</text>
+                            <!-- 飛行場の範囲 -->
+                            <rect x="30" y="85" width="460" height="255" fill="#f0f0f0" stroke="#444" stroke-width="1.5"/>
+                            <!-- 滑走路A: 南北(縦) -->
+                            <line x1="150" y1="120" x2="150" y2="305" stroke="#999" stroke-width="30"/>
+                            <line x1="150" y1="126" x2="150" y2="299" stroke="white" stroke-width="2" stroke-dasharray="9,9"/>
+                            <!-- 滑走路B: 南西-北東(45°) -->
+                            <line x1="250" y1="300" x2="420" y2="130" stroke="#999" stroke-width="30"/>
+                            <line x1="256" y1="294" x2="414" y2="136" stroke="white" stroke-width="2" stroke-dasharray="9,9"/>
+                            <!-- 進入する航空機(南西→北東) -->
+                            <line x1="203" y1="337" x2="240" y2="300" stroke="black" stroke-width="2.5" marker-end="url(#arrowP1)"/>
+                            <text x="150" y="352" class="svg-text" text-anchor="middle">航空機の進入方向</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1) 18<br>
+                    (2) 36<br>
+                    (3) 23<br>
+                    (4) 05<br>
+                    (5) 14
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(4))</strong><br>
+                図の上が北なので、対角の滑走路Bは<strong>南西—北東</strong>方向を向いている。北東に向かって着陸するので、航空機が使うのはこの滑走路Bであり、最初に通過するのは<strong>南西側</strong>の末端である。<br><br>
+
+                <strong>【方位から番号への変換】</strong><br>
+                ・北東に向かって進むときの進行方位は 045°。<br>
+                ・番号 ＝ 045 ÷ 10 ＝ 4.5 → 四捨五入（0.5切り上げ）で 5 → 「05」。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 18：南北の滑走路Aを南向きに進むときの番号。今回は使わない → 不正解<br>
+                ・(2) 36：南北の滑走路Aを北向きに進むときの番号。方向が一致しない → 不正解<br>
+                ・(3) 23：同じ滑走路Bでも反対側（北東端）の番号（進行方位225°）。最初に通過する末端ではない → 不正解<br>
+                ・(4) 05：南西端から北東（045°）へ進む向き → 正解<br>
+                ・(5) 14：北西—南東向き（135°）の番号で、図中に該当する滑走路はない → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．滑走路番号の決め方は問1と同じである（方位を10で割り、0.5は切り上げて2桁で表す。北＝36、東＝09、南＝18、西＝27）。下の【図2】も、ある飛行場を真上から見た地図であるが、図の真北は紙面の右方向を指している（方位盤の矢印に注意）。図には滑走路が1本あり、1機の航空機が図の左下から右上へ向かってまっすぐ着陸する。この航空機が最初に通過する滑走路末端に描かれている番号として正しいものを、次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様（飛行場 真上図・北は紙面の右）:
+                - SVGサイズ: 520x370px / viewBox: 0 0 520 370
+                - 方位盤: 北(N)=右向き矢印（紙面で 北=右,東=下,南=左,西=上）
+                - 滑走路: 紙面の左下-右上の対角(45°)
+                - 進入矢印: 左下から右上へ
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】飛行場（真上から見た図／北は紙面の右）</div>
+                    <div class="figure-content">
+                        <svg width="520" height="370" viewBox="0 0 520 370">
+                            <defs>
+                                <marker id="arrowP2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+                                    <path d="M0,0 L8,3 L0,6 Z" fill="black"/>
+                                </marker>
+                            </defs>
+                            <!-- 方位盤(北=右) -->
+                            <line x1="40" y1="48" x2="95" y2="48" stroke="black" stroke-width="2" marker-end="url(#arrowP2)"/>
+                            <text x="108" y="53" class="svg-text" text-anchor="middle">北</text>
+                            <!-- 飛行場の範囲 -->
+                            <rect x="30" y="80" width="460" height="250" fill="#f0f0f0" stroke="#444" stroke-width="1.5"/>
+                            <!-- 滑走路: 左下-右上(45°) -->
+                            <line x1="170" y1="310" x2="370" y2="110" stroke="#999" stroke-width="30"/>
+                            <line x1="176" y1="304" x2="364" y2="116" stroke="white" stroke-width="2" stroke-dasharray="9,9"/>
+                            <!-- 進入する航空機(左下→右上) -->
+                            <line x1="120" y1="345" x2="160" y2="305" stroke="black" stroke-width="2.5" marker-end="url(#arrowP2)"/>
+                            <text x="150" y="360" class="svg-text" text-anchor="middle">航空機の進行方向</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1) 14<br>
+                    (2) 32<br>
+                    (3) 09<br>
+                    (4) 27<br>
+                    (5) 05
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                この図では真北が紙面の右を指している。方位は北から時計回りなので、紙面では 右＝北(360°)、下＝東(90°)、左＝南(180°)、上＝西(270°) となる。紙面の見かけの「北東」をそのまま使ってはいけない点が要点である。<br><br>
+
+                <strong>【進行方位を求める】</strong><br>
+                ・航空機は紙面の「左下→右上」へ進む。紙面の右上は、右(北)と上(西)の中間の向き、すなわち北と西の間の北西(315°)にあたる。<br>
+                ・番号 ＝ 315 ÷ 10 ＝ 31.5 → 四捨五入（0.5切り上げ）で 32 → 「32」。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 14：同じ滑走路の反対側（左下端、進行方位135°＝南東）の番号。最初に通過する末端ではない → 不正解<br>
+                ・(2) 32：左下端から北西(315°)へ進む向き → 正解<br>
+                ・(3) 09／(4) 27：紙面の上下方向（西—東）を進む滑走路の番号で、向きが一致しない → 不正解<br>
+                ・(5) 05：方位盤の回転を無視し、紙面の右上を「北東(045°)」と取り違えた誤答 → 不正解（最大の罠）<br><br>
+
+                方位盤が回転している場合は、まず紙面の向きを真方位に読み替えてから番号を求める点が要点である。したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
