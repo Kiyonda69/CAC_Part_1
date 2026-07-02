@@ -1,65 +1,113 @@
 #!/usr/bin/env python3
-"""航大思考234 検証スクリプト
-問1: 直方体表面の最短経路（頂点A→対角頂点G）
-問2: 円錐側面を1周する糸の最短長
+"""航大思考234 検証スクリプト（差し替え版）
+問1: 同一立体の識別（5個の小立方体・回転一致は1つのみ、鏡像の罠）
+問2: 仲間はずれ探し（5つの図のうち4つは同一立体の回転、1つだけ鏡像）
+計算不要の純粋空間認識問題。回転24種の総当たりで一意性を検証する。
 """
-import math
-from itertools import permutations
+from itertools import permutations, product
+
+
+def rotations24():
+    """3次元の回転行列24種（行列式+1のみ）を列挙"""
+    mats = []
+    for perm in permutations(range(3)):
+        for signs in product((1, -1), repeat=3):
+            m = [[0] * 3 for _ in range(3)]
+            for i in range(3):
+                m[i][perm[i]] = signs[i]
+            det = (
+                m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+                - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+                + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+            )
+            if det == 1:
+                mats.append(m)
+    assert len(mats) == 24
+    return mats
+
+
+ROTS = rotations24()
+
+
+def apply(m, c):
+    return tuple(sum(m[i][j] * c[j] for j in range(3)) for i in range(3))
+
+
+def normalize(cubes):
+    """平行移動を除去して正規化"""
+    mn = [min(c[i] for c in cubes) for i in range(3)]
+    return frozenset(tuple(c[i] - mn[i] for i in range(3)) for c in cubes)
+
+
+def all_orientations(cubes):
+    """回転24種の正規化形の集合"""
+    return {normalize([apply(m, c) for c in cubes]) for m in ROTS}
+
+
+def mirror(cubes):
+    return [(-x, y, z) for (x, y, z) in cubes]
+
+
+def same_solid(a, b):
+    """回転のみで一致するか（裏返し不可）"""
+    return normalize(b) in all_orientations(a)
+
+
+def is_chiral(cubes):
+    return not same_solid(cubes, mirror(cubes))
+
+# ============ 問1: 同一立体の識別 ============
+# 立体A: 横3連の列＋右端の奥に1個＋左端の上に1個（キラルな5キューブ）
+Q1_BASE = [(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0), (0, 0, 1)]
+
+# 選択肢（描画する向きそのままの座標で定義）
+Q1_OPTIONS = {
+    "correct": [(0, 1, 0), (1, 1, 0), (2, 1, 0), (0, 0, 0), (2, 1, 1)],  # Aをz軸180°回転
+    "mirror":  [(0, 0, 0), (1, 0, 0), (2, 0, 0), (0, 1, 0), (2, 0, 1)],  # Aの鏡像（罠）
+    "d1":      [(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0), (2, 0, 1)],  # 奥腕と上が同じ右端
+    "d2":      [(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0), (1, 0, 1)],  # 上が中央
+    "d3":      [(0, 0, 0), (1, 0, 0), (2, 0, 0), (0, 1, 0), (0, 0, 1)],  # 奥腕と上が同じ左端
+}
 
 
 def verify_q1():
-    """直方体 1cm x 2cm x 4cm の表面最短経路。
-    2面をまたぐ展開は3通り: sqrt((a+b)^2 + c^2) の全順列を総当たり。
-    """
-    dims = (1, 2, 4)
-    candidates = set()
-    for a, b, c in permutations(dims):
-        candidates.add(round(math.sqrt((a + b) ** 2 + c ** 2), 6))
-    candidates = sorted(candidates)
-    print("問1 展開候補の経路長:", candidates)
+    assert is_chiral(Q1_BASE), "問1: 立体Aがキラルでない（鏡像の罠が成立しない）"
+    matches = [k for k, v in Q1_OPTIONS.items() if same_solid(Q1_BASE, v)]
+    assert matches == ["correct"], f"問1: 一致する選択肢が {matches}"
+    assert same_solid(mirror(Q1_BASE), Q1_OPTIONS["mirror"]), "問1: mirror選択肢が鏡像でない"
+    for k in ("d1", "d2", "d3"):
+        assert not same_solid(mirror(Q1_BASE), Q1_OPTIONS[k]), f"問1: {k}が鏡像と一致"
+    print("問1 検証OK: 回転一致は correct のみ・mirrorは鏡像の罠として成立")
 
-    # 最短が5cmで唯一であること
-    assert min(candidates) == 5.0, f"最短が5でない: {min(candidates)}"
-    assert candidates.count(5.0) == 1, "最短経路長が複数の展開で一致（曖昧）"
 
-    # 罠選択肢の検証
-    space_diag = math.sqrt(1 + 4 + 16)      # 空間対角線（表面不可）
-    edge_path = 1 + 2 + 4                    # 辺伝い
-    print(f"  空間対角線 √21 = {space_diag:.4f}（表面経路ではないため不可）")
-    print(f"  他の展開: √29 = {math.sqrt(29):.4f}, √37 = {math.sqrt(37):.4f}")
-    print(f"  辺伝い = {edge_path}")
-    assert space_diag < 5.0 < math.sqrt(29) < math.sqrt(37) < edge_path
-    print("問1 検証OK: 正解 = 5cm（展開 (1+2)x4 の直線）\n")
+# ============ 問2: 仲間はずれ探し ============
+# 共通立体Q: L字4キューブ（横3連＋右端の奥に1個）＋その奥の1個の上に1個
+Q2_PIECE = [(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0), (2, 1, 1)]
+
+# 描画する5姿勢（R1/V/R3/R4はQの回転・Mだけが鏡像＝仲間はずれ）
+Q2_VIEWS = {
+    "R1": [(0, 0, 0), (1, 0, 0), (2, 0, 0), (2, 1, 0), (2, 1, 1)],
+    "V":  [(0, 0, 0), (0, 1, 0), (1, 0, 0), (1, 0, 1), (1, 0, 2)],
+    "R3": [(0, 0, 0), (0, 1, 0), (0, 2, 0), (1, 0, 0), (1, 0, 1)],
+    "R4": [(0, 2, 0), (0, 2, 1), (1, 0, 0), (1, 1, 0), (1, 2, 0)],
+    "M":  [(0, 0, 0), (0, 1, 0), (0, 1, 1), (1, 0, 0), (2, 0, 0)],
+}
 
 
 def verify_q2():
-    """円錐（底面半径2cm・母線8cm）の点Aから側面を1周してAへ戻る糸の最短長。
-    側面展開図は半径8・中心角 360*2/8 = 90度の扇形。最短 = 弦AA'。
-    """
-    r, slant = 2, 8
-    angle = 360 * r / slant
-    assert angle == 90.0, f"中心角が90度でない: {angle}"
-    chord = 2 * slant * math.sin(math.radians(angle / 2))
-    expected = 8 * math.sqrt(2)
-    assert abs(chord - expected) < 1e-9, f"弦の長さ不一致: {chord}"
-    print(f"問2 中心角 = {angle}度, 弦 = 8√2 = {chord:.4f} cm")
-
-    # 数値近似（多角形近似で側面測地線が弦に一致することを確認）
-    # 展開図上の直線が最短（平面内の2点間）。曲面上の代替経路と比較:
-    base_loop = 2 * math.pi * r  # 底面の縁を1周
-    two_slant = 2 * slant        # 頂点経由（母線を往復）
-    print(f"  底面の縁を1周 = 2π×2 = {base_loop:.4f} cm（弦より長い）")
-    print(f"  頂点経由の往復 = {two_slant} cm（弦より長い）")
-    assert chord < base_loop < two_slant
-
-    # 弦が扇形の内部に収まる（頂点を通らない）ことを確認
-    apex_dist = slant * math.cos(math.radians(angle / 2))
-    print(f"  糸が頂点に最も近づく距離 = 8cos45° = {apex_dist:.4f} cm > 0")
-    assert apex_dist > 0
-    print("問2 検証OK: 正解 = 8√2 cm ≈ 11.31cm\n")
+    assert is_chiral(Q2_PIECE), "問2: 立体Qがキラルでない"
+    odd = [k for k, v in Q2_VIEWS.items() if not same_solid(Q2_PIECE, v)]
+    assert odd == ["M"], f"問2: 仲間はずれが {odd}"
+    assert same_solid(mirror(Q2_PIECE), Q2_VIEWS["M"]), "問2: Mが鏡像でない"
+    # R1〜R4が互いにすべて回転一致することも確認
+    keys = ["R1", "V", "R3", "R4"]
+    for i in range(4):
+        for j in range(i + 1, 4):
+            assert same_solid(Q2_VIEWS[keys[i]], Q2_VIEWS[keys[j]])
+    print("問2 検証OK: 仲間はずれは M（鏡像）のみ・他4姿勢は相互に回転一致")
 
 
 if __name__ == "__main__":
     verify_q1()
     verify_q2()
-    print("全検証OK: 両問とも解は一意")
+    print("全検証OK")
