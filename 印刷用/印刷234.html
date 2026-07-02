@@ -1,0 +1,445 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．下の図のような、同じ大きさの小立方体5個を面どうしで貼り合わせて作った立体Aがある。次の(1)〜(5)の立体のうち、向きを変えて置くと立体Aとぴったり一致するものを1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - 図1: キャビネット投影（1マス=38px・奥行きオフセット(+20,-20)）
+                - 上面=白・前面=薄灰・右面=濃灰、輪郭#222
+                - 立体A: 横3連(手前)＋右端の奥に1個＋左端の上に1個
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立体A</div>
+                    <div class="figure-content">
+                        <svg width="186" height="148" viewBox="0 0 186 148"><polygon points="112,74 150,74 170,54 132,54" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="112,112 150,112 150,74 112,74" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="150,112 170,92 170,54 150,74" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="16,94 54,94 74,74 36,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="16,132 54,132 54,94 16,94" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="54,132 74,112 74,74 54,94" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="54,94 92,94 112,74 74,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="54,132 92,132 92,94 54,94" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="92,132 112,112 112,74 92,94" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="92,94 130,94 150,74 112,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="92,132 130,132 130,94 92,94" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="130,132 150,112 150,74 130,94" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="16,56 54,56 74,36 36,36" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="16,94 54,94 54,56 16,56" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="54,94 74,74 74,36 54,56" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様: 1マス=24px・各セル124x110px・横一列5個
+                (1)鏡像の罠 (2)奥腕と上が同じ右端 (3)上が中央 (4)正解=Aの水平180°回転 (5)奥腕と上が同じ左端
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="640" height="140" viewBox="0 0 640 140"><text x="72" y="16" class="svg-text" text-anchor="middle">(1)</text><polygon points="36,87 60,87 73,74 49,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="36,111 60,111 60,87 36,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="60,111 73,98 73,74 60,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23,100 47,100 60,87 36,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23,124 47,124 47,100 23,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,124 60,111 60,87 47,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,100 71,100 84,87 60,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,124 71,124 71,100 47,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,124 84,111 84,87 71,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,100 95,100 108,87 84,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,124 95,124 95,100 71,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="95,124 108,111 108,87 95,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,76 95,76 108,63 84,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,100 95,100 95,76 71,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="95,100 108,87 108,63 95,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="196" y="16" class="svg-text" text-anchor="middle">(2)</text><polygon points="208,87 232,87 245,74 221,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="208,111 232,111 232,87 208,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="232,111 245,98 245,74 232,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="147,100 171,100 184,87 160,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="147,124 171,124 171,100 147,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="171,124 184,111 184,87 171,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="171,100 195,100 208,87 184,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="171,124 195,124 195,100 171,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="195,124 208,111 208,87 195,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="195,100 219,100 232,87 208,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="195,124 219,124 219,100 195,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="219,124 232,111 232,87 219,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="195,76 219,76 232,63 208,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="195,100 219,100 219,76 195,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="219,100 232,87 232,63 219,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="320" y="16" class="svg-text" text-anchor="middle">(3)</text><polygon points="332,87 356,87 369,74 345,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="332,111 356,111 356,87 332,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="356,111 369,98 369,74 356,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="271,100 295,100 308,87 284,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="271,124 295,124 295,100 271,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,124 308,111 308,87 295,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,100 319,100 332,87 308,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,124 319,124 319,100 295,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,124 332,111 332,87 319,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,100 343,100 356,87 332,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,124 343,124 343,100 319,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="343,124 356,111 356,87 343,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,76 319,76 332,63 308,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,100 319,100 319,76 295,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,100 332,87 332,63 319,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="444" y="16" class="svg-text" text-anchor="middle">(4)</text><polygon points="408,87 432,87 445,74 421,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="408,111 432,111 432,87 408,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="432,111 445,98 445,74 432,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="432,87 456,87 469,74 445,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="432,111 456,111 456,87 432,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="456,111 469,98 469,74 456,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="456,87 480,87 493,74 469,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="456,111 480,111 480,87 456,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="480,111 493,98 493,74 480,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="456,63 480,63 493,50 469,50" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="456,87 480,87 480,63 456,63" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="480,87 493,74 493,50 480,63" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="395,100 419,100 432,87 408,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="395,124 419,124 419,100 395,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="419,124 432,111 432,87 419,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="568" y="16" class="svg-text" text-anchor="middle">(5)</text><polygon points="532,87 556,87 569,74 545,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="532,111 556,111 556,87 532,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="556,111 569,98 569,74 556,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="519,100 543,100 556,87 532,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="519,124 543,124 543,100 519,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="543,124 556,111 556,87 543,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="543,100 567,100 580,87 556,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="543,124 567,124 567,100 543,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="567,124 580,111 580,87 567,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="567,100 591,100 604,87 580,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="567,124 591,124 591,100 567,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="591,124 604,111 604,87 591,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="519,76 543,76 556,63 532,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="519,100 543,100 543,76 519,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="543,100 556,87 556,63 543,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                計算は不要で、立体の特徴を整理して見比べる問題である。まず立体Aの形を言葉で整理する。<br><br>
+
+                <strong>【立体Aの特徴】</strong><br>
+                ・横に3個並んだ「列」がある<br>
+                ・列の右端の1個の「奥」に1個付いている（奥への腕）<br>
+                ・列の左端の1個の「上」に1個載っている（上乗せ）<br>
+                つまり、「奥への腕」と「上乗せ」が、列の<strong>反対側の端</strong>に付いているのが立体Aの特徴である。<br><br>
+
+                <strong>【(4)が一致する理由】</strong><br>
+                立体Aを、上下方向の軸のまわりに水平に180°回してみる。すると、列の左右が入れ替わり、「奥への腕」は<strong>手前側の左端</strong>に、「上乗せ」は<strong>右端</strong>に移る。(4)はちょうどこの配置になっており、立体Aと一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 列の奥の左端に腕、右端の手前に上乗せ → 一見「Aを180°回したもの」に見えるが、実際に180°回すと腕は「奥」ではなく「手前」に来る。これはAを鏡に映した形（鏡像）であり、どのように回転させても一致しない → 最大の罠<br>
+                ・(2) 奥への腕と上乗せがどちらも右端 → 腕と上乗せが同じ端に集まっており、特徴が異なる<br>
+                ・(3) 上乗せが列の中央 → 上乗せの位置が異なる<br>
+                ・(4) 手前の左端に腕、右端に上乗せ → Aの水平180°回転 → 正解<br>
+                ・(5) 奥への腕と上乗せがどちらも左端 → 腕と上乗せが同じ端に集まっており、特徴が異なる<br><br>
+
+                <strong>【判定のコツ】</strong><br>
+                ①パーツ構成（列3個＋腕1個＋上乗せ1個）を確認する → (2)(3)(5)を除外できる。<br>
+                ②残った候補について、「上乗せの付いた端」を手前に持ってきたとき、腕がどちら側へ出るか（ねじれの向き）を確認する。鏡像はこの向きだけが逆になるため、回転では一致しない。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．次の(1)〜(5)は、同じ大きさの小立方体5個を面どうしで貼り合わせて作った立体を、いろいろな向きに置いて描いたものである。このうち4つは同じ立体で、向きを変えて置くと互いにぴったり一致するが、1つだけ、どのように向きを変えても他の4つと一致しない立体が混ざっている。その立体を1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様: 1マス=24px・各セル124x110px・キャビネット投影
+                共通立体Q: 横3連＋右端の奥に1個＋その上に1個
+                (1)基本姿勢 (2)柱に立てた姿勢 (3)鏡像=仲間はずれ (4)時計回り90° (5)反時計回り90°
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】5つの立体</div>
+                    <div class="figure-content">
+                        <svg width="640" height="140" viewBox="0 0 640 140"><text x="72" y="16" class="svg-text" text-anchor="middle">(1)</text><polygon points="84,87 108,87 121,74 97,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="84,111 108,111 108,87 84,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="108,111 121,98 121,74 108,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="84,63 108,63 121,50 97,50" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="84,87 108,87 108,63 84,63" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="108,87 121,74 121,50 108,63" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23,100 47,100 60,87 36,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="23,124 47,124 47,100 23,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,124 60,111 60,87 47,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,100 71,100 84,87 60,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="47,124 71,124 71,100 47,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,124 84,111 84,87 71,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,100 95,100 108,87 84,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="71,124 95,124 95,100 71,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="95,124 108,111 108,87 95,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="196" y="16" class="svg-text" text-anchor="middle">(2)</text><polygon points="172,87 196,87 209,74 185,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="172,111 196,111 196,87 172,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="196,111 209,98 209,74 196,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="159,100 183,100 196,87 172,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="159,124 183,124 183,100 159,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,124 196,111 196,87 183,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,100 207,100 220,87 196,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,124 207,124 207,100 183,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="207,124 220,111 220,87 207,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,76 207,76 220,63 196,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,100 207,100 207,76 183,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="207,100 220,87 220,63 207,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,52 207,52 220,39 196,39" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="183,76 207,76 207,52 183,52" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="207,76 220,63 220,39 207,52" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="320" y="16" class="svg-text" text-anchor="middle">(3)</text><polygon points="284,87 308,87 321,74 297,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="284,111 308,111 308,87 284,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="308,111 321,98 321,74 308,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="284,63 308,63 321,50 297,50" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="284,87 308,87 308,63 284,63" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="308,87 321,74 321,50 308,63" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="271,100 295,100 308,87 284,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="271,124 295,124 295,100 271,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,124 308,111 308,87 295,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,100 319,100 332,87 308,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="295,124 319,124 319,100 295,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,124 332,111 332,87 319,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,100 343,100 356,87 332,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="319,124 343,124 343,100 319,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="343,124 356,111 356,87 343,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="444" y="16" class="svg-text" text-anchor="middle">(4)</text><polygon points="426,74 450,74 463,61 439,61" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="426,98 450,98 450,74 426,74" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="450,98 463,85 463,61 450,74" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="413,87 437,87 450,74 426,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="413,111 437,111 437,87 413,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="437,111 450,98 450,74 437,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="400,100 424,100 437,87 413,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="400,124 424,124 424,100 400,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="424,124 437,111 437,87 424,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="424,100 448,100 461,87 437,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="424,124 448,124 448,100 424,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="448,124 461,111 461,87 448,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="424,76 448,76 461,63 437,63" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="424,100 448,100 448,76 424,76" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="448,100 461,87 461,63 448,76" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><text x="568" y="16" class="svg-text" text-anchor="middle">(5)</text><polygon points="550,74 574,74 587,61 563,61" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="550,98 574,98 574,74 550,74" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="574,98 587,85 587,61 574,74" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="574,74 598,74 611,61 587,61" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="574,98 598,98 598,74 574,74" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="598,98 611,85 611,61 598,74" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="550,50 574,50 587,37 563,37" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="550,74 574,74 574,50 550,50" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="574,74 587,61 587,37 574,50" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="561,87 585,87 598,74 574,74" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="561,111 585,111 585,87 561,87" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="585,111 598,98 598,74 585,87" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="548,100 572,100 585,87 561,87" fill="#ffffff" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="548,124 572,124 572,100 548,100" fill="#d9d9d9" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/><polygon points="572,124 585,111 585,87 572,100" fill="#b3b3b3" stroke="#222" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                    </div>
+                </div>
+
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                5つの図を互いに見比べ、共通する立体の形を先につかむのが近道である。<br><br>
+
+                <strong>【共通の立体Qの特徴】</strong><br>
+                (1)を基準にすると、この立体は「横3連の列＋右端の奥に1個（腕）＋その腕の上に1個（上乗せ）」、すなわちL字型の4個の角の上に1個載った形である。特徴は、<strong>列の端 → 直角に曲がる腕 → 腕の上の1個</strong>、と1本の折れ曲がった経路でたどれることである。<br><br>
+
+                <strong>【(1)(2)(4)(5)は同じ立体】</strong><br>
+                ・(4)は(1)を上下軸のまわりに時計回りへ90°回した姿勢（列が奥行き方向を向く）<br>
+                ・(5)は(1)を反時計回りへ90°回した姿勢（腕と上乗せの塔が左奥に来る）<br>
+                ・(2)は(1)の3連の列を立てて柱にした姿勢（柱の足もとに、横に1個・その奥に1個が付く）<br>
+                いずれも回転だけで(1)と一致する。<br><br>
+
+                <strong>【(3)だけが一致しない理由】</strong><br>
+                (3)は「横3連＋左端の奥に腕＋その上に上乗せ」で、(1)と同じパーツ構成に見える。しかし(1)を水平に180°回して腕を左端に持ってくると、腕は<strong>手前側</strong>に出る（奥ではない）。奥側の左端に腕が付く(3)は、(1)を鏡に映した形（鏡像）であり、どのように回転させても(1)(2)(4)(5)とは一致しない。<br><br>
+
+                <strong>【確認のコツ】</strong><br>
+                各図で「3連の列」を探し、列の端から腕・上乗せへとたどる経路の曲がり方（右回りか左回りか）を比べる。(1)(2)(4)(5)は同じ向きに曲がるが、(3)だけ逆向きに曲がる。パーツの個数や見た目の輪郭ではなく、この「ねじれの向き」に注目するのが決め手である。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
