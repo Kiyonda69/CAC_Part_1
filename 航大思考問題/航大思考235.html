@@ -1,0 +1,921 @@
+<!--
+================================================================================
+航大思考235.html - 軸をまたぐ図形の回転体の軸断面（空間把握・立体図形）
+問1: 直線ℓをまたぐ図形の回転体の軸断面（各高さで左右の遠い方が半径・標準・正解5）
+問2: 右側に2つの穴を持つまたぎ図形の回転体の軸断面（穴の生存判定・高難度・正解5）
+検証: scripts/verify_235.py（解の一意性確認済み）
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                下の図1のように、直線ℓと、1辺1cmの方眼のマス目に沿って描かれた図形が同じ平面上にある。図形は直線ℓをまたいでおり、ℓの左右両側に部分を持つ。この図形を、直線ℓを軸として1回転させてできる立体を、直線ℓを含む平面で切断したとき、切り口の形として正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 420x265px / viewBox: 0 0 420 265 / 余白: 上下左右20px以上
+            座標系定義:
+            - 1マス = 30px（1cm相当）
+            - 回転軸ℓ: x=180 の垂直線（一点鎖線）。図形はℓをまたぐ
+            - 図形の下端: y=220。各段の張り出し（右, 左）＝(3,1),(1,2),(2,1),(1,0)マス
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】直線ℓと図形（方眼の1マスは1辺1cm）</div>
+                <div class="figure-content">
+                    <svg width="420" height="265" viewBox="0 0 420 265">
+                        <!-- 方眼（薄い格子） -->
+                        <g stroke="#cccccc" stroke-width="1">
+                            <line x1="90" y1="70" x2="90" y2="220"/>
+                            <line x1="120" y1="70" x2="120" y2="220"/>
+                            <line x1="150" y1="70" x2="150" y2="220"/>
+                            <line x1="180" y1="70" x2="180" y2="220"/>
+                            <line x1="210" y1="70" x2="210" y2="220"/>
+                            <line x1="240" y1="70" x2="240" y2="220"/>
+                            <line x1="270" y1="70" x2="270" y2="220"/>
+                            <line x1="300" y1="70" x2="300" y2="220"/>
+                            <line x1="90" y1="70" x2="300" y2="70"/>
+                            <line x1="90" y1="100" x2="300" y2="100"/>
+                            <line x1="90" y1="130" x2="300" y2="130"/>
+                            <line x1="90" y1="160" x2="300" y2="160"/>
+                            <line x1="90" y1="190" x2="300" y2="190"/>
+                            <line x1="90" y1="220" x2="300" y2="220"/>
+                        </g>
+                        <!-- 回転の向きを示す矢印（軸ℓのまわりの楕円弧） -->
+                        <path d="M 140 52 A 40 12 0 0 1 216 49" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="220,50 208,45 211,56" fill="black"/>
+                        <text x="266" y="55" class="svg-text" font-size="13">ℓの周りに1回転</text>
+                        <!-- 図形本体（ℓをまたぐ多角形） -->
+                        <path d="M 120 190 L 150 190 L 150 220 L 270 220 L 270 190 L 210 190 L 210 160 L 240 160 L 240 130 L 210 130 L 210 100 L 180 100 L 180 130 L 150 130 L 150 160 L 120 160 Z" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                        <!-- 図形内部のマス目線 -->
+                        <g stroke="#999999" stroke-width="1">
+                            <line x1="150" y1="160" x2="150" y2="190"/>
+                            <line x1="180" y1="190" x2="180" y2="220"/>
+                            <line x1="150" y1="190" x2="180" y2="190"/>
+                            <line x1="180" y1="160" x2="180" y2="190"/>
+                            <line x1="150" y1="160" x2="180" y2="160"/>
+                            <line x1="180" y1="130" x2="180" y2="160"/>
+                            <line x1="210" y1="190" x2="210" y2="220"/>
+                            <line x1="180" y1="190" x2="210" y2="190"/>
+                            <line x1="180" y1="160" x2="210" y2="160"/>
+                            <line x1="210" y1="130" x2="210" y2="160"/>
+                            <line x1="180" y1="130" x2="210" y2="130"/>
+                            <line x1="240" y1="190" x2="240" y2="220"/>
+                        </g>
+                        <!-- 回転軸ℓ（一点鎖線・図形の上に描画） -->
+                        <line x1="180" y1="36" x2="180" y2="242" stroke="black" stroke-width="1.5" stroke-dasharray="10,4,2,4"/>
+                        <text x="173" y="258" class="svg-text" font-style="italic" font-size="16">ℓ</text>
+                        <!-- 1cmスケール -->
+                        <line x1="330" y1="220" x2="360" y2="220" stroke="black" stroke-width="1.5"/>
+                        <line x1="330" y1="214" x2="330" y2="226" stroke="black" stroke-width="1.5"/>
+                        <line x1="360" y1="214" x2="360" y2="226" stroke="black" stroke-width="1.5"/>
+                        <text x="345" y="243" class="svg-text" text-anchor="middle" font-size="13">1cm</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア -->
+            <!--
+            選択肢図の座標系: 各選択肢は90x110のボックス（1マス=12px、底辺y=95基準）
+            (1)元の図形のまま (2)右側だけ回転 (3)元の図形の鏡像 (4)正解の上下逆 (5)正解
+            -->
+            <div class="options-figure" id="q1-options">
+                <!-- 選択肢(1) 元の図形のまま（回転を無視） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <path d="M 15 83 L 27 83 L 27 95 L 75 95 L 75 83 L 51 83 L 51 71 L 63 71 L 63 59 L 51 59 L 51 47 L 39 47 L 39 59 L 27 59 L 27 71 L 15 71 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2) 右側だけを回転させた断面（左の張り出しを無視） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <path d="M 9 95 L 81 95 L 81 83 L 57 83 L 57 71 L 69 71 L 69 59 L 57 59 L 57 47 L 33 47 L 33 59 L 21 59 L 21 71 L 33 71 L 33 83 L 9 83 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3) 元の図形の鏡像（左右を折り返しただけ） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <path d="M 15 95 L 63 95 L 63 83 L 75 83 L 75 71 L 63 71 L 63 59 L 51 59 L 51 47 L 39 47 L 39 59 L 27 59 L 27 71 L 39 71 L 39 83 L 15 83 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4) 正解の上下逆（幅2・4・4・6が下から） -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <path d="M 9 59 L 21 59 L 21 83 L 33 83 L 33 95 L 57 95 L 57 83 L 69 83 L 69 59 L 81 59 L 81 47 L 9 47 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5) 正解: 各高さで遠い方が半径（幅6・4・4・2の対称形） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <path d="M 9 95 L 81 95 L 81 83 L 69 83 L 69 59 L 57 59 L 57 47 L 33 47 L 33 59 L 21 59 L 21 83 L 9 83 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <!--
+            解答後に自動展開される解説エリア
+            - id="q{N}-explanation" の形式でIDを付与
+            - 解説内容は .explanation-content 内に記述
+            -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>図形が回転軸ℓをまたいでいる点が本問の核心である。回転させると、ℓの右側の部分と左側の部分が<strong>それぞれ別々に</strong>ℓの周りに円を描く。したがって、ある高さで軸から距離rの位置に立体の材料があるのは、「その高さで、図形が左右<strong>どちらかの側</strong>に軸から距離rの部分を持つ」ときである。切り口（ℓを含む平面での断面）は必ず左右対称になり、各高さでの半幅は<strong>左右のうち軸から遠い方までの距離</strong>になる。</p>
+                    <br>
+                    <p><strong>【高さごとに左右の張り出しを比べる】</strong></p>
+                    <p>図形の各段の、軸からの張り出しを読み取ると次のようになる。</p>
+                    <p>・1段目（最下段）: 右3cm・左1cm → 遠い方は<strong>右の3cm</strong> → 切り口の幅6cm</p>
+                    <p>・2段目: 右1cm・左2cm → 遠い方は<strong>左の2cm</strong> → 切り口の幅4cm</p>
+                    <p>・3段目: 右2cm・左1cm → 遠い方は<strong>右の2cm</strong> → 切り口の幅4cm</p>
+                    <p>・4段目（最上段）: 右1cm・左0cm → 半径1cm → 切り口の幅2cm</p>
+                    <p>2段目は左側が、3段目は右側が半径を決めており、「遠い方」が段ごとに左右で入れ替わる。どちらか一方の側だけを見ていると正しい切り口は得られない。</p>
+                    <br>
+                    <p><strong>【切り口の形】</strong></p>
+                    <p>以上より、切り口は下から幅6cm・4cm・4cm・2cm（各高さ1cm）の長方形を、軸をそろえて積んだ左右対称の形になる。これは(5)の図形である。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 元の図形のまま → 回転体の断面は左右対称になるはずで、非対称のままは誤り → 不正解</p>
+                    <p>・(2) 2段目の幅が2cmしかない → 右側（1cm）だけを回転させ、左の2cmの張り出しを無視した形 → 不正解</p>
+                    <p>・(3) 元の図形を左右に折り返しただけの鏡像 → 非対称のままで誤り → 不正解</p>
+                    <p>・(4) 左右対称だが上下が逆（下から2・4・4・6cm） → 図形の上下を取り違えている → 不正解</p>
+                    <p>・(5) 下から幅6・4・4・2cmの左右対称の階段形 → 正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <!--
+            問題間移動用のボタン
+            - style="display: none;" で初期非表示
+            - 解答後にJavaScriptで表示される
+            -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <!-- 最初の問題では「前の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <!-- 2問目以降は同様の構造で追加 -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                下の図2のように、直線ℓと、1辺1cmの方眼のマス目に沿って描かれた図形が同じ平面上にある。図形は直線ℓをまたいでおり、ℓの右側の部分には1辺1cmの正方形の穴A・穴Bがあいている。この図形を、直線ℓを軸として1回転させてできる立体を、直線ℓを含む平面で切断したとき、切り口の形として正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 470x265px / viewBox: 0 0 470 265 / 余白: 上下左右20px以上
+            座標系定義:
+            - 1マス = 30px（1cm相当） / 回転軸ℓ: x=230 の垂直線（一点鎖線）
+            - 右側: 横5cm×縦4cmの板 x=230〜380, y=100〜220
+              穴A: x=260〜290, y=160〜190（軸から1〜2cm・下から2段目）
+              穴B: x=320〜350, y=130〜160（軸から3〜4cm・下から3段目）
+            - 左側: 縦柱 x=110〜140, y=100〜220（軸から3〜4cm）＋下端の橋 y=190〜220
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】直線ℓと図形（方眼の1マスは1辺1cm）</div>
+                <div class="figure-content">
+                    <svg width="470" height="265" viewBox="0 0 470 265">
+                        <!-- 回転の向きを示す矢印（軸ℓのまわりの楕円弧） -->
+                        <path d="M 190 52 A 40 12 0 0 1 266 49" fill="none" stroke="black" stroke-width="1.5"/>
+                        <polygon points="270,50 258,45 261,56" fill="black"/>
+                        <text x="316" y="55" class="svg-text" font-size="13">ℓの周りに1回転</text>
+                        <!-- 図形本体（ℓをまたぐ・右側に穴A/Bの白抜き2つ） -->
+                        <path d="M 110 220 L 380 220 L 380 100 L 230 100 L 230 190 L 140 190 L 140 100 L 110 100 Z M 260 190 L 260 160 L 290 160 L 290 190 Z M 320 160 L 320 130 L 350 130 L 350 160 Z" fill="#d8d8d8" stroke="black" stroke-width="2" fill-rule="evenodd"/>
+                        <!-- 図形内部の1cmマス目線 -->
+                        <g stroke="#999999" stroke-width="1">
+                            <line x1="140" y1="190" x2="140" y2="220"/>
+                            <line x1="110" y1="190" x2="140" y2="190"/>
+                            <line x1="110" y1="160" x2="140" y2="160"/>
+                            <line x1="110" y1="130" x2="140" y2="130"/>
+                            <line x1="170" y1="190" x2="170" y2="220"/>
+                            <line x1="200" y1="190" x2="200" y2="220"/>
+                            <line x1="230" y1="190" x2="230" y2="220"/>
+                            <line x1="260" y1="190" x2="260" y2="220"/>
+                            <line x1="230" y1="190" x2="260" y2="190"/>
+                            <line x1="230" y1="160" x2="260" y2="160"/>
+                            <line x1="260" y1="130" x2="260" y2="160"/>
+                            <line x1="230" y1="130" x2="260" y2="130"/>
+                            <line x1="260" y1="100" x2="260" y2="130"/>
+                            <line x1="290" y1="190" x2="290" y2="220"/>
+                            <line x1="290" y1="130" x2="290" y2="160"/>
+                            <line x1="260" y1="130" x2="290" y2="130"/>
+                            <line x1="290" y1="100" x2="290" y2="130"/>
+                            <line x1="320" y1="190" x2="320" y2="220"/>
+                            <line x1="290" y1="190" x2="320" y2="190"/>
+                            <line x1="320" y1="160" x2="320" y2="190"/>
+                            <line x1="290" y1="160" x2="320" y2="160"/>
+                            <line x1="290" y1="130" x2="320" y2="130"/>
+                            <line x1="320" y1="100" x2="320" y2="130"/>
+                            <line x1="350" y1="190" x2="350" y2="220"/>
+                            <line x1="320" y1="190" x2="350" y2="190"/>
+                            <line x1="350" y1="160" x2="350" y2="190"/>
+                            <line x1="350" y1="100" x2="350" y2="130"/>
+                            <line x1="350" y1="190" x2="380" y2="190"/>
+                            <line x1="350" y1="160" x2="380" y2="160"/>
+                            <line x1="350" y1="130" x2="380" y2="130"/>
+                        </g>
+                        <!-- 穴のラベル -->
+                        <text x="275" y="180" class="svg-text" text-anchor="middle" font-size="13">A</text>
+                        <text x="335" y="150" class="svg-text" text-anchor="middle" font-size="13">B</text>
+                        <!-- 回転軸ℓ（一点鎖線・図形の上に描画） -->
+                        <line x1="230" y1="36" x2="230" y2="242" stroke="black" stroke-width="1.5" stroke-dasharray="10,4,2,4"/>
+                        <text x="223" y="258" class="svg-text" font-style="italic" font-size="16">ℓ</text>
+                        <!-- 寸法: 右側の板の幅5cm（上側） -->
+                        <line x1="230" y1="84" x2="380" y2="84" stroke="black" stroke-width="1"/>
+                        <line x1="230" y1="78" x2="230" y2="90" stroke="black" stroke-width="1"/>
+                        <line x1="380" y1="78" x2="380" y2="90" stroke="black" stroke-width="1"/>
+                        <text x="305" y="76" class="svg-text" text-anchor="middle" font-size="13">5cm</text>
+                        <!-- 寸法: 板の高さ4cm（右側） -->
+                        <line x1="394" y1="100" x2="394" y2="220" stroke="black" stroke-width="1"/>
+                        <line x1="388" y1="100" x2="400" y2="100" stroke="black" stroke-width="1"/>
+                        <line x1="388" y1="220" x2="400" y2="220" stroke="black" stroke-width="1"/>
+                        <text x="406" y="165" class="svg-text" font-size="13">4cm</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            選択肢図の座標系: 各選択肢は90x110のボックス（1マス=8px、底辺y=94基準）
+            (1)穴A・Bとも残る (2)穴なし (3)穴Bだけ残る (4)元の図形のまま (5)正解=穴Aのみ対称に残る
+            -->
+            <div class="options-figure" id="q2-options">
+                <!-- 選択肢(1) 両方の穴が左右対称に残る（穴Bの埋まりを見落とし） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(1)</text>
+                        <path d="M 5 94 L 85 94 L 85 62 L 5 62 Z M 13 78 L 13 70 L 21 70 L 21 78 Z M 29 86 L 29 78 L 37 78 L 37 86 Z M 53 86 L 53 78 L 61 78 L 61 86 Z M 69 78 L 69 70 L 77 70 L 77 78 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(2) 穴が全部埋まる（埋まる理屈の過剰適用） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(2)</text>
+                        <path d="M 5 94 L 85 94 L 85 62 L 5 62 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(3) 穴Bだけが残る（生存判定が逆） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(3)</text>
+                        <path d="M 5 94 L 85 94 L 85 62 L 5 62 Z M 13 78 L 13 70 L 21 70 L 21 78 Z M 69 78 L 69 70 L 77 70 L 77 78 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(4) 元の図形のまま（回転を無視・非対称） -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(4)</text>
+                        <path d="M 9 94 L 81 94 L 81 62 L 41 62 L 41 86 L 17 86 L 17 62 L 9 62 Z M 49 86 L 49 78 L 57 78 L 57 86 Z M 65 78 L 65 70 L 73 70 L 73 78 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+
+                <!-- 選択肢(5) 正解: 10×4の長方形に穴Aだけが左右対称に残る -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="15" class="svg-text" text-anchor="middle">(5)</text>
+                        <path d="M 5 94 L 85 94 L 85 62 L 5 62 Z M 29 86 L 29 78 L 37 78 L 37 86 Z M 53 86 L 53 78 L 61 78 L 61 86 Z" fill="#d8d8d8" stroke="black" stroke-width="1.5" fill-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>問1と同じく、ある高さで軸から距離rの位置に立体の材料があるのは「その高さで、図形が左右どちらかの側に軸から距離rの部分を持つ」ときである。本問の核心は、この原理を<strong>穴に適用する</strong>ことにある。すなわち、右側の板の穴が切り口に残るのは、「同じ高さ・同じ軸からの距離に、<strong>左側にも材料がない</strong>」ときだけである。反対側に材料があれば、回転したときその材料が穴の位置の円環を掃くため、穴は立体の中で埋まって消える。</p>
+                    <br>
+                    <p><strong>【切り口の外形】</strong></p>
+                    <p>右側の板は軸から5cm、左側は縦柱の外端まで4cmなので、どの高さでも最大半径は右の5cmである。よって切り口の外形は、幅10cm（左右5cmずつ）×高さ4cmの左右対称な長方形になる。左側の図形の凹凸（柱と橋の形）は、右の板がすべての高さ・半径を覆うため外形には現れない。</p>
+                    <br>
+                    <p><strong>【穴Bは埋まる】</strong></p>
+                    <p>穴Bは軸から3〜4cm、下から3段目の高さにある。ところが左側の縦柱は軸から3〜4cmの位置で下から上まで全高にわたっており、穴Bと<strong>同じ高さ・同じ距離</strong>に材料がある。回転させると柱がこの半径の円環を一周掃くので、穴Bの位置にも材料が回り込み、切り口から穴Bは<strong>消える</strong>。</p>
+                    <br>
+                    <p><strong>【穴Aは残る】</strong></p>
+                    <p>穴Aは軸から1〜2cm、下から2段目の高さにある。この高さで軸から1〜2cmの位置を見ると、右側は穴Aで材料がなく、左側にも材料がない（左の柱は軸から3〜4cm、橋は最下段のみ）。よって穴Aの位置はどの回転角でも空洞のままで、立体の内部にドーナツ状の空洞として残る。ℓを含む平面はこの空洞を左右2か所で横切るので、切り口には穴Aが<strong>左右対称の2か所</strong>に現れる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 穴A・穴Bの両方が左右対称に残る → 左の縦柱が穴Bを埋めることを見落としている → 不正解</p>
+                    <p>・(2) 穴が1つもない長方形 → 「反対側の材料で埋まる」理屈の過剰適用。穴Aと同じ高さ・距離には左側にも材料がなく、穴Aは埋まらない → 不正解</p>
+                    <p>・(3) 穴Bだけが残る → 埋まる穴と残る穴の判定が逆 → 不正解</p>
+                    <p>・(4) 元の図形の輪郭のまま → 回転体の断面は左右対称になるはずで、非対称のままは誤り → 不正解</p>
+                    <p>・(5) 幅10cm×高さ4cmの長方形に、穴Aだけが左右対称の位置に残る → 正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <!-- 最後の問題では「次の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考235/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
