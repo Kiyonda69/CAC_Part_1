@@ -1,166 +1,99 @@
 #!/usr/bin/env python3
-"""航大思考238 検証: 直方体表面の最短経路（展開図による測地線の全列挙）
-問1: 4x3x2 コンテナの対角頂点間の表面最短経路 → √41
-問2: 30x12x12 格納庫内壁の2点間最短経路（スパイダー&フライ型）→ 40
+"""航大思考238 検証: 円筒（機体胴体）の曲面展開（計算不要の純粋空間認識）
+
+設定: 胴体を円筒とみなし、真下の母線に沿って切り開き、外側から見た展開図
+（左=機首側）を選ぶ。展開図の縦座標 y∈[0,1]: 0=下端(切り口・真下),
+0.25=右舷, 0.5=真上, 0.75=左舷, 1=上端(切り口・真下)。
+
+問1: 機首端の真上から右舷側を通ってちょうど1周巻くストライプの展開図
+問2: 同ストライプ + 右舷の窓列4個 + 尾部寄り真下の点検口の複合展開図
 """
-import math
-from itertools import permutations
 
-def sub(p, q): return tuple(p[i]-q[i] for i in range(len(p)))
-def add(p, q): return tuple(p[i]+q[i] for i in range(len(p)))
-def dot(p, q): return sum(p[i]*q[i] for i in range(len(p)))
-def norm(p): return math.sqrt(dot(p, p))
-def unit(p):
-    n = norm(p); return tuple(x/n for x in p)
-def cross2(u, v): return u[0]*v[1] - u[1]*v[0]
+EPS = 1e-9
 
-def box_faces(a, b, c):
-    """面 = (axis, val): axis方向の座標がvalで固定の長方形"""
-    return [(0, 0), (0, a), (1, 0), (1, b), (2, 0), (2, c)]
+def stripe_true_segments():
+    """ストライプの展開像（正解）: y(t) = (0.5 - t) mod 1, t∈[0,1]
+    → 継ぎ目 t=0.5 で分割された右下がりの平行2線分"""
+    return [(0.0, 0.5, 0.5, 0.0), (0.5, 1.0, 1.0, 0.5)]
 
-def face_corners(face, dims):
-    ax, val = face
-    others = [i for i in range(3) if i != ax]
-    corners = []
-    for s in [0, 1]:
-        for t in [0, 1]:
-            p = [0.0, 0.0, 0.0]
-            p[ax] = val
-            p[others[0]] = s * dims[others[0]]
-            p[others[1]] = t * dims[others[1]]
-            corners.append(tuple(p))
-    # 長方形の順序に並べ替え(00,01,11,10)
-    return [corners[0], corners[1], corners[3], corners[2]]
+def sample_stripe(n=2001):
+    pts = []
+    for i in range(n):
+        t = i / (n - 1)
+        y = (0.5 - t) % 1.0
+        pts.append((t, y))
+    return pts
 
-def face_center(face, dims):
-    cs = face_corners(face, dims)
-    return tuple(sum(c[i] for c in cs)/4 for i in range(3))
+def on_segments(p, segs, tol=1e-6):
+    x, y = p
+    for (x1, y1, x2, y2) in segs:
+        if min(x1, x2) - tol <= x <= max(x1, x2) + tol:
+            dx = x2 - x1
+            if abs(dx) < EPS:
+                if abs(x - x1) < tol and min(y1, y2) - tol <= y <= max(y1, y2) + tol:
+                    return True
+                continue
+            yy = y1 + (y2 - y1) * (x - x1) / dx
+            if abs(yy - y) < tol:
+                return True
+    return False
 
-def shared_edge(f1, f2, dims):
-    """2面が共有する辺の端点2つを返す（なければNone）"""
-    c1 = set(face_corners(f1, dims))
-    c2 = set(face_corners(f2, dims))
-    common = c1 & c2
-    if len(common) == 2:
-        return tuple(sorted(common))
-    return None
+def stripe_matches(segs):
+    """継ぎ目上の点(y=0/1は同一点)を考慮してストライプ像と線分集合を照合"""
+    for (t, y) in sample_stripe():
+        ok = on_segments((t, y), segs) or \
+             (abs(y) < 1e-9 and on_segments((t, 1.0), segs)) or \
+             (abs(y - 1.0) < 1e-9 and on_segments((t, 0.0), segs))
+        if not ok:
+            return False
+    # 逆向き照合: 各線分の中点がストライプ像上にあること
+    for (x1, y1, x2, y2) in segs:
+        xm, ym = (x1 + x2) / 2, (y1 + y2) / 2
+        yt = (0.5 - xm) % 1.0
+        if not (abs(ym - yt) < 1e-6 or (abs(yt) < 1e-9 and abs(ym - 1.0) < 1e-6)):
+            return False
+    return True
 
-def on_face(p, face, dims, eps=1e-9):
-    ax, val = face
-    if abs(p[ax] - val) > eps: return False
-    return all(-eps <= p[i] <= dims[i] + eps for i in range(3))
+# ---- 問1: 選択肢のストライプ線分（展開図上, x:0→1 左=機首側） ----
+Q1_OPTIONS = {
+    "A_correct":   [(0.0, 0.5, 0.5, 0.0), (0.5, 1.0, 1.0, 0.5)],   # 右下がり2分割・継ぎ目一致
+    "B_reversed":  [(0.0, 0.5, 0.5, 1.0), (0.5, 0.0, 1.0, 0.5)],   # 巻き方向逆(右上がり)
+    "C_diagonal":  [(0.0, 1.0, 1.0, 0.0)],                          # 1本対角線(分割なし)
+    "D_misalign":  [(0.0, 0.5, 0.35, 0.0), (0.65, 1.0, 1.0, 0.5)],  # 分割位置がずれ不連続
+    "E_vshape":    [(0.0, 0.5, 0.5, 0.0), (0.5, 0.0, 1.0, 0.5)],    # V字(折り返し)
+}
 
-def plane_basis(face, dims):
-    """面内の正規直交基底(3D)"""
-    ax, _ = face
-    others = [i for i in range(3) if i != ax]
-    u = [0.0]*3; u[others[0]] = 1.0
-    v = [0.0]*3; v[others[1]] = 1.0
-    return tuple(u), tuple(v)
-
-def unfold_distance(seq, A, B, dims):
-    """面列 seq に沿って展開し、A→B 直線距離を返す。無効な経路は None。"""
-    f0 = seq[0]
-    u, v = plane_basis(f0, dims)
-    def M0(p): return (dot(p, u), dot(p, v))
-    maps = [M0]
-    prev_center_2d = M0(face_center(f0, dims))
-    hinges = []  # 各遷移の辺の2D像
-    for i in range(len(seq) - 1):
-        e = shared_edge(seq[i], seq[i+1], dims)
-        if e is None: return None
-        e1, e2 = e
-        Mi = maps[-1]
-        E1, E2 = Mi(e1), Mi(e2)
-        L = norm(sub(e2, e1))
-        t3 = unit(sub(e2, e1))
-        # 次面の中心から辺への垂直方向(面内・辺から面内部へ)
-        cn = face_center(seq[i+1], dims)
-        w3 = sub(cn, e1)
-        w3 = sub(w3, tuple(dot(w3, t3)*t3[k] for k in range(3)))
-        n3 = unit(w3)
-        T2 = unit(sub(E2, E1))
-        P2a = (-T2[1], T2[0])  # 辺に垂直な2D方向候補
-        # 前面の中心と反対側に開く
-        side_prev = cross2(sub(E2, E1), sub(prev_center_2d, E1))
-        N2 = P2a if cross2(sub(E2, E1), P2a) * side_prev < 0 else (T2[1], -T2[0])
-        def Mnext(p, e1=e1, t3=t3, n3=n3, E1=E1, T2=T2, N2=N2):
-            d = sub(p, e1)
-            s = dot(d, t3); w = dot(d, n3)
-            return (E1[0] + s*T2[0] + w*N2[0], E1[1] + s*T2[1] + w*N2[1])
-        maps.append(Mnext)
-        hinges.append((E1, E2))
-        prev_center_2d = Mnext(face_center(seq[i+1], dims))
-    A2 = maps[0](A); B2 = maps[-1](B)
-    # 妥当性: A→B 直線が各ヒンジ辺をその線分内で昇順に横切ること
-    d = sub(B2, A2)
-    prev_t = 0.0
-    for (E1, E2) in hinges:
-        eD = sub(E2, E1)
-        denom = cross2(d, eD)
-        if abs(denom) < 1e-12: return None
-        t = cross2(sub(E1, A2), eD) / denom       # A→B 上のパラメータ
-        s = cross2(sub(E1, A2), d) / denom        # 辺上のパラメータ
-        if not (-1e-9 <= s <= 1 + 1e-9): return None
-        if t < prev_t - 1e-9 or t > 1 + 1e-9: return None
-        prev_t = t
-    return norm(d)
-
-def surface_min(A, B, dims, max_faces=6):
-    faces = box_faces(*dims)
-    fA = [f for f in faces if on_face(A, f, dims)]
-    fB = [f for f in faces if on_face(B, f, dims)]
-    results = []
-    def dfs(seq):
-        if seq[-1] in fB and len(seq) >= 2:
-            dist = unfold_distance(seq, A, B, dims)
-            if dist is not None:
-                results.append((dist, tuple(seq)))
-        if len(seq) >= max_faces: return
-        for f in faces:
-            if f in seq: continue
-            if shared_edge(seq[-1], f, dims):
-                dfs(seq + [f])
-    for f in fA:
-        dfs([f])
-    return sorted(results)
+# ---- 問2: (ストライプ線分, 窓列のy, 点検口のy位置リスト) ----
+WIN_XS = [0.2, 0.4, 0.6, 0.8]
+Q2_OPTIONS = {
+    "A_correct":    (Q1_OPTIONS["A_correct"],  0.25, [0.0, 1.0]),  # 全部正しい
+    "B_reversed":   (Q1_OPTIONS["B_reversed"], 0.25, [0.0, 1.0]),  # 巻き方向逆
+    "C_portside":   (Q1_OPTIONS["A_correct"],  0.75, [0.0, 1.0]),  # 窓が左舷の帯
+    "D_diagonal":   (Q1_OPTIONS["C_diagonal"], 0.25, [0.0]),       # 対角線1本+点検口下のみ
+    "E_misalign":   (Q1_OPTIONS["D_misalign"], 0.25, [0.0, 1.0]),  # 継ぎ目不連続
+}
 
 def q1():
-    dims = (4.0, 3.0, 2.0)
-    A = (0.0, 0.0, 0.0)
-    B = (4.0, 3.0, 2.0)
-    res = surface_min(A, B, dims)
-    vals = sorted(set(round(d, 6) for d, _ in res))
-    best = vals[0]
-    print("問1 経路候補(距離の昇順・上位):", vals[:6])
-    assert abs(best - math.sqrt(41)) < 1e-5, best
-    # 誤答候補: √45, √53 が実在の劣位経路であること
-    assert any(abs(v - math.sqrt(45)) < 1e-6 for v in vals)
-    assert any(abs(v - math.sqrt(53)) < 1e-6 for v in vals)
-    # 最短値の一意性（2位と明確に離れている）
-    assert vals[1] - vals[0] > 0.25
-    print(f"問1 OK: 最短 = √41 ≈ {best:.3f} m（内部直線 √29≈{math.sqrt(29):.3f} は不可・辺沿い 9m）")
+    matches = [k for k, segs in Q1_OPTIONS.items() if stripe_matches(segs)]
+    assert matches == ["A_correct"], matches
+    print("問1 OK: ストライプ展開像に一致する選択肢は A_correct のみ")
 
 def q2():
-    dims = (12.0, 30.0, 12.0)  # x=幅12, y=奥行30, z=高さ12
-    A = (6.0, 0.0, 11.0)   # 手前壁 中央・天井から1m
-    B = (6.0, 30.0, 1.0)   # 奥壁 中央・床から1m
-    res = surface_min(A, B, dims)
-    vals = sorted(set(round(d, 6) for d, _ in res))
-    best_d, best_seq = res[0]
-    print("問2 経路候補(距離の昇順・上位):", vals[:6])
-    print("問2 最短経路の面列:", best_seq, "距離:", best_d)
-    assert abs(best_d - 40.0) < 1e-9, best_d
-    # 天井直行 42m が劣位経路として存在
-    assert any(abs(v - 42.0) < 1e-6 for v in vals)
-    # 天井+側壁の4面経由 √1658 ≈ 40.72m
-    assert any(abs(v - math.sqrt(1658)) < 1e-6 for v in vals)
-    # 側壁経由 √1864 ≈ 43.17m
-    assert any(abs(v - math.sqrt(1864)) < 1e-6 for v in vals)
-    assert vals[1] - vals[0] > 0.5
-    print(f"問2 OK: 最短 = 40 m（5面横断）/ 天井直行 42m / 側壁 √1864≈{math.sqrt(1864):.2f}m / 内部直線 √1000≈{math.sqrt(1000):.2f}m")
+    true_win_y, true_hatch = 0.25, [0.0, 1.0]
+    matches = []
+    for k, (segs, win_y, hatch) in Q2_OPTIONS.items():
+        ok = stripe_matches(segs) and abs(win_y - true_win_y) < 1e-9 \
+             and sorted(hatch) == true_hatch
+        if ok:
+            matches.append(k)
+    assert matches == ["A_correct"], matches
+    # 各要素の検証: 窓列の横断位置(ストライプが y=0.25 を横切るのは t=0.25)
+    t_cross = 0.25
+    assert WIN_XS[0] < t_cross < WIN_XS[1]  # 窓1と窓2の間 ✓
+    print("問2 OK: ストライプ・窓列(右舷=下側1/4の帯)・点検口(切り口上→上下両端に2つ)の")
+    print("        3要素すべて正しい選択肢は A_correct のみ / ストライプは窓1と窓2の間を横断")
 
 if __name__ == "__main__":
     q1()
     q2()
-    print("全検証 OK: 両問とも最短値が唯一に定まる")
+    print("全検証 OK: 両問とも正解選択肢が唯一に定まる")
