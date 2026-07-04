@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．飛行機の操縦席には「姿勢指示器」と呼ばれる計器がある。この計器は、操縦席の窓から外を見たときの実際の地平線の見え方を、そのまま丸い表示窓の中に表示するものである。地平線を表す直線の下側（地面の側）は灰色、上側（空の側）は白で表示され、表示窓の中央にある機体マークは計器に固定されていて動かない。図1は、機体が水平に飛行しているときの表示である。いま、この飛行機を真後ろから見たところ、図2のように左の翼が下がる向きに30°傾いて飛行していた。機首の上げ下げはないものとする。このときの姿勢指示器の表示として正しいものを、下の(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x180px / viewBox: 0 0 460 180
+                座標系定義:
+                - 計器の中心: (120, 90)、半径55
+                - 水平飛行: 地平線は中心を通る水平線、下側が灰色
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】姿勢指示器（水平飛行時の表示）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="180" viewBox="0 0 460 180">
+                            <defs><clipPath id="clip-expl"><circle cx="120" cy="90" r="55"/></clipPath></defs>
+                            <g clip-path="url(#clip-expl)">
+                                <rect x="60" y="30" width="120" height="120" fill="white"/>
+                                <rect x="55" y="90" width="130" height="60" fill="#c8c8c8"/>
+                                <line x1="55" y1="90" x2="185" y2="90" stroke="black" stroke-width="2.5"/>
+                            </g>
+                            <line x1="90" y1="90" x2="110" y2="90" stroke="black" stroke-width="4"/>
+                            <line x1="130" y1="90" x2="150" y2="90" stroke="black" stroke-width="4"/>
+                            <circle cx="120" cy="90" r="3.5" fill="black"/>
+                            <circle cx="120" cy="90" r="55" fill="none" stroke="black" stroke-width="2.5"/>
+                            <line x1="150" y1="58" x2="235" y2="45" stroke="#666" stroke-width="1"/>
+                            <text x="240" y="49" class="svg-text">空（白）</text>
+                            <line x1="177" y1="90" x2="235" y2="90" stroke="#666" stroke-width="1"/>
+                            <text x="240" y="94" class="svg-text">地平線を表す直線</text>
+                            <line x1="150" y1="122" x2="235" y2="135" stroke="#666" stroke-width="1"/>
+                            <text x="240" y="139" class="svg-text">地面（灰色）</text>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">※ 中央の太い横線と黒丸は機体マーク（計器に固定されており、常に動かない）。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+                座標系定義:
+                - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+                - 機体の中心: (230, 95)、主翼(150,95)-(310,95)を rotate(-30) → 左翼端が(161,135)へ下がる
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】真後ろから見た機体（左の翼が下がる向きに30°傾いている）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="200" viewBox="0 0 460 200">
+                            <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                            <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                            <text x="370" y="149" class="svg-text">地平線</text>
+                            <text x="215" y="178" class="svg-text">地面</text>
+                            <line x1="150" y1="95" x2="310" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <g transform="rotate(-30, 230, 95)">
+                                <line x1="150" y1="95" x2="310" y2="95" stroke="black" stroke-width="5"/>
+                                <polygon points="226,84 234,84 230,58" fill="black"/>
+                                <circle cx="230" cy="95" r="13" fill="white" stroke="black" stroke-width="2.5"/>
+                            </g>
+                            <text x="148" y="118" class="svg-text">30°</text>
+                            <text x="112" y="152" class="svg-text">左の翼</text>
+                            <line x1="152" y1="145" x2="160" y2="137" stroke="#666" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様:
+                - 各計器: 90x110ボックス内、中心(45,62)、半径36
+                - rotate(+30)=左端上がり / rotate(-30)=右端上がり / 灰色=地面
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="560" height="135" viewBox="0 0 560 135">
+                            <defs>
+                                <clipPath id="clip-q1-1"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q1-2"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q1-3"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q1-4"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q1-5"><circle cx="45" cy="62" r="36"/></clipPath>
+                            </defs>
+                            <!-- (1) 右端上がり・地面下側（右バンクの表示） -->
+                            <g transform="translate(8, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(1)</text>
+                                <g clip-path="url(#clip-q1-1)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(-30, 45, 62)">
+                                        <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 左端上がり・地面上側（空地が逆） -->
+                            <g transform="translate(118, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(2)</text>
+                                <g clip-path="url(#clip-q1-2)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(30, 45, 62)">
+                                        <rect x="-15" y="-18" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 水平・地面下側（水平飛行の表示） -->
+                            <g transform="translate(228, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(3)</text>
+                                <g clip-path="url(#clip-q1-3)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g>
+                                        <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 右端上がり・地面上側 -->
+                            <g transform="translate(338, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(4)</text>
+                                <g clip-path="url(#clip-q1-4)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(-30, 45, 62)">
+                                        <rect x="-15" y="-18" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 左端上がり・地面下側（正解） -->
+                            <g transform="translate(448, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(5)</text>
+                                <g clip-path="url(#clip-q1-5)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(30, 45, 62)">
+                                        <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                本問は、機体の傾き（バンク）と姿勢指示器の表示との対応を問う空間認識の問題である。<br><br>
+
+                <strong>【考え方】</strong><br>
+                ・姿勢指示器は「操縦席から見える実際の地平線」をそのまま表示する。外の地平線は動かず、動くのは機体、すなわちパイロットの視界の方である。<br>
+                ・機体が左の翼を下げて30°傾くと、パイロットの体も視界全体も機体と一緒に左へ30°回転する。<br>
+                ・動かない地平線を、左へ回転した視界の中で見ると、地平線は反対向き、すなわち右回り（時計回り）に30°回転して見える。<br>
+                ・したがって、計器の地平線を表す直線は「左端が上がり、右端が下がる」向きに30°傾く。真後ろから見た機体の傾き（左下がり）とは左右が逆になる点に注意する。<br>
+                ・地面（灰色）は、機体がどのような姿勢でも実際の地平線の下側にあるから、計器でも傾いた直線の下側が灰色になる。<br>
+                ・極端な場合で確かめると分かりやすい。左の翼が真下を向くまで90°傾くと、地面はパイロットの左側の窓いっぱいに見える。つまり、左へ傾くほど地面は視界の左下へ回り込み、地平線の左端が上がっていく。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 直線が右端上がり → 機体の傾きと同じ向きに地平線を傾けた誤り。これは右の翼が下がったときの表示である。<br>
+                ・(2) 直線は左端上がりで正しいが、灰色（地面）が直線の上側 → 空と地面が逆になっている。<br>
+                ・(3) 直線が水平のまま → 水平飛行時の表示であり、傾きが反映されていない。<br>
+                ・(4) 直線が右端上がりで、灰色が上側 → 傾きの向きも空と地面の位置も誤り。<br>
+                ・(5) 直線が左端上がりで、灰色が直線の下側 → 正しい。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ姿勢指示器について考える。機首を上げると、操縦席から見える地平線は視界の中で下の方へ移動するため、計器の地平線を表す直線も表示窓の中央より下に表示される。機首を下げた場合はその逆で、直線は中央より上に表示される。いま、この飛行機を真後ろから見たところ、図3のように右の翼が下がる向きに30°傾いており、同時に、機体の左の真横から見たところ、図4のように機首を上げて上昇していた。このときの姿勢指示器の表示として正しいものを、下の(1)〜(5)のうちから一つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+                座標系定義:
+                - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+                - 機体の中心: (230, 95)、主翼(150,95)-(310,95)を rotate(+30) → 右翼端が(299,135)へ下がる
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図3】真後ろから見た機体（右の翼が下がる向きに30°傾いている）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="200" viewBox="0 0 460 200">
+                            <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                            <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                            <text x="60" y="149" class="svg-text">地平線</text>
+                            <text x="215" y="178" class="svg-text">地面</text>
+                            <line x1="150" y1="95" x2="310" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <g transform="rotate(30, 230, 95)">
+                                <line x1="150" y1="95" x2="310" y2="95" stroke="black" stroke-width="5"/>
+                                <polygon points="226,84 234,84 230,58" fill="black"/>
+                                <circle cx="230" cy="95" r="13" fill="white" stroke="black" stroke-width="2.5"/>
+                            </g>
+                            <text x="288" y="118" class="svg-text">30°</text>
+                            <text x="308" y="152" class="svg-text">右の翼</text>
+                            <line x1="306" y1="145" x2="299" y2="137" stroke="#666" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+                座標系定義:
+                - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+                - 機体（側面）: 胴体は楕円(中心(230,95)、rx=75、ry=13)、機首は左向き
+                - rotate(15, 230, 95) → 機首端(155,95)が(158,76)へ上がる
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図4】左の真横から見た機体（機首は左向き・機首を上げている）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="200" viewBox="0 0 460 200">
+                            <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                            <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                            <text x="370" y="149" class="svg-text">地平線</text>
+                            <text x="215" y="178" class="svg-text">地面</text>
+                            <line x1="145" y1="95" x2="320" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <g transform="rotate(15, 230, 95)">
+                                <polygon points="280,90 305,90 300,60" fill="black"/>
+                                <ellipse cx="230" cy="95" rx="75" ry="13" fill="white" stroke="black" stroke-width="2.5"/>
+                                <polygon points="215,102 250,102 226,122" fill="#999"/>
+                            </g>
+                            <text x="105" y="60" class="svg-text">機首</text>
+                            <line x1="130" y1="63" x2="152" y2="73" stroke="#666" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様:
+                - 各計器: 90x110ボックス内、中心(45,62)、半径36
+                - rotate(-30)=右端上がり / 直線のy: 74=中央より下, 50=中央より上, 62=中央
+                -->
+                <div class="figure-container" style="border: none;">
+                    <div class="figure-content">
+                        <svg width="560" height="135" viewBox="0 0 560 135">
+                            <defs>
+                                <clipPath id="clip-q2-1"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q2-2"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q2-3"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q2-4"><circle cx="45" cy="62" r="36"/></clipPath>
+                                <clipPath id="clip-q2-5"><circle cx="45" cy="62" r="36"/></clipPath>
+                            </defs>
+                            <!-- (1) 右端上がり・直線が中央より下（正解） -->
+                            <g transform="translate(8, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(1)</text>
+                                <g clip-path="url(#clip-q2-1)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(-30, 45, 62)">
+                                        <rect x="-15" y="74" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="74" x2="105" y2="74" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (2) 右端上がり・直線が中央より上（ピッチ逆） -->
+                            <g transform="translate(118, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(2)</text>
+                                <g clip-path="url(#clip-q2-2)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(-30, 45, 62)">
+                                        <rect x="-15" y="50" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="50" x2="105" y2="50" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (3) 左端上がり・直線が中央より下（バンク逆） -->
+                            <g transform="translate(228, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(3)</text>
+                                <g clip-path="url(#clip-q2-3)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(30, 45, 62)">
+                                        <rect x="-15" y="74" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="74" x2="105" y2="74" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (4) 左端上がり・直線が中央より上（両方逆） -->
+                            <g transform="translate(338, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(4)</text>
+                                <g clip-path="url(#clip-q2-4)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(30, 45, 62)">
+                                        <rect x="-15" y="50" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="50" x2="105" y2="50" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <!-- (5) 右端上がり・直線が中央（ピッチ無視） -->
+                            <g transform="translate(448, 15)">
+                                <text x="45" y="10" class="svg-text" text-anchor="middle">(5)</text>
+                                <g clip-path="url(#clip-q2-5)">
+                                    <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                                    <g transform="rotate(-30, 45, 62)">
+                                        <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                        <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                                    </g>
+                                </g>
+                                <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                                <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                                <circle cx="45" cy="62" r="3" fill="black"/>
+                                <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                本問は、バンク（左右の傾き）とピッチ（機首の上げ下げ）という2つの姿勢を、同時に計器の表示へ変換する問題である。「直線の傾きの向き」と「直線の上下位置」の2段階に分けて判断するとよい。<br><br>
+
+                <strong>【手順1: 直線の傾き（バンク）】</strong><br>
+                ・図3より、機体は右の翼が下がる向きに30°傾いている。<br>
+                ・問1と同様に考えると、パイロットの視界は機体と一緒に右へ回転するから、動かない地平線は逆の左回り（反時計回り）に回転して見える。<br>
+                ・よって、計器の直線は「右端が上がり、左端が下がる」向きに30°傾く。問1（左バンク）とはちょうど左右が逆になる。<br><br>
+
+                <strong>【手順2: 直線の上下位置（ピッチ）】</strong><br>
+                ・図4より、機体は機首を上げている。問題文の説明のとおり、機首を上げると地平線は視界の下の方へ移動するから、計器の直線は表示窓の中央より下に表示される。<br>
+                ・直線が下へ寄るぶん、表示窓の中では白い部分（空）が広くなる。機首を上げて空へ向かう姿勢なのだから、空が広く表示されるのは直感とも一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 右端上がり・直線が中央より下 → 手順1・手順2の両方に一致する。正しい。<br>
+                ・(2) 右端上がり・直線が中央より上 → 傾きは正しいが、「機首上げだから直線も上」と考えた誤り。これは機首を下げて降下しているときの表示である。<br>
+                ・(3) 左端上がり・直線が中央より下 → 上下位置は正しいが、傾きの向きが逆。左の翼が下がったときの表示である。<br>
+                ・(4) 左端上がり・直線が中央より上 → 傾きの向きも上下位置も逆。<br>
+                ・(5) 右端上がり・直線が中央 → 機首の上げ下げが反映されておらず、水平飛行時と同じ高さのままになっている。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800;
+            const viewportWidth = window.innerWidth;
+            const padding = 40;
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+            pages.forEach(page => {
+                page.style.transform = `scale(${scale})`;
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+        window.addEventListener('load', scalePages);
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                飛行機の操縦席には「姿勢指示器」と呼ばれる計器がある。この計器は、操縦席の窓から外を見たときの実際の地平線の見え方を、そのまま丸い表示窓の中に表示するものである。地平線を表す直線の下側（地面の側）は灰色、上側（空の側）は白で表示され、表示窓の中央にある機体マークは計器に固定されていて動かない。図1は、機体が水平に飛行しているときの表示である。いま、この飛行機を真後ろから見たところ、図2のように左の翼が下がる向きに30°傾いて飛行していた。機首の上げ下げはないものとする。このときの姿勢指示器の表示として正しいものを、次の(1)〜(5)のうちから一つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x180px / viewBox: 0 0 460 180
+            座標系定義:
+            - 計器の中心: (120, 90)、半径55
+            - 水平飛行: 地平線は中心を通る水平線、下側が灰色
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】姿勢指示器（水平飛行時の表示）</div>
+                <div class="figure-content">
+                    <svg width="460" height="180" viewBox="0 0 460 180">
+                        <defs><clipPath id="clip-expl"><circle cx="120" cy="90" r="55"/></clipPath></defs>
+                        <g clip-path="url(#clip-expl)">
+                            <rect x="60" y="30" width="120" height="120" fill="white"/>
+                            <rect x="55" y="90" width="130" height="60" fill="#c8c8c8"/>
+                            <line x1="55" y1="90" x2="185" y2="90" stroke="black" stroke-width="2.5"/>
+                        </g>
+                        <line x1="90" y1="90" x2="110" y2="90" stroke="black" stroke-width="4"/>
+                        <line x1="130" y1="90" x2="150" y2="90" stroke="black" stroke-width="4"/>
+                        <circle cx="120" cy="90" r="3.5" fill="black"/>
+                        <circle cx="120" cy="90" r="55" fill="none" stroke="black" stroke-width="2.5"/>
+                        <line x1="150" y1="58" x2="235" y2="45" stroke="#666" stroke-width="1"/>
+                        <text x="240" y="49" class="svg-text">空（白）</text>
+                        <line x1="177" y1="90" x2="235" y2="90" stroke="#666" stroke-width="1"/>
+                        <text x="240" y="94" class="svg-text">地平線を表す直線</text>
+                        <line x1="150" y1="122" x2="235" y2="135" stroke="#666" stroke-width="1"/>
+                        <text x="240" y="139" class="svg-text">地面（灰色）</text>
+                    </svg>
+                    <div style="font-size: 13px; text-align: left; margin-top: 5px;">※ 中央の太い横線と黒丸は機体マーク（計器に固定されており、常に動かない）。</div>
+                </div>
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+            座標系定義:
+            - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+            - 機体の中心: (230, 95)、主翼(150,95)-(310,95)を rotate(-30) → 左翼端が(161,135)へ下がる
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】真後ろから見た機体（左の翼が下がる向きに30°傾いている）</div>
+                <div class="figure-content">
+                    <svg width="460" height="200" viewBox="0 0 460 200">
+                        <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                        <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                        <text x="370" y="149" class="svg-text">地平線</text>
+                        <text x="215" y="178" class="svg-text">地面</text>
+                        <line x1="150" y1="95" x2="310" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <g transform="rotate(-30, 230, 95)">
+                            <line x1="150" y1="95" x2="310" y2="95" stroke="black" stroke-width="5"/>
+                            <polygon points="226,84 234,84 230,58" fill="black"/>
+                            <circle cx="230" cy="95" r="13" fill="white" stroke="black" stroke-width="2.5"/>
+                        </g>
+                        <text x="148" y="118" class="svg-text">30°</text>
+                        <text x="112" y="152" class="svg-text">左の翼</text>
+                        <line x1="152" y1="145" x2="160" y2="137" stroke="#666" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 計器は90x110ボックス内、中心(45,62)、半径36。rotate(+30)=左端上がり / rotate(-30)=右端上がり -->
+            <div class="options-figure" id="q1-options">
+                <!-- (1) 右端上がり・地面下側（右バンクの表示） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                        <defs><clipPath id="clip-q1-1"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q1-1)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(-30, 45, 62)">
+                                <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (2) 左端上がり・地面上側（空地が逆） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                        <defs><clipPath id="clip-q1-2"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q1-2)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(30, 45, 62)">
+                                <rect x="-15" y="-18" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (3) 水平・地面下側（水平飛行の表示） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                        <defs><clipPath id="clip-q1-3"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q1-3)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                            <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (4) 右端上がり・地面上側 -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                        <defs><clipPath id="clip-q1-4"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q1-4)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(-30, 45, 62)">
+                                <rect x="-15" y="-18" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (5) 左端上がり・地面下側（正解） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                        <defs><clipPath id="clip-q1-5"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q1-5)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(30, 45, 62)">
+                                <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>本問は、機体の傾き（バンク）と姿勢指示器の表示との対応を問う空間認識の問題である。</p>
+                    <br>
+                    <p><strong>【考え方】</strong></p>
+                    <p>・姿勢指示器は「操縦席から見える実際の地平線」をそのまま表示する。外の地平線は動かず、動くのは機体、すなわちパイロットの視界の方である。</p>
+                    <p>・機体が左の翼を下げて30°傾くと、パイロットの体も視界全体も機体と一緒に左へ30°回転する。</p>
+                    <p>・動かない地平線を、左へ回転した視界の中で見ると、地平線は反対向き、すなわち右回り（時計回り）に30°回転して見える。</p>
+                    <p>・したがって、計器の地平線を表す直線は「左端が上がり、右端が下がる」向きに30°傾く。真後ろから見た機体の傾き（左下がり）とは左右が逆になる点に注意する。</p>
+                    <p>・地面（灰色）は、機体がどのような姿勢でも実際の地平線の下側にあるから、計器でも傾いた直線の下側が灰色になる。</p>
+                    <p>・極端な場合で確かめると分かりやすい。左の翼が真下を向くまで90°傾くと、地面はパイロットの左側の窓いっぱいに見える。つまり、左へ傾くほど地面は視界の左下へ回り込み、地平線の左端が上がっていく。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 直線が右端上がり → 機体の傾きと同じ向きに地平線を傾けた誤り。これは右の翼が下がったときの表示である。</p>
+                    <p>・(2) 直線は左端上がりで正しいが、灰色（地面）が直線の上側 → 空と地面が逆になっている。</p>
+                    <p>・(3) 直線が水平のまま → 水平飛行時の表示であり、傾きが反映されていない。</p>
+                    <p>・(4) 直線が右端上がりで、灰色が上側 → 傾きの向きも空と地面の位置も誤り。</p>
+                    <p>・(5) 直線が左端上がりで、灰色が直線の下側 → 正しい。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ姿勢指示器について考える。機首を上げると、操縦席から見える地平線は視界の中で下の方へ移動するため、計器の地平線を表す直線も表示窓の中央より下に表示される。機首を下げた場合はその逆で、直線は中央より上に表示される。いま、この飛行機を真後ろから見たところ、図3のように右の翼が下がる向きに30°傾いており、同時に、機体の左の真横から見たところ、図4のように機首を上げて上昇していた。このときの姿勢指示器の表示として正しいものを、次の(1)〜(5)のうちから一つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+            座標系定義:
+            - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+            - 機体の中心: (230, 95)、主翼(150,95)-(310,95)を rotate(+30) → 右翼端が(299,135)へ下がる
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図3】真後ろから見た機体（右の翼が下がる向きに30°傾いている）</div>
+                <div class="figure-content">
+                    <svg width="460" height="200" viewBox="0 0 460 200">
+                        <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                        <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                        <text x="60" y="149" class="svg-text">地平線</text>
+                        <text x="215" y="178" class="svg-text">地面</text>
+                        <line x1="150" y1="95" x2="310" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <g transform="rotate(30, 230, 95)">
+                            <line x1="150" y1="95" x2="310" y2="95" stroke="black" stroke-width="5"/>
+                            <polygon points="226,84 234,84 230,58" fill="black"/>
+                            <circle cx="230" cy="95" r="13" fill="white" stroke="black" stroke-width="2.5"/>
+                        </g>
+                        <text x="288" y="118" class="svg-text">30°</text>
+                        <text x="308" y="152" class="svg-text">右の翼</text>
+                        <line x1="306" y1="145" x2="299" y2="137" stroke="#666" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x200px / viewBox: 0 0 460 200
+            座標系定義:
+            - 地平線: y=155（x=30〜430）、下側が地面（灰色）
+            - 機体（側面）: 胴体は楕円(中心(230,95)、rx=75、ry=13)、機首は左向き
+            - rotate(15, 230, 95) → 機首端(155,95)が(158,76)へ上がる
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図4】左の真横から見た機体（機首は左向き・機首を上げている）</div>
+                <div class="figure-content">
+                    <svg width="460" height="200" viewBox="0 0 460 200">
+                        <rect x="30" y="155" width="400" height="35" fill="#e6e6e6"/>
+                        <line x1="30" y1="155" x2="430" y2="155" stroke="black" stroke-width="2"/>
+                        <text x="370" y="149" class="svg-text">地平線</text>
+                        <text x="215" y="178" class="svg-text">地面</text>
+                        <line x1="145" y1="95" x2="320" y2="95" stroke="#888" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <g transform="rotate(15, 230, 95)">
+                            <polygon points="280,90 305,90 300,60" fill="black"/>
+                            <ellipse cx="230" cy="95" rx="75" ry="13" fill="white" stroke="black" stroke-width="2.5"/>
+                            <polygon points="215,102 250,102 226,122" fill="#999"/>
+                        </g>
+                        <text x="105" y="60" class="svg-text">機首</text>
+                        <line x1="130" y1="63" x2="152" y2="73" stroke="#666" stroke-width="1"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢: 計器は90x110ボックス内、中心(45,62)、半径36。直線のy: 74=中央より下, 50=中央より上, 62=中央 -->
+            <div class="options-figure" id="q2-options">
+                <!-- (1) 右端上がり・直線が中央より下（正解） -->
+                <button class="option-figure-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                        <defs><clipPath id="clip-q2-1"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q2-1)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(-30, 45, 62)">
+                                <rect x="-15" y="74" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="74" x2="105" y2="74" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (2) 右端上がり・直線が中央より上（ピッチ逆） -->
+                <button class="option-figure-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                        <defs><clipPath id="clip-q2-2"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q2-2)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(-30, 45, 62)">
+                                <rect x="-15" y="50" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="50" x2="105" y2="50" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (3) 左端上がり・直線が中央より下（バンク逆） -->
+                <button class="option-figure-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                        <defs><clipPath id="clip-q2-3"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q2-3)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(30, 45, 62)">
+                                <rect x="-15" y="74" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="74" x2="105" y2="74" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (4) 左端上がり・直線が中央より上（両方逆） -->
+                <button class="option-figure-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                        <defs><clipPath id="clip-q2-4"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q2-4)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(30, 45, 62)">
+                                <rect x="-15" y="50" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="50" x2="105" y2="50" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+                <!-- (5) 右端上がり・直線が中央（ピッチ無視） -->
+                <button class="option-figure-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <svg width="90" height="110" viewBox="0 0 90 110">
+                        <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                        <defs><clipPath id="clip-q2-5"><circle cx="45" cy="62" r="36"/></clipPath></defs>
+                        <g clip-path="url(#clip-q2-5)">
+                            <rect x="-15" y="2" width="120" height="120" fill="white"/>
+                            <g transform="rotate(-30, 45, 62)">
+                                <rect x="-15" y="62" width="120" height="80" fill="#c8c8c8"/>
+                                <line x1="-15" y1="62" x2="105" y2="62" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </g>
+                        <line x1="23" y1="62" x2="37" y2="62" stroke="black" stroke-width="3.5"/>
+                        <line x1="53" y1="62" x2="67" y2="62" stroke="black" stroke-width="3.5"/>
+                        <circle cx="45" cy="62" r="3" fill="black"/>
+                        <circle cx="45" cy="62" r="36" fill="none" stroke="black" stroke-width="2"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>本問は、バンク（左右の傾き）とピッチ（機首の上げ下げ）という2つの姿勢を、同時に計器の表示へ変換する問題である。「直線の傾きの向き」と「直線の上下位置」の2段階に分けて判断するとよい。</p>
+                    <br>
+                    <p><strong>【手順1: 直線の傾き（バンク）】</strong></p>
+                    <p>・図3より、機体は右の翼が下がる向きに30°傾いている。</p>
+                    <p>・問1と同様に考えると、パイロットの視界は機体と一緒に右へ回転するから、動かない地平線は逆の左回り（反時計回り）に回転して見える。</p>
+                    <p>・よって、計器の直線は「右端が上がり、左端が下がる」向きに30°傾く。問1（左バンク）とはちょうど左右が逆になる。</p>
+                    <br>
+                    <p><strong>【手順2: 直線の上下位置（ピッチ）】</strong></p>
+                    <p>・図4より、機体は機首を上げている。問題文の説明のとおり、機首を上げると地平線は視界の下の方へ移動するから、計器の直線は表示窓の中央より下に表示される。</p>
+                    <p>・直線が下へ寄るぶん、表示窓の中では白い部分（空）が広くなる。機首を上げて空へ向かう姿勢なのだから、空が広く表示されるのは直感とも一致する。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 右端上がり・直線が中央より下 → 手順1・手順2の両方に一致する。正しい。</p>
+                    <p>・(2) 右端上がり・直線が中央より上 → 傾きは正しいが、「機首上げだから直線も上」と考えた誤り。これは機首を下げて降下しているときの表示である。</p>
+                    <p>・(3) 左端上がり・直線が中央より下 → 上下位置は正しいが、傾きの向きが逆。左の翼が下がったときの表示である。</p>
+                    <p>・(4) 左端上がり・直線が中央より上 → 傾きの向きも上下位置も逆。</p>
+                    <p>・(5) 右端上がり・直線が中央 → 機首の上げ下げが反映されておらず、水平飛行時と同じ高さのままになっている。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考239/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
