@@ -1,0 +1,538 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．曲技飛行の訓練機が、機首を真北に向けて水平飛行しており、機体の上面（垂直尾翼が立っている側）は真上を向いている。この状態から、次の2つの操作をこの順に行った。それぞれの操作の意味は【図1】に示すとおりである。（6点）</div>
+                <div class="question-text">
+                    　<strong>操作①　右ロール90°</strong>：機首と尾部を結ぶ機体前後軸のまわりに、操縦士から見て右の翼が下がる向きに90°回転する（この操作だけでは機首の向きは変わらない）。<br>
+                    　<strong>操作②　引き起こし90°</strong>：左右の翼を結ぶ機体横軸のまわりに、機首が機体の上面（背中）側へ向かって90°回転する。<br>
+                    　2つの操作を終えたとき、機首が向いている方向と、垂直尾翼の先端が向いている方向の組み合わせとして正しいものを、次の(1)〜(5)のうちから1つ選べ。ただし、機体はその場で回転のみを行うものとし、方向は地上に静止した観測者から見た「東・西・南・北・真上・真下」で表す。
+                </div>
+                <div class="figure-container">
+                    <div class="figure-title">【図1】初期姿勢と操作の定義</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 640x260px / viewBox: 0 0 640 260 / 余白: 20px
+                        座標系定義:
+                        - パネル1(0,0): 真上から見た初期姿勢。方位十字の中心(100,130)
+                        - パネル2(220,0): 後方から見たロール定義。胴体中心(100,130)
+                        - パネル3(440,0): 真横から見た引き起こし定義。胴体中心(100,150)
+                        -->
+                        <svg width="640" height="260" viewBox="0 0 640 260">
+                            <!-- パネル1: 初期姿勢（真上から見た図） -->
+                            <g transform="translate(0, 0)">
+                                <text x="100" y="18" class="svg-text" text-anchor="middle" font-weight="bold">初期姿勢（真上から見た図）</text>
+                                <line x1="100" y1="60" x2="100" y2="200" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="30" y1="130" x2="170" y2="130" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                                <text x="100" y="52" class="svg-text" text-anchor="middle" font-weight="bold">北</text>
+                                <text x="100" y="216" class="svg-text" text-anchor="middle">南</text>
+                                <text x="18" y="135" class="svg-text" text-anchor="middle">西</text>
+                                <text x="182" y="135" class="svg-text" text-anchor="middle">東</text>
+                                <polygon points="100,90 105,102 105,118 132,128 132,136 105,130 105,152 116,161 116,168 100,163 84,168 84,161 95,152 95,130 68,136 68,128 95,118 95,102" fill="#555" stroke="black" stroke-width="1"/>
+                                <text x="100" y="238" class="svg-text" text-anchor="middle" font-size="12">機首＝北　／　上面＝真上</text>
+                            </g>
+                            <!-- パネル2: 右ロールの定義（後方から見た図） -->
+                            <g transform="translate(220, 0)">
+                                <text x="100" y="18" class="svg-text" text-anchor="middle" font-weight="bold">右ロール90°</text>
+                                <text x="100" y="36" class="svg-text" text-anchor="middle" font-size="11">（後方から機首の方向を見た図）</text>
+                                <line x1="25" y1="130" x2="175" y2="130" stroke="black" stroke-width="5"/>
+                                <line x1="100" y1="118" x2="100" y2="92" stroke="black" stroke-width="4"/>
+                                <circle cx="100" cy="130" r="13" fill="white" stroke="black" stroke-width="2.5"/>
+                                <text x="38" y="152" class="svg-text" text-anchor="middle" font-size="11">左翼</text>
+                                <text x="162" y="152" class="svg-text" text-anchor="middle" font-size="11">右翼</text>
+                                <path d="M 100,78 A 52,52 0 0 1 152,130" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="146,126 158,126 152,142" fill="black"/>
+                                <text x="100" y="215" class="svg-text" text-anchor="middle" font-size="11">右の翼が下がる向きに90°回る</text>
+                                <text x="100" y="232" class="svg-text" text-anchor="middle" font-size="11">（機首の向きは変わらない）</text>
+                            </g>
+                            <!-- パネル3: 引き起こしの定義（真横から見た図） -->
+                            <g transform="translate(440, 0)">
+                                <text x="100" y="18" class="svg-text" text-anchor="middle" font-weight="bold">引き起こし90°</text>
+                                <text x="100" y="36" class="svg-text" text-anchor="middle" font-size="11">（真横から見た図・機首は右向き）</text>
+                                <rect x="40" y="144" width="105" height="12" fill="#555" stroke="black" stroke-width="1"/>
+                                <polygon points="145,144 163,150 145,156" fill="#555" stroke="black" stroke-width="1"/>
+                                <polygon points="40,144 40,122 54,144" fill="#555" stroke="black" stroke-width="1"/>
+                                <text x="158" y="172" class="svg-text" text-anchor="middle" font-size="11">機首</text>
+                                <path d="M 168,136 A 60,60 0 0 0 126,84" fill="none" stroke="black" stroke-width="2"/>
+                                <polygon points="110,84 126,76 126,92" fill="black"/>
+                                <text x="100" y="215" class="svg-text" text-anchor="middle" font-size="11">機首が上面（背中）側へ</text>
+                                <text x="100" y="232" class="svg-text" text-anchor="middle" font-size="11">90°起き上がる向きに回る</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <table class="option-table">
+                    <tr><th>選択肢</th><th>機首が向いている方向</th><th>垂直尾翼の先端が向いている方向</th></tr>
+                    <tr><td>(1)</td><td>東</td><td>真上</td></tr>
+                    <tr><td>(2)</td><td>真上</td><td>南</td></tr>
+                    <tr><td>(3)</td><td>西</td><td>南</td></tr>
+                    <tr><td>(4)</td><td>東</td><td>南</td></tr>
+                    <tr><td>(5)</td><td>真上</td><td>東</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                機体の姿勢を「機首」「上面（垂直尾翼の先端）」「右翼」の3つの向きの組で追跡する。初期状態はそれぞれ「北・真上・東」である。<br><br>
+
+                <strong>【操作①　右ロール90°】</strong><br>
+                回転軸は機首と尾部を結ぶ軸なので、機首の向きは北のまま変わらない。右の翼が下がる向きに90°回るため、上面（垂直尾翼）はそれまで右翼のあった<strong>東</strong>へ倒れ、右翼は<strong>真下</strong>を向く。<br><br>
+
+                <strong>【操作②　引き起こし90°】</strong><br>
+                「引き起こし」は機首が<strong>機体の上面側</strong>へ回る操作であり、地面に対して上向きに回るとは限らない点が本問の核心である。操作①の後、機体の上面は東を向いているから、機首は北から<strong>東</strong>へ90°回る（地上から見ると、まるで水平の右旋回のように見える）。同時に上面は、それまで機首のあった方向の反対側、すなわち<strong>南</strong>を向く。<br><br>
+
+                <table class="figure-table" style="font-size:14px;">
+                    <tr><th>段階</th><th>機首</th><th>上面（垂直尾翼）</th><th>右翼</th></tr>
+                    <tr><td>初期状態</td><td>北</td><td>真上</td><td>東</td></tr>
+                    <tr><td>①右ロール90°の後</td><td>北</td><td>東</td><td>真下</td></tr>
+                    <tr><td>②引き起こし90°の後</td><td><strong>東</strong></td><td><strong>南</strong></td><td>真下</td></tr>
+                </table>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 東・真上 → 機首の向きは正しいが、引き起こしで垂直尾翼の向きも変わることを見落としている。<br>
+                ・(2) 真上・南 → ロールを無視して水平姿勢のまま引き起こした場合の姿勢。<br>
+                ・(3) 西・南 → 右ロールを左ロールと取り違えた場合の姿勢。<br>
+                ・(4) 東・南 → 上の追跡と一致する。<strong>正解</strong>。<br>
+                ・(5) 真上・東 → 操作を逆の順序（引き起こし→ロール）で行った場合の姿勢。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ訓練機が、今度は機首を真東に向けて水平飛行しており、機体の上面（垂直尾翼が立っている側）は真上を向いている。この状態から、次の3つの操作をこの順に行った。「右ロール90°」と「引き起こし90°」の意味は問1と同じである（下に再掲する）。（6点）</div>
+                <div class="question-text">
+                    　<strong>操作①　引き起こし90°</strong>　→　<strong>操作②　右ロール90°</strong>　→　<strong>操作③　引き起こし90°</strong><br>
+                    　・右ロール90°：機首と尾部を結ぶ機体前後軸のまわりに、操縦士から見て右の翼が下がる向きに90°回転する（機首の向きは変わらない）。<br>
+                    　・引き起こし90°：左右の翼を結ぶ機体横軸のまわりに、機首が機体の上面（背中）側へ向かって90°回転する。<br>
+                    　3つの操作を終えたとき、機首が向いている方向と、垂直尾翼の先端が向いている方向の組み合わせとして正しいものを、次の(1)〜(5)のうちから1つ選べ。ただし、機体はその場で回転のみを行うものとし、方向は地上に静止した観測者から見た「東・西・南・北・真上・真下」で表す。
+                </div>
+                <div class="figure-container">
+                    <div class="figure-title">【図2】問2の初期姿勢と操作の順序</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 620x240px / viewBox: 0 0 620 240 / 余白: 20px
+                        座標系定義:
+                        - パネル1(0,0): 真上から見た初期姿勢（機首=東）。方位十字の中心(100,130)
+                        - パネル2(230,0): 操作の順序。3つの箱(横110×縦44)を縦に配置、中心x=195
+                        -->
+                        <svg width="620" height="240" viewBox="0 0 620 240">
+                            <!-- パネル1: 初期姿勢（真上から見た図・機首=東） -->
+                            <g transform="translate(0, 0)">
+                                <text x="100" y="18" class="svg-text" text-anchor="middle" font-weight="bold">初期姿勢（真上から見た図）</text>
+                                <line x1="100" y1="60" x2="100" y2="200" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="30" y1="130" x2="170" y2="130" stroke="#999" stroke-width="1" stroke-dasharray="4,3"/>
+                                <text x="100" y="52" class="svg-text" text-anchor="middle">北</text>
+                                <text x="100" y="216" class="svg-text" text-anchor="middle">南</text>
+                                <text x="18" y="135" class="svg-text" text-anchor="middle">西</text>
+                                <text x="182" y="135" class="svg-text" text-anchor="middle" font-weight="bold">東</text>
+                                <g transform="rotate(90, 100, 130)">
+                                    <polygon points="100,90 105,102 105,118 132,128 132,136 105,130 105,152 116,161 116,168 100,163 84,168 84,161 95,152 95,130 68,136 68,128 95,118 95,102" fill="#555" stroke="black" stroke-width="1"/>
+                                </g>
+                                <text x="100" y="238" class="svg-text" text-anchor="middle" font-size="12">機首＝東　／　上面＝真上</text>
+                            </g>
+                            <!-- パネル2: 操作の順序（縦に3つの箱） -->
+                            <g transform="translate(230, 0)">
+                                <text x="195" y="18" class="svg-text" text-anchor="middle" font-weight="bold">操作の順序（定義は【図1】と同じ）</text>
+                                <rect x="120" y="40" width="150" height="38" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="195" y="64" class="svg-text" text-anchor="middle">①　引き起こし90°</text>
+                                <line x1="195" y1="78" x2="195" y2="98" stroke="black" stroke-width="2"/>
+                                <polygon points="189,96 201,96 195,108" fill="black"/>
+                                <rect x="120" y="108" width="150" height="38" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="195" y="132" class="svg-text" text-anchor="middle">②　右ロール90°</text>
+                                <line x1="195" y1="146" x2="195" y2="166" stroke="black" stroke-width="2"/>
+                                <polygon points="189,164 201,164 195,176" fill="black"/>
+                                <rect x="120" y="176" width="150" height="38" fill="white" stroke="black" stroke-width="2"/>
+                                <text x="195" y="200" class="svg-text" text-anchor="middle">③　引き起こし90°</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <table class="option-table">
+                    <tr><th>選択肢</th><th>機首が向いている方向</th><th>垂直尾翼の先端が向いている方向</th></tr>
+                    <tr><td>(1)</td><td>北</td><td>真上</td></tr>
+                    <tr><td>(2)</td><td>西</td><td>真下</td></tr>
+                    <tr><td>(3)</td><td>北</td><td>真下</td></tr>
+                    <tr><td>(4)</td><td>南</td><td>真下</td></tr>
+                    <tr><td>(5)</td><td>南</td><td>真上</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                問1と同様に、「機首」「上面(垂直尾翼の先端)」「右翼」の3つの向きの組で1操作ずつ追跡する。初期状態は「東・真上・南」である（機首が東を向くとき、右翼は南側にくることに注意）。<br><br>
+
+                <strong>【操作①　引き起こし90°】</strong><br>
+                上面は真上を向いているので、機首は東から<strong>真上</strong>へ起き上がる（垂直上昇の姿勢）。上面は、それまで機首のあった東の反対側、すなわち<strong>西</strong>を向く。右翼は南のまま。<br><br>
+
+                <strong>【操作②　右ロール90°】</strong><br>
+                回転軸は機首と尾部を結ぶ軸だが、いまや機体は垂直上昇中なので、この軸は<strong>鉛直方向</strong>である。したがって機首は真上のまま変わらず、機体の背中だけが回る。上面は右翼のあった<strong>南</strong>へ移り、右翼は<strong>東</strong>を向く。垂直姿勢でのロールは地上から見ると「背中の向き」だけを変える——ここが本問の核心である。<br><br>
+
+                <strong>【操作③　引き起こし90°】</strong><br>
+                機首は機体の上面側、すなわち<strong>南</strong>へ倒れる。上面は、それまで機首のあった真上の反対側、すなわち<strong>真下</strong>を向く。つまり機体は腹を上に向けた<strong>背面飛行</strong>の姿勢で南を向いて終わる。<br><br>
+
+                <table class="figure-table" style="font-size:14px;">
+                    <tr><th>段階</th><th>機首</th><th>上面（垂直尾翼）</th><th>右翼</th></tr>
+                    <tr><td>初期状態</td><td>東</td><td>真上</td><td>南</td></tr>
+                    <tr><td>①引き起こし90°の後</td><td>真上</td><td>西</td><td>南</td></tr>
+                    <tr><td>②右ロール90°の後</td><td>真上</td><td>南</td><td>東</td></tr>
+                    <tr><td>③引き起こし90°の後</td><td><strong>南</strong></td><td><strong>真下</strong></td><td>東</td></tr>
+                </table>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 北・真上 → 操作③を「機首下げ」と誤解し、水平飛行に戻ると考えた場合の姿勢。<br>
+                ・(2) 西・真下 → 操作②のロールを無視し、引き起こしを2回続けた場合（宙返りの途中）の姿勢。<br>
+                ・(3) 北・真下 → 右ロールを左ロールと取り違えた場合の姿勢。<br>
+                ・(4) 南・真下 → 上の追跡と一致する。<strong>正解</strong>。<br>
+                ・(5) 南・真上 → 機首の向きは正しいが、背面飛行になっている（上面が真下を向く）ことを見落としている。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
