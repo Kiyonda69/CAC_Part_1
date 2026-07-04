@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．飛行機が、地上の点Oの真上で、機首を真北に向けたまま鉛直面内で宙返り（縦に1回転）を行い、通過した経路に沿ってスモーク（煙）の輪を空中に残した。この輪は、点Oの真上にあり、南北方向に立てた鉛直な平面内の半径が一定の円で、しばらく形を変えずに空中にとどまるものとする。この輪を、（ア）真東の遠方から水平に見たとき、（イ）真上の遠方から見下ろしたとき、それぞれどのような形に見えるか。（ア）（イ）の組み合わせとして正しいものを、(1)〜(5)のうちから1つ選べ。ただし、遠近によるゆがみは考えないものとし、真上から見た図は北を上、真東から見た図は上方向を上とする。（6点）</div>
+
+                <!--
+                図表仕様: SVGサイズ500x260 / viewBox 0 0 500 260 / 余白20px
+                座標系(斜投影): 北=画面右(+x), 東=画面右下(0.55,0.37), 上=画面上(-y)
+                地面: 平行四辺形(80,180)-(300,180)-(360,220)-(140,220), O=(190,200)
+                スモークの輪: 南北鉛直面内の円 → 斜投影で真円 中心(190,110) 半径55
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】宙返りのスモークの輪（斜めから見た模式図）</div>
+                    <div class="figure-content">
+                        <svg width="500" height="260" viewBox="0 0 500 260">
+                            <!-- 地面 -->
+                            <polygon points="80,180 300,180 360,220 140,220" fill="#f2f2f2" stroke="#999" stroke-width="1"/>
+                            <!-- 点O -->
+                            <circle cx="190" cy="200" r="3" fill="black"/>
+                            <text x="176" y="214" class="svg-text">O</text>
+                            <!-- Oからの鉛直線 -->
+                            <line x1="190" y1="200" x2="190" y2="120" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <!-- スモークの輪（南北鉛直面内の円） -->
+                            <circle cx="190" cy="110" r="55" fill="none" stroke="black" stroke-width="2.5"/>
+                            <line x1="243" y1="99" x2="292" y2="84" stroke="#666" stroke-width="1"/>
+                            <text x="296" y="86" class="svg-text">スモークの輪</text>
+                            <text x="296" y="104" class="svg-text" font-size="12">（南北方向の鉛直面内）</text>
+                            <!-- 方位（斜投影の向き） -->
+                            <line x1="405" y1="200" x2="455" y2="200" stroke="black" stroke-width="1.5"/>
+                            <polygon points="455,200 447,196 447,204" fill="black"/>
+                            <text x="462" y="205" class="svg-text">北</text>
+                            <line x1="405" y1="200" x2="438" y2="222" stroke="black" stroke-width="1.5"/>
+                            <polygon points="438,222 429,220 434,213" fill="black"/>
+                            <text x="443" y="234" class="svg-text">東</text>
+                            <line x1="405" y1="200" x2="405" y2="162" stroke="black" stroke-width="1.5"/>
+                            <polygon points="405,162 401,170 409,170" fill="black"/>
+                            <text x="399" y="154" class="svg-text">上</text>
+                            <!-- 観測方向（イ）真上 -->
+                            <text x="190" y="20" class="svg-text" text-anchor="middle">（イ）真上から見下ろす</text>
+                            <line x1="190" y1="26" x2="190" y2="46" stroke="#666" stroke-width="1" stroke-dasharray="4,3"/>
+                            <polygon points="190,50 186,42 194,42" fill="#666"/>
+                            <!-- 観測方向（ア）真東 -->
+                            <text x="415" y="256" class="svg-text" text-anchor="middle">（ア）真東の遠方から水平に見る</text>
+                            <line x1="390" y1="242" x2="262" y2="152" stroke="#666" stroke-width="1" stroke-dasharray="4,3"/>
+                            <polygon points="259,150 268,151 263,158" fill="#666"/>
+                        </svg>
+                    </div>
+                </div>
+                <!--
+                選択肢仕様: SVG 620x140 / 各セル幅110px(x=10,132,254,376,498)
+                各セル: 上段=（ア）真東から見た形, 下段=（イ）真上から見た形（北を上）
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="620" height="140" viewBox="0 0 620 140">
+                            <g transform="translate(10, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="101" r="17" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(132, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="32" y1="45" x2="80" y2="45" stroke="black" stroke-width="2.5"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="101" r="17" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(254, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="56" y1="27" x2="56" y2="63" stroke="black" stroke-width="2.5"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="56" y1="83" x2="56" y2="119" stroke="black" stroke-width="2.5"/>
+                            </g>
+                            <g transform="translate(376, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="56" y1="83" x2="56" y2="119" stroke="black" stroke-width="2.5"/>
+                            </g>
+                            <g transform="translate(498, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="32" y1="101" x2="80" y2="101" stroke="black" stroke-width="2.5"/>
+                            </g>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">※ ア＝真東から水平に見た形、イ＝真上から見下ろした形（北を上とする）</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                ある方向から見たスモークの輪の形は、輪をその視線と垂直な平面に写した影（正射影）と同じである。輪は「南北方向に立てた鉛直な平面」の中にある半径一定の円であることに注意する。<br><br>
+
+                <strong>【（ア）真東から水平に見る】</strong><br>
+                ・視線は東西方向である。輪がのっている平面（南北×上下の面）は、この視線とちょうど正対する。<br>
+                ・正対する平面内の図形は形を変えずに見えるので、輪はそのまま<strong>真円</strong>に見える。<br><br>
+
+                <strong>【（イ）真上から見下ろす】</strong><br>
+                ・視線は上下方向であり、高さの違いは真上からは見えなくなる。<br>
+                ・輪の上のどの点も東西方向の位置は点Oの真上で共通であり、輪は東西方向にはまったく広がりを持たない。<br>
+                ・したがって地面に落とした影は、<strong>南北方向にのびる1本の線分</strong>になる（北を上とした図では縦の線分）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 真上からも円に見えるとしている → 輪が水平に寝ている場合の見え方であり誤り。<br>
+                ・(2) アを線分、イを円としている → （ア）と（イ）の見え方を取り違えている。<br>
+                ・(3) アを鉛直の線分としている → 真南（または真北）から見たときの見え方との混同。輪の面は東西方向の視線に正対するので円に見える。<br>
+                ・(4) ア＝円、イ＝南北方向の線分 → 正しい。<br>
+                ・(5) イの線分の向きが東西方向になっている → 輪は南北方向に広がっているので誤り。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．飛行機が、水平方向には地上の点Oの真上を中心とする半径が一定の円を真上から見て時計回りに描きながら、一定の割合で高度を上げ続け、ちょうど2周して、通過した経路に沿ってスモークの線を空中に残した。このスモークの軌跡を、（ア）真上の遠方から見下ろしたとき、（イ）真東の遠方から水平に見たとき、それぞれどのような形に見えるか。（ア）（イ）の組み合わせとして正しいものを、(1)〜(5)のうちから1つ選べ。ただし、遠近によるゆがみは考えないものとし、スモークは形を変えずに空中にとどまるものとする。（6点）</div>
+
+                <!--
+                図表仕様: SVGサイズ500x270 / viewBox 0 0 500 270 / 余白20px
+                座標系(斜投影): 北=画面右(+x), 東=画面右下(0.55,0.37), 上=画面上(-y)
+                O=(190,200) / らせん: 半径55・2周・上昇88px(点列はPython生成)
+                地面: 平行四辺形(70,168)-(300,168)-(390,228)-(160,228)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】上昇しながら2周したスモークの軌跡（斜めから見た模式図）</div>
+                    <div class="figure-content">
+                        <svg width="500" height="270" viewBox="0 0 500 270">
+                            <!-- 地面 -->
+                            <polygon points="70,168 300,168 390,228 160,228" fill="#f2f2f2" stroke="#999" stroke-width="1"/>
+                            <!-- 円の真下（地上）の破線ガイド -->
+                            <polyline points="245.0,200.0 249.8,204.0 252.4,207.8 252.5,211.3 250.3,214.4 245.7,216.9 239.0,218.8 230.4,220.0 220.2,220.3 208.9,220.0 196.9,218.8 184.6,216.9 172.5,214.4 161.1,211.3 150.8,207.8 142.0,204.0 135.0,200.0 130.2,196.0 127.6,192.2 127.5,188.7 129.7,185.6 134.3,183.1 141.0,181.2 149.6,180.0 159.8,179.7 171.1,180.0 183.1,181.2 195.4,183.1 207.5,185.6 218.9,188.7 229.2,192.2 238.0,196.0 245.0,200.0" fill="none" stroke="#aaa" stroke-width="1" stroke-dasharray="4,3"/>
+                            <!-- 点O -->
+                            <circle cx="190" cy="200" r="3" fill="black"/>
+                            <text x="176" y="215" class="svg-text">O</text>
+                            <line x1="190" y1="200" x2="190" y2="55" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+                            <!-- らせん状のスモーク軌跡 -->
+                            <polyline points="245.0,160.0 249.8,162.6 252.4,165.0 252.5,167.2 250.3,168.9 245.7,170.0 239.0,170.6 230.4,170.3 220.2,169.3 208.9,167.6 196.9,165.1 184.6,161.8 172.5,157.9 161.1,153.4 150.8,148.5 142.0,143.3 135.0,138.0 130.2,132.7 127.6,127.5 127.5,122.6 129.7,118.1 134.3,114.2 141.0,110.9 149.6,108.4 159.8,106.7 171.1,105.7 183.1,105.4 195.4,106.0 207.5,107.1 218.9,108.8 229.2,111.0 238.0,113.4 245.0,116.0 249.8,118.6 252.4,121.0 252.5,123.2 250.3,124.9 245.7,126.0 239.0,126.6 230.4,126.3 220.3,125.3 208.9,123.6 196.9,121.1 184.6,117.8 172.5,113.9 161.1,109.4 150.8,104.5 142.0,99.3 135.0,94.0 130.2,88.7 127.6,83.5 127.5,78.6 129.7,74.1 134.3,70.2 141.0,66.9 149.6,64.4 159.7,62.7 171.1,61.7 183.1,61.4 195.4,62.0 207.5,63.1 218.9,64.8 229.2,67.0 238.0,69.4 245.0,72.0" fill="none" stroke="black" stroke-width="2.5"/>
+                            <!-- 始点・終点 -->
+                            <circle cx="245" cy="160" r="4" fill="black"/>
+                            <text x="258" y="170" class="svg-text" font-size="12">始点（上昇開始）</text>
+                            <circle cx="245" cy="72" r="4" fill="black"/>
+                            <text x="258" y="68" class="svg-text" font-size="12">終点（ちょうど2周後）</text>
+                            <!-- 方位（斜投影の向き） -->
+                            <line x1="415" y1="130" x2="465" y2="130" stroke="black" stroke-width="1.5"/>
+                            <polygon points="465,130 457,126 457,134" fill="black"/>
+                            <text x="472" y="135" class="svg-text">北</text>
+                            <line x1="415" y1="130" x2="448" y2="152" stroke="black" stroke-width="1.5"/>
+                            <polygon points="448,152 439,150 444,143" fill="black"/>
+                            <text x="453" y="164" class="svg-text">東</text>
+                            <line x1="415" y1="130" x2="415" y2="92" stroke="black" stroke-width="1.5"/>
+                            <polygon points="415,92 411,100 419,100" fill="black"/>
+                            <text x="409" y="84" class="svg-text">上</text>
+                            <!-- 注記 -->
+                            <text x="30" y="252" class="svg-text" font-size="13">※ 水平方向には点Oの真上を中心とする半径一定の円（真上から見て時計回り）</text>
+                        </svg>
+                    </div>
+                </div>
+                <!--
+                選択肢仕様: SVG 620x140 / 各セル幅110px(x=10,132,254,376,498)
+                各セル: 上段=（ア）真上から見た形（北を上）, 下段=（イ）真東から見た形
+                渦巻き: 半円弧4本(r=16,12,8,4)の連結 / 波形: 振幅11・2周期のベジェ曲線
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="620" height="140" viewBox="0 0 620 140">
+                            <g transform="translate(10, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(1)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <path d="M40,45 a16,16 0 0 1 32,0 a12,12 0 0 1 -24,0 a8,8 0 0 1 16,0 a4,4 0 0 1 -8,0" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="34" y1="121" x2="78" y2="81" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(132, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(2)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <line x1="34" y1="121" x2="78" y2="81" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(254, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(3)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <path d="M40,45 a16,16 0 0 1 32,0 a12,12 0 0 1 -24,0 a8,8 0 0 1 16,0 a4,4 0 0 1 -8,0" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <path d="M56,122 C67,118 67,115 56,111 C45,107 45,104 56,101 C67,98 67,94 56,90 C45,86 45,83 56,80" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(376, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(4)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="91" r="9.5" fill="none" stroke="black" stroke-width="2"/>
+                                <circle cx="56" cy="111" r="9.5" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                            <g transform="translate(498, 0)">
+                                <text x="56" y="14" class="svg-text" text-anchor="middle">(5)</text>
+                                <text x="8" y="50" class="svg-text" font-size="12">ア</text>
+                                <rect x="26" y="22" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <circle cx="56" cy="45" r="17" fill="none" stroke="black" stroke-width="2"/>
+                                <text x="8" y="106" class="svg-text" font-size="12">イ</text>
+                                <rect x="26" y="78" width="60" height="46" fill="none" stroke="#999" stroke-width="1"/>
+                                <path d="M56,122 C67,118 67,115 56,111 C45,107 45,104 56,101 C67,98 67,94 56,90 C45,86 45,83 56,80" fill="none" stroke="black" stroke-width="2"/>
+                            </g>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">※ ア＝真上から見下ろした形（北を上）、イ＝真東から水平に見た形（上方向を上）</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                軌跡の見え方は、視線方向の変化が消え、視線と垂直な方向の変化だけが残ると考えるとよい。軌跡の性質は「水平方向には半径一定の円周上を回り続ける」「高度は一定の割合で増え続ける」の2つである。<br><br>
+
+                <strong>【（ア）真上から見下ろす】</strong><br>
+                ・真上からは高度（上下方向）の違いは見えなくなり、水平方向の位置だけが残る。<br>
+                ・水平方向の位置は、1周目も2周目も常に点Oを中心とする同じ半径の円周上にある。<br>
+                ・したがって1周目と2周目の軌跡はぴったり重なり、<strong>1つの円</strong>に見える。渦巻きに見えるのは回転の半径が変化する場合だけであり、半径一定の本問では渦巻きにはならない。<br><br>
+
+                <strong>【（イ）真東から水平に見る】</strong><br>
+                ・真東からは東西方向の変化が見えなくなり、南北方向の位置と高度だけが残る。<br>
+                ・高度は一定の割合で増え続けるので、軌跡は下から上へ一方向に進む。<br>
+                ・一方、南北方向の位置は円運動により北端と南端の間を往復する（2周でちょうど2往復）。<br>
+                ・したがって、<strong>左右に波打ちながら上昇する曲線</strong>に見える。もし右上がりの直線に見えるなら、南北方向の位置が一方向に動き続けることになり、円を描いているという条件に反する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1)(3) アを渦巻きとしている → 「上昇しながら回る＝渦巻き」という思い込み。半径が一定なら真上からは1つの円に重なる。<br>
+                ・(1)(2) イを右上がりの直線としている → 南北方向の往復（波打ち）を見落としている。<br>
+                ・(4) イを2つの円としている → 輪が円に見えるのは視線が輪の面と正対する場合に限られる。上昇しながらの円運動の軌跡は閉じた輪を作らない。<br>
+                ・(5) ア＝1つの円、イ＝波打ちながら上昇する曲線 → 正しい。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
