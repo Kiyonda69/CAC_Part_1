@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．資料1はある航空会社の運航マニュアルに定める気象電文の読み方、資料2は同社の着陸最低気象条件である。下の表はA〜Eの5空港で同時刻に観測された気象電文を示している。着陸最低気象条件をすべて満たす空港として、正しいものを選びなさい。（6点）</div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 16px;">
+                    <div class="figure-title" style="text-align: center;">【資料1】気象電文の読み方（電文は「風　視程　天気　雲　気温/露点」の順に記載）</div>
+                    <div style="font-size: 13.5px; line-height: 1.65;">
+                        <strong>風</strong>: 数字5桁＋KT。先頭3桁は風向（度）、続く2桁は平均風速（ノット）。数字の間に「G」がある場合、Gの後の2桁は最大瞬間風速（ガスト、ノット）を表す。<br>
+                        　例: 24012KT ＝ 風向240度・平均12ノット　／　36008G25KT ＝ 平均8ノット・ガスト25ノット<br>
+                        <strong>視程</strong>: 数字4桁、メートル単位。「9999」は視程10km以上を表す。<br>
+                        <strong>天気</strong>: BR＝もや、FG＝霧、RA＝雨。現象がないときは省略される。<br>
+                        <strong>雲</strong>: 雲量記号＋数字3桁。雲量記号は FEW（雲量1〜2/8）、SCT（3〜4/8）、BKN（5〜7/8）、OVC（8/8）の4種類。数字3桁は雲底の高さで、<u>100フィート単位</u>で表す（例: BKN008 ＝ 雲量5〜7/8・雲底800フィート）。雲の層が複数あるときは低い順に併記される。<br>
+                        <strong>シーリング（雲高）</strong>: BKNまたはOVCの雲層のうち、最も低い雲底の高さをいう。FEW・SCTの雲層はシーリングとみなさない。<br>
+                        <strong>気温/露点</strong>: 摂氏（℃）。
+                    </div>
+                </div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 16px;">
+                    <div class="figure-title" style="text-align: center;">【資料2】着陸最低気象条件（次の3条件をすべて満たすこと）</div>
+                    <div style="font-size: 13.5px; line-height: 1.65;">
+                        条件1: 視程が5,000m以上であること。<br>
+                        条件2: シーリングが1,000フィート以上であること（BKN・OVCの雲層がない場合、この条件は満たすものとする）。<br>
+                        条件3: 風速が20ノット以下であること（ガストがある場合はガストの値で判定する）。
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 12px 16px;">
+                    <div class="figure-title">【表】各空港の気象電文</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr><th>空港</th><th style="text-align: left;">気象電文</th></tr>
+                        <tr><td>A空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">24012KT 6000 BKN008 18/15</td></tr>
+                        <tr><td>B空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">18022KT 9999 SCT030 20/08</td></tr>
+                        <tr><td>C空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">09010KT 9999 FEW005 BKN020 22/10</td></tr>
+                        <tr><td>D空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">27015KT 4000 BR BKN015 16/14</td></tr>
+                        <tr><td>E空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">36008G25KT 8000 SCT025 19/11</td></tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1) A空港　　(2) B空港　　(3) C空港　　(4) D空港　　(5) E空港
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                資料1に従って各空港の電文を解読し、資料2の3条件（視程5,000m以上・シーリング1,000フィート以上・風速20ノット以下）に照らして判定する。<br><br>
+
+                <strong>【各空港の判定】</strong><br>
+                ・A空港: 風12ノット、視程6,000mは適合。しかしBKN008はBKNの雲層で雲底800フィート（8×100フィート）なので、シーリングは800フィートとなり条件2に不適合。<br>
+                ・B空港: 視程9999は10km以上で適合、雲はSCTのみでシーリングなし（条件2は満たす）。しかし風速22ノットが条件3に不適合。<br>
+                ・C空港: 風10ノット適合、視程9999（10km以上）適合。雲はFEW005とBKN020の2層だが、FEWの雲層はシーリングとみなさないため、シーリングはBKN020の2,000フィートで条件2に適合。3条件すべてを満たす。<br>
+                ・D空港: 視程4,000mが条件1に不適合（もやによる視程低下）。<br>
+                ・E空港: 平均風速は8ノットだが、G25はガスト25ノットを表す。資料2よりガストの値で判定するため25ノット＞20ノットで条件3に不適合。<br><br>
+
+                <strong>【注意すべき読み取りポイント】</strong><br>
+                ・C空港のFEW005（雲底500フィート）を雲高と誤認すると、C空港が不適合に見える。シーリングの定義（BKN・OVCのみ）を資料1から正確に読み取る必要がある。<br>
+                ・E空港は平均風速だけを見ると適合に見えるが、ガストの判定規定を見落とすと誤る。<br>
+                ・雲底の数字は100フィート単位である（BKN008を「8フィート」や「1,000フィート超」と誤読しない）。<br><br>
+
+                したがって、3条件をすべて満たすのはC空港のみであり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある航空機がP〜Tのいずれかの空港に09時30分（時刻はすべて協定世界時とする）に到着する予定である。下の表は各空港の06時00分の観測電文と、その後の予報変化群を示している。電文の読み方は問1の資料1、着陸最低気象条件は資料2によるものとし、資料3は予報変化群の読み方である。到着予定時刻（09時30分）に予想される気象状態が着陸最低気象条件をすべて満たす空港として、正しいものを選びなさい。（6点）</div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 16px;">
+                    <div class="figure-title" style="text-align: center;">【資料2（再掲）】着陸最低気象条件（3条件をすべて満たすこと）</div>
+                    <div style="font-size: 13.5px; line-height: 1.65;">
+                        条件1: 視程5,000m以上　　条件2: シーリング1,000フィート以上（BKN・OVCの雲層がない場合は満たすものとする）　　条件3: 風速20ノット以下（ガストがある場合はガストの値で判定）
+                    </div>
+                </div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 16px;">
+                    <div class="figure-title" style="text-align: center;">【資料3】予報変化群の読み方</div>
+                    <div style="font-size: 13.5px; line-height: 1.65;">
+                        <strong>BECMG hhHH 要素</strong>: hh時00分からHH時00分にかけて記載の要素が次第に変化し、<u>HH時00分（終了時刻）以降は記載の値が持続する</u>と予想されることを表す（例: BECMG 0709 9999 ＝ 07時から09時にかけて視程が変化し、09時以降は10km以上）。記載のない要素は観測値のまま変化しない。<br>
+                        <strong>TEMPO hhHH 要素</strong>: hh時00分からHH時00分の間、<u>一時的に記載の状態となることがある</u>と予想されることを表す。到着予定時刻がこの時間帯に含まれる場合は、安全のため記載の値で判定する。<br>
+                        <strong>変化群の記載がない空港</strong>: 観測値がそのまま持続すると予想する。
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 12px 16px;">
+                    <div class="figure-title">【表】各空港の観測電文（06時00分）と予報変化群</div>
+                    <table class="figure-table" style="font-size: 13.5px;">
+                        <tr><th>空港</th><th style="text-align: left;">観測電文（06時00分）</th><th style="text-align: left;">予報変化群</th></tr>
+                        <tr><td>P空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">27010KT 9999 SCT030 21/12</td><td style="text-align: left; font-family: 'Courier New', monospace;">BECMG 0608 4000 BR</td></tr>
+                        <tr><td>Q空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">20014KT 8000 BKN030 18/14</td><td style="text-align: left; font-family: 'Courier New', monospace;">TEMPO 0812 20025KT</td></tr>
+                        <tr><td>R空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">27012KT 4000 BR BKN025 16/15</td><td style="text-align: left; font-family: 'Courier New', monospace;">BECMG 0709 9999</td></tr>
+                        <tr><td>S空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">31016KT 3000 BR BKN015 15/14</td><td style="text-align: left; font-family: 'Courier New', monospace;">BECMG 1012 9999</td></tr>
+                        <tr><td>T空港</td><td style="text-align: left; font-family: 'Courier New', monospace;">14008KT 9999 BKN008 20/09</td><td style="text-align: left;">（記載なし）</td></tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1) P空港　　(2) Q空港　　(3) R空港　　(4) S空港　　(5) T空港
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                到着予定時刻09時30分における予想気象状態を、資料3の規則に従って空港ごとに求め、資料2の3条件で判定する。<br><br>
+
+                <strong>【各空港の判定（09時30分時点）】</strong><br>
+                ・P空港: 観測時点では3条件すべて適合。しかしBECMG 0608により視程は08時00分までに4,000m（もや）へ悪化が完了し、以降持続する。到着時の視程4,000mは条件1に不適合。<br>
+                ・Q空港: 観測時点では適合（風14ノット・視程8,000m・シーリング3,000フィート）。しかしTEMPO 0812の時間帯（08時〜12時）に到着予定時刻が含まれるため、風速25ノットで判定し、条件3に不適合。<br>
+                ・R空港: 観測時点では視程4,000m（もや）で不適合だが、BECMG 0709により視程の改善が09時00分に完了し、以降10km以上が持続する。到着時は視程10km以上・シーリング2,500フィート（BKN025）・風12ノットで、3条件すべてに適合。<br>
+                ・S空港: BECMG 1012による視程改善の開始は10時00分であり、到着予定時刻09時30分の時点ではまだ観測値の視程3,000mのまま。条件1に不適合。<br>
+                ・T空港: 変化群の記載がなく観測値が持続する。BKN008によりシーリング800フィートで条件2に不適合。<br><br>
+
+                <strong>【注意すべき読み取りポイント】</strong><br>
+                ・観測電文（現況）だけで判定すると、R空港は視程不良で除外され、P空港やQ空港が適合に見える。「到着予定時刻に予想される気象状態で判定する」という条件の読み落としが最大の罠である。<br>
+                ・S空港には視程改善の予報があるが、改善の開始（10時00分）が到着予定時刻より後であり、間に合わない。BECMGの時間帯を確認せずに「改善予報あり＝適合」と先取りすると誤る。<br>
+                ・TEMPOは一時的な変動だが、資料3の規定により到着予定時刻が時間帯に含まれる場合は記載の値（悪い方）で判定する。<br><br>
+
+                したがって、到着予定時刻に3条件をすべて満たすのはR空港のみであり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
