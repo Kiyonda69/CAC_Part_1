@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．次の資料1は小型機の運航規程の抜粋、資料2は連絡飛行の5つの区間の計画表である。資料1の規程に従って計算するとき、所要時間が最も短い区間として正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料1】運航規程（抜粋）</div>
+                    <div class="legend" style="max-width: 640px;">
+                        <div class="legend-item">・風向は「風が吹いてくる方向」を方位（度）で表す。北＝360°、東＝090°、南＝180°、西＝270°とする。</div>
+                        <div class="legend-item">・進行方位と同じ方位から吹く風は「向かい風」、進行方位と正反対の方位から吹く風は「追い風」である。</div>
+                        <div class="legend-item">・対地速度（km/h）は、対気速度に風速を加減して求める。追い風のときは加算し、向かい風のときは減算する。</div>
+                        <div class="legend-item">・所要時間 ＝ 距離 ÷ 対地速度 とする。</div>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料2】飛行区間計画表</div>
+                    <table class="figure-table">
+                        <tr>
+                            <th>区間</th>
+                            <th>進行方位</th>
+                            <th>距離</th>
+                            <th>対気速度</th>
+                            <th>風向</th>
+                            <th>風速</th>
+                        </tr>
+                        <tr>
+                            <td>区間1</td>
+                            <td>090°（東）</td>
+                            <td>420 km</td>
+                            <td>250 km/h</td>
+                            <td>090°</td>
+                            <td>40 km/h</td>
+                        </tr>
+                        <tr>
+                            <td>区間2</td>
+                            <td>180°（南）</td>
+                            <td>450 km</td>
+                            <td>220 km/h</td>
+                            <td>360°</td>
+                            <td>50 km/h</td>
+                        </tr>
+                        <tr>
+                            <td>区間3</td>
+                            <td>270°（西）</td>
+                            <td>400 km</td>
+                            <td>220 km/h</td>
+                            <td>090°</td>
+                            <td>30 km/h</td>
+                        </tr>
+                        <tr>
+                            <td>区間4</td>
+                            <td>360°（北）</td>
+                            <td>380 km</td>
+                            <td>210 km/h</td>
+                            <td>360°</td>
+                            <td>20 km/h</td>
+                        </tr>
+                        <tr>
+                            <td>区間5</td>
+                            <td>090°（東）</td>
+                            <td>480 km</td>
+                            <td>250 km/h</td>
+                            <td>090°</td>
+                            <td>10 km/h</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1) 区間1<br>
+                    (2) 区間2<br>
+                    (3) 区間3<br>
+                    (4) 区間4<br>
+                    (5) 区間5
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                資料1の規程を各区間に正確に適用する資料読取問題である。<br><br>
+
+                <strong>【風向の解釈】</strong><br>
+                ・風向は「風が吹いてくる方向」である。進行方位と風向が同じ場合は正面から風を受けるため向かい風、正反対（180°差）の場合は追い風となる。<br>
+                ・区間1・4・5は進行方位と風向が一致するため向かい風、区間2（南進・北風）と区間3（西進・東風）は追い風である。<br><br>
+
+                <strong>【各区間の計算】</strong><br>
+                ・区間1: 向かい風。対地速度 250−40＝210 km/h。所要時間 420÷210＝2.0時間＝120分<br>
+                ・区間2: 追い風。対地速度 220＋50＝270 km/h。所要時間 450÷270＝5/3時間＝100分<br>
+                ・区間3: 追い風。対地速度 220＋30＝250 km/h。所要時間 400÷250＝1.6時間＝<strong>96分</strong><br>
+                ・区間4: 向かい風。対地速度 210−20＝190 km/h。所要時間 380÷190＝2.0時間＝120分<br>
+                ・区間5: 向かい風。対地速度 250−10＝240 km/h。所要時間 480÷240＝2.0時間＝120分<br><br>
+
+                <strong>【罠の検討】</strong><br>
+                ・対気速度が最も大きいのは区間1・5（250 km/h）だが、いずれも向かい風で所要時間は120分となり最短ではない。<br>
+                ・距離が最も短いのは区間4（380 km）だが、対気速度が小さいうえ向かい風のため120分かかる。<br>
+                ・風向を「風が吹いていく方向」と誤読すると、区間1が追い風（対地速度290 km/h・約87分）に見えて誤答となる。規程の定義の正確な読み取りが不可欠である。<br>
+                ・区間2は追い風で100分と迫るが、区間3の96分には及ばない。<br><br>
+
+                したがって、所要時間が最も短いのは区間3であり、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．次の資料Aは問1と同じ小型機の運航規程の抜粋、資料Bは機体諸元表、資料Cは往復連絡飛行の計画である。3つの資料に基づき、出発時にA空港で搭載すべき燃料の最小量として正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料A】運航規程（抜粋）</div>
+                    <div class="legend" style="max-width: 640px;">
+                        <div class="legend-item">・風向は「風が吹いてくる方向」を方位（度）で表す。北＝360°、東＝090°、南＝180°、西＝270°とする。</div>
+                        <div class="legend-item">・対地速度（km/h）は、対気速度に風速を加減して求める。追い風のときは加算し、向かい風のときは減算する。巡航の所要時間 ＝ 距離 ÷ 対地速度 とする。</div>
+                        <div class="legend-item">・予備燃料: 国内飛行では、着陸時に標準巡航30分ぶんの燃料が残るように搭載しなければならない（国際飛行では45分ぶんとする）。</div>
+                        <div class="legend-item">・離陸・上昇および進入・着陸のため、1回の飛行（1回の離陸から1回の着陸まで）につき、巡航による消費とは別に燃料20 Lを消費する。</div>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料B】機体諸元表</div>
+                    <table class="figure-table">
+                        <tr>
+                            <th>巡航方式</th>
+                            <th>対気速度</th>
+                            <th>巡航中の燃料消費</th>
+                        </tr>
+                        <tr>
+                            <td>標準巡航</td>
+                            <td>250 km/h</td>
+                            <td>毎時 120 L</td>
+                        </tr>
+                        <tr>
+                            <td>高速巡航</td>
+                            <td>300 km/h</td>
+                            <td>毎時 168 L</td>
+                        </tr>
+                    </table>
+                    <div class="legend">
+                        <div class="legend-item">・最大燃料搭載量: 960 L</div>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料C】飛行計画</div>
+                    <div class="legend" style="max-width: 640px;">
+                        <div class="legend-item">・A空港からB空港（距離600 km、進行方位090°）へ飛行し、貨物を降ろした後、直ちにB空港からA空港（進行方位270°）へ戻る。</div>
+                        <div class="legend-item">・B空港では給油できない。</div>
+                        <div class="legend-item">・全行程を標準巡航で飛行する（国内飛行）。</div>
+                        <div class="legend-item">・飛行中は終始、風向270°・風速50 km/hの風が吹いている。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 700 L<br>
+                    (2) 730 L<br>
+                    (3) 740 L<br>
+                    (4) 770 L<br>
+                    (5) 820 L
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                3つの資料を横断して必要な数値だけを取り出し、燃料の内訳を積み上げる資料読取問題である。<br><br>
+
+                <strong>【往復の巡航時間】</strong><br>
+                ・風向270°は「西から吹いてくる風」である。<br>
+                ・往路（A→B、進行方位090°）: 風向と進行方位が正反対（180°差）なので追い風。対地速度 250＋50＝300 km/h。所要時間 600÷300＝2.0時間<br>
+                ・復路（B→A、進行方位270°）: 風向と進行方位が一致するので向かい風。対地速度 250−50＝200 km/h。所要時間 600÷200＝3.0時間<br>
+                ・巡航時間の合計: 2.0＋3.0＝5.0時間（無風の場合の4.8時間より長くなる点に注意）<br><br>
+
+                <strong>【燃料の積み上げ】</strong><br>
+                ・巡航燃料: 5.0時間 × 120 L/h ＝ 600 L<br>
+                ・離陸・着陸の追加消費: 往路と復路で2回の飛行 × 20 L ＝ 40 L<br>
+                ・予備燃料: 国内飛行なので標準巡航30分ぶん ＝ 0.5時間 × 120 L/h ＝ 60 L<br>
+                ・最小搭載量: 600＋40＋60 ＝ <strong>700 L</strong>（最大搭載量960 L以下であり搭載可能）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 700 L → 上記のとおり正解<br>
+                ・(2) 730 L → 予備燃料を国際飛行の45分ぶん（90 L）で計算した誤り。資料Cに「国内飛行」とある<br>
+                ・(3) 740 L → 追加消費20 Lを「離陸と着陸で各20 L」と誤読し、往復で80 Lを計上した誤り。規程は「1回の飛行につき20 L」である<br>
+                ・(4) 770 L → (2)と(3)の誤りを重ねたもの<br>
+                ・(5) 820 L → 往路・復路とも向かい風（対地速度200 km/h・計6.0時間）として計算した誤り。風向は一定でも進行方位が反転するため、風の効果は往路と復路で逆になる<br><br>
+
+                なお、高速巡航（毎時168 L）や最大燃料搭載量960 Lは、この設問の計算には使用しない数値である。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
