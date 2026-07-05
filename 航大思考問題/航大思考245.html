@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の資料1は小型機の運航規程の抜粋、資料2は連絡飛行の5つの区間の計画表である。資料1の規程に従って計算するとき、所要時間が最も短い区間として正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料1】運航規程（抜粋）</div>
+                <div class="legend" style="max-width: 640px;">
+                    <div class="legend-item">・風向は「風が吹いてくる方向」を方位（度）で表す。北＝360°、東＝090°、南＝180°、西＝270°とする。</div>
+                    <div class="legend-item">・進行方位と同じ方位から吹く風は「向かい風」、進行方位と正反対の方位から吹く風は「追い風」である。</div>
+                    <div class="legend-item">・対地速度（km/h）は、対気速度に風速を加減して求める。追い風のときは加算し、向かい風のときは減算する。</div>
+                    <div class="legend-item">・所要時間 ＝ 距離 ÷ 対地速度 とする。</div>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料2】飛行区間計画表</div>
+                <table class="figure-table">
+                    <tr>
+                        <th>区間</th>
+                        <th>進行方位</th>
+                        <th>距離</th>
+                        <th>対気速度</th>
+                        <th>風向</th>
+                        <th>風速</th>
+                    </tr>
+                    <tr>
+                        <td>区間1</td>
+                        <td>090°（東）</td>
+                        <td>420 km</td>
+                        <td>250 km/h</td>
+                        <td>090°</td>
+                        <td>40 km/h</td>
+                    </tr>
+                    <tr>
+                        <td>区間2</td>
+                        <td>180°（南）</td>
+                        <td>450 km</td>
+                        <td>220 km/h</td>
+                        <td>360°</td>
+                        <td>50 km/h</td>
+                    </tr>
+                    <tr>
+                        <td>区間3</td>
+                        <td>270°（西）</td>
+                        <td>400 km</td>
+                        <td>220 km/h</td>
+                        <td>090°</td>
+                        <td>30 km/h</td>
+                    </tr>
+                    <tr>
+                        <td>区間4</td>
+                        <td>360°（北）</td>
+                        <td>380 km</td>
+                        <td>210 km/h</td>
+                        <td>360°</td>
+                        <td>20 km/h</td>
+                    </tr>
+                    <tr>
+                        <td>区間5</td>
+                        <td>090°（東）</td>
+                        <td>480 km</td>
+                        <td>250 km/h</td>
+                        <td>090°</td>
+                        <td>10 km/h</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>区間1
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>区間2
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>区間3
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>区間4
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>区間5
+                </button>
+            </div>
+
+            <!-- 問1 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>資料1の規程を各区間に正確に適用する資料読取問題である。</p>
+                    <br>
+                    <p><strong>【風向の解釈】</strong></p>
+                    <p>・風向は「風が吹いてくる方向」である。進行方位と風向が同じ場合は正面から風を受けるため向かい風、正反対（180°差）の場合は追い風となる。</p>
+                    <p>・区間1・4・5は進行方位と風向が一致するため向かい風、区間2（南進・北風）と区間3（西進・東風）は追い風である。</p>
+                    <br>
+                    <p><strong>【各区間の計算】</strong></p>
+                    <p>・区間1: 向かい風。対地速度 250−40＝210 km/h。所要時間 420÷210＝2.0時間＝120分</p>
+                    <p>・区間2: 追い風。対地速度 220＋50＝270 km/h。所要時間 450÷270＝5/3時間＝100分</p>
+                    <p>・区間3: 追い風。対地速度 220＋30＝250 km/h。所要時間 400÷250＝1.6時間＝<strong>96分</strong></p>
+                    <p>・区間4: 向かい風。対地速度 210−20＝190 km/h。所要時間 380÷190＝2.0時間＝120分</p>
+                    <p>・区間5: 向かい風。対地速度 250−10＝240 km/h。所要時間 480÷240＝2.0時間＝120分</p>
+                    <br>
+                    <p><strong>【罠の検討】</strong></p>
+                    <p>・対気速度が最も大きいのは区間1・5（250 km/h）だが、いずれも向かい風で所要時間は120分となり最短ではない。</p>
+                    <p>・距離が最も短いのは区間4（380 km）だが、対気速度が小さいうえ向かい風のため120分かかる。</p>
+                    <p>・風向を「風が吹いていく方向」と誤読すると、区間1が追い風（対地速度290 km/h・約87分）に見えて誤答となる。規程の定義の正確な読み取りが不可欠である。</p>
+                    <p>・区間2は追い風で100分と迫るが、区間3の96分には及ばない。</p>
+                    <br>
+                    <p>したがって、所要時間が最も短いのは区間3であり、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                次の資料Aは問1と同じ小型機の運航規程の抜粋、資料Bは機体諸元表、資料Cは往復連絡飛行の計画である。3つの資料に基づき、出発時にA空港で搭載すべき燃料の最小量として正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料A】運航規程（抜粋）</div>
+                <div class="legend" style="max-width: 640px;">
+                    <div class="legend-item">・風向は「風が吹いてくる方向」を方位（度）で表す。北＝360°、東＝090°、南＝180°、西＝270°とする。</div>
+                    <div class="legend-item">・対地速度（km/h）は、対気速度に風速を加減して求める。追い風のときは加算し、向かい風のときは減算する。巡航の所要時間 ＝ 距離 ÷ 対地速度 とする。</div>
+                    <div class="legend-item">・予備燃料: 国内飛行では、着陸時に標準巡航30分ぶんの燃料が残るように搭載しなければならない（国際飛行では45分ぶんとする）。</div>
+                    <div class="legend-item">・離陸・上昇および進入・着陸のため、1回の飛行（1回の離陸から1回の着陸まで）につき、巡航による消費とは別に燃料20 Lを消費する。</div>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料B】機体諸元表</div>
+                <table class="figure-table">
+                    <tr>
+                        <th>巡航方式</th>
+                        <th>対気速度</th>
+                        <th>巡航中の燃料消費</th>
+                    </tr>
+                    <tr>
+                        <td>標準巡航</td>
+                        <td>250 km/h</td>
+                        <td>毎時 120 L</td>
+                    </tr>
+                    <tr>
+                        <td>高速巡航</td>
+                        <td>300 km/h</td>
+                        <td>毎時 168 L</td>
+                    </tr>
+                </table>
+                <div class="legend">
+                    <div class="legend-item">・最大燃料搭載量: 960 L</div>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料C】飛行計画</div>
+                <div class="legend" style="max-width: 640px;">
+                    <div class="legend-item">・A空港からB空港（距離600 km、進行方位090°）へ飛行し、貨物を降ろした後、直ちにB空港からA空港（進行方位270°）へ戻る。</div>
+                    <div class="legend-item">・B空港では給油できない。</div>
+                    <div class="legend-item">・全行程を標準巡航で飛行する（国内飛行）。</div>
+                    <div class="legend-item">・飛行中は終始、風向270°・風速50 km/hの風が吹いている。</div>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>700 L
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>730 L
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>740 L
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>770 L
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>820 L
+                </button>
+            </div>
+
+            <!-- 問2 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>3つの資料を横断して必要な数値だけを取り出し、燃料の内訳を積み上げる資料読取問題である。</p>
+                    <br>
+                    <p><strong>【往復の巡航時間】</strong></p>
+                    <p>・風向270°は「西から吹いてくる風」である。</p>
+                    <p>・往路（A→B、進行方位090°）: 風向と進行方位が正反対（180°差）なので追い風。対地速度 250＋50＝300 km/h。所要時間 600÷300＝2.0時間</p>
+                    <p>・復路（B→A、進行方位270°）: 風向と進行方位が一致するので向かい風。対地速度 250−50＝200 km/h。所要時間 600÷200＝3.0時間</p>
+                    <p>・巡航時間の合計: 2.0＋3.0＝5.0時間（無風の場合の4.8時間より長くなる点に注意）</p>
+                    <br>
+                    <p><strong>【燃料の積み上げ】</strong></p>
+                    <p>・巡航燃料: 5.0時間 × 120 L/h ＝ 600 L</p>
+                    <p>・離陸・着陸の追加消費: 往路と復路で2回の飛行 × 20 L ＝ 40 L</p>
+                    <p>・予備燃料: 国内飛行なので標準巡航30分ぶん ＝ 0.5時間 × 120 L/h ＝ 60 L</p>
+                    <p>・最小搭載量: 600＋40＋60 ＝ <strong>700 L</strong>（最大搭載量960 L以下であり搭載可能）</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 700 L → 上記のとおり正解</p>
+                    <p>・(2) 730 L → 予備燃料を国際飛行の45分ぶん（90 L）で計算した誤り。資料Cに「国内飛行」とある</p>
+                    <p>・(3) 740 L → 追加消費20 Lを「離陸と着陸で各20 L」と誤読し、往復で80 Lを計上した誤り。規程は「1回の飛行につき20 L」である</p>
+                    <p>・(4) 770 L → (2)と(3)の誤りを重ねたもの</p>
+                    <p>・(5) 820 L → 往路・復路とも向かい風（対地速度200 km/h・計6.0時間）として計算した誤り。風向は一定でも進行方位が反転するため、風の効果は往路と復路で逆になる</p>
+                    <br>
+                    <p>なお、高速巡航（毎時168 L）や最大燃料搭載量960 Lは、この設問の計算には使用しない数値である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考245/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
