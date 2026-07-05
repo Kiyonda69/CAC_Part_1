@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                資料1はある航空会社の運航マニュアルに定める気象電文の読み方、資料2は同社の着陸最低気象条件である。下の表はA〜Eの5空港で同時刻に観測された気象電文を示している。着陸最低気象条件をすべて満たす空港として、正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container" style="text-align: left;">
+                <div class="figure-title" style="text-align: center;">【資料1】気象電文の読み方（電文は「風　視程　天気　雲　気温/露点」の順に記載）</div>
+                <div style="font-size: 14px; line-height: 1.7;">
+                    <strong>風</strong>: 数字5桁＋KT。先頭3桁は風向（度）、続く2桁は平均風速（ノット）。数字の間に「G」がある場合、Gの後の2桁は最大瞬間風速（ガスト、ノット）を表す。<br>
+                    　例: 24012KT ＝ 風向240度・平均12ノット　／　36008G25KT ＝ 平均8ノット・ガスト25ノット<br>
+                    <strong>視程</strong>: 数字4桁、メートル単位。「9999」は視程10km以上を表す。<br>
+                    <strong>天気</strong>: BR＝もや、FG＝霧、RA＝雨。現象がないときは省略される。<br>
+                    <strong>雲</strong>: 雲量記号＋数字3桁。雲量記号は FEW（雲量1〜2/8）、SCT（3〜4/8）、BKN（5〜7/8）、OVC（8/8）の4種類。数字3桁は雲底の高さで、<u>100フィート単位</u>で表す（例: BKN008 ＝ 雲量5〜7/8・雲底800フィート）。雲の層が複数あるときは低い順に併記される。<br>
+                    <strong>シーリング（雲高）</strong>: BKNまたはOVCの雲層のうち、最も低い雲底の高さをいう。FEW・SCTの雲層はシーリングとみなさない。<br>
+                    <strong>気温/露点</strong>: 摂氏（℃）。
+                </div>
+            </div>
+
+            <div class="figure-container" style="text-align: left;">
+                <div class="figure-title" style="text-align: center;">【資料2】着陸最低気象条件（次の3条件をすべて満たすこと）</div>
+                <div style="font-size: 14px; line-height: 1.7;">
+                    条件1: 視程が5,000m以上であること。<br>
+                    条件2: シーリングが1,000フィート以上であること（BKN・OVCの雲層がない場合、この条件は満たすものとする）。<br>
+                    条件3: 風速が20ノット以下であること（ガストがある場合はガストの値で判定する）。
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】各空港の気象電文</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr><th>空港</th><th style="text-align: left;">気象電文</th></tr>
+                    <tr><td>A空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 15px;">24012KT 6000 BKN008 18/15</td></tr>
+                    <tr><td>B空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 15px;">18022KT 9999 SCT030 20/08</td></tr>
+                    <tr><td>C空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 15px;">09010KT 9999 FEW005 BKN020 22/10</td></tr>
+                    <tr><td>D空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 15px;">27015KT 4000 BR BKN015 16/14</td></tr>
+                    <tr><td>E空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 15px;">36008G25KT 8000 SCT025 19/11</td></tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>A空港
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>B空港
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>C空港
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>D空港
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>E空港
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>資料1に従って各空港の電文を解読し、資料2の3条件（視程5,000m以上・シーリング1,000フィート以上・風速20ノット以下）に照らして判定する。</p>
+                    <br>
+                    <p><strong>【各空港の判定】</strong></p>
+                    <p>・A空港: 風12ノット、視程6,000mは適合。しかしBKN008はBKNの雲層で雲底800フィート（8×100フィート）なので、シーリングは800フィートとなり条件2に不適合。</p>
+                    <p>・B空港: 視程9999は10km以上で適合、雲はSCTのみでシーリングなし（条件2は満たす）。しかし風速22ノットが条件3に不適合。</p>
+                    <p>・C空港: 風10ノット適合、視程9999（10km以上）適合。雲はFEW005とBKN020の2層だが、FEWの雲層はシーリングとみなさないため、シーリングはBKN020の2,000フィートで条件2に適合。3条件すべてを満たす。</p>
+                    <p>・D空港: 視程4,000mが条件1に不適合（もやによる視程低下）。</p>
+                    <p>・E空港: 平均風速は8ノットだが、G25はガスト25ノットを表す。資料2よりガストの値で判定するため25ノット＞20ノットで条件3に不適合。</p>
+                    <br>
+                    <p><strong>【注意すべき読み取りポイント】</strong></p>
+                    <p>・C空港のFEW005（雲底500フィート）を雲高と誤認すると、C空港が不適合に見える。シーリングの定義（BKN・OVCのみ）を資料1から正確に読み取る必要がある。</p>
+                    <p>・E空港は平均風速だけを見ると適合に見えるが、ガストの判定規定を見落とすと誤る。</p>
+                    <p>・雲底の数字は100フィート単位である（BKN008を「8フィート」などと誤読しない）。</p>
+                    <br>
+                    <p>したがって、3条件をすべて満たすのはC空港のみであり、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある航空機がP〜Tのいずれかの空港に09時30分（時刻はすべて協定世界時とする）に到着する予定である。下の表は各空港の06時00分の観測電文と、その後の予報変化群を示している。電文の読み方は問1の資料1、着陸最低気象条件は資料2によるものとし、資料3は予報変化群の読み方である。到着予定時刻（09時30分）に予想される気象状態が着陸最低気象条件をすべて満たす空港として、正しいものを1つ選べ。
+            </div>
+
+            <div class="figure-container" style="text-align: left;">
+                <div class="figure-title" style="text-align: center;">【資料2（再掲）】着陸最低気象条件（3条件をすべて満たすこと）</div>
+                <div style="font-size: 14px; line-height: 1.7;">
+                    条件1: 視程5,000m以上　　条件2: シーリング1,000フィート以上（BKN・OVCの雲層がない場合は満たすものとする）　　条件3: 風速20ノット以下（ガストがある場合はガストの値で判定）
+                </div>
+            </div>
+
+            <div class="figure-container" style="text-align: left;">
+                <div class="figure-title" style="text-align: center;">【資料3】予報変化群の読み方</div>
+                <div style="font-size: 14px; line-height: 1.7;">
+                    <strong>BECMG hhHH 要素</strong>: hh時00分からHH時00分にかけて記載の要素が次第に変化し、<u>HH時00分（終了時刻）以降は記載の値が持続する</u>と予想されることを表す（例: BECMG 0709 9999 ＝ 07時から09時にかけて視程が変化し、09時以降は10km以上）。記載のない要素は観測値のまま変化しない。<br>
+                    <strong>TEMPO hhHH 要素</strong>: hh時00分からHH時00分の間、<u>一時的に記載の状態となることがある</u>と予想されることを表す。到着予定時刻がこの時間帯に含まれる場合は、安全のため記載の値で判定する。<br>
+                    <strong>変化群の記載がない空港</strong>: 観測値がそのまま持続すると予想する。
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【表】各空港の観測電文（06時00分）と予報変化群</div>
+                <table class="figure-table" style="font-size: 13.5px;">
+                    <tr><th>空港</th><th style="text-align: left;">観測電文（06時00分）</th><th style="text-align: left;">予報変化群</th></tr>
+                    <tr><td>P空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">27010KT 9999 SCT030 21/12</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">BECMG 0608 4000 BR</td></tr>
+                    <tr><td>Q空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">20014KT 8000 BKN030 18/14</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">TEMPO 0812 20025KT</td></tr>
+                    <tr><td>R空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">27012KT 4000 BR BKN025 16/15</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">BECMG 0709 9999</td></tr>
+                    <tr><td>S空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">31016KT 3000 BR BKN015 15/14</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">BECMG 1012 9999</td></tr>
+                    <tr><td>T空港</td><td style="text-align: left; font-family: 'Courier New', monospace; padding: 10px 12px;">14008KT 9999 BKN008 20/09</td><td style="text-align: left; padding: 10px 12px;">（記載なし）</td></tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>P空港
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>Q空港
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>R空港
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>S空港
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>T空港
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>到着予定時刻09時30分における予想気象状態を、資料3の規則に従って空港ごとに求め、資料2の3条件で判定する。</p>
+                    <br>
+                    <p><strong>【各空港の判定（09時30分時点）】</strong></p>
+                    <p>・P空港: 観測時点では3条件すべて適合。しかしBECMG 0608により視程は08時00分までに4,000m（もや）へ悪化が完了し、以降持続する。到着時の視程4,000mは条件1に不適合。</p>
+                    <p>・Q空港: 観測時点では適合（風14ノット・視程8,000m・シーリング3,000フィート）。しかしTEMPO 0812の時間帯（08時〜12時）に到着予定時刻が含まれるため、風速25ノットで判定し、条件3に不適合。</p>
+                    <p>・R空港: 観測時点では視程4,000m（もや）で不適合だが、BECMG 0709により視程の改善が09時00分に完了し、以降10km以上が持続する。到着時は視程10km以上・シーリング2,500フィート（BKN025）・風12ノットで、3条件すべてに適合。</p>
+                    <p>・S空港: BECMG 1012による視程改善の開始は10時00分であり、到着予定時刻09時30分の時点ではまだ観測値の視程3,000mのまま。条件1に不適合。</p>
+                    <p>・T空港: 変化群の記載がなく観測値が持続する。BKN008によりシーリング800フィートで条件2に不適合。</p>
+                    <br>
+                    <p><strong>【注意すべき読み取りポイント】</strong></p>
+                    <p>・観測電文（現況）だけで判定すると、R空港は視程不良で除外され、P空港やQ空港が適合に見える。「到着予定時刻に予想される気象状態で判定する」という条件の読み落としが最大の罠である。</p>
+                    <p>・S空港には視程改善の予報があるが、改善の開始（10時00分）が到着予定時刻より後であり、間に合わない。BECMGの時間帯を確認せずに「改善予報あり＝適合」と先取りすると誤る。</p>
+                    <p>・TEMPOは一時的な変動だが、資料3の規定により到着予定時刻が時間帯に含まれる場合は記載の値（悪い方）で判定する。</p>
+                    <br>
+                    <p>したがって、到着予定時刻に3条件をすべて満たすのはR空港のみであり、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考246/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
