@@ -1,0 +1,894 @@
+<!--
+================================================================================
+template_dynamic.html - 動的問題テンプレート（インタラクティブ版）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+インタラクティブに表示・解答できる形式のHTMLファイルです。
+ユーザーが選択肢をクリックすると、正解/不正解が表示され、
+解説が自動的に展開されます。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. selectAnswer() の引数で正解番号を設定
+4. recordAnswer() の問題名を適切に変更
+
+【注意事項】
+- 問題名は「YYYY_MM/航大思考N/問Q」の形式で指定すること
+- SVG図表は適切なサイズとviewBoxを設定すること
+- 選択肢の data-option 属性は1から順番に設定すること
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                次の資料1は、ある小型機の整備規程のうち定時点検に関する抜粋であり、資料2はこの機体の飛行記録簿の抜粋と本日以降の飛行計画である。資料1の規程に従うとき、いずれの点検も実施せずに、計画の順に連続して飛行できるのは第何便までか。正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料1】整備規程「定時点検」（抜粋）</div>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 660px; margin: 0 auto;">
+                    第1条　A点検は、前回のA点検を実施した時点の総飛行時間から50飛行時間以内に実施しなければならない。<br>
+                    第2条　B点検は、前回のB点検を実施した時点の総飛行時間から100飛行時間以内に実施しなければならない。<br>
+                    第3条　B点検を実施したときは、同時にA点検も実施したものとみなす。<br>
+                    第4条　点検は、飛行と飛行の間に地上でのみ実施できる。<br>
+                    第5条　着陸までにいずれかの点検の期限（総飛行時間）を超えることとなる飛行は、開始してはならない。
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料2】飛行記録簿の抜粋と飛行計画</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 6px 14px; min-width: 0;">記録</th>
+                        <th style="padding: 6px 14px; min-width: 0;">総飛行時間</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">前回のA点検を実施</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,286.5 時間</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">前回のB点検を実施</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,304.0 時間</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">現在</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,326.0 時間</td>
+                    </tr>
+                </table>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 560x130px / viewBox: 0 0 560 130 / 余白: 上下左右20px以上
+
+                    座標系定義:
+                    - 数直線（総飛行時間軸）: y=78、x=40（2,280h）〜x=520（2,330h）、1時間=9.6px
+                    - 目盛: 2,280〜2,330を10時間刻み（x=40,136,232,328,424,520）
+                    - 事象マーク: A点検 x=102.4（2,286.5h）、B点検 x=270.4（2,304.0h）、現在 x=481.6（2,326.0h）
+                    -->
+                    <svg width="560" height="130" viewBox="0 0 560 130">
+                        <line x1="40" y1="78" x2="520" y2="78" stroke="black" stroke-width="2"/>
+                        <g stroke="black" stroke-width="1.5">
+                            <line x1="40" y1="74" x2="40" y2="82"/><line x1="136" y1="74" x2="136" y2="82"/>
+                            <line x1="232" y1="74" x2="232" y2="82"/><line x1="328" y1="74" x2="328" y2="82"/>
+                            <line x1="424" y1="74" x2="424" y2="82"/><line x1="520" y1="74" x2="520" y2="82"/>
+                        </g>
+                        <g class="svg-text" font-size="12" text-anchor="middle">
+                            <text x="40" y="98">2,280</text><text x="136" y="98">2,290</text>
+                            <text x="232" y="98">2,300</text><text x="328" y="98">2,310</text>
+                            <text x="424" y="98">2,320</text><text x="520" y="98">2,330</text>
+                            <text x="280" y="120">総飛行時間（時間）</text>
+                        </g>
+                        <g stroke="black" stroke-width="2">
+                            <line x1="102.4" y1="52" x2="102.4" y2="78"/>
+                            <line x1="270.4" y1="52" x2="270.4" y2="78"/>
+                            <line x1="481.6" y1="52" x2="481.6" y2="78"/>
+                        </g>
+                        <circle cx="102.4" cy="78" r="4" fill="black"/>
+                        <circle cx="270.4" cy="78" r="4" fill="black"/>
+                        <circle cx="481.6" cy="78" r="4" fill="black"/>
+                        <g class="svg-text" font-size="13" text-anchor="middle">
+                            <text x="102.4" y="30">前回A点検</text><text x="102.4" y="46">2,286.5 h</text>
+                            <text x="270.4" y="30">前回B点検</text><text x="270.4" y="46">2,304.0 h</text>
+                            <text x="481.6" y="30">現在</text><text x="481.6" y="46">2,326.0 h</text>
+                        </g>
+                    </svg>
+                </div>
+                <table class="figure-table" style="margin-top: 10px; font-size: 14px;">
+                    <tr>
+                        <th style="padding: 6px 12px; min-width: 0;">飛行計画</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第1便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第2便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第3便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第4便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第5便</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 12px; min-width: 0;">飛行時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">4.5 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">5.0 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">6.0 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">5.5 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">6.5 時間</td>
+                    </tr>
+                </table>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 620px; margin: 10px auto 0;">
+                    ・第1便から順に連続して飛行し、途中で点検は行わないものとする。
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>第1便まで
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>第2便まで
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>第3便まで
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>第4便まで
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>第5便まで
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>規程の条文を正しく組み合わせて点検期限を求め、飛行計画の累計と比較する資料読取問題である。鍵は第3条の「みなし規定」を見落とさないことにある。</p>
+                    <br>
+                    <p><strong>【手順1: 各点検の期限を求める】</strong></p>
+                    <p>記録簿では前回A点検（2,286.5時間）より前回B点検（2,304.0時間）の方が後に実施されている。第3条により、B点検を実施した時点でA点検も実施したものとみなされるので、A点検の起算点は2,304.0時間である。</p>
+                    <p>・A点検の期限: 2,304.0 ＋ 50 ＝ <strong>総飛行時間 2,354.0時間</strong></p>
+                    <p>・B点検の期限: 2,304.0 ＋ 100 ＝ 総飛行時間 2,404.0時間</p>
+                    <p>先に到来するのはA点検の期限（2,354.0時間）である。</p>
+                    <br>
+                    <p><strong>【手順2: 各便の着陸時の総飛行時間】</strong></p>
+                    <p>現在 2,326.0時間から順に加える。</p>
+                    <p>・第1便後: 2,326.0＋4.5 ＝ 2,330.5時間</p>
+                    <p>・第2便後: 2,330.5＋5.0 ＝ 2,335.5時間</p>
+                    <p>・第3便後: 2,335.5＋6.0 ＝ 2,341.5時間</p>
+                    <p>・第4便後: 2,341.5＋5.5 ＝ 2,347.0時間</p>
+                    <p>・第5便後: 2,347.0＋6.5 ＝ 2,353.5時間</p>
+                    <p>第5便の着陸時でも 2,353.5 ≦ 2,354.0 であり、どの便も期限を超えない（第5条に違反しない）。よって第5便まで飛行できる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 第1便まで → どの計算によっても第1便（2,330.5時間）で期限に達することはない</p>
+                    <p>・(2) 第2便まで → 第3条を見落とし、A点検の期限を 2,286.5＋50 ＝ 2,336.5時間 とした場合の誤答（第3便の着陸時 2,341.5時間が超過するように見える）</p>
+                    <p>・(3) 第3便まで → 期限 2,336.5時間 を「超えるまで飛べる」と誤って運用した場合などの誤答</p>
+                    <p>・(4) 第4便まで → 第5便（着陸時 2,353.5時間）は期限 2,354.0時間 以内であり、飛行できる</p>
+                    <p>・(5) 第5便まで → 上記のとおり正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ整備規程（資料1）に、次の資料3の規程が追加される。資料4は、訓練に使用できる機体A〜Eの飛行記録簿の要約である。2026年7月8日から7月12日までの5日間、整備施設のない飛行場に展開して合計22.0飛行時間の訓練を行い、展開中はいかなる点検・検査も実施できない。訓練のすべての飛行を規程に違反することなく実施できる機体として正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料3】整備規程（追加の抜粋）</div>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 660px; margin: 0 auto;">
+                    第6条　年次検査は、これを実施した日の属する月の翌年の同じ月の末日まで有効とする。<br>
+                    第7条　年次検査の有効期間を過ぎた機体は、飛行してはならない。<br>
+                    第8条　第1条から第5条までの規定は、すべての機体に適用する。
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料4】機体A〜Eの飛行記録簿の要約</div>
+                <table class="figure-table" style="font-size: 13px;">
+                    <tr>
+                        <th style="padding: 6px 8px; min-width: 0;">機体</th>
+                        <th style="padding: 6px 8px; min-width: 0;">前回A点検時の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">前回B点検時の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">現在の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">年次検査<br>実施日</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">A</td>
+                        <td style="padding: 6px 8px; min-width: 0;">980.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">920.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,010.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年12月10日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">B</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,455.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,410.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,480.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年6月20日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">C</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,530.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,560.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,572.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年10月5日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">D</td>
+                        <td style="padding: 6px 8px; min-width: 0;">760.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">700.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">785.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年9月18日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">E</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,236.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,262.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,296.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年8月2日</td>
+                    </tr>
+                </table>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 620px; margin: 10px auto 0;">
+                    ・いずれの機体も、現時点では点検・検査の期限を超えていない。<br>
+                    ・訓練の飛行はすべて2026年7月8日から7月12日までの間に行われる。
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>機体A
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>機体B
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>機体C
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>機体D
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>機体E
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>各機体について「A点検までの残り時間」「B点検までの残り時間」「年次検査の有効期間」の3条件を確認する。展開中は点検できないので、A点検・B点検の残り時間はいずれも22.0時間以上必要であり、年次検査は訓練最終日の2026年7月12日まで有効でなければならない。</p>
+                    <br>
+                    <p><strong>【手順1: 年次検査（第6条・第7条）で絞り込む】</strong></p>
+                    <p>有効期間は「実施した日の属する月の翌年の同じ月の末日まで」である。</p>
+                    <p>・機体B: 2025年6月20日実施 → 2026年6月30日まで有効 → 訓練期間（7月8日〜12日）には失効しており<strong>不可</strong></p>
+                    <p>・機体A（〜2026年12月31日）、C（〜2026年10月31日）、D（〜2026年9月30日）、E（〜2026年8月31日）はいずれも有効。</p>
+                    <br>
+                    <p><strong>【手順2: 点検の残り時間を計算する】</strong></p>
+                    <p>第3条により、前回B点検が前回A点検より後の機体（C・E）では、A点検の起算点は前回B点検の時刻になる。</p>
+                    <p>・機体A: A残 ＝ 50−(1,010.0−980.0) ＝ 20.0時間 ＜ 22.0 → <strong>不可</strong>（B残も 100−90.0 ＝ 10.0時間で不足）</p>
+                    <p>・機体C: A起算点は1,560.0時間（第3条）。A残 ＝ 50−(1,572.0−1,560.0) ＝ 38.0時間、B残 ＝ 100−12.0 ＝ 88.0時間 → いずれも22.0時間以上で<strong>可</strong></p>
+                    <p>・機体D: A残 ＝ 50−(785.0−760.0) ＝ 25.0時間 は足りるが、B残 ＝ 100−(785.0−700.0) ＝ 15.0時間 ＜ 22.0 → <strong>不可</strong></p>
+                    <p>・機体E: A起算点は1,262.0時間（第3条）。A残 ＝ 50−(1,296.0−1,262.0) ＝ 16.0時間 ＜ 22.0 → <strong>不可</strong></p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 機体A → A点検・B点検とも残り時間が22.0時間に満たない</p>
+                    <p>・(2) 機体B → 飛行時間の条件（A残25.0時間・B残30.0時間）は満たすが、年次検査が訓練期間中に失効している</p>
+                    <p>・(3) 機体C → 3条件をすべて満たす唯一の機体。第3条を見落として前回A点検（1,530.0時間）から起算すると A残 ＝ 50−42.0 ＝ 8.0時間となり不可に見える点に注意</p>
+                    <p>・(4) 機体D → B点検の残り時間が15.0時間で不足（A点検だけ確認すると可に見える）</p>
+                    <p>・(5) 機体E → 第3条を適用してもA点検の残り時間が16.0時間で不足</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <!-- 最後の問題では「次の問題」ボタンを非表示 -->
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考251/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
