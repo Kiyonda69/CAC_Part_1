@@ -1,0 +1,590 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ（1/2） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．次の資料1は、ある小型機の整備規程のうち定時点検に関する抜粋であり、資料2はこの機体の飛行記録簿の抜粋と本日以降の飛行計画である。資料1の規程に従うとき、いずれの点検も実施せずに、計画の順に連続して飛行できるのは第何便までか。正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                <div class="figure-title">【資料1】整備規程「定時点検」（抜粋）</div>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 660px; margin: 0 auto;">
+                    第1条　A点検は、前回のA点検を実施した時点の総飛行時間から50飛行時間以内に実施しなければならない。<br>
+                    第2条　B点検は、前回のB点検を実施した時点の総飛行時間から100飛行時間以内に実施しなければならない。<br>
+                    第3条　B点検を実施したときは、同時にA点検も実施したものとみなす。<br>
+                    第4条　点検は、飛行と飛行の間に地上でのみ実施できる。<br>
+                    第5条　着陸までにいずれかの点検の期限（総飛行時間）を超えることとなる飛行は、開始してはならない。
+                </div>
+            </div>
+
+                <div class="question-text">（資料2と選択肢は次のページ）</div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="figure-container">
+                <div class="figure-title">【資料2】飛行記録簿の抜粋と飛行計画</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 6px 14px; min-width: 0;">記録</th>
+                        <th style="padding: 6px 14px; min-width: 0;">総飛行時間</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">前回のA点検を実施</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,286.5 時間</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">前回のB点検を実施</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,304.0 時間</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 14px; min-width: 0;">現在</td>
+                        <td style="padding: 6px 14px; min-width: 0;">2,326.0 時間</td>
+                    </tr>
+                </table>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 560x130px / viewBox: 0 0 560 130 / 余白: 上下左右20px以上
+
+                    座標系定義:
+                    - 数直線（総飛行時間軸）: y=78、x=40（2,280h）〜x=520（2,330h）、1時間=9.6px
+                    - 目盛: 2,280〜2,330を10時間刻み（x=40,136,232,328,424,520）
+                    - 事象マーク: A点検 x=102.4（2,286.5h）、B点検 x=270.4（2,304.0h）、現在 x=481.6（2,326.0h）
+                    -->
+                    <svg width="560" height="130" viewBox="0 0 560 130">
+                        <line x1="40" y1="78" x2="520" y2="78" stroke="black" stroke-width="2"/>
+                        <g stroke="black" stroke-width="1.5">
+                            <line x1="40" y1="74" x2="40" y2="82"/><line x1="136" y1="74" x2="136" y2="82"/>
+                            <line x1="232" y1="74" x2="232" y2="82"/><line x1="328" y1="74" x2="328" y2="82"/>
+                            <line x1="424" y1="74" x2="424" y2="82"/><line x1="520" y1="74" x2="520" y2="82"/>
+                        </g>
+                        <g class="svg-text" font-size="12" text-anchor="middle">
+                            <text x="40" y="98">2,280</text><text x="136" y="98">2,290</text>
+                            <text x="232" y="98">2,300</text><text x="328" y="98">2,310</text>
+                            <text x="424" y="98">2,320</text><text x="520" y="98">2,330</text>
+                            <text x="280" y="120">総飛行時間（時間）</text>
+                        </g>
+                        <g stroke="black" stroke-width="2">
+                            <line x1="102.4" y1="52" x2="102.4" y2="78"/>
+                            <line x1="270.4" y1="52" x2="270.4" y2="78"/>
+                            <line x1="481.6" y1="52" x2="481.6" y2="78"/>
+                        </g>
+                        <circle cx="102.4" cy="78" r="4" fill="black"/>
+                        <circle cx="270.4" cy="78" r="4" fill="black"/>
+                        <circle cx="481.6" cy="78" r="4" fill="black"/>
+                        <g class="svg-text" font-size="13" text-anchor="middle">
+                            <text x="102.4" y="30">前回A点検</text><text x="102.4" y="46">2,286.5 h</text>
+                            <text x="270.4" y="30">前回B点検</text><text x="270.4" y="46">2,304.0 h</text>
+                            <text x="481.6" y="30">現在</text><text x="481.6" y="46">2,326.0 h</text>
+                        </g>
+                    </svg>
+                </div>
+                <table class="figure-table" style="margin-top: 10px; font-size: 14px;">
+                    <tr>
+                        <th style="padding: 6px 12px; min-width: 0;">飛行計画</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第1便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第2便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第3便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第4便</th>
+                        <th style="padding: 6px 12px; min-width: 0;">第5便</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 12px; min-width: 0;">飛行時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">4.5 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">5.0 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">6.0 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">5.5 時間</td>
+                        <td style="padding: 6px 12px; min-width: 0;">6.5 時間</td>
+                    </tr>
+                </table>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 620px; margin: 10px auto 0;">
+                    ・第1便から順に連続して飛行し、途中で点検は行わないものとする。
+                </div>
+            </div>
+
+                <div class="options">
+                    (1) 第1便まで<br>
+                    (2) 第2便まで<br>
+                    (3) 第3便まで<br>
+                    (4) 第4便まで<br>
+                    (5) 第5便まで
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                規程の条文を正しく組み合わせて点検期限を求め、飛行計画の累計と比較する資料読取問題である。鍵は第3条の「みなし規定」を見落とさないことにある。<br>
+                <br>
+                <strong>【手順1: 各点検の期限を求める】</strong><br>
+                記録簿では前回A点検（2,286.5時間）より前回B点検（2,304.0時間）の方が後に実施されている。第3条により、B点検を実施した時点でA点検も実施したものとみなされるので、A点検の起算点は2,304.0時間である。<br>
+                ・A点検の期限: 2,304.0 ＋ 50 ＝ <strong>総飛行時間 2,354.0時間</strong><br>
+                ・B点検の期限: 2,304.0 ＋ 100 ＝ 総飛行時間 2,404.0時間<br>
+                先に到来するのはA点検の期限（2,354.0時間）である。<br>
+                <br>
+                <strong>【手順2: 各便の着陸時の総飛行時間】</strong><br>
+                現在 2,326.0時間から順に加える。<br>
+                ・第1便後: 2,326.0＋4.5 ＝ 2,330.5時間<br>
+                ・第2便後: 2,330.5＋5.0 ＝ 2,335.5時間<br>
+                ・第3便後: 2,335.5＋6.0 ＝ 2,341.5時間<br>
+                ・第4便後: 2,341.5＋5.5 ＝ 2,347.0時間<br>
+                ・第5便後: 2,347.0＋6.5 ＝ 2,353.5時間<br>
+                第5便の着陸時でも 2,353.5 ≦ 2,354.0 であり、どの便も期限を超えない（第5条に違反しない）。よって第5便まで飛行できる。<br>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 第1便まで → どの計算によっても第1便（2,330.5時間）で期限に達することはない<br>
+                ・(2) 第2便まで → 第3条を見落とし、A点検の期限を 2,286.5＋50 ＝ 2,336.5時間 とした場合の誤答（第3便の着陸時 2,341.5時間が超過するように見える）<br>
+                ・(3) 第3便まで → 期限 2,336.5時間 を「超えるまで飛べる」と誤って運用した場合などの誤答<br>
+                ・(4) 第4便まで → 第5便（着陸時 2,353.5時間）は期限 2,354.0時間 以内であり、飛行できる<br>
+                ・(5) 第5便まで → 上記のとおり正解<br>
+                <br>
+                したがって、正解は<strong>(5)</strong>である。<br>
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．問1と同じ整備規程（資料1）に、次の資料3の規程が追加される。資料4は、訓練に使用できる機体A〜Eの飛行記録簿の要約である。2026年7月8日から7月12日までの5日間、整備施設のない飛行場に展開して合計22.0飛行時間の訓練を行い、展開中はいかなる点検・検査も実施できない。訓練のすべての飛行を規程に違反することなく実施できる機体として正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                <div class="figure-title">【資料3】整備規程（追加の抜粋）</div>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 660px; margin: 0 auto;">
+                    第6条　年次検査は、これを実施した日の属する月の翌年の同じ月の末日まで有効とする。<br>
+                    第7条　年次検査の有効期間を過ぎた機体は、飛行してはならない。<br>
+                    第8条　第1条から第5条までの規定は、すべての機体に適用する。
+                </div>
+            </div>
+
+                <div class="figure-container">
+                <div class="figure-title">【資料4】機体A〜Eの飛行記録簿の要約</div>
+                <table class="figure-table" style="font-size: 13px;">
+                    <tr>
+                        <th style="padding: 6px 8px; min-width: 0;">機体</th>
+                        <th style="padding: 6px 8px; min-width: 0;">前回A点検時の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">前回B点検時の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">現在の<br>総飛行時間</th>
+                        <th style="padding: 6px 8px; min-width: 0;">年次検査<br>実施日</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">A</td>
+                        <td style="padding: 6px 8px; min-width: 0;">980.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">920.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,010.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年12月10日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">B</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,455.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,410.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2,480.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年6月20日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">C</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,530.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,560.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,572.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年10月5日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">D</td>
+                        <td style="padding: 6px 8px; min-width: 0;">760.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">700.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">785.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年9月18日</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 6px 8px; min-width: 0;">E</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,236.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,262.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">1,296.0 時間</td>
+                        <td style="padding: 6px 8px; min-width: 0;">2025年8月2日</td>
+                    </tr>
+                </table>
+                <div style="text-align: left; font-size: 14px; line-height: 1.9; max-width: 620px; margin: 10px auto 0;">
+                    ・いずれの機体も、現時点では点検・検査の期限を超えていない。<br>
+                    ・訓練の飛行はすべて2026年7月8日から7月12日までの間に行われる。
+                </div>
+            </div>
+
+                <div class="options">
+                    (1) 機体A<br>
+                    (2) 機体B<br>
+                    (3) 機体C<br>
+                    (4) 機体D<br>
+                    (5) 機体E
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                各機体について「A点検までの残り時間」「B点検までの残り時間」「年次検査の有効期間」の3条件を確認する。展開中は点検できないので、A点検・B点検の残り時間はいずれも22.0時間以上必要であり、年次検査は訓練最終日の2026年7月12日まで有効でなければならない。<br>
+                <br>
+                <strong>【手順1: 年次検査（第6条・第7条）で絞り込む】</strong><br>
+                有効期間は「実施した日の属する月の翌年の同じ月の末日まで」である。<br>
+                ・機体B: 2025年6月20日実施 → 2026年6月30日まで有効 → 訓練期間（7月8日〜12日）には失効しており<strong>不可</strong><br>
+                ・機体A（〜2026年12月31日）、C（〜2026年10月31日）、D（〜2026年9月30日）、E（〜2026年8月31日）はいずれも有効。<br>
+                <br>
+                <strong>【手順2: 点検の残り時間を計算する】</strong><br>
+                第3条により、前回B点検が前回A点検より後の機体（C・E）では、A点検の起算点は前回B点検の時刻になる。<br>
+                ・機体A: A残 ＝ 50−(1,010.0−980.0) ＝ 20.0時間 ＜ 22.0 → <strong>不可</strong>（B残も 100−90.0 ＝ 10.0時間で不足）<br>
+                ・機体C: A起算点は1,560.0時間（第3条）。A残 ＝ 50−(1,572.0−1,560.0) ＝ 38.0時間、B残 ＝ 100−12.0 ＝ 88.0時間 → いずれも22.0時間以上で<strong>可</strong><br>
+                ・機体D: A残 ＝ 50−(785.0−760.0) ＝ 25.0時間 は足りるが、B残 ＝ 100−(785.0−700.0) ＝ 15.0時間 ＜ 22.0 → <strong>不可</strong><br>
+                ・機体E: A起算点は1,262.0時間（第3条）。A残 ＝ 50−(1,296.0−1,262.0) ＝ 16.0時間 ＜ 22.0 → <strong>不可</strong><br>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 機体A → A点検・B点検とも残り時間が22.0時間に満たない<br>
+                ・(2) 機体B → 飛行時間の条件（A残25.0時間・B残30.0時間）は満たすが、年次検査が訓練期間中に失効している<br>
+                ・(3) 機体C → 3条件をすべて満たす唯一の機体。第3条を見落として前回A点検（1,530.0時間）から起算すると A残 ＝ 50−42.0 ＝ 8.0時間となり不可に見える点に注意<br>
+                ・(4) 機体D → B点検の残り時間が15.0時間で不足（A点検だけ確認すると可に見える）<br>
+                ・(5) 機体E → 第3条を適用してもA点検の残り時間が16.0時間で不足<br>
+                <br>
+                したがって、正解は<strong>(3)</strong>である。<br>
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
