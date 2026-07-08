@@ -1,0 +1,628 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <!--
+    各ページは .question-section で囲む
+    - .question-page クラスで印刷時の改ページを指定
+    - .page-content でコンテンツを囲む
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <!-- 問題コンテナ -->
+            <div class="question">
+
+                <!-- 問題文のタイトル部分（問題番号・配点を含む） -->
+                <!--
+                印刷用では問題番号と問題文を一体で記述
+                配点は末尾に括弧で記載
+                -->
+                <div class="question-number">問1．図1は、北を上として描いたレーダー画面であり、中心の自機の周囲に5機の航空機A〜Eが表示されている。自機は針路060°（方位はすべて真方位とする）で飛行している。下の【規則】に示すクロック方位の方式に従うとき、管制官からの通報「トラフィック、あなたの10時の方向」に該当する航空機として正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container" style="text-align: left;">
+                    <div class="figure-title" style="text-align: center;">【規則】クロック方位による位置通報</div>
+                    <div style="font-size: 14px; line-height: 1.9;">
+                        ・他機の位置は、自機の機首方向を「12時」とする時計の文字盤に見立てて「○時の方向」と通報される。<br>
+                        ・文字盤の1時間は角度30°に相当する（例：3時の方向＝機首から右90°、9時の方向＝機首から左90°）。<br>
+                        ・通報は、最も近い整数時に丸めて行われる。<br>
+                        ・クロック方位は自機の針路（機首方向）を基準とするものであり、北を基準とするものではない。
+                    </div>
+                </div>
+
+                <!-- 図表エリア -->
+                <!--
+                SVGを使用して図表を作成
+                - viewBox: 座標系の定義（x, y, 幅, 高さ）
+                - width/height: 実際の表示サイズ
+
+                【座標系の設計指針】
+                - 各図形は概ね80〜100pxのボックス内に収める
+                - transform="translate(x, y)" でグループを配置
+                - 多角形は polygon points で頂点座標を列挙
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】レーダー画面（北が上）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 420x420px / viewBox: 0 0 420 420 / 余白: 上下左右20px以上
+                        座標系定義:
+                        - 中心（自機）: (210, 210)
+                        - 方位円: 半径155px、目盛りは30°ごと（外側ラベル半径175px）
+                        - 航空機: 半径130px上に配置 x=210+130sin(方位), y=210-130cos(方位)
+                        - A:000° B:090° C:150° D:210° E:300°
+                        -->
+                        <svg width="420" height="420" viewBox="0 0 420 420">
+                            <circle cx="210" cy="210" r="155" fill="none" stroke="black" stroke-width="1.5"/>
+                            <!-- 方位目盛り（30°ごと、rotateで配置） -->
+                            <g stroke="black" stroke-width="1.5">
+                                <line x1="210" y1="55" x2="210" y2="63"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(30 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(60 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(90 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(120 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(150 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(180 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(210 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(240 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(270 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(300 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(330 210 210)"/>
+                            </g>
+                            <!-- 方位ラベル（真方位、半径175px） -->
+                            <g class="svg-text" font-size="12" text-anchor="middle">
+                                <text x="210" y="39">000</text>
+                                <text x="297" y="63">030</text>
+                                <text x="362" y="127">060</text>
+                                <text x="386" y="214">090</text>
+                                <text x="362" y="302">120</text>
+                                <text x="297" y="366">150</text>
+                                <text x="210" y="390">180</text>
+                                <text x="123" y="366">210</text>
+                                <text x="58" y="302">240</text>
+                                <text x="34" y="214">270</text>
+                                <text x="58" y="127">300</text>
+                                <text x="123" y="63">330</text>
+                            </g>
+                            <!-- 中心から各機への破線（方位の読み取り補助） -->
+                            <g stroke="black" stroke-width="1" stroke-dasharray="3,4">
+                                <line x1="210" y1="210" x2="210" y2="80"/>
+                                <line x1="210" y1="210" x2="340" y2="210"/>
+                                <line x1="210" y1="210" x2="275" y2="322.6"/>
+                                <line x1="210" y1="210" x2="145" y2="322.6"/>
+                                <line x1="210" y1="210" x2="97.4" y2="145"/>
+                            </g>
+                            <!-- 航空機A〜E（半径130px上） -->
+                            <g>
+                                <circle cx="210" cy="80" r="5" fill="black"/>
+                                <circle cx="340" cy="210" r="5" fill="black"/>
+                                <circle cx="275" cy="322.6" r="5" fill="black"/>
+                                <circle cx="145" cy="322.6" r="5" fill="black"/>
+                                <circle cx="97.4" cy="145" r="5" fill="black"/>
+                            </g>
+                            <g class="svg-text" font-size="15" font-weight="bold" text-anchor="middle">
+                                <text x="210" y="110">A</text>
+                                <text x="315" y="196">B</text>
+                                <text x="258" y="305">C</text>
+                                <text x="162" y="305">D</text>
+                                <text x="124" y="162">E</text>
+                            </g>
+                            <!-- 自機（中心）と機首方向（針路060°）の矢印 -->
+                            <circle cx="210" cy="210" r="5" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="210" y1="210" x2="244.6" y2="190" stroke="black" stroke-width="2.5"/>
+                            <polygon points="253.3,185 245.2,194.9 240.7,187.1" fill="black"/>
+                            <text x="204" y="244" class="svg-text" font-size="13" text-anchor="middle">自機（針路060°）</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">・黒丸●は航空機A〜Eの位置を示す。自機から見た真方位は A：000°、B：090°、C：150°、D：210°、E：300° である。</div>
+                        <div class="legend-item">・中心の二重丸が自機で、矢印は機首方向（針路060°）を示す。距離は考えないものとする。</div>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <!--
+                選択肢はSVGで描画し、figure-container内に配置
+                印刷用では枠線なしのシンプルな表示
+                -->
+                <div class="options">
+                    (1)　A機　　(2)　B機　　(3)　C機　　(4)　D機　　(5)　E機
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <!--
+    解説は別ページで作成
+    問題ページの直後に配置することで、印刷時に続けて出力される
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <!-- 正解と解説 -->
+                <!--
+                解説の記述形式:
+                - 冒頭に「問N(正解:(X))」
+                - 規則の発見、計算過程、選択肢の検討を順に説明
+                - <br> タグで改行
+                - <strong> タグで強調
+                -->
+                <strong>問1(正解:(1))</strong><br>
+                クロック方位（機首基準）を、図の真方位（北基準）に変換して照合する問題である。<br><br>
+
+                <strong>【手順1：10時の方向を機首からの角度に直す】</strong><br>
+                ・12時＝機首方向を基準に、1時間＝30°である。<br>
+                ・10時は12時から左回りに2時間なので、機首から<strong>左に60°</strong>（右回りで測れば相対方位300°）の方向である。<br><br>
+
+                <strong>【手順2：真方位に変換する】</strong><br>
+                ・自機の針路は060°だから、10時の方向の真方位は 060°−60°＝<strong>000°（真北）</strong>。<br>
+                ・図1で自機から真方位000°にいるのは<strong>A機</strong>である。<br><br>
+
+                <strong>【選択肢の検討（各機のクロック方位）】</strong><br>
+                各機の相対方位＝（真方位）−（針路060°）で求め、30°＝1時間で読み替える。<br>
+                ・(1) A機：000°−060°＝−60°（左60°）→ <strong>10時</strong> → 正解<br>
+                ・(2) B機：090°−060°＝＋30° → 1時 → 不正解<br>
+                ・(3) C機：150°−060°＝＋90° → 3時 → 不正解<br>
+                ・(4) D機：210°−060°＝＋150° → 5時 → 不正解<br>
+                ・(5) E機：300°−060°＝＋240°（左120°）→ 8時 → 不正解<br><br>
+
+                なお、レーダー画面は「北が上」で描かれているため、機首方向（060°）は画面の上ではなく右上を向いている。画面の見た目の「上」を12時と誤解すると、10時の方向を真方位300°（E機）と読み違える。針路の分だけ文字盤を回転させて考えることが本問の要点である。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <!--
+    2問目以降も同様の構造で追加
+    - 問題ページ → 解説ページ の順番で配置
+    -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ空域について考える。自機は針路060°から右に90°旋回し、針路150°になった直後である。図2は旋回直後のレーダー画面であり、航空機A〜Eの位置は図1と同じである。このとき管制官は、まず自機に対して「トラフィック、あなたの2時の方向」と通報し、続いてそのトラフィック機（T機とする）に対して「トラフィック（自機のこと）は、貴機の7時の方向」と通報した。クロック方位の【規則】は問1と同じであり、各機のクロック方位はそれぞれ自分の針路（機首方向）を基準とする。T機の針路は30°の整数倍で一定とするとき、T機に該当する航空機とその針路の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図2】旋回直後のレーダー画面（北が上・各機の位置は図1と同じ）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: 図1と同一（420x420px, viewBox 0 0 420 420, 中心(210,210)）
+                        相違点: 自機の機首矢印のみ針路150°に変更
+                        -->
+                        <svg width="420" height="420" viewBox="0 0 420 420">
+                            <circle cx="210" cy="210" r="155" fill="none" stroke="black" stroke-width="1.5"/>
+                            <g stroke="black" stroke-width="1.5">
+                                <line x1="210" y1="55" x2="210" y2="63"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(30 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(60 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(90 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(120 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(150 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(180 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(210 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(240 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(270 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(300 210 210)"/>
+                                <line x1="210" y1="55" x2="210" y2="63" transform="rotate(330 210 210)"/>
+                            </g>
+                            <g class="svg-text" font-size="12" text-anchor="middle">
+                                <text x="210" y="39">000</text>
+                                <text x="297" y="63">030</text>
+                                <text x="362" y="127">060</text>
+                                <text x="386" y="214">090</text>
+                                <text x="362" y="302">120</text>
+                                <text x="297" y="366">150</text>
+                                <text x="210" y="390">180</text>
+                                <text x="123" y="366">210</text>
+                                <text x="58" y="302">240</text>
+                                <text x="34" y="214">270</text>
+                                <text x="58" y="127">300</text>
+                                <text x="123" y="63">330</text>
+                            </g>
+                            <g stroke="black" stroke-width="1" stroke-dasharray="3,4">
+                                <line x1="210" y1="210" x2="210" y2="80"/>
+                                <line x1="210" y1="210" x2="340" y2="210"/>
+                                <line x1="210" y1="210" x2="275" y2="322.6"/>
+                                <line x1="210" y1="210" x2="145" y2="322.6"/>
+                                <line x1="210" y1="210" x2="97.4" y2="145"/>
+                            </g>
+                            <g>
+                                <circle cx="210" cy="80" r="5" fill="black"/>
+                                <circle cx="340" cy="210" r="5" fill="black"/>
+                                <circle cx="275" cy="322.6" r="5" fill="black"/>
+                                <circle cx="145" cy="322.6" r="5" fill="black"/>
+                                <circle cx="97.4" cy="145" r="5" fill="black"/>
+                            </g>
+                            <g class="svg-text" font-size="15" font-weight="bold" text-anchor="middle">
+                                <text x="210" y="110">A</text>
+                                <text x="315" y="196">B</text>
+                                <text x="258" y="305">C</text>
+                                <text x="162" y="305">D</text>
+                                <text x="124" y="162">E</text>
+                            </g>
+                            <!-- 自機（中心）と機首方向（針路150°）の矢印 -->
+                            <circle cx="210" cy="210" r="5" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="210" y1="210" x2="230" y2="244.6" stroke="black" stroke-width="2.5"/>
+                            <polygon points="235,253.3 225.1,245.2 232.9,240.7" fill="black"/>
+                            <text x="150" y="196" class="svg-text" font-size="13" text-anchor="middle">自機（針路150°）</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">・各機の真方位は図1と同じ（A：000°、B：090°、C：150°、D：210°、E：300°）。距離は考えない。</div>
+                        <div class="legend-item">・「貴機の7時の方向」は、T機自身の針路を12時としたクロック方位である。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　C機・針路120°<br>
+                    (2)　D機・針路120°<br>
+                    (3)　D機・針路180°<br>
+                    (4)　E機・針路180°<br>
+                    (5)　D機・針路240°
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                2段階の視点変換を行う問題である。第1段階は自機視点（T機の特定）、第2段階はT機視点（T機の針路の逆算）である。<br><br>
+
+                <strong>【手順1：T機を特定する（自機視点）】</strong><br>
+                ・自機の針路は150°。「2時の方向」は機首から右に2時間＝<strong>右60°</strong>である。<br>
+                ・真方位に直すと 150°＋60°＝<strong>210°</strong>。図2で真方位210°にいるのは<strong>D機</strong>である。<br>
+                ・確認：他機の相対方位は A：000°−150°＝−150°（7時）、B：090°−150°＝−60°（10時）、C：150°−150°＝0°（12時）、E：300°−150°＝＋150°（5時）であり、2時の方向にいるのはD機だけである。<br><br>
+
+                <strong>【手順2：T機（D機）の針路を逆算する（T機視点）】</strong><br>
+                ・自機から見たD機の真方位が210°なので、<strong>D機から見た自機の真方位はその正反対の030°</strong>である。<br>
+                ・「貴機の7時の方向」＝D機の機首から7×30°＝相対方位210°（左150°）。<br>
+                ・（D機の針路）＋210°＝030°（mod 360°）より、D機の針路＝030°−210°＋360°＝<strong>180°</strong>。<br>
+                ・検算：針路180°のD機から見た自機（真方位030°）の相対方位は 030°−180°＝−150°＝210°＝7時。成立する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) C機・針路120°：C機は自機の12時の方向であり、そもそもT機でない → 不正解<br>
+                ・(2) D機・針路120°：自機の相対方位は 030°−120°＝−90°＝9時 → 不正解<br>
+                ・(3) D機・針路180°：2時のトラフィック、かつ自機が7時に見える → 正解<br>
+                ・(4) E機・針路180°：E機は自機の5時の方向であり、T機でない → 不正解<br>
+                ・(5) D機・針路240°：自機の相対方位は 030°−240°＝−210°＝＋150°＝5時 → 不正解<br><br>
+
+                位置の方位（自機→T機）と、その逆方向（T機→自機）が180°反対になる点、および視点（基準となる機首方向）が機体ごとに異なる点を正しく処理できるかが問われている。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
