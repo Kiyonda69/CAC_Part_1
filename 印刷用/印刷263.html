@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ（1/2: 資料） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料1】は、ある航空機の運航マニュアルに定める速度の換算規則、【資料2】は外気温と音速の対応表、【資料3】（次ページ）はX地点からY地点への巡航データである。資料の規則に従って、次ページの巡航計算表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料1】速度の換算規則</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        規則1　速度計の指示から求めた速度を較正対気速度（CAS）、空気に対する機体の実際の速度を真対気速度（TAS）という。高度が高いほど空気が薄くなるため、同じCASでもTASは大きくなる。この航空機では次の式で換算する。<br>
+                        　　　　TAS（kt）＝ CAS ×（1 ＋ 0.02 ×（気圧高度（ft）÷ 1,000））<br>
+                        規則2　対地速度（GS）は、TASに風の成分を加えて求める。GS（kt）＝ TAS ＋ 風成分（追い風は正、向かい風は負の値とする）<br>
+                        規則3　マッハ数 ＝ TAS ÷ 音速（kt）。音速は外気温によって決まり、【資料2】の音速表から読み取る<br>
+                        規則4　所要時間（分）＝ 距離（海里）÷ GS × 60
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料2】音速表</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 8px 12px;">外気温</th>
+                            <td style="padding: 8px 12px;">＋15℃</td>
+                            <td style="padding: 8px 12px;">0℃</td>
+                            <td style="padding: 8px 12px;">−15℃</td>
+                            <td style="padding: 8px 12px;">−25℃</td>
+                            <td style="padding: 8px 12px;">−35℃</td>
+                            <td style="padding: 8px 12px;">−45℃</td>
+                            <td style="padding: 8px 12px;">−55℃</td>
+                        </tr>
+                        <tr>
+                            <th style="padding: 8px 12px;">音速（kt）</th>
+                            <td style="padding: 8px 12px;">660</td>
+                            <td style="padding: 8px 12px;">645</td>
+                            <td style="padding: 8px 12px;">625</td>
+                            <td style="padding: 8px 12px;">615</td>
+                            <td style="padding: 8px 12px;">600</td>
+                            <td style="padding: 8px 12px;">590</td>
+                            <td style="padding: 8px 12px;">575</td>
+                        </tr>
+                    </table>
+                    <div class="legend">
+                        <div class="legend-item">※ 表にある外気温のみを扱う（本問で補間は不要）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問1 問題ページ（2/2: データ・参考図・計算表・選択肢） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="figure-container">
+                    <div class="figure-title">【資料3】X地点→Y地点の巡航データ</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        ・巡航の気圧高度: 25,000ft　／　外気温: −35℃<br>
+                        ・CAS: 200kt<br>
+                        ・風: 向かい風50kt<br>
+                        ・X地点からY地点までの距離: 175海里
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【参考図】速度の換算の流れ（模式図）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x270px / viewBox: 0 0 500 270 / 余白: 上下左右20px以上
+                    座標系定義:
+                    - 経路図: X地点(70,45)・Y地点(430,45)を結ぶ水平線、機体三角形(150,45)、
+                      向かい風矢印は(320,70)→(250,70)の左向き
+                    - 換算フロー: 3つの箱 CAS(30,140)・TAS(190,140)・GS(350,140) 各100x44px、
+                      マッハ数の箱(190,206) 100x40px、箱の間を右向き矢印で接続
+                    -->
+                    <svg width="500" height="270" viewBox="0 0 500 270">
+                        <defs>
+                            <marker id="arrR1" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#000"/></marker>
+                        </defs>
+                        <circle cx="70" cy="45" r="4" fill="#000"/>
+                        <circle cx="430" cy="45" r="4" fill="#000"/>
+                        <text x="70" y="28" text-anchor="middle" font-size="12" class="svg-text">X地点</text>
+                        <text x="430" y="28" text-anchor="middle" font-size="12" class="svg-text">Y地点</text>
+                        <line x1="74" y1="45" x2="426" y2="45" stroke="#000" stroke-width="1.5"/>
+                        <text x="250" y="36" text-anchor="middle" font-size="12" class="svg-text">距離 175海里</text>
+                        <polygon points="150,39 164,45 150,51" fill="#000"/>
+                        <line x1="330" y1="70" x2="260" y2="70" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                        <text x="295" y="90" text-anchor="middle" font-size="12" class="svg-text">向かい風 50kt</text>
+                        <rect x="30" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                        <text x="80" y="158" text-anchor="middle" font-size="13" class="svg-text">CAS</text>
+                        <text x="80" y="176" text-anchor="middle" font-size="13" class="svg-text">200kt</text>
+                        <line x1="130" y1="162" x2="185" y2="162" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                        <text x="158" y="132" text-anchor="middle" font-size="11" class="svg-text">規則1</text>
+                        <rect x="190" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                        <text x="240" y="158" text-anchor="middle" font-size="13" class="svg-text">TAS</text>
+                        <text x="240" y="176" text-anchor="middle" font-size="13" class="svg-text">（ア）</text>
+                        <line x1="290" y1="162" x2="345" y2="162" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                        <text x="318" y="132" text-anchor="middle" font-size="11" class="svg-text">規則2（風）</text>
+                        <rect x="350" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                        <text x="400" y="158" text-anchor="middle" font-size="13" class="svg-text">GS</text>
+                        <text x="400" y="176" text-anchor="middle" font-size="13" class="svg-text">（ウ）</text>
+                        <line x1="240" y1="184" x2="240" y2="201" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                        <rect x="190" y="206" width="100" height="40" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                        <text x="240" y="223" text-anchor="middle" font-size="12" class="svg-text">マッハ数</text>
+                        <text x="240" y="239" text-anchor="middle" font-size="12" class="svg-text">（イ）</text>
+                        <text x="320" y="230" text-anchor="start" font-size="11" class="svg-text">規則3　÷ 音速</text>
+                    </svg>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【巡航計算表】（空欄（ア）〜（エ）を求める）</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 8px 15px;">項目</th>
+                            <th style="padding: 8px 15px;">値</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">TAS（規則1）</td>
+                            <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">マッハ数（規則3）</td>
+                            <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">対地速度GS（規則2）</td>
+                            <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">X地点→Y地点の所要時間（規則4）</td>
+                            <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1)　（ア）200kt　（イ）0.33　（ウ）150kt　（エ）70分<br>
+                    (2)　（ア）300kt　（イ）0.50　（ウ）350kt　（エ）30分<br>
+                    (3)　（ア）300kt　（イ）0.33　（ウ）250kt　（エ）42分<br>
+                    (4)　（ア）300kt　（イ）0.50　（ウ）250kt　（エ）35分<br>
+                    (5)　（ア）300kt　（イ）0.50　（ウ）250kt　（エ）42分
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                【資料1】の規則を順に適用する。速度の換算は CAS → TAS →（GS・マッハ数）の一方向の流れであり、どの速度をどの規則に代入するかを正確に対応づけることが要点である。<br><br>
+
+                <strong>【（ア）TAS】</strong><br>
+                気圧高度25,000ftなので、規則1の係数は 1 ＋ 0.02 ×（25,000 ÷ 1,000）＝ 1 ＋ 0.02 × 25 ＝ 1.5。<br>
+                TAS ＝ 200 × 1.5 ＝ <strong>300kt</strong>。高高度では、速度計に基づくCASよりも実際の速度TASがかなり大きい。<br><br>
+
+                <strong>【（イ）マッハ数】</strong><br>
+                外気温−35℃の音速は【資料2】より600kt。規則3にTASを代入して 300 ÷ 600 ＝ <strong>0.50</strong>。CASの200ktを代入してはならない。<br><br>
+
+                <strong>【（ウ）対地速度GS】</strong><br>
+                向かい風は負の風成分なので、規則2より GS ＝ 300 ＋（−50）＝ <strong>250kt</strong>。<br><br>
+
+                <strong>【（エ）所要時間】</strong><br>
+                規則4より 175 ÷ 250 × 60 ＝ <strong>42分</strong>。距離を進む速さは空気に対するTASではなく、地面に対するGSである。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 規則1の換算を行わず、TASをCASと同じ200ktとした誤り（マッハ0.33・GS150kt・70分まで連動） → 不正解<br>
+                ・(2) 風成分の符号を誤り、向かい風を加算した誤り（GS ＝ 300 ＋ 50 ＝ 350kt・30分） → 不正解<br>
+                ・(3) マッハ数の計算にTASでなくCASを代入した誤り（200 ÷ 600 ≒ 0.33） → 不正解<br>
+                ・(4) 所要時間の計算にGSでなくTASを用いた誤り（175 ÷ 300 × 60 ＝ 35分） → 不正解<br>
+                ・(5) すべて計算結果と一致 → 正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1の【資料1】【資料2】を引き続き用いる。次の【資料4】は、別の航空機がP地点からQ地点へ飛行する計画のデータである。到着予定時刻から必要な速度を逆算して、下の計画表の空欄（ア）〜（エ）に当てはまる値と判定を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料4】P地点→Q地点の巡航計画データ</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        ・巡航の気圧高度: 30,000ft　／　外気温: −45℃<br>
+                        ・風: 向かい風40kt<br>
+                        ・P地点からQ地点までの距離: 432海里<br>
+                        ・P地点通過から到着予定時刻までの時間: 60分（遅れずにQ地点へ到着したい）<br>
+                        ・この航空機の制限マッハ数: 0.80（マッハ0.80を超えて飛行してはならない）
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【計画表】（空欄（ア）〜（エ）を求める）</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 8px 15px;">項目</th>
+                            <th style="padding: 8px 15px;">値</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">432海里を60分で飛ぶために必要な対地速度GS（規則4）</td>
+                            <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">そのGSを得るために必要なTAS（規則2）</td>
+                            <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">そのTASを得るために必要なCAS（規則1）</td>
+                            <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px; text-align: left;">（イ）のTASで飛行するときのマッハ数（規則3）と、制限マッハ数0.80の下で予定どおり到着できるかの判定</td>
+                            <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1)　（ア）432kt　（イ）392kt　（ウ）245kt　（エ）0.66・到着できる<br>
+                    (2)　（ア）432kt　（イ）472kt　（ウ）472kt　（エ）0.80・到着できる<br>
+                    (3)　（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.82・到着できない<br>
+                    (4)　（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.80・到着できる<br>
+                    (5)　（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.50・到着できる
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                問1が CAS → TAS → GS の順方向の計算だったのに対し、本問は到着予定時刻から GS → TAS → CAS と規則を逆向きにたどる逆算問題である。<br><br>
+
+                <strong>【（ア）必要な対地速度GS】</strong><br>
+                規則4を変形すると GS ＝ 距離 ÷ 所要時間 × 60。432海里を60分で飛ぶには GS ＝ 432 ÷ 60 × 60 ＝ <strong>432kt</strong> 以上が必要。<br><br>
+
+                <strong>【（イ）必要なTAS】</strong><br>
+                向かい風40ktでは規則2より GS ＝ TAS − 40。GS432ktを得るには TAS ＝ 432 ＋ 40 ＝ <strong>472kt</strong>。向かい風の分だけ余計に速く飛ぶ必要があるので、TASはGSより大きくなる。<br><br>
+
+                <strong>【（ウ）必要なCAS】</strong><br>
+                気圧高度30,000ftの係数は 1 ＋ 0.02 × 30 ＝ 1.6。規則1を変形して CAS ＝ TAS ÷ 1.6 ＝ 472 ÷ 1.6 ＝ <strong>295kt</strong>。<br><br>
+
+                <strong>【（エ）マッハ数と判定】</strong><br>
+                外気温−45℃の音速は【資料2】より590kt。マッハ数 ＝ 472 ÷ 590 ＝ <strong>0.80</strong>。制限は「マッハ0.80を超えてはならない」であり、ちょうど0.80は制限の範囲内だから、予定どおり<strong>到着できる</strong>。必要な速度が制限マッハ数ちょうどとなる境界の判定が本問の核心である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 風成分の符号を誤り、TAS ＝ 432 − 40 ＝ 392ktとした誤り（CAS245kt・マッハ0.66まで連動。向かい風なのに必要なTASがGSより小さくなるのは不合理） → 不正解<br>
+                ・(2) 規則1の換算を忘れ、CASをTASと同じ472ktとした誤り → 不正解<br>
+                ・(3) 音速表の行を誤り、−55℃の575ktで計算した誤り（472 ÷ 575 ≒ 0.82となり、制限超過で「到着できない」と誤判定） → 不正解<br>
+                ・(4) すべて計算結果・判定と一致 → 正解<br>
+                ・(5) マッハ数の計算にTASでなくCASを代入した誤り（295 ÷ 590 ＝ 0.50） → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
