@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．図1は、真北に向かって水平飛行している4機編隊（長機L、僚機A・B・C）を真上から見た配置であり、表1は各機の高度を示している。この編隊を、はるか南側の後方から、編隊とほぼ同じ高さで北向きに見たとき、4機の見え方（左右の並びと上下の高低の関係）として最も適切なものを、下の(1)～(5)のうちから1つ選べ。ただし、遠近による機体の大きさの違いや、前後方向のずれの見え方は無視できるものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x300px / viewBox: 0 0 500 300 / 余白: 20px以上
+                座標系定義:
+                - 平面図（上が北・右が東）、1単位=60px
+                - L(250,90) A(310,150) B(190,150) C(370,210)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】編隊を真上から見た配置（上が北）</div>
+                    <div class="figure-content">
+                        <svg width="500" height="300" viewBox="0 0 500 300">
+                            <!-- 方位（北）矢印 -->
+                            <line x1="40" y1="95" x2="40" y2="55" stroke="black" stroke-width="2"/>
+                            <polygon points="40,47 36,57 44,57" fill="black"/>
+                            <text x="40" y="40" class="svg-text" text-anchor="middle">北</text>
+                            <!-- 進行方向矢印 -->
+                            <line x1="250" y1="70" x2="250" y2="47" stroke="black" stroke-width="2"/>
+                            <polygon points="250,39 246,49 254,49" fill="black"/>
+                            <text x="250" y="30" class="svg-text" style="font-size:12px" text-anchor="middle">進行方向（真北）</text>
+                            <!-- 隊形の相対位置を示す破線 -->
+                            <line x1="250" y1="90" x2="190" y2="150" stroke="#888" stroke-width="1" stroke-dasharray="4 3"/>
+                            <line x1="250" y1="90" x2="310" y2="150" stroke="#888" stroke-width="1" stroke-dasharray="4 3"/>
+                            <line x1="310" y1="150" x2="370" y2="210" stroke="#888" stroke-width="1" stroke-dasharray="4 3"/>
+                            <!-- L（長機・塗りつぶし） -->
+                            <polygon points="250,78 260,92 253,92 254,100 246,100 247,92 240,92" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="266" y="95" class="svg-text" style="font-size:12px">L（長機）</text>
+                            <!-- A（右後方） -->
+                            <polygon points="310,138 320,152 313,152 314,160 306,160 307,152 300,152" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="326" y="155" class="svg-text" style="font-size:12px">A</text>
+                            <!-- B（左後方） -->
+                            <polygon points="190,138 200,152 193,152 194,160 186,160 187,152 180,152" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="174" y="155" class="svg-text" style="font-size:12px" text-anchor="end">B</text>
+                            <!-- C（Aのさらに右後方） -->
+                            <polygon points="370,198 380,212 373,212 374,220 366,220 367,212 360,212" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="386" y="215" class="svg-text" style="font-size:12px">C</text>
+                            <!-- 観測者 -->
+                            <line x1="250" y1="262" x2="250" y2="238" stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+                            <polygon points="250,230 246,240 254,240" fill="black"/>
+                            <circle cx="250" cy="270" r="4" fill="black"/>
+                            <text x="250" y="292" class="svg-text" style="font-size:12px" text-anchor="middle">観測者（はるか南側の後方から北向きに見る）</text>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">・塗りつぶした機体が長機L、白抜きの機体が僚機A・B・Cである。</div>
+                            <div class="legend-item">・隣り合う機体どうしの水平方向の間隔（東西・南北とも）はすべて等しい。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表1】各機の高度</div>
+                    <table class="figure-table">
+                        <tr><th>機体</th><td>L（長機）</td><td>A</td><td>B</td><td>C</td></tr>
+                        <tr><th>高度</th><td>1000 m</td><td>1100 m</td><td>900 m</td><td>1000 m</td></tr>
+                    </table>
+                </div>
+
+                <!-- 選択肢エリア: 後方から見た隊形（横=左右、縦=高低） -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="140" viewBox="0 0 600 140">
+                            <!-- 選択肢(1) -->
+                            <g transform="translate(8, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M26 50 L42 50 M34 50 L34 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="50" r="2" fill="black"/>
+                                    <text x="34" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M70 94 L86 94 M78 94 L78 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="94" r="2" fill="black"/>
+                                    <text x="78" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M4 72 L20 72 M12 72 L12 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="72" r="2" fill="black"/>
+                                    <text x="12" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M48 72 L64 72 M56 72 L56 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="72" r="2" fill="black"/>
+                                    <text x="56" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(2) -->
+                            <g transform="translate(128, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M48 94 L64 94 M56 94 L56 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="94" r="2" fill="black"/>
+                                    <text x="56" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M4 50 L20 50 M12 50 L12 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="50" r="2" fill="black"/>
+                                    <text x="12" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M70 72 L86 72 M78 72 L78 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="72" r="2" fill="black"/>
+                                    <text x="78" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M26 72 L42 72 M34 72 L34 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="72" r="2" fill="black"/>
+                                    <text x="34" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(3) -->
+                            <g transform="translate(248, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M48 72 L64 72 M56 72 L56 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="72" r="2" fill="black"/>
+                                    <text x="56" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M4 72 L20 72 M12 72 L12 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="72" r="2" fill="black"/>
+                                    <text x="12" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M70 94 L86 94 M78 94 L78 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="94" r="2" fill="black"/>
+                                    <text x="78" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M26 50 L42 50 M34 50 L34 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="50" r="2" fill="black"/>
+                                    <text x="34" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(4) -->
+                            <g transform="translate(368, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M26 94 L42 94 M34 94 L34 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="94" r="2" fill="black"/>
+                                    <text x="34" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M70 50 L86 50 M78 50 L78 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="50" r="2" fill="black"/>
+                                    <text x="78" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M4 72 L20 72 M12 72 L12 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="72" r="2" fill="black"/>
+                                    <text x="12" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M48 72 L64 72 M56 72 L56 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="72" r="2" fill="black"/>
+                                    <text x="56" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(5)（正解） -->
+                            <g transform="translate(488, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M48 50 L64 50 M56 50 L56 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="50" r="2" fill="black"/>
+                                    <text x="56" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M4 94 L20 94 M12 94 L12 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="94" r="2" fill="black"/>
+                                    <text x="12" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M70 72 L86 72 M78 72 L78 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="72" r="2" fill="black"/>
+                                    <text x="78" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M26 72 L42 72 M34 72 L34 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="72" r="2" fill="black"/>
+                                    <text x="34" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                真上から見た配置（図1）と各機の高度（表1）を、「南側の後方から北向きに見た像」に頭の中で変換する問題である。<br><br>
+
+                <strong>【左右の並び】</strong><br>
+                ・観測者は南側から北を向いて編隊を見るため、東が観測者の右、西が観測者の左になる。<br>
+                ・図1より、BはLの左（西）後方、AはLの右（東）後方、CはAのさらに右（東）後方にいる。<br>
+                ・したがって、左から B、L、A、C の順に並んで見える。前後（南北）方向のずれは、真後ろからは左右のずれとして見えない。<br><br>
+
+                <strong>【上下の高低】</strong><br>
+                ・表1より、A（1100m）が最も高く、B（900m）が最も低い。LとC（いずれも1000m）は同じ高さに見える。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 左右の並びが反転している（編隊を前方から見た場合の像）→ 不正解<br>
+                ・(2) 左右の並びは正しいが、高低が上下逆になっている → 不正解<br>
+                ・(3) 平面図の前後方向（南北）を高さと取り違えた配置 → 不正解<br>
+                ・(4) 左右の並びも高低も反転している → 不正解<br>
+                ・(5) 左からB、L、A、Cの順で、Aが最も高く、Bが最も低く、LとCが同じ高さ → 正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．問1の編隊が、長機Lに対する各機の相対位置（機体を基準とした前後・左右の位置関係）を保ったまま右に90°旋回し、真東に向かって水平飛行している。旋回の間に、各機は表2に示すとおり高度を変更した。図2のように、観測者は編隊の進行方向のはるか前方（東側）の地上におり、西を向いて、近づいてくる編隊を正面から見ている。このとき観測者から見た4機の見え方として最も適切なものを、下の(1)～(5)のうちから1つ選べ。ただし、遠近による機体の大きさの違いや、前後方向のずれの見え方は無視できるものとし、各機は水平姿勢に戻っているものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x220px / viewBox: 0 0 500 220 / 余白: 20px以上
+                座標系定義:
+                - 平面図（上が北・右が東）
+                - 飛行経路: (150,195)→(150,120)→曲線→(200,70)→(320,70)
+                - 長機L: (280,70) 東向き / 観測者: (440,70)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】旋回の概略と観測者の位置（真上から見た図・上が北）</div>
+                    <div class="figure-content">
+                        <svg width="500" height="220" viewBox="0 0 500 220">
+                            <!-- 方位（北）矢印 -->
+                            <line x1="40" y1="80" x2="40" y2="47" stroke="black" stroke-width="2"/>
+                            <polygon points="40,39 36,49 44,49" fill="black"/>
+                            <text x="40" y="32" class="svg-text" text-anchor="middle">北</text>
+                            <!-- 飛行経路 -->
+                            <path d="M150 195 L150 120 Q150 70 200 70 L320 70" fill="none" stroke="black" stroke-width="2"/>
+                            <polygon points="330,70 320,66 320,74" fill="black"/>
+                            <text x="160" y="170" class="svg-text" style="font-size:12px">旋回前（真北へ）</text>
+                            <text x="213" y="50" class="svg-text" style="font-size:12px">右90°旋回</text>
+                            <text x="240" y="95" class="svg-text" style="font-size:12px">旋回後（真東へ）</text>
+                            <!-- 長機L（東向き・塗りつぶし） -->
+                            <polygon points="292,70 278,80 278,73 270,74 270,66 278,67 278,60" fill="black" stroke="black" stroke-width="1"/>
+                            <text x="280" y="115" class="svg-text" style="font-size:11px" text-anchor="middle">編隊（図では長機Lのみ示す）</text>
+                            <!-- 観測者の視線（西向き） -->
+                            <line x1="428" y1="70" x2="352" y2="70" stroke="black" stroke-width="1.5" stroke-dasharray="4 3"/>
+                            <polygon points="344,70 354,66 354,74" fill="black"/>
+                            <text x="390" y="58" class="svg-text" style="font-size:11px" text-anchor="middle">西向きに見る</text>
+                            <!-- 観測者 -->
+                            <circle cx="440" cy="70" r="4" fill="black"/>
+                            <text x="440" y="95" class="svg-text" style="font-size:12px" text-anchor="middle">観測者</text>
+                            <text x="440" y="112" class="svg-text" style="font-size:11px" text-anchor="middle">（はるか前方の地上）</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【表2】旋回後の各機の高度</div>
+                    <table class="figure-table">
+                        <tr><th>機体</th><td>L（長機）</td><td>A</td><td>B</td><td>C</td></tr>
+                        <tr><th>旋回後の高度</th><td>1000 m（維持）</td><td>900 m（降下）</td><td>1100 m（上昇）</td><td>1200 m（上昇）</td></tr>
+                    </table>
+                </div>
+
+                <!-- 選択肢エリア: 前方から見た隊形（横=左右、縦=高低） -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="140" viewBox="0 0 600 140">
+                            <!-- 選択肢(1) -->
+                            <g transform="translate(8, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(1)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M48 102 L64 102 M56 102 L56 96" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="102" r="2" fill="black"/>
+                                    <text x="56" y="93" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M4 66 L20 66 M12 66 L12 60" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="66" r="2" fill="black"/>
+                                    <text x="12" y="57" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M70 48 L86 48 M78 48 L78 42" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="48" r="2" fill="black"/>
+                                    <text x="78" y="39" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M26 84 L42 84 M34 84 L34 78" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="84" r="2" fill="black"/>
+                                    <text x="34" y="75" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(2)（正解） -->
+                            <g transform="translate(128, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(2)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M26 102 L42 102 M34 102 L34 96" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="102" r="2" fill="black"/>
+                                    <text x="34" y="93" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M70 66 L86 66 M78 66 L78 60" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="66" r="2" fill="black"/>
+                                    <text x="78" y="57" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M4 48 L20 48 M12 48 L12 42" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="48" r="2" fill="black"/>
+                                    <text x="12" y="39" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M48 84 L64 84 M56 84 L56 78" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="84" r="2" fill="black"/>
+                                    <text x="56" y="75" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(3) -->
+                            <g transform="translate(248, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(3)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M26 50 L42 50 M34 50 L34 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="50" r="2" fill="black"/>
+                                    <text x="34" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M70 94 L86 94 M78 94 L78 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="94" r="2" fill="black"/>
+                                    <text x="78" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M4 72 L20 72 M12 72 L12 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="72" r="2" fill="black"/>
+                                    <text x="12" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M48 72 L64 72 M56 72 L56 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="72" r="2" fill="black"/>
+                                    <text x="56" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(4) -->
+                            <g transform="translate(368, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(4)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M48 50 L64 50 M56 50 L56 44" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="50" r="2" fill="black"/>
+                                    <text x="56" y="41" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M4 94 L20 94 M12 94 L12 88" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="94" r="2" fill="black"/>
+                                    <text x="12" y="85" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M70 72 L86 72 M78 72 L78 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="72" r="2" fill="black"/>
+                                    <text x="78" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M26 72 L42 72 M34 72 L34 66" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="72" r="2" fill="black"/>
+                                    <text x="34" y="63" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                            <!-- 選択肢(5) -->
+                            <g transform="translate(488, 5)">
+                                <text x="45" y="12" class="svg-text" text-anchor="middle">(5)</text>
+                                <rect x="0" y="18" width="90" height="112" fill="none" stroke="#999" stroke-width="1"/>
+                                <g transform="translate(0, 20)">
+                                    <path d="M26 48 L42 48 M34 48 L34 42" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="34" cy="48" r="2" fill="black"/>
+                                    <text x="34" y="39" class="svg-text" style="font-size:9px" text-anchor="middle">A</text>
+                                    <path d="M70 84 L86 84 M78 84 L78 78" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="78" cy="84" r="2" fill="black"/>
+                                    <text x="78" y="75" class="svg-text" style="font-size:9px" text-anchor="middle">B</text>
+                                    <path d="M4 102 L20 102 M12 102 L12 96" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="12" cy="102" r="2" fill="black"/>
+                                    <text x="12" y="93" class="svg-text" style="font-size:9px" text-anchor="middle">C</text>
+                                    <path d="M48 66 L64 66 M56 66 L56 60" stroke="black" stroke-width="2" fill="none"/>
+                                    <circle cx="56" cy="66" r="2" fill="black"/>
+                                    <text x="56" y="57" class="svg-text" style="font-size:9px" text-anchor="middle">L</text>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                「隊形の回転」「視点の反転」「高度の変更」という3つの空間操作を、順を追って正しく処理する必要がある。<br><br>
+
+                <strong>【手順1: 旋回後の隊形（真上から見た配置）】</strong><br>
+                ・各機は長機Lに対する相対位置（機体基準の前後・左右）を保つので、右90°旋回すると隊形全体も時計回りに90°回転する。<br>
+                ・東向きの飛行では、機体の右は南、機体の後ろは西になる。<br>
+                ・よってAはLの右後方＝南西、BはLの左後方＝北西、CはAのさらに右後方＝さらに南西にいる。<br><br>
+
+                <strong>【手順2: 前方（東側）からの左右の見え方】</strong><br>
+                ・観測者は西を向いて編隊を正面から見るため、北が観測者の右、南が観測者の左になる（後方から見る場合と左右が逆になる点に注意）。<br>
+                ・南にいる機体ほど観測者の左に見えるから、左から C、A、L、B の順に並んで見える。<br><br>
+
+                <strong>【手順3: 上下の高低】</strong><br>
+                ・表2より、C（1200m）＞B（1100m）＞L（1000m）＞A（900m）の順に高い。<br>
+                ・よってCが最も高く、その下にB、L、Aの順に見える。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 左右の並びが反転している（編隊を後方から見た場合の像と混同）→ 不正解<br>
+                ・(2) 左からC、A、L、Bの順で、高さはC、B、L、Aの順 → 正解<br>
+                ・(3) 左右の並びは正しいが、高度が旋回前（表1）のままになっている → 不正解<br>
+                ・(4) 左右の並びが反転し、高度も旋回前のまま（問1の見え方と同じ）→ 不正解<br>
+                ・(5) 左右の並びは正しいが、高低の順序が上下逆になっている → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
