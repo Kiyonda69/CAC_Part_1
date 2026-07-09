@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料1】は、ある小型機の運航マニュアルに定める降下計画の計算規則、【資料2】はA空港への飛行における降下計画のデータ、【参考図】は降下経路の模式図である。資料の規則に従って、下の降下計画表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料1】降下計画の計算規則</div>
+                <div style="text-align: left; font-size: 15px;">
+                    規則1　降下は勾配一定の降下経路で行い、水平距離1海里につき高度300ftを失う。すなわち、必要降下距離（海里）＝ 失う高度（ft）÷ 300<br>
+                    規則2　降下開始点（TOD）は、通過高度が指定された地点から、必要降下距離だけ手前（飛行方向の反対側）の地点とする<br>
+                    規則3　対地速度（ノット）＝ 真対気速度（TAS）＋ 風成分（追い風は正、向かい風は負の値として加える）<br>
+                    規則4　必要降下率（ft/分）＝ 対地速度（ノット）× 5<br>
+                    規則5　降下所要時間（分）＝ 失う高度（ft）÷ 必要降下率（ft/分）
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料2】A空港への降下計画のデータ</div>
+                <div style="text-align: left; font-size: 15px;">
+                    ・巡航高度: 12,000ft<br>
+                    ・地点P（進入開始地点）の指定通過高度: 3,000ft<br>
+                    ・降下中の真対気速度（TAS）: 150ノット（一定）<br>
+                    ・降下中の風成分: 追い風30ノット（一定）
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【参考図】降下経路の模式図（側面図・縮尺は概念的）</div>
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x220px / viewBox: 0 0 500 220 / 余白: 上下左右20px以上
+                座標系定義（模式図のため縮尺は概念的）:
+                - 地面: y=190 の水平線（x=30〜470）
+                - 巡航高度12,000ft: y=40（x=60〜170）、TOD=(170,40)
+                - 降下経路: (170,40)→(390,140)、地点P=(390,140)（通過高度3,000ft）
+                - 距離注記の両矢印: y=170（x=170〜390）
+                -->
+                <svg width="500" height="220" viewBox="0 0 500 220">
+                    <defs>
+                        <marker id="arrL1" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6" fill="none" stroke="#000"/></marker>
+                        <marker id="arrR1" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#000"/></marker>
+                    </defs>
+                    <line x1="30" y1="190" x2="470" y2="190" stroke="#000" stroke-width="2"/>
+                    <line x1="60" y1="40" x2="170" y2="40" stroke="#000" stroke-width="2"/>
+                    <text x="115" y="28" text-anchor="middle" font-size="12" class="svg-text">巡航高度 12,000ft</text>
+                    <line x1="170" y1="40" x2="390" y2="140" stroke="#000" stroke-width="2"/>
+                    <line x1="390" y1="140" x2="457" y2="187" stroke="#666" stroke-width="1.5" stroke-dasharray="5,4"/>
+                    <line x1="170" y1="40" x2="170" y2="190" stroke="#888" stroke-width="1" stroke-dasharray="4,4"/>
+                    <line x1="390" y1="140" x2="390" y2="190" stroke="#888" stroke-width="1" stroke-dasharray="4,4"/>
+                    <circle cx="170" cy="40" r="4" fill="#000"/>
+                    <circle cx="390" cy="140" r="4" fill="#000"/>
+                    <line x1="170" y1="170" x2="390" y2="170" stroke="#000" stroke-width="1" marker-start="url(#arrL1)" marker-end="url(#arrR1)"/>
+                    <text x="280" y="163" text-anchor="middle" font-size="12" class="svg-text">必要降下距離（ア）</text>
+                    <text x="150" y="208" text-anchor="middle" font-size="12" class="svg-text">TOD（降下開始点）</text>
+                    <text x="368" y="208" text-anchor="middle" font-size="12" class="svg-text">地点P（3,000ft）</text>
+                    <rect x="450" y="183" width="12" height="7" fill="#000"/>
+                    <text x="456" y="212" text-anchor="middle" font-size="12" class="svg-text">A空港</text>
+                </svg>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【降下計画表】（空欄（ア）〜（エ）を求める）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 8px 15px;">項目</th>
+                        <th style="padding: 8px 15px;">値</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">失う高度</td>
+                        <td style="padding: 8px 15px;">12,000 − 3,000 ＝ 9,000ft</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">必要降下距離（TODから地点Pまで）</td>
+                        <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">降下中の対地速度</td>
+                        <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">必要降下率</td>
+                        <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">降下所要時間</td>
+                        <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>（ア）30海里　（イ）120ノット　（ウ）600ft/分　（エ）15分
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>（ア）30海里　（イ）180ノット　（ウ）750ft/分　（エ）12分
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>（ア）30海里　（イ）180ノット　（ウ）900ft/分　（エ）10分
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>（ア）30海里　（イ）150ノット　（ウ）750ft/分　（エ）12分
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>（ア）40海里　（イ）180ノット　（ウ）900ft/分　（エ）13分
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>【資料1】の規則を順に適用する。</p>
+                    <br>
+                    <p><strong>【失う高度】</strong></p>
+                    <p>巡航高度から地点Pの指定通過高度までに失う高度は、12,000 − 3,000 ＝ 9,000ft（表に与えられている）。</p>
+                    <br>
+                    <p><strong>【（ア）必要降下距離】</strong></p>
+                    <p>規則1より、9,000 ÷ 300 ＝ <strong>30海里</strong>。</p>
+                    <br>
+                    <p><strong>【（イ）降下中の対地速度】</strong></p>
+                    <p>規則3より、追い風は正の値として加える。150 ＋ 30 ＝ <strong>180ノット</strong>。</p>
+                    <br>
+                    <p><strong>【（ウ）必要降下率】</strong></p>
+                    <p>規則4より、180 × 5 ＝ <strong>900ft/分</strong>。</p>
+                    <br>
+                    <p><strong>【（エ）降下所要時間】</strong></p>
+                    <p>規則5より、9,000 ÷ 900 ＝ <strong>10分</strong>。</p>
+                    <p>（検算）30海里を対地速度180ノットで進む時間は 30 ÷ 180 × 60 ＝ 10分となり、規則5の結果と一致する。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) （イ）120ノットは追い風を向かい風（負）として計算した誤り（（ウ）600ft/分・（エ）15分も同じ誤りに基づく） → 不正解</p>
+                    <p>・(2) （ウ）750ft/分は対地速度ではなくTASに5を掛けた誤り（（エ）12分も同様） → 不正解</p>
+                    <p>・(3) すべて計算結果と一致 → 正解</p>
+                    <p>・(4) （イ）150ノットは風成分を加え忘れた誤り → 不正解</p>
+                    <p>・(5) （ア）40海里は通過高度3,000ftを引かず、巡航高度12,000ftをそのまま失う高度とした誤り（（エ）13分も同様） → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ機体で、別の日にB空港へ飛行する。次の【資料3】は降下中の速度制限に関する追加規則、【資料4】はB空港への降下計画のデータである。問1の【資料1】の規則をそのまま用いるとき、下の降下計画表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料3】追加規則（降下中の速度制限）</div>
+                <div style="text-align: left; font-size: 15px;">
+                    規則6　降下は高度10,000ftを境に、区間1（巡航高度〜10,000ft）と区間2（10,000ft〜指定通過高度）の2つの区間に分けて計画する<br>
+                    規則7　降下中の真対気速度（TAS）は、高度10,000ft以上（区間1）では180ノット、10,000ft未満（区間2）では150ノットとする<br>
+                    規則8　降下経路の勾配（水平距離1海里につき高度300ft）は、対地速度によらず全区間で一定である
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料4】B空港への降下計画のデータ</div>
+                <div style="text-align: left; font-size: 15px;">
+                    ・巡航高度: 13,000ft<br>
+                    ・地点Q（進入開始地点）の指定通過高度: 4,000ft<br>
+                    ・降下中の風成分: 全区間で向かい風30ノット（一定）<br>
+                    ・地点Rは、降下経路上で地点Qから10海里手前（TOD側）にある地点である
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【降下計画表】（空欄（ア）〜（エ）を求める）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 8px 15px;">項目</th>
+                        <th style="padding: 8px 15px;">値</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">降下開始点（TOD）から地点Qまでの距離</td>
+                        <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">区間2の必要降下率</td>
+                        <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">降下所要時間の合計（TOD〜地点Q）</td>
+                        <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px;">地点Rの通過高度</td>
+                        <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>（ア）30海里　（イ）750ft/分　（ウ）12分　（エ）7,000ft
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>（ア）30海里　（イ）900ft/分　（ウ）10分　（エ）7,000ft
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>（ア）30海里　（イ）600ft/分　（ウ）14分　（エ）7,000ft
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>（ア）30海里　（イ）600ft/分　（ウ）14分　（エ）10,000ft
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>（ア）43海里　（イ）600ft/分　（ウ）21分　（エ）7,000ft
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>失う高度の合計は 13,000 − 4,000 ＝ 9,000ft。規則6により、区間1（13,000→10,000ft、失う高度3,000ft）と区間2（10,000→4,000ft、失う高度6,000ft）に分けて計算する。</p>
+                    <br>
+                    <p><strong>【（ア）TODから地点Qまでの距離】</strong></p>
+                    <p>規則1・規則8より、勾配は対地速度によらず一定なので、9,000 ÷ 300 ＝ <strong>30海里</strong>。</p>
+                    <p>（検算）区間ごとに求めても、区間1: 3,000 ÷ 300 ＝ 10海里、区間2: 6,000 ÷ 300 ＝ 20海里、計30海里で一致する。TASが区間で変わっても必要降下距離は変わらない点が要点である。</p>
+                    <br>
+                    <p><strong>【（イ）区間2の必要降下率】</strong></p>
+                    <p>区間2の対地速度 ＝ 150 − 30 ＝ 120ノット（向かい風は負）。規則4より、120 × 5 ＝ <strong>600ft/分</strong>。</p>
+                    <br>
+                    <p><strong>【（ウ）降下所要時間の合計】</strong></p>
+                    <p>・区間1: 対地速度 ＝ 180 − 30 ＝ 150ノット → 必要降下率 ＝ 750ft/分 → 3,000 ÷ 750 ＝ 4分</p>
+                    <p>・区間2: 6,000 ÷ 600 ＝ 10分</p>
+                    <p>・合計 ＝ 4 ＋ 10 ＝ <strong>14分</strong>。</p>
+                    <br>
+                    <p><strong>【（エ）地点Rの通過高度】</strong></p>
+                    <p>地点Rは地点Qの10海里手前にある。規則8より勾配は1海里につき300ftなので、地点Rの高度は地点Qより 10 × 300 ＝ 3,000ft高い。4,000 ＋ 3,000 ＝ <strong>7,000ft</strong>。</p>
+                    <p>（検算）（ア）より地点RはTODから20海里の地点であり、13,000 − 20 × 300 ＝ 7,000ftで一致する。7,000ftは10,000ft未満なので、地点Rが区間2内にあることとも矛盾しない。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) （イ）750ft/分・（ウ）12分は規則7の速度制限を見落とし、全区間をTAS180ノットで計算した誤り → 不正解</p>
+                    <p>・(2) （イ）900ft/分・（ウ）約10分は向かい風を追い風（正）として計算した誤り → 不正解</p>
+                    <p>・(3) すべて計算結果と一致 → 正解</p>
+                    <p>・(4) （エ）10,000ftはTODから10海里の地点の高度であり、地点Rの位置（地点Qから10海里手前）を取り違えた誤り → 不正解</p>
+                    <p>・(5) （ア）43海里・（ウ）約21分は通過高度4,000ftを引かず、失う高度を13,000ftとした誤り → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考261/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
