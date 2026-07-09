@@ -1,0 +1,491 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料】は、飛行場の気象実況を通報する電文「METAR（定時飛行場実況気象報）」の書式をまとめたものであり、【電文1】はA空港で観測されたMETARである。資料の規則に従って電文1を解読し、下の解読表の空欄（ア）〜（エ）に当てはまる数値の組合せとして正しいものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 18px;">
+                    <div class="figure-title" style="text-align: center;">【資料】METAR電文の書式（本問に必要な項目のみ）</div>
+                    <div style="font-size: 13px; line-height: 1.65;">
+                        電文は、次の項目をこの順に空白で区切って並べたものである。<br>
+                        ① <strong>地点略号</strong>：4文字の飛行場コード。<br>
+                        ② <strong>観測日時「DDHHMMZ」</strong>：DD＝日、HHMM＝時分。時刻は協定世界時（UTC）。日本標準時（JST）はUTCより9時間進んでいる。<br>
+                        ③ <strong>風「dddffKT」または「dddffGgggKT」</strong>：ddd＝風向（真方位、度）、ff＝10分間平均風速（ノット）、Gに続く2桁＝最大瞬間風速（ノット）。最大瞬間風速は、平均風速より10ノット以上大きいときに限り付加される。<br>
+                        ④ <strong>卓越視程</strong>：4桁の数字、メートル単位。「9999」は10km以上を表す。<br>
+                        ⑤ <strong>天気現象</strong>：RA＝雨、SN＝雪、SH＝しゅう雨性、TS＝雷電。接頭辞「-」＝弱、「+」＝強、無印＝並。<br>
+                        ⑥ <strong>雲</strong>：雲量記号＋雲底高度（複数の層があれば低い順に並べる）。雲量はFEW（1〜2/8）、SCT（3〜4/8）、BKN（5〜7/8）、OVC（8/8）。雲底高度は3桁の数字で100フィート単位を表す（例：「015」＝1,500フィート）。<br>
+                        ⑦ <strong>気温／露点</strong>：摂氏（℃）。数字の前の「M」は氷点下（マイナス）を表す。<br>
+                        ⑧ <strong>QNH「Q＋4桁」</strong>：高度計規正値、ヘクトパスカル（hPa）単位。
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 12px;">
+                    <div class="figure-title">【電文1】A空港のMETAR</div>
+                    <div style="font-family: 'Courier New', monospace; font-size: 16px; font-weight: bold; letter-spacing: 1px;">
+                        METAR RJXX 210745Z 33008G21KT 4000 -SN<br>BKN012 OVC040 M01/M04 Q0996
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 10px;">
+                    <div class="figure-title">電文1の解読表</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr><th>項目</th><th>解読結果</th></tr>
+                        <tr><td style="text-align: left;">観測日時（日本標準時）</td><td>21日（ア）時45分</td></tr>
+                        <tr><td style="text-align: left;">最大瞬間風速</td><td>（イ）ノット</td></tr>
+                        <tr><td style="text-align: left;">最も低い雲の雲底高度</td><td>（ウ）フィート</td></tr>
+                        <tr><td style="text-align: left;">気温と露点の差</td><td>（エ）℃</td></tr>
+                    </table>
+                </div>
+
+                <div class="figure-container" style="border: none; padding: 5px;">
+                    <table class="option-table" style="font-size: 14px;">
+                        <tr><th></th><th>（ア）</th><th>（イ）</th><th>（ウ）</th><th>（エ）</th></tr>
+                        <tr><td>(1)</td><td>7</td><td>21</td><td>1,200</td><td>3</td></tr>
+                        <tr><td>(2)</td><td>16</td><td>8</td><td>1,200</td><td>5</td></tr>
+                        <tr><td>(3)</td><td>16</td><td>21</td><td>12,000</td><td>3</td></tr>
+                        <tr><td>(4)</td><td>16</td><td>21</td><td>1,200</td><td>3</td></tr><!-- 正解 -->
+                        <tr><td>(5)</td><td>7</td><td>8</td><td>120</td><td>5</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                資料の書式に従い、電文1を項目ごとに解読する。<br><br>
+
+                <strong>【解読の手順】</strong><br>
+                ・観測日時「210745Z」：21日07時45分UTC。日本標準時はUTCより9時間進んでいるので、7＋9＝16時45分。→（ア）＝16<br>
+                ・風「33008G21KT」：風向330度、10分間平均風速8ノット、「G」に続く21が最大瞬間風速である。→（イ）＝21<br>
+                　（21−8＝13ノットで、平均風速より10ノット以上大きいときに限り付加されるという規則とも整合する）<br>
+                ・雲「BKN012 OVC040」：低い層はBKN012。雲底高度は3桁の数字が100フィート単位を表すので、012×100＝1,200フィート。→（ウ）＝1,200<br>
+                ・気温／露点「M01/M04」：「M」は氷点下を表すので、気温−1℃・露点−4℃。差は（−1）−（−4）＝3℃。→（エ）＝3<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) （ア）＝7 は、UTCのままで日本標準時への変換を行っていない誤り。<br>
+                ・(2) （イ）＝8 は平均風速との取り違え。（エ）＝5 は氷点下の符号を無視して1＋4と計算した誤り。<br>
+                ・(3) （ウ）＝12,000 は、雲底高度の3桁を1,000フィート単位と誤読したもの。<br>
+                ・(4) すべて正しい。<br>
+                ・(5) （ウ）＝120 は雲底高度を10フィート単位と誤読したもので、（ア）（イ）（エ）も誤り。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．次の【資料2】は、飛行場の予報を通報する電文「TAF（運航用飛行場予報気象報）」の書式をまとめたものである。風・視程・天気・雲の各要素の読み方には、問1の【資料】と同じ規則を用いる。【電文2】はB空港で発表されたTAFである。21日23時（日本標準時）における予想として、下の予想表の空欄（ア）〜（エ）に当てはまる数値等の組合せとして正しいものを、(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container" style="text-align: left; padding: 12px 18px;">
+                    <div class="figure-title" style="text-align: center;">【資料2】TAF電文の書式（本問に必要な項目のみ）</div>
+                    <div style="font-size: 13px; line-height: 1.65;">
+                        ① 冒頭に「TAF 地点略号 発表日時Z」を置き、続けて有効期間「D1H1/D2H2」を示す。D1H1＝開始日と開始時、D2H2＝終了日と終了時（いずれもUTC、時は2桁）。<br>
+                        ② 有効期間の直後に、期間開始時から卓越すると予想される状態（風・視程・天気・雲）を記述する。<br>
+                        ③ その後に、次の変化群を必要に応じて付加する。<br>
+                        ・<strong>「BECMG D1H1/D2H2 ＋新しい状態」</strong>：示された期間内に持続的な変化が完了し、期間の<u>終了時刻以降</u>は記述された新しい状態が卓越する。記述されなかった要素は、直前の卓越状態をそのまま引き継ぐ。<br>
+                        ・<strong>「TEMPO D1H1/D2H2 ＋変動状態」</strong>：示された期間中、記述された状態が<u>一時的</u>（1回あたり1時間未満）に現れる。それ以外の時間帯は、直前の卓越状態が保たれる。
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 12px;">
+                    <div class="figure-title">【電文2】B空港のTAF</div>
+                    <div style="font-family: 'Courier New', monospace; font-size: 15px; font-weight: bold; letter-spacing: 1px; text-align: left; display: inline-block;">
+                        TAF RJYY 210500Z 2106/2212 24012KT 9999 FEW030<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;BECMG 2108/2110 17016G28KT 6000 -RA SCT015<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;TEMPO 2113/2118 2500 +SHRA BKN008
+                    </div>
+                </div>
+
+                <div class="figure-container" style="padding: 10px;">
+                    <div class="figure-title">予想表（21日23時 日本標準時の時点）</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr><th>項目</th><th>予想値</th></tr>
+                        <tr><td style="text-align: left;">卓越風向（真方位）</td><td>（ア）度</td></tr>
+                        <tr><td style="text-align: left;">卓越視程</td><td>（イ）</td></tr>
+                        <tr><td style="text-align: left;">一時的な悪化時の視程</td><td>（ウ）メートル</td></tr>
+                        <tr><td style="text-align: left;">一時的な悪化時のBKN雲の雲底高度</td><td>（エ）フィート</td></tr>
+                    </table>
+                </div>
+
+                <div class="figure-container" style="border: none; padding: 5px;">
+                    <table class="option-table" style="font-size: 14px;">
+                        <tr><th></th><th>（ア）</th><th>（イ）</th><th>（ウ）</th><th>（エ）</th></tr>
+                        <tr><td>(1)</td><td>240</td><td>10km以上</td><td>2,500</td><td>800</td></tr>
+                        <tr><td>(2)</td><td>170</td><td>6,000m</td><td>2,500</td><td>800</td></tr><!-- 正解 -->
+                        <tr><td>(3)</td><td>170</td><td>6,000m</td><td>6,000</td><td>800</td></tr>
+                        <tr><td>(4)</td><td>170</td><td>10km以上</td><td>2,500</td><td>800</td></tr>
+                        <tr><td>(5)</td><td>170</td><td>6,000m</td><td>2,500</td><td>8,000</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                まず評価時刻をUTCに換算し、次に変化群が適用されるかを期間ごとに判定する。<br><br>
+
+                <strong>【評価時刻のUTC換算】</strong><br>
+                21日23時JST ＝ 23−9 ＝ 21日14時UTC（14Z）。有効期間（21日06Z〜22日12Z）の範囲内である。<br><br>
+
+                <strong>【卓越状態の決定】</strong><br>
+                ・本文（期間開始時）：風240度12ノット、視程10km以上（9999）、FEW030。<br>
+                ・BECMG 2108/2110：08Z〜10Zの間に変化が完了し、<u>10Z以降</u>は「17016G28KT 6000 -RA SCT015」が卓越する。<br>
+                ・評価時刻14Zは10Z以降なので、卓越状態は風170度16ノット（最大瞬間28ノット）、視程6,000m、弱い雨、SCT015となる。→（ア）＝170、（イ）＝6,000m<br><br>
+
+                <strong>【一時的変化の判定】</strong><br>
+                ・TEMPO 2113/2118：13Z〜18Zの間、「2500 +SHRA BKN008」が一時的に現れる。<br>
+                ・14Zはこの期間内なので、一時的な悪化時は視程2,500m、強いしゅう雨、雲底高度008×100＝800フィートのBKN雲となる。→（ウ）＝2,500、（エ）＝800<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) BECMGによる変化の完了（10Z以降）を見落とし、本文の状態を14Zの卓越状態とした誤り。<br>
+                ・(2) すべて正しい。<br>
+                ・(3) （ウ）＝6,000 は、卓越視程と一時的な悪化時の視程を取り違えた誤り。<br>
+                ・(4) （イ）＝10km以上 は、BECMGに視程6000の記述があるにもかかわらず、本文の視程を引き継ぐとした誤り（引き継がれるのは記述されなかった要素のみ）。<br>
+                ・(5) （エ）＝8,000 は、雲底高度「008」を1,000フィート単位と誤読したもの。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
