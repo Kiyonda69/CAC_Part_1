@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ（1/2: 資料） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．次の【資料1】は、ある小型機の運航マニュアルに定める降下計画の計算規則、【資料2】はA空港への飛行における降下計画のデータ、【参考図】は降下経路の模式図である。資料の規則に従って、次ページの降下計画表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料1】降下計画の計算規則</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        規則1　降下は勾配一定の降下経路で行い、水平距離1海里につき高度300ftを失う。すなわち、必要降下距離（海里）＝ 失う高度（ft）÷ 300<br>
+                        規則2　降下開始点（TOD）は、通過高度が指定された地点から、必要降下距離だけ手前（飛行方向の反対側）の地点とする<br>
+                        規則3　対地速度（ノット）＝ 真対気速度（TAS）＋ 風成分（追い風は正、向かい風は負の値として加える）<br>
+                        規則4　必要降下率（ft/分）＝ 対地速度（ノット）× 5<br>
+                        規則5　降下所要時間（分）＝ 失う高度（ft）÷ 必要降下率（ft/分）
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料2】A空港への降下計画のデータ</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        ・巡航高度: 12,000ft<br>
+                        ・地点P（進入開始地点）の指定通過高度: 3,000ft<br>
+                        ・降下中の真対気速度（TAS）: 150ノット（一定）<br>
+                        ・降下中の風成分: 追い風30ノット（一定）
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【参考図】降下経路の模式図（側面図・縮尺は概念的）</div>
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 500x220px / viewBox: 0 0 500 220 / 余白: 上下左右20px以上
+                    座標系定義（模式図のため縮尺は概念的）:
+                    - 地面: y=190 の水平線（x=30〜470）
+                    - 巡航高度12,000ft: y=40（x=60〜170）、TOD=(170,40)
+                    - 降下経路: (170,40)→(390,140)、地点P=(390,140)（通過高度3,000ft）
+                    - 距離注記の両矢印: y=170（x=170〜390）
+                    -->
+                    <svg width="500" height="220" viewBox="0 0 500 220">
+                        <defs>
+                            <marker id="arrL1" markerWidth="8" markerHeight="8" refX="2" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6" fill="none" stroke="#000"/></marker>
+                            <marker id="arrR1" markerWidth="8" markerHeight="8" refX="4" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="#000"/></marker>
+                        </defs>
+                        <line x1="30" y1="190" x2="470" y2="190" stroke="#000" stroke-width="2"/>
+                        <line x1="60" y1="40" x2="170" y2="40" stroke="#000" stroke-width="2"/>
+                        <text x="115" y="28" text-anchor="middle" font-size="12" class="svg-text">巡航高度 12,000ft</text>
+                        <line x1="170" y1="40" x2="390" y2="140" stroke="#000" stroke-width="2"/>
+                        <line x1="390" y1="140" x2="457" y2="187" stroke="#666" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="170" y1="40" x2="170" y2="190" stroke="#888" stroke-width="1" stroke-dasharray="4,4"/>
+                        <line x1="390" y1="140" x2="390" y2="190" stroke="#888" stroke-width="1" stroke-dasharray="4,4"/>
+                        <circle cx="170" cy="40" r="4" fill="#000"/>
+                        <circle cx="390" cy="140" r="4" fill="#000"/>
+                        <line x1="170" y1="170" x2="390" y2="170" stroke="#000" stroke-width="1" marker-start="url(#arrL1)" marker-end="url(#arrR1)"/>
+                        <text x="280" y="163" text-anchor="middle" font-size="12" class="svg-text">必要降下距離（ア）</text>
+                        <text x="150" y="208" text-anchor="middle" font-size="12" class="svg-text">TOD（降下開始点）</text>
+                        <text x="368" y="208" text-anchor="middle" font-size="12" class="svg-text">地点P（3,000ft）</text>
+                        <rect x="450" y="183" width="12" height="7" fill="#000"/>
+                        <text x="456" y="212" text-anchor="middle" font-size="12" class="svg-text">A空港</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 問題ページ（2/2: 降下計画表・選択肢） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="figure-container">
+                    <div class="figure-title">【降下計画表】（空欄（ア）〜（エ）を求める）</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 8px 15px;">項目</th>
+                            <th style="padding: 8px 15px;">値</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">失う高度</td>
+                            <td style="padding: 8px 15px;">12,000 − 3,000 ＝ 9,000ft</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">必要降下距離（TODから地点Pまで）</td>
+                            <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">降下中の対地速度</td>
+                            <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">必要降下率</td>
+                            <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">降下所要時間</td>
+                            <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1)　（ア）30海里　（イ）120ノット　（ウ）600ft/分　（エ）15分<br>
+                    (2)　（ア）30海里　（イ）180ノット　（ウ）750ft/分　（エ）12分<br>
+                    (3)　（ア）30海里　（イ）180ノット　（ウ）900ft/分　（エ）10分<br>
+                    (4)　（ア）30海里　（イ）150ノット　（ウ）750ft/分　（エ）12分<br>
+                    (5)　（ア）40海里　（イ）180ノット　（ウ）900ft/分　（エ）13分
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                【資料1】の規則を順に適用する。<br><br>
+
+                <strong>【失う高度】</strong><br>
+                巡航高度から地点Pの指定通過高度までに失う高度は、12,000 − 3,000 ＝ 9,000ft（表に与えられている）。<br><br>
+
+                <strong>【（ア）必要降下距離】</strong><br>
+                規則1より、9,000 ÷ 300 ＝ <strong>30海里</strong>。<br><br>
+
+                <strong>【（イ）降下中の対地速度】</strong><br>
+                規則3より、追い風は正の値として加える。150 ＋ 30 ＝ <strong>180ノット</strong>。<br><br>
+
+                <strong>【（ウ）必要降下率】</strong><br>
+                規則4より、180 × 5 ＝ <strong>900ft/分</strong>。<br><br>
+
+                <strong>【（エ）降下所要時間】</strong><br>
+                規則5より、9,000 ÷ 900 ＝ <strong>10分</strong>。<br>
+                （検算）30海里を対地速度180ノットで進む時間は 30 ÷ 180 × 60 ＝ 10分となり、規則5の結果と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) （イ）120ノットは追い風を向かい風（負）として計算した誤り（（ウ）600ft/分・（エ）15分も同じ誤りに基づく） → 不正解<br>
+                ・(2) （ウ）750ft/分は対地速度ではなくTASに5を掛けた誤り（（エ）12分も同様） → 不正解<br>
+                ・(3) すべて計算結果と一致 → 正解<br>
+                ・(4) （イ）150ノットは風成分を加え忘れた誤り → 不正解<br>
+                ・(5) （ア）40海里は通過高度3,000ftを引かず、巡航高度12,000ftをそのまま失う高度とした誤り（（エ）13分も同様） → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ機体で、別の日にB空港へ飛行する。次の【資料3】は降下中の速度制限に関する追加規則、【資料4】はB空港への降下計画のデータである。問1の【資料1】の規則をそのまま用いるとき、下の降下計画表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料3】追加規則（降下中の速度制限）</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        規則6　降下は高度10,000ftを境に、区間1（巡航高度〜10,000ft）と区間2（10,000ft〜指定通過高度）の2つの区間に分けて計画する<br>
+                        規則7　降下中の真対気速度（TAS）は、高度10,000ft以上（区間1）では180ノット、10,000ft未満（区間2）では150ノットとする<br>
+                        規則8　降下経路の勾配（水平距離1海里につき高度300ft）は、対地速度によらず全区間で一定である
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【資料4】B空港への降下計画のデータ</div>
+                    <div style="text-align: left; font-size: 15px;">
+                        ・巡航高度: 13,000ft<br>
+                        ・地点Q（進入開始地点）の指定通過高度: 4,000ft<br>
+                        ・降下中の風成分: 全区間で向かい風30ノット（一定）<br>
+                        ・地点Rは、降下経路上で地点Qから10海里手前（TOD側）にある地点である
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【降下計画表】（空欄（ア）〜（エ）を求める）</div>
+                    <table class="figure-table" style="font-size: 14px;">
+                        <tr>
+                            <th style="padding: 8px 15px;">項目</th>
+                            <th style="padding: 8px 15px;">値</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">降下開始点（TOD）から地点Qまでの距離</td>
+                            <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">区間2の必要降下率</td>
+                            <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">降下所要時間の合計（TOD〜地点Q）</td>
+                            <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px 15px;">地点Rの通過高度</td>
+                            <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="options">
+                    (1)　（ア）30海里　（イ）750ft/分　（ウ）12分　（エ）7,000ft<br>
+                    (2)　（ア）30海里　（イ）900ft/分　（ウ）10分　（エ）7,000ft<br>
+                    (3)　（ア）30海里　（イ）600ft/分　（ウ）14分　（エ）7,000ft<br>
+                    (4)　（ア）30海里　（イ）600ft/分　（ウ）14分　（エ）10,000ft<br>
+                    (5)　（ア）43海里　（イ）600ft/分　（ウ）21分　（エ）7,000ft
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                失う高度の合計は 13,000 − 4,000 ＝ 9,000ft。規則6により、区間1（13,000→10,000ft、失う高度3,000ft）と区間2（10,000→4,000ft、失う高度6,000ft）に分けて計算する。<br><br>
+
+                <strong>【（ア）TODから地点Qまでの距離】</strong><br>
+                規則1・規則8より、勾配は対地速度によらず一定なので、9,000 ÷ 300 ＝ <strong>30海里</strong>。<br>
+                （検算）区間ごとに求めても、区間1: 3,000 ÷ 300 ＝ 10海里、区間2: 6,000 ÷ 300 ＝ 20海里、計30海里で一致する。TASが区間で変わっても必要降下距離は変わらない点が要点である。<br><br>
+
+                <strong>【（イ）区間2の必要降下率】</strong><br>
+                区間2の対地速度 ＝ 150 − 30 ＝ 120ノット（向かい風は負）。規則4より、120 × 5 ＝ <strong>600ft/分</strong>。<br><br>
+
+                <strong>【（ウ）降下所要時間の合計】</strong><br>
+                ・区間1: 対地速度 ＝ 180 − 30 ＝ 150ノット → 必要降下率 ＝ 750ft/分 → 3,000 ÷ 750 ＝ 4分<br>
+                ・区間2: 6,000 ÷ 600 ＝ 10分<br>
+                ・合計 ＝ 4 ＋ 10 ＝ <strong>14分</strong>。<br><br>
+
+                <strong>【（エ）地点Rの通過高度】</strong><br>
+                地点Rは地点Qの10海里手前にある。規則8より勾配は1海里につき300ftなので、地点Rの高度は地点Qより 10 × 300 ＝ 3,000ft高い。4,000 ＋ 3,000 ＝ <strong>7,000ft</strong>。<br>
+                （検算）（ア）より地点RはTODから20海里の地点であり、13,000 − 20 × 300 ＝ 7,000ftで一致する。7,000ftは10,000ft未満なので、地点Rが区間2内にあることとも矛盾しない。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) （イ）750ft/分・（ウ）12分は規則7の速度制限を見落とし、全区間をTAS180ノットで計算した誤り → 不正解<br>
+                ・(2) （イ）900ft/分・（ウ）約10分は向かい風を追い風（正）として計算した誤り → 不正解<br>
+                ・(3) すべて計算結果と一致 → 正解<br>
+                ・(4) （エ）10,000ftはTODから10海里の地点の高度であり、地点Rの位置（地点Qから10海里手前）を取り違えた誤り → 不正解<br>
+                ・(5) （ア）43海里・（ウ）約21分は通過高度4,000ftを引かず、失う高度を13,000ftとした誤り → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
