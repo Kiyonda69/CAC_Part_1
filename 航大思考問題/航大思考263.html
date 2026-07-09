@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料1】は、ある航空機の運航マニュアルに定める速度の換算規則、【資料2】は外気温と音速の対応表、【資料3】はX地点からY地点への巡航データである。資料の規則に従って、下の巡航計算表の空欄（ア）〜（エ）に当てはまる値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料1】速度の換算規則</div>
+                <div style="text-align: left; font-size: 15px;">
+                    規則1　速度計の指示から求めた速度を較正対気速度（CAS）、空気に対する機体の実際の速度を真対気速度（TAS）という。高度が高いほど空気が薄くなるため、同じCASでもTASは大きくなる。この航空機では次の式で換算する。<br>
+                    　　　　TAS（kt）＝ CAS ×（1 ＋ 0.02 ×（気圧高度（ft）÷ 1,000））<br>
+                    規則2　対地速度（GS）は、TASに風の成分を加えて求める。GS（kt）＝ TAS ＋ 風成分（追い風は正、向かい風は負の値とする）<br>
+                    規則3　マッハ数 ＝ TAS ÷ 音速（kt）。音速は外気温によって決まり、【資料2】の音速表から読み取る<br>
+                    規則4　所要時間（分）＝ 距離（海里）÷ GS × 60
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料2】音速表</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 8px 12px;">外気温</th>
+                        <td style="padding: 8px 12px;">＋15℃</td>
+                        <td style="padding: 8px 12px;">0℃</td>
+                        <td style="padding: 8px 12px;">−15℃</td>
+                        <td style="padding: 8px 12px;">−25℃</td>
+                        <td style="padding: 8px 12px;">−35℃</td>
+                        <td style="padding: 8px 12px;">−45℃</td>
+                        <td style="padding: 8px 12px;">−55℃</td>
+                    </tr>
+                    <tr>
+                        <th style="padding: 8px 12px;">音速（kt）</th>
+                        <td style="padding: 8px 12px;">660</td>
+                        <td style="padding: 8px 12px;">645</td>
+                        <td style="padding: 8px 12px;">625</td>
+                        <td style="padding: 8px 12px;">615</td>
+                        <td style="padding: 8px 12px;">600</td>
+                        <td style="padding: 8px 12px;">590</td>
+                        <td style="padding: 8px 12px;">575</td>
+                    </tr>
+                </table>
+                <div class="legend">
+                    <div class="legend-item">※ 表にある外気温のみを扱う（本問で補間は不要）</div>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料3】X地点→Y地点の巡航データ</div>
+                <div style="text-align: left; font-size: 15px;">
+                    ・巡航の気圧高度: 25,000ft　／　外気温: −35℃<br>
+                    ・CAS: 200kt<br>
+                    ・風: 向かい風50kt<br>
+                    ・X地点からY地点までの距離: 175海里
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【参考図】速度の換算の流れ（模式図）</div>
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x270px / viewBox: 0 0 500 270 / 余白: 上下左右20px以上
+                座標系定義:
+                - 経路図: X地点(70,45)・Y地点(430,45)を結ぶ水平線、機体三角形(150,45)、
+                  向かい風矢印は(330,70)→(260,70)の左向き
+                - 換算フロー: 3つの箱 CAS(30,140)・TAS(190,140)・GS(350,140) 各100x44px、
+                  マッハ数の箱(190,206) 100x40px、箱の間を右向き矢印で接続
+                -->
+                <svg width="500" height="270" viewBox="0 0 500 270">
+                    <defs>
+                        <marker id="arrR1" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#000"/></marker>
+                    </defs>
+                    <circle cx="70" cy="45" r="4" fill="#000"/>
+                    <circle cx="430" cy="45" r="4" fill="#000"/>
+                    <text x="70" y="28" text-anchor="middle" font-size="12" class="svg-text">X地点</text>
+                    <text x="430" y="28" text-anchor="middle" font-size="12" class="svg-text">Y地点</text>
+                    <line x1="74" y1="45" x2="426" y2="45" stroke="#000" stroke-width="1.5"/>
+                    <text x="250" y="36" text-anchor="middle" font-size="12" class="svg-text">距離 175海里</text>
+                    <polygon points="150,39 164,45 150,51" fill="#000"/>
+                    <line x1="330" y1="70" x2="260" y2="70" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                    <text x="295" y="90" text-anchor="middle" font-size="12" class="svg-text">向かい風 50kt</text>
+                    <rect x="30" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                    <text x="80" y="158" text-anchor="middle" font-size="13" class="svg-text">CAS</text>
+                    <text x="80" y="176" text-anchor="middle" font-size="13" class="svg-text">200kt</text>
+                    <line x1="130" y1="162" x2="185" y2="162" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                    <text x="158" y="132" text-anchor="middle" font-size="11" class="svg-text">規則1</text>
+                    <rect x="190" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                    <text x="240" y="158" text-anchor="middle" font-size="13" class="svg-text">TAS</text>
+                    <text x="240" y="176" text-anchor="middle" font-size="13" class="svg-text">（ア）</text>
+                    <line x1="290" y1="162" x2="345" y2="162" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                    <text x="318" y="132" text-anchor="middle" font-size="11" class="svg-text">規則2（風）</text>
+                    <rect x="350" y="140" width="100" height="44" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                    <text x="400" y="158" text-anchor="middle" font-size="13" class="svg-text">GS</text>
+                    <text x="400" y="176" text-anchor="middle" font-size="13" class="svg-text">（ウ）</text>
+                    <line x1="240" y1="184" x2="240" y2="201" stroke="#000" stroke-width="1.5" marker-end="url(#arrR1)"/>
+                    <rect x="190" y="206" width="100" height="40" fill="#fff" stroke="#000" stroke-width="1.5"/>
+                    <text x="240" y="223" text-anchor="middle" font-size="12" class="svg-text">マッハ数</text>
+                    <text x="240" y="239" text-anchor="middle" font-size="12" class="svg-text">（イ）</text>
+                    <text x="320" y="230" text-anchor="start" font-size="11" class="svg-text">規則3　÷ 音速</text>
+                </svg>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【巡航計算表】（空欄（ア）〜（エ）を求める）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 8px 15px;">項目</th>
+                        <th style="padding: 8px 15px;">値</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">TAS（規則1）</td>
+                        <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">マッハ数（規則3）</td>
+                        <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">対地速度GS（規則2）</td>
+                        <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">X地点→Y地点の所要時間（規則4）</td>
+                        <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>（ア）200kt　（イ）0.33　（ウ）150kt　（エ）70分
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>（ア）300kt　（イ）0.50　（ウ）350kt　（エ）30分
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>（ア）300kt　（イ）0.33　（ウ）250kt　（エ）42分
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>（ア）300kt　（イ）0.50　（ウ）250kt　（エ）35分
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>（ア）300kt　（イ）0.50　（ウ）250kt　（エ）42分
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>【資料1】の規則を順に適用する。速度の換算は CAS → TAS →（GS・マッハ数）の一方向の流れであり、どの速度をどの規則に代入するかを正確に対応づけることが要点である。</p>
+                    <br>
+                    <p><strong>【（ア）TAS】</strong></p>
+                    <p>気圧高度25,000ftなので、規則1の係数は 1 ＋ 0.02 ×（25,000 ÷ 1,000）＝ 1 ＋ 0.02 × 25 ＝ 1.5。TAS ＝ 200 × 1.5 ＝ <strong>300kt</strong>。高高度では、速度計に基づくCASよりも実際の速度TASがかなり大きい。</p>
+                    <br>
+                    <p><strong>【（イ）マッハ数】</strong></p>
+                    <p>外気温−35℃の音速は【資料2】より600kt。規則3にTASを代入して 300 ÷ 600 ＝ <strong>0.50</strong>。CASの200ktを代入してはならない。</p>
+                    <br>
+                    <p><strong>【（ウ）対地速度GS】</strong></p>
+                    <p>向かい風は負の風成分なので、規則2より GS ＝ 300 ＋（−50）＝ <strong>250kt</strong>。</p>
+                    <br>
+                    <p><strong>【（エ）所要時間】</strong></p>
+                    <p>規則4より 175 ÷ 250 × 60 ＝ <strong>42分</strong>。距離を進む速さは空気に対するTASではなく、地面に対するGSである。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 規則1の換算を行わず、TASをCASと同じ200ktとした誤り（マッハ0.33・GS150kt・70分まで連動） → 不正解</p>
+                    <p>・(2) 風成分の符号を誤り、向かい風を加算した誤り（GS ＝ 300 ＋ 50 ＝ 350kt・30分） → 不正解</p>
+                    <p>・(3) マッハ数の計算にTASでなくCASを代入した誤り（200 ÷ 600 ≒ 0.33） → 不正解</p>
+                    <p>・(4) 所要時間の計算にGSでなくTASを用いた誤り（175 ÷ 300 × 60 ＝ 35分） → 不正解</p>
+                    <p>・(5) すべて計算結果と一致 → 正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1の【資料1】【資料2】を引き続き用いる。次の【資料4】は、別の航空機がP地点からQ地点へ飛行する計画のデータである。到着予定時刻から必要な速度を逆算して、下の計画表の空欄（ア）〜（エ）に当てはまる値と判定を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【資料4】P地点→Q地点の巡航計画データ</div>
+                <div style="text-align: left; font-size: 15px;">
+                    ・巡航の気圧高度: 30,000ft　／　外気温: −45℃<br>
+                    ・風: 向かい風40kt<br>
+                    ・P地点からQ地点までの距離: 432海里<br>
+                    ・P地点通過から到着予定時刻までの時間: 60分（遅れずにQ地点へ到着したい）<br>
+                    ・この航空機の制限マッハ数: 0.80（マッハ0.80を超えて飛行してはならない）
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【計画表】（空欄（ア）〜（エ）を求める）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr>
+                        <th style="padding: 8px 15px;">項目</th>
+                        <th style="padding: 8px 15px;">値</th>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">432海里を60分で飛ぶために必要な対地速度GS（規則4）</td>
+                        <td style="padding: 8px 15px;"><strong>（ア）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">そのGSを得るために必要なTAS（規則2）</td>
+                        <td style="padding: 8px 15px;"><strong>（イ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">そのTASを得るために必要なCAS（規則1）</td>
+                        <td style="padding: 8px 15px;"><strong>（ウ）</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 15px; text-align: left;">（イ）のTASで飛行するときのマッハ数（規則3）と、制限マッハ数0.80の下で予定どおり到着できるかの判定</td>
+                        <td style="padding: 8px 15px;"><strong>（エ）</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 4)">
+                    <span class="option-label">(1)</span>（ア）432kt　（イ）392kt　（ウ）245kt　（エ）0.66・到着できる
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 4)">
+                    <span class="option-label">(2)</span>（ア）432kt　（イ）472kt　（ウ）472kt　（エ）0.80・到着できる
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 4)">
+                    <span class="option-label">(3)</span>（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.82・到着できない
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 4)">
+                    <span class="option-label">(4)</span>（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.80・到着できる
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 4)">
+                    <span class="option-label">(5)</span>（ア）432kt　（イ）472kt　（ウ）295kt　（エ）0.50・到着できる
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>問1が CAS → TAS → GS の順方向の計算だったのに対し、本問は到着予定時刻から GS → TAS → CAS と規則を逆向きにたどる逆算問題である。</p>
+                    <br>
+                    <p><strong>【（ア）必要な対地速度GS】</strong></p>
+                    <p>規則4を変形すると GS ＝ 距離 ÷ 所要時間 × 60。432海里を60分で飛ぶには GS ＝ 432 ÷ 60 × 60 ＝ <strong>432kt</strong> 以上が必要。</p>
+                    <br>
+                    <p><strong>【（イ）必要なTAS】</strong></p>
+                    <p>向かい風40ktでは規則2より GS ＝ TAS − 40。GS432ktを得るには TAS ＝ 432 ＋ 40 ＝ <strong>472kt</strong>。向かい風の分だけ余計に速く飛ぶ必要があるので、TASはGSより大きくなる。</p>
+                    <br>
+                    <p><strong>【（ウ）必要なCAS】</strong></p>
+                    <p>気圧高度30,000ftの係数は 1 ＋ 0.02 × 30 ＝ 1.6。規則1を変形して CAS ＝ TAS ÷ 1.6 ＝ 472 ÷ 1.6 ＝ <strong>295kt</strong>。</p>
+                    <br>
+                    <p><strong>【（エ）マッハ数と判定】</strong></p>
+                    <p>外気温−45℃の音速は【資料2】より590kt。マッハ数 ＝ 472 ÷ 590 ＝ <strong>0.80</strong>。制限は「マッハ0.80を超えてはならない」であり、ちょうど0.80は制限の範囲内だから、予定どおり<strong>到着できる</strong>。必要な速度が制限マッハ数ちょうどとなる境界の判定が本問の核心である。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 風成分の符号を誤り、TAS ＝ 432 − 40 ＝ 392ktとした誤り（CAS245kt・マッハ0.66まで連動。向かい風なのに必要なTASがGSより小さくなるのは不合理） → 不正解</p>
+                    <p>・(2) 規則1の換算を忘れ、CASをTASと同じ472ktとした誤り → 不正解</p>
+                    <p>・(3) 音速表の行を誤り、−55℃の575ktで計算した誤り（472 ÷ 575 ≒ 0.82となり、制限超過で「到着できない」と誤判定） → 不正解</p>
+                    <p>・(4) すべて計算結果・判定と一致 → 正解</p>
+                    <p>・(5) マッハ数の計算にTASでなくCASを代入した誤り（295 ÷ 590 ＝ 0.50） → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考263/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
