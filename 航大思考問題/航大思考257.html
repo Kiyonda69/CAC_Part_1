@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                次の【資料】は、空港の滑走路に関して公示される4つの距離（公示距離）の定義をまとめたものであり、【図1】はA空港の滑走路（RWY18/36）の配置の模式図である。資料の定義に従って下の公示距離表の空欄（ア）〜（エ）に当てはまる数値を求め、その組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container" style="text-align: left; font-size: 14px; line-height: 1.7;">
+                <div class="figure-title" style="text-align: center;">【資料】滑走路の公示距離（抜粋）</div>
+                ・滑走路末端の先には、<strong>ストップウェイ（SWY）</strong>＝離陸を中止して停止する場合にのみ使用できる区域や、<strong>クリアウェイ（CWY）</strong>＝離陸直後の上昇にのみ使用できる障害物のない区間が設けられることがある。SWYおよびCWYは、その末端に<strong>向かって</strong>離陸する方向の運航でのみ使用できる。<br>
+                ・着陸の接地開始点を示す<strong>しきい値</strong>が滑走路の始端から内側へ移設されている場合、移設された部分は<strong>着陸には使用できない</strong>（離陸には使用できる）。<br>
+                ・公示距離の定義は次のとおりである。<br>
+                　<strong>TORA</strong>（離陸滑走可能距離）＝ 滑走路の長さ<br>
+                　<strong>TODA</strong>（離陸可能距離）＝ TORA ＋ 離陸方向の前方にあるCWYの長さ<br>
+                　<strong>ASDA</strong>（加速停止可能距離）＝ TORA ＋ 離陸方向の前方にあるSWYの長さ<br>
+                　<strong>LDA</strong>（着陸可能距離）＝ 滑走路の長さ − 着陸方向のしきい値移設距離
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">【図1】A空港 滑走路配置の模式図（縮尺は正確ではない）</div>
+                <div class="figure-content">
+                    <!--
+                    図表仕様:
+                    - SVGサイズ: 620x250px / viewBox: 0 0 620 250 / 余白: 20px
+                    座標系定義:
+                    - 滑走路本体: x=120〜500, y=100〜140（左＝北側末端, 右＝南側末端）
+                    - 左端SWY: x=90〜120, 左側CWY(点線): x=50〜120
+                    - 右端SWY: x=500〜535, 右側CWY(点線): x=500〜580
+                    - 移設しきい値: x=150 の縦太線（左端から200m）
+                    -->
+                    <svg width="620" height="250" viewBox="0 0 620 250">
+                        <text x="255" y="58" class="svg-text" font-size="13">RWY18の離陸・着陸方向</text>
+                        <line x1="200" y1="70" x2="420" y2="70" stroke="black" stroke-width="1.5"/>
+                        <polygon points="420,70 410,66 410,74" fill="black"/>
+                        <rect x="50" y="92" width="70" height="56" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <text x="85" y="86" class="svg-text" font-size="12" text-anchor="middle">CWY 150m</text>
+                        <rect x="90" y="100" width="30" height="40" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                        <text x="88" y="166" class="svg-text" font-size="12" text-anchor="middle">SWY 60m</text>
+                        <rect x="120" y="100" width="380" height="40" fill="#cccccc" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="100" x2="150" y2="140" stroke="black" stroke-width="3"/>
+                        <line x1="128" y1="110" x2="136" y2="120" stroke="black" stroke-width="1.5"/>
+                        <line x1="128" y1="130" x2="136" y2="120" stroke="black" stroke-width="1.5"/>
+                        <line x1="138" y1="110" x2="146" y2="120" stroke="black" stroke-width="1.5"/>
+                        <line x1="138" y1="130" x2="146" y2="120" stroke="black" stroke-width="1.5"/>
+                        <text x="158" y="93" class="svg-text" font-size="12">しきい値移設 200m</text>
+                        <text x="175" y="127" class="svg-text" font-size="16" font-weight="bold" text-anchor="middle">18</text>
+                        <text x="455" y="127" class="svg-text" font-size="16" font-weight="bold" text-anchor="middle">36</text>
+                        <rect x="500" y="100" width="35" height="40" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                        <text x="522" y="166" class="svg-text" font-size="12" text-anchor="middle">SWY 100m</text>
+                        <rect x="500" y="92" width="80" height="56" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <text x="545" y="86" class="svg-text" font-size="12" text-anchor="middle">CWY 300m</text>
+                        <line x1="120" y1="186" x2="500" y2="186" stroke="black" stroke-width="1"/>
+                        <polygon points="120,186 130,182 130,190" fill="black"/>
+                        <polygon points="500,186 490,182 490,190" fill="black"/>
+                        <text x="310" y="203" class="svg-text" font-size="13" text-anchor="middle">滑走路長 2,500 m</text>
+                        <text x="255" y="216" class="svg-text" font-size="13">RWY36の離陸・着陸方向</text>
+                        <line x1="420" y1="226" x2="200" y2="226" stroke="black" stroke-width="1.5"/>
+                        <polygon points="200,226 210,222 210,230" fill="black"/>
+                        <text x="105" y="247" class="svg-text" font-size="13" text-anchor="middle">北側末端（RWY18進入端）</text>
+                        <text x="515" y="247" class="svg-text" font-size="13" text-anchor="middle">南側末端（RWY36進入端）</text>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">A空港の公示距離表（単位: m）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr><th>運用方向</th><th>TORA</th><th>TODA</th><th>ASDA</th><th>LDA</th></tr>
+                    <tr><td>RWY18</td><td>2,500</td><td>（ア）</td><td>（イ）</td><td>（ウ）</td></tr>
+                    <tr><td>RWY36</td><td>2,500</td><td>（エ）</td><td>2,560</td><td>2,500</td></tr>
+                </table>
+                <div style="font-size: 13px; margin-top: 10px; text-align: left;">※ RWY18方向＝図の左から右へ、RWY36方向＝図の右から左へ運航する。</div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 1)">
+                    <span class="option-label">(1)</span>（ア）2,800　（イ）2,600　（ウ）2,300　（エ）2,650
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 1)">
+                    <span class="option-label">(2)</span>（ア）2,600　（イ）2,800　（ウ）2,300　（エ）2,560
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 1)">
+                    <span class="option-label">(3)</span>（ア）2,800　（イ）2,600　（ウ）2,500　（エ）2,650
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 1)">
+                    <span class="option-label">(4)</span>（ア）2,900　（イ）2,600　（ウ）2,300　（エ）2,710
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 1)">
+                    <span class="option-label">(5)</span>（ア）2,800　（イ）2,560　（ウ）2,300　（エ）2,650
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>資料の定義を、運用方向ごとに「どちらの末端のSWY・CWYを使うか」「どちらのしきい値移設を引くか」に注意して適用する。</p>
+                    <br>
+                    <p><strong>【方向と設備の対応づけ】</strong></p>
+                    <p>・RWY18方向の運航は、図の左（北側末端）から右（南側末端）へ進む。したがって離陸時に前方となるのは<strong>南側末端の先</strong>のSWY 100m・CWY 300mである。</p>
+                    <p>・RWY18方向の着陸はRWY18進入端（北側）から接地するため、<strong>北側のしきい値移設 200m</strong> がLDAから差し引かれる。</p>
+                    <p>・RWY36方向はその逆で、離陸時の前方は<strong>北側末端の先</strong>のSWY 60m・CWY 150m、着陸はRWY36進入端（南側、移設なし）を使用する。</p>
+                    <br>
+                    <p><strong>【計算】</strong></p>
+                    <p>RWY18方向:</p>
+                    <p>・（ア）TODA ＝ TORA ＋ 前方CWY ＝ 2,500 ＋ 300 ＝ <strong>2,800 m</strong></p>
+                    <p>・（イ）ASDA ＝ TORA ＋ 前方SWY ＝ 2,500 ＋ 100 ＝ <strong>2,600 m</strong></p>
+                    <p>・（ウ）LDA ＝ 滑走路長 − しきい値移設 ＝ 2,500 − 200 ＝ <strong>2,300 m</strong></p>
+                    <p>RWY36方向:</p>
+                    <p>・（エ）TODA ＝ 2,500 ＋ 150 ＝ <strong>2,650 m</strong></p>
+                    <p>（検算: RWY36のASDA ＝ 2,500 ＋ 60 ＝ 2,560 m、LDA ＝ 2,500 − 0 ＝ 2,500 m で、表の既知の値と一致する。）</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(2) （ア）と（イ）が入れ替わっている（TODAとASDAの定義の取り違え）。</p>
+                    <p>・(3) （ウ）が2,500で、しきい値移設200mを引き忘れている。</p>
+                    <p>・(4) （ア）（エ）にSWYまで加算しており、TODAの定義に反する。</p>
+                    <p>・(5) （イ）が2,560で、反対側（北側）のSWY 60mを使っている。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ【資料】の定義を用いる。B空港の滑走路（RWY09/27、滑走路長 2,400 m）については、公示距離のみが下表のとおり公表されている。RWY09方向の運航は西側末端から東側末端へ、RWY27方向の運航はその逆に進む。<br>
+                このとき、公示距離から逆算して、（ア）東側末端の先にあるCWYの長さ、（イ）西側末端の先にあるSWYの長さ、（ウ）東側（RWY27進入端）のしきい値移設距離を求めよ。さらに、下の所要距離をもつ航空機XがB空港で運航できる方向について、（エ）に当てはまる正しい記述を判断せよ。（ア）〜（エ）の組合せとして正しいものを、下の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">B空港の公示距離表（単位: m）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr><th>運用方向</th><th>TORA</th><th>TODA</th><th>ASDA</th><th>LDA</th></tr>
+                    <tr><td>RWY09（西→東）</td><td>2,400</td><td>2,760</td><td>2,520</td><td>2,400</td></tr>
+                    <tr><td>RWY27（東→西）</td><td>2,400</td><td>2,580</td><td>2,460</td><td>2,100</td></tr>
+                </table>
+            </div>
+
+            <div class="figure-container">
+                <div class="figure-title">航空機Xの所要距離（この値以上の公示距離が必要）</div>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr><th>所要離陸距離<br>（TODAと比較）</th><th>所要加速停止距離<br>（ASDAと比較）</th><th>所要着陸距離<br>（LDAと比較）</th></tr>
+                    <tr><td>2,700 m</td><td>2,500 m</td><td>2,050 m</td></tr>
+                </table>
+                <div style="font-size: 13px; margin-top: 10px; text-align: left;">※ 離陸には所要離陸距離と所要加速停止距離の<strong>両方</strong>の条件を満たす必要がある。<br>※ TORAの条件は考えなくてよい。</div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)" style="font-size: 14px;">
+                    <span class="option-label">(1)</span>（ア）360 m　（イ）60 m　（ウ）300 m　（エ）離陸・着陸とも両方向可
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)" style="font-size: 14px;">
+                    <span class="option-label">(2)</span>（ア）360 m　（イ）60 m　（ウ）300 m　（エ）離陸はRWY09のみ可、着陸は両方向可
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)" style="font-size: 14px;">
+                    <span class="option-label">(3)</span>（ア）360 m　（イ）120 m　（ウ）300 m　（エ）離陸はRWY09のみ可、着陸は両方向可
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)" style="font-size: 14px;">
+                    <span class="option-label">(4)</span>（ア）180 m　（イ）60 m　（ウ）300 m　（エ）離陸はRWY09のみ可、着陸はRWY27のみ可
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)" style="font-size: 14px;">
+                    <span class="option-label">(5)</span>（ア）360 m　（イ）60 m　（ウ）150 m　（エ）離陸・着陸ともRWY09のみ可
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>問1とは逆に、公示距離から各設備の長さを逆算し、その上で運航可否を判定する2段階の問題である。</p>
+                    <br>
+                    <p><strong>【逆算】</strong></p>
+                    <p>RWY09方向（西→東）の離陸では、前方＝<strong>東側末端の先</strong>のCWY・SWYを使用する。</p>
+                    <p>・（ア）東側CWY ＝ RWY09のTODA − TORA ＝ 2,760 − 2,400 ＝ <strong>360 m</strong></p>
+                    <p>・東側SWY ＝ RWY09のASDA − TORA ＝ 2,520 − 2,400 ＝ 120 m</p>
+                    <p>RWY27方向（東→西）の離陸では、前方＝<strong>西側末端の先</strong>を使用する。</p>
+                    <p>・西側CWY ＝ 2,580 − 2,400 ＝ 180 m</p>
+                    <p>・（イ）西側SWY ＝ RWY27のASDA − TORA ＝ 2,460 − 2,400 ＝ <strong>60 m</strong></p>
+                    <p>しきい値移設は着陸方向のLDAに現れる。RWY27方向の着陸はRWY27進入端（東側）から接地するので、</p>
+                    <p>・（ウ）東側の移設距離 ＝ 2,400 − RWY27のLDA ＝ 2,400 − 2,100 ＝ <strong>300 m</strong></p>
+                    <p>（RWY09のLDA＝2,400なので西側の移設は0mである。）</p>
+                    <br>
+                    <p><strong>【運航可否の判定】</strong></p>
+                    <p>離陸: TODA≧2,700 かつ ASDA≧2,500 が必要。</p>
+                    <p>・RWY09: TODA 2,760≧2,700、ASDA 2,520≧2,500 → <strong>離陸可</strong></p>
+                    <p>・RWY27: TODA 2,580＜2,700（ASDA 2,460＜2,500も不足） → <strong>離陸不可</strong></p>
+                    <p>着陸: LDA≧2,050 が必要。</p>
+                    <p>・RWY09: LDA 2,400≧2,050 → 着陸可　・RWY27: LDA 2,100≧2,050 → 着陸可</p>
+                    <p>よって（エ）は「<strong>離陸はRWY09のみ可、着陸は両方向可</strong>」となる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) （エ）が誤り。RWY27はTODA不足で離陸できない。</p>
+                    <p>・(3) （イ）120は東側SWYの値であり、西側SWYではない。</p>
+                    <p>・(4) （ア）180は西側CWYの値。（エ）も誤りで、着陸は両方向とも可能。</p>
+                    <p>・(5) （ウ）150が誤り（2,400−2,100＝300）。（エ）も誤りで、RWY27への着陸はLDA 2,100≧2,050で可能。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考257/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
