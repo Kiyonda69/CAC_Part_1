@@ -1,0 +1,890 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図１のア〜オは、いずれも同じ大きさの正方形のマスを5個つなげて作った5種類のピースである。このうち4種類のピースを1枚ずつ、回転させてもよいが裏返さずに、互いに重ならないように隙間なく並べたところ、図２のような縦4マス・横5マスの長方形をちょうど敷き詰めることができた。このとき、使わなかったピースとして正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図１】5種類のピース</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 570x110px / viewBox 0 0 570 110 / 余白 上下左右20px以上
+                        座標系: 各ピースは x=25+108i を左端とし y=30 から1マス22pxで描画
+                        -->
+                        <svg width="570" height="110" viewBox="0 0 570 110">
+                            <text x="58" y="18" class="svg-text" text-anchor="middle" font-size="16">ア</text>
+                            <rect x="25" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="69" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="25" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="47" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="69" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="25" y1="30" x2="47" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="30" x2="25" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="30" x2="47" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="30" x2="91" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="30" x2="69" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="91" y1="30" x2="91" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="74" x2="47" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="52" x2="25" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="52" x2="69" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="74" x2="69" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="74" x2="91" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="91" y1="52" x2="91" y2="74" stroke="black" stroke-width="3"/>
+                            <text x="166" y="18" class="svg-text" text-anchor="middle" font-size="16">イ</text>
+                            <rect x="133" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="177" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="133" y1="30" x2="155" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="133" y1="52" x2="155" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="133" y1="30" x2="133" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="30" x2="177" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="30" x2="199" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="52" x2="199" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="199" y1="30" x2="199" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="52" x2="155" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="52" x2="177" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="96" x2="177" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="74" x2="155" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="74" x2="177" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="263" y="18" class="svg-text" text-anchor="middle" font-size="16">ウ</text>
+                            <rect x="241" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="263" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="241" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="263" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="241" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="241" y1="30" x2="263" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="30" x2="241" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="30" x2="285" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="285" y1="30" x2="285" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="52" x2="241" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="74" x2="285" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="285" y1="52" x2="285" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="96" x2="263" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="74" x2="241" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="74" x2="263" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="382" y="18" class="svg-text" text-anchor="middle" font-size="16">エ</text>
+                            <rect x="349" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="349" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="371" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="371" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="393" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="349" y1="30" x2="371" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="30" x2="349" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="30" x2="371" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="74" x2="371" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="52" x2="349" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="52" x2="393" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="52" x2="393" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="96" x2="393" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="74" x2="371" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="74" x2="415" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="96" x2="415" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="415" y1="74" x2="415" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="490" y="18" class="svg-text" text-anchor="middle" font-size="16">オ</text>
+                            <rect x="457" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="457" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="457" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="479" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="501" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="457" y1="30" x2="479" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="30" x2="457" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="30" x2="479" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="52" x2="457" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="52" x2="479" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="96" x2="479" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="74" x2="457" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="74" x2="501" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="96" x2="501" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="501" y1="74" x2="523" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="501" y1="96" x2="523" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="523" y1="74" x2="523" y2="96" stroke="black" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図２】敷き詰める長方形（縦4マス・横5マス）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 190x160px / viewBox 0 0 190 160 / 余白 上下左右20px以上
+                        座標系: 原点(20,20)から1マス30px・5列4行
+                        -->
+                        <svg width="190" height="160" viewBox="0 0 190 160">
+                            <rect x="20" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) ア<br>
+                    (2) イ<br>
+                    (3) ウ<br>
+                    (4) エ<br>
+                    (5) オ<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br>
+                5個のマスからなるピース4枚で敷き詰めるので、マスの総数は 5×4＝20マスとなり、
+                縦4マス×横5マス＝20マスの長方形と一致する。したがって枚数の観点ではどの4枚を
+                選んでも矛盾はなく、実際に敷き詰められる組合せを探す必要がある。<br><br>
+
+                <strong>【敷き詰め例の発見】</strong><br>
+                イ・ウ・エ・オの4枚を使うと、下の解説図１のように長方形をちょうど敷き詰めることができる
+                （ピースは回転して使用している）。<br><br>
+
+                <div class="figure-container">
+                    <div class="figure-title">【解説図１】イ・ウ・エ・オによる敷き詰め例</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 190x160px / viewBox 0 0 190 160 / 余白 上下左右20px以上
+                        太線がピースの境界・各ピースに記号を表示
+                        -->
+                        <svg width="190" height="160" viewBox="0 0 190 160">
+                            <rect x="20" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="20" y1="20" x2="50" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="20" x2="20" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="20" x2="80" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="80" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="20" x2="110" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="50" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="20" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="50" x2="20" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="50" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="110" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="80" x2="20" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="80" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <text x="65" y="41" class="svg-text" text-anchor="middle" font-size="15">オ</text>
+                            <line x1="110" y1="20" x2="140" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="20" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="20" x2="170" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="50" x2="170" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="20" x2="170" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="50" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="50" x2="80" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="140" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="50" x2="140" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="110" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="80" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <text x="125" y="71" class="svg-text" text-anchor="middle" font-size="15">エ</text>
+                            <line x1="50" y1="50" x2="80" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="50" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="50" x2="80" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="80" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="80" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="110" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="140" x2="50" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="110" x2="20" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="140" x2="80" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="110" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="140" x2="110" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="110" x2="110" y2="140" stroke="black" stroke-width="3"/>
+                            <text x="65" y="101" class="svg-text" text-anchor="middle" font-size="15">イ</text>
+                            <line x1="140" y1="50" x2="170" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="50" x2="140" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="50" x2="170" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="140" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="80" x2="170" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="140" x2="140" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="110" x2="110" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="140" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="110" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <text x="155" y="101" class="svg-text" text-anchor="middle" font-size="15">ウ</text>
+                        </svg>
+                    </div>
+                </div><br>
+
+                <strong>【アが使えないことの確認】</strong><br>
+                ア（コの字形）には中央に1マスのくぼみがある。このくぼみは他のピースの
+                「1マスだけ突き出た部分」で埋めるしかないが、アを長方形の縁に沿って置いても
+                内部に置いても、くぼみを埋めた残りの領域が5マスずつのまとまりに分割できなくなる。
+                アを含む4枚の組合せ（ア＋イウエ、ア＋イウオ、ア＋イエオ、ア＋ウエオ）を
+                すべて調べても、4×5の長方形を敷き詰める並べ方は存在しない。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア → 敷き詰めに使えない唯一のピース → 正解<br>
+                ・(2) イ → 解説図１のとおり使用されている → 不正解<br>
+                ・(3) ウ → 解説図１のとおり使用されている → 不正解<br>
+                ・(4) エ → 解説図１のとおり使用されている → 不正解<br>
+                ・(5) オ → 解説図１のとおり使用されている → 不正解<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図３のア〜オは、問1と同じ5種類のピースである。この5種類のピースをすべて1枚ずつ、回転させてもよいが裏返さずに、互いに重ならないように隙間なく並べたところ、図４のような25マスの図形をちょうど敷き詰めることができた。このとき、★印のマスを覆っているピースとして正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図３】5種類のピース（問1と同じ）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 570x110px / viewBox 0 0 570 110 / 余白 上下左右20px以上
+                        座標系: 各ピースは x=25+108i を左端とし y=30 から1マス22pxで描画
+                        -->
+                        <svg width="570" height="110" viewBox="0 0 570 110">
+                            <text x="58" y="18" class="svg-text" text-anchor="middle" font-size="16">ア</text>
+                            <rect x="25" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="69" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="25" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="47" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="69" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="25" y1="30" x2="47" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="30" x2="25" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="30" x2="47" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="30" x2="91" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="30" x2="69" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="91" y1="30" x2="91" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="74" x2="47" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="25" y1="52" x2="25" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="52" x2="69" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="47" y1="74" x2="69" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="69" y1="74" x2="91" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="91" y1="52" x2="91" y2="74" stroke="black" stroke-width="3"/>
+                            <text x="166" y="18" class="svg-text" text-anchor="middle" font-size="16">イ</text>
+                            <rect x="133" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="177" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="155" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="133" y1="30" x2="155" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="133" y1="52" x2="155" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="133" y1="30" x2="133" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="30" x2="177" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="30" x2="199" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="52" x2="199" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="199" y1="30" x2="199" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="52" x2="155" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="52" x2="177" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="96" x2="177" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="155" y1="74" x2="155" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="177" y1="74" x2="177" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="263" y="18" class="svg-text" text-anchor="middle" font-size="16">ウ</text>
+                            <rect x="241" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="263" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="241" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="263" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="241" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="241" y1="30" x2="263" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="30" x2="241" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="30" x2="285" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="285" y1="30" x2="285" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="52" x2="241" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="74" x2="285" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="285" y1="52" x2="285" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="96" x2="263" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="241" y1="74" x2="241" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="263" y1="74" x2="263" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="382" y="18" class="svg-text" text-anchor="middle" font-size="16">エ</text>
+                            <rect x="349" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="349" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="371" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="371" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="393" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="349" y1="30" x2="371" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="30" x2="349" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="30" x2="371" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="74" x2="371" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="349" y1="52" x2="349" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="52" x2="393" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="52" x2="393" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="96" x2="393" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="371" y1="74" x2="371" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="74" x2="415" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="393" y1="96" x2="415" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="415" y1="74" x2="415" y2="96" stroke="black" stroke-width="3"/>
+                            <text x="490" y="18" class="svg-text" text-anchor="middle" font-size="16">オ</text>
+                            <rect x="457" y="30" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="457" y="52" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="457" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="479" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="501" y="74" width="22" height="22" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="457" y1="30" x2="479" y2="30" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="30" x2="457" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="30" x2="479" y2="52" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="52" x2="457" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="52" x2="479" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="96" x2="479" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="457" y1="74" x2="457" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="74" x2="501" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="479" y1="96" x2="501" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="501" y1="74" x2="523" y2="74" stroke="black" stroke-width="3"/>
+                            <line x1="501" y1="96" x2="523" y2="96" stroke="black" stroke-width="3"/>
+                            <line x1="523" y1="74" x2="523" y2="96" stroke="black" stroke-width="3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="figure-container">
+                    <div class="figure-title">【図４】敷き詰める図形（25マス）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 220x190px / viewBox 0 0 220 190 / 余白 上下左右20px以上
+                        座標系: 原点(20,20)から1マス30px・6列5行のうち25マス・★は3行目4列目
+                        -->
+                        <svg width="220" height="190" viewBox="0 0 220 190">
+                            <rect x="80" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <text x="125" y="101" class="svg-text" text-anchor="middle" font-size="17">★</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) ア<br>
+                    (2) イ<br>
+                    (3) ウ<br>
+                    (4) エ<br>
+                    (5) オ<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ（1/2） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                5枚すべてを使うので 5×5＝25マスとなり、図４のマス数と一致する。
+                形が不規則な部分（上に突き出た2マスの帯）から順に決めていくのがポイントである。<br><br>
+
+                <strong>【手順1: 上部の突出部を覆うピースを決める】</strong><br>
+                最上段の2マス（上から1行目）は左右が空白なので、ここからピースは
+                下方向にしかつながらない。この2マスを1枚のピースでまとめて覆う置き方を
+                試すと、いずれも2行目に埋められない欠けが生じて行き詰まる。
+                そこで左右を別々のピースで覆うと考えると、左のマスはエ（階段形）が
+                左下へ降りる形、右のマスはイ（T字形）の縦棒が3行目まで下へ伸びる形に限られる。<br><br>
+
+                <strong>【手順2: 残りの領域を埋める】</strong><br>
+                イの横腕は2行目の右端2マスへ伸びる。すると右端の縦3マスと下辺2マスの
+                L字にオがちょうど収まり、左下の2×2のかたまりを含む5マスにウが収まる。
+                最後に残る「くぼみを挟んだ5マス」にアがはまり、アのくぼみに
+                イの縦棒の先端（★のマス）が刺さる形になる。<br><br>
+
+                <div class="figure-container">
+                    <div class="figure-title">【解説図２】敷き詰め方（ただ1通り）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様: SVGサイズ 220x190px / viewBox 0 0 220 190 / 余白 上下左右20px以上
+                        太線がピースの境界・★は3行目4列目でイのピース内
+                        -->
+                        <svg width="220" height="190" viewBox="0 0 220 190">
+                            <rect x="80" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="20" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="50" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="80" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="110" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="20" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="50" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="80" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="110" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="140" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <rect x="170" y="140" width="30" height="30" fill="white" stroke="black" stroke-width="1"/>
+                            <line x1="80" y1="20" x2="110" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="20" x2="80" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="20" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="80" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="50" x2="50" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="80" x2="110" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="50" x2="110" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="80" x2="50" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="110" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="80" x2="20" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="110" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="80" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <text x="65" y="71" class="svg-text" text-anchor="middle" font-size="15">エ</text>
+                            <line x1="110" y1="20" x2="140" y2="20" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="20" x2="110" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="20" x2="140" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="50" x2="110" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="50" x2="170" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="80" x2="170" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="50" x2="200" y2="50" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="80" x2="200" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="200" y1="50" x2="200" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="110" x2="140" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="80" x2="140" y2="110" stroke="black" stroke-width="3"/>
+                            <text x="155" y="71" class="svg-text" text-anchor="middle" font-size="15">イ</text>
+                            <line x1="80" y1="80" x2="110" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="80" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="80" x2="110" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="80" x2="170" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="80" x2="140" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="80" x2="170" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="140" x2="110" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="110" x2="80" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="110" x2="140" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="140" x2="140" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="140" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="110" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <text x="125" y="131" class="svg-text" text-anchor="middle" font-size="15">ア</text>
+                            <line x1="170" y1="80" x2="200" y2="80" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="80" x2="170" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="200" y1="80" x2="200" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="110" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="200" y1="110" x2="200" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="140" x2="140" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="170" x2="140" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="140" x2="110" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="140" x2="170" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="140" y1="170" x2="170" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="170" y1="170" x2="200" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="200" y1="140" x2="200" y2="170" stroke="black" stroke-width="3"/>
+                            <text x="185" y="131" class="svg-text" text-anchor="middle" font-size="15">オ</text>
+                            <line x1="20" y1="110" x2="50" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="110" x2="20" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="110" x2="80" y2="110" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="110" x2="80" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="170" x2="50" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="20" y1="140" x2="20" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="50" y1="170" x2="80" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="140" x2="110" y2="140" stroke="black" stroke-width="3"/>
+                            <line x1="80" y1="170" x2="110" y2="170" stroke="black" stroke-width="3"/>
+                            <line x1="110" y1="140" x2="110" y2="170" stroke="black" stroke-width="3"/>
+                            <text x="65" y="161" class="svg-text" text-anchor="middle" font-size="15">ウ</text>
+                            <text x="125" y="101" class="svg-text" text-anchor="middle" font-size="17">★</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ（2/2） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2)) 解説のつづき</strong><br><br>
+
+                <strong>【手順3: ★のマスを確認する】</strong><br>
+                完成した敷き詰め方は解説図２のただ1通りであり、★のマス（上から3行目・左から4列目）を
+                覆っているのはイの縦棒部分である。★の左右のマスはアの両端であり、
+                アと取り違えないよう注意する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア → ★の両隣と下のマスを覆うが★自身は覆わない → 不正解<br>
+                ・(2) イ → 縦棒の先端が★のマスを覆う → 正解<br>
+                ・(3) ウ → 左下の領域を覆う → 不正解<br>
+                ・(4) エ → 左上の階段部分を覆う → 不正解<br>
+                ・(5) オ → 右端のL字部分を覆う → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
