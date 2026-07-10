@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図は、ある立方体の展開図であり、各面にはA〜Fの文字が書かれている。この展開図を組み立てて立方体を作ったとき、面Bと向かい合う面として正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 280x220px / viewBox: 0 0 280 220
+                - 余白: 上下左右20px
+                座標系定義:
+                - 1マス60px、左上マスの原点(20, 20)
+                - 展開図マス配置(列,行): A(0,0) B(1,0) C(1,1) D(2,1) E(3,1) F(3,2)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図】立方体の展開図</div>
+                    <div class="figure-content">
+                        <svg width="280" height="220" viewBox="0 0 280 220">
+                            <rect x="20" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="50" y="57" class="svg-text" text-anchor="middle" font-size="18">A</text>
+                            <rect x="80" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="57" class="svg-text" text-anchor="middle" font-size="18">B</text>
+                            <rect x="80" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="117" class="svg-text" text-anchor="middle" font-size="18">C</text>
+                            <rect x="140" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="117" class="svg-text" text-anchor="middle" font-size="18">D</text>
+                            <rect x="200" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="230" y="117" class="svg-text" text-anchor="middle" font-size="18">E</text>
+                            <rect x="200" y="140" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="230" y="177" class="svg-text" text-anchor="middle" font-size="18">F</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 面A<br>
+                    (2) 面C<br>
+                    (3) 面D<br>
+                    (4) 面E<br>
+                    (5) 面F
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                立方体の展開図では、次の性質を利用して向かい合う面（対面）を見つけることができる。<br><br>
+
+                <strong>【性質1】一直線に並んだ面</strong><br>
+                ・一直線に3つ並んだ面は、両端の2面が向かい合う。<br>
+                ・一直線に4つ並んだ面は、1つおきの2面どうし（1番目と3番目、2番目と4番目）が向かい合う。<br><br>
+
+                <strong>【性質2】面の回転移動</strong><br>
+                展開図の端にある面は、隣の面と共有する辺の端点（頂点）を中心に90°回転させて移動しても、組み立ててできる立方体は変わらない。<br><br>
+
+                <strong>【対面の確定】</strong><br>
+                ・C・D・Eは一直線に3つ並んでいる → <strong>CとEが対面</strong>。<br>
+                ・面Aを、面Bと共有する辺の下端の頂点を中心に90°回転させると、面Cの左隣に移動できる（下図の破線の位置）。すると、A・C・D・Eが一直線に4つ並ぶので、1つおきの面どうし、すなわち<strong>AとDが対面</strong>となる。<br>
+                ・残った<strong>BとFが対面</strong>である。<br><br>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 280x220px / viewBox: 0 0 280 220
+                - 変形後のマス配置(列,行): B(1,0) A(0,1) C(1,1) D(2,1) E(3,1) F(3,2)
+                - 破線 = 回転移動した面A
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【参考図】面Aを回転移動した後の展開図</div>
+                    <div class="figure-content">
+                        <svg width="280" height="220" viewBox="0 0 280 220">
+                            <rect x="80" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="57" class="svg-text" text-anchor="middle" font-size="18">B</text>
+                            <rect x="20" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <text x="50" y="117" class="svg-text" text-anchor="middle" font-size="18">A</text>
+                            <rect x="80" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="117" class="svg-text" text-anchor="middle" font-size="18">C</text>
+                            <rect x="140" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="117" class="svg-text" text-anchor="middle" font-size="18">D</text>
+                            <rect x="200" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="230" y="117" class="svg-text" text-anchor="middle" font-size="18">E</text>
+                            <rect x="200" y="140" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="230" y="177" class="svg-text" text-anchor="middle" font-size="18">F</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 面A → Bの左に接する面であり、対面ではなく隣り合う面。<br>
+                ・(2) 面C → Bの真下に接する面であり、隣り合う面。<br>
+                ・(3) 面D → 組み立てるとBと辺を共有する隣り合う面（Aと対面）。<br>
+                ・(4) 面E → 組み立てるとBと辺を共有する隣り合う面（Cと対面）。<br>
+                ・(5) 面F → 上の考察のとおりBの対面。 → 正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図は、ある立方体の展開図であり、各面にはア〜カの文字が書かれている。この展開図を組み立てて立方体を作ったとき、向かい合う面の組合せとして正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 280x220px / viewBox: 0 0 280 220
+                - 余白: 上下左右20px
+                座標系定義:
+                - 1マス60px、左上マスの原点(20, 20)
+                - 展開図マス配置(列,行): ア(0,0) イ(1,0) ウ(1,1) エ(2,1) オ(2,2) カ(3,2)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図】立方体の展開図</div>
+                    <div class="figure-content">
+                        <svg width="280" height="220" viewBox="0 0 280 220">
+                            <rect x="20" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="50" y="57" class="svg-text" text-anchor="middle" font-size="18">ア</text>
+                            <rect x="80" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="57" class="svg-text" text-anchor="middle" font-size="18">イ</text>
+                            <rect x="80" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="117" class="svg-text" text-anchor="middle" font-size="18">ウ</text>
+                            <rect x="140" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="117" class="svg-text" text-anchor="middle" font-size="18">エ</text>
+                            <rect x="140" y="140" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="177" class="svg-text" text-anchor="middle" font-size="18">オ</text>
+                            <rect x="200" y="140" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="230" y="177" class="svg-text" text-anchor="middle" font-size="18">カ</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) アとエ、イとオ、ウとカ<br>
+                    (2) アとウ、イとエ、オとカ<br>
+                    (3) アとエ、イとカ、ウとオ<br>
+                    (4) アとオ、イとエ、ウとカ<br>
+                    (5) アとカ、イとウ、エとオ
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                この展開図は階段状に折れ曲がっており、一直線に3つ並ぶ面がないため、そのままでは対面が見つけにくい。そこで、面の回転移動（展開図の端の面は、隣の面と共有する辺の端点を中心に90°回転させて移動しても、組み立ててできる立方体は変わらない）を使って、扱いやすい形に変形する。<br><br>
+
+                <strong>【展開図の変形】</strong><br>
+                ・面アを、面イと共有する辺の下端の頂点を中心に90°回転させ、面ウの左隣に移動する。<br>
+                ・面カを、面オと共有する辺の上端の頂点を中心に90°回転させ、面エの右隣に移動する。<br>
+                ・変形後は下図のようになり、ア・ウ・エ・カが一直線に4つ並ぶ（破線は移動した面）。<br><br>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 280x220px / viewBox: 0 0 280 220
+                - 変形後のマス配置(列,行): イ(1,0) ア(0,1) ウ(1,1) エ(2,1) カ(3,1) オ(2,2)
+                - 破線 = 回転移動した面ア・カ
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【参考図】面ア・面カを回転移動した後の展開図</div>
+                    <div class="figure-content">
+                        <svg width="280" height="220" viewBox="0 0 280 220">
+                            <rect x="80" y="20" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="57" class="svg-text" text-anchor="middle" font-size="18">イ</text>
+                            <rect x="20" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <text x="50" y="117" class="svg-text" text-anchor="middle" font-size="18">ア</text>
+                            <rect x="80" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="110" y="117" class="svg-text" text-anchor="middle" font-size="18">ウ</text>
+                            <rect x="140" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="117" class="svg-text" text-anchor="middle" font-size="18">エ</text>
+                            <rect x="200" y="80" width="60" height="60" fill="white" stroke="black" stroke-width="2" stroke-dasharray="6,4"/>
+                            <text x="230" y="117" class="svg-text" text-anchor="middle" font-size="18">カ</text>
+                            <rect x="140" y="140" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="170" y="177" class="svg-text" text-anchor="middle" font-size="18">オ</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <strong>【対面の確定】</strong><br>
+                ・ア・ウ・エ・カの一直線4面では、1つおきの面どうしが対面 → <strong>アとエ</strong>、<strong>ウとカ</strong>が対面。<br>
+                ・残った<strong>イとオ</strong>が対面。<br>
+                ・よって、対面の組合せは「アとエ、イとオ、ウとカ」である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) アとエ、イとオ、ウとカ → 上の考察と一致。 → 正解<br>
+                ・(2) アとウ、イとエ、オとカ → いずれも組み立てると辺を共有する隣り合う面どうしであり、誤り。<br>
+                ・(3) アとエ、イとカ、ウとオ → アとエは正しいが、イとカ・ウとオは隣り合う面どうしであり、誤り。<br>
+                ・(4) アとオ、イとエ、ウとカ → ウとカは正しいが、アとオ・イとエは隣り合う面どうしであり、誤り。<br>
+                ・(5) アとカ、イとウ、エとオ → いずれも隣り合う面どうしであり、誤り。<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
