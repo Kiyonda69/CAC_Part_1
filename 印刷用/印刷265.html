@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の【図1】のように、1辺の長さが2の正方形ABCDが、直線&#8467;の上を滑ることなく矢印の向きに回転しながら進み、正方形が再びもとの向き（頂点Aが左下にくる向き）になったところで止まる。このとき、頂点Aが描く軌跡として最も妥当なものを、下の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 360x175px / viewBox: 0 0 360 175
+                - 直線ℓ: y=130、正方形: (60,64)-(126,130) 一辺66px（1単位=33px）
+                - 頂点A=左下(60,130)に黒丸
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】</div>
+                    <div class="figure-content">
+<svg width="360" height="175" viewBox="0 0 360 175">
+    <line x1="20" y1="130" x2="340" y2="130" stroke="black" stroke-width="2"/>
+    <text x="330" y="152" class="svg-text">&#8467;</text>
+    <rect x="60" y="64" width="66" height="66" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="60" cy="130" r="4" fill="black"/>
+    <text x="47" y="150" class="svg-text">A</text>
+    <text x="122" y="150" class="svg-text">B</text>
+    <text x="131" y="60" class="svg-text">C</text>
+    <text x="46" y="60" class="svg-text">D</text>
+    <text x="82" y="52" class="svg-text" font-size="13">一辺 2</text>
+    <path d="M155,50 A45,45 0 0 1 215,72" fill="none" stroke="black" stroke-width="2"/>
+    <polygon points="215,72 204,64 209,78" fill="black"/>
+    <text x="230" y="60" class="svg-text" font-size="13">転がる向き</text>
+</svg>
+                    </div>
+                </div>
+
+                <!--
+                選択肢仕様:
+                - SVGサイズ: 600x480px / viewBox: 0 0 600 480
+                - 各選択肢: 幅264px（1単位=28px・基線y=125）の軌跡曲線を2-2-1配置
+                - 曲線はPython生成のポリライン（円弧を5°刻みで近似）
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+<svg width="600" height="480" viewBox="0 0 600 480">
+<g transform="translate(10, 0)">
+    <text x="8" y="20" class="svg-text">(1)</text>
+    <g transform="translate(0, 15)">
+        <line x1="10" y1="125" x2="254" y2="125" stroke="#888888" stroke-width="1"/>
+        <circle cx="20" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3" fill="black"/>
+        <path d="M20.0,125.0 L20.9,115.3 L23.4,105.8 L27.5,97.0 L33.1,89.0 L40.0,82.1 L48.0,76.5 L56.8,72.4 L66.3,69.9 L76.0,69.0 L85.7,69.9 L95.2,72.4 L104.0,76.5 L112.0,82.1 L118.9,89.0 L124.5,97.0 L128.6,105.8 L131.1,115.3 L132.0,125.0 L132.0,125.0 L132.9,115.3 L135.4,105.8 L139.5,97.0 L145.1,89.0 L152.0,82.1 L160.0,76.5 L168.8,72.4 L178.3,69.9 L188.0,69.0 L197.7,69.9 L207.2,72.4 L216.0,76.5 L224.0,82.1 L230.9,89.0 L236.5,97.0 L240.6,105.8 L243.1,115.3 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+    </g>
+</g>
+<g transform="translate(310, 0)">
+    <text x="8" y="20" class="svg-text">(2)</text>
+    <g transform="translate(0, 15)">
+        <line x1="10" y1="125" x2="254" y2="125" stroke="#888888" stroke-width="1"/>
+        <circle cx="20" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3" fill="black"/>
+        <path d="M20.0,125.0 L20.2,120.1 L20.9,115.3 L21.9,110.5 L23.4,105.8 L25.2,101.3 L27.5,97.0 L30.1,92.9 L33.1,89.0 L36.4,85.4 L40.0,82.1 L43.9,79.1 L48.0,76.5 L52.3,74.2 L56.8,72.4 L61.5,70.9 L66.3,69.9 L71.1,69.2 L76.0,69.0 L76,69 L188,69 L188.0,69.0 L192.9,69.2 L197.7,69.9 L202.5,70.9 L207.2,72.4 L211.7,74.2 L216.0,76.5 L220.1,79.1 L224.0,82.1 L227.6,85.4 L230.9,89.0 L233.9,92.9 L236.5,97.0 L238.8,101.3 L240.6,105.8 L242.1,110.5 L243.1,115.3 L243.8,120.1 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+    </g>
+</g>
+<g transform="translate(10, 160)">
+    <text x="8" y="20" class="svg-text">(3)</text>
+    <g transform="translate(0, 15)">
+        <line x1="10" y1="125" x2="254" y2="125" stroke="#888888" stroke-width="1"/>
+        <circle cx="20" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3" fill="black"/>
+        <path d="M20.0,125.0 L20.2,120.1 L20.9,115.3 L21.9,110.5 L23.4,105.8 L25.2,101.3 L27.5,97.0 L30.1,92.9 L33.1,89.0 L36.4,85.4 L40.0,82.1 L43.9,79.1 L48.0,76.5 L52.3,74.2 L56.8,72.4 L61.5,70.9 L66.3,69.9 L71.1,69.2 L76.0,69.0 L76.0,69.0 L81.1,64.3 L86.6,60.1 L92.4,56.4 L98.5,53.2 L104.9,50.6 L111.5,48.5 L118.2,47.0 L125.1,46.1 L132.0,45.8 L138.9,46.1 L145.8,47.0 L152.5,48.5 L159.1,50.6 L165.5,53.2 L171.6,56.4 L177.4,60.1 L182.9,64.3 L188.0,69.0 L188.0,69.0 L192.9,69.2 L197.7,69.9 L202.5,70.9 L207.2,72.4 L211.7,74.2 L216.0,76.5 L220.1,79.1 L224.0,82.1 L227.6,85.4 L230.9,89.0 L233.9,92.9 L236.5,97.0 L238.8,101.3 L240.6,105.8 L242.1,110.5 L243.1,115.3 L243.8,120.1 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+    </g>
+</g>
+<g transform="translate(310, 160)">
+    <text x="8" y="20" class="svg-text">(4)</text>
+    <g transform="translate(0, 15)">
+        <line x1="10" y1="125" x2="254" y2="125" stroke="#888888" stroke-width="1"/>
+        <circle cx="20" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3" fill="black"/>
+        <path d="M20.0,125.0 L21.7,105.6 L26.8,86.7 L35.0,69.0 L46.2,53.0 L60.0,39.2 L76.0,28.0 L93.7,19.8 L112.6,14.7 L132.0,13.0 L151.4,14.7 L170.3,19.8 L188.0,28.0 L204.0,39.2 L217.8,53.0 L229.0,69.0 L237.2,86.7 L242.3,105.6 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+    </g>
+</g>
+<g transform="translate(160, 320)">
+    <text x="8" y="20" class="svg-text">(5)</text>
+    <g transform="translate(0, 15)">
+        <line x1="10" y1="125" x2="254" y2="125" stroke="#888888" stroke-width="1"/>
+        <circle cx="20" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3" fill="black"/>
+        <path d="M20.0,125.0 L20.2,120.1 L20.9,115.3 L21.9,110.5 L23.4,105.8 L25.2,101.3 L27.5,97.0 L30.1,92.9 L33.1,89.0 L36.4,85.4 L40.0,82.1 L43.9,79.1 L48.0,76.5 L52.3,74.2 L56.8,72.4 L61.5,70.9 L66.3,69.9 L71.1,69.2 L76.0,69.0 L76.0,69.0 L80.6,74.5 L85.8,79.6 L91.4,84.0 L97.5,87.9 L104.0,91.1 L110.7,93.7 L117.7,95.5 L124.8,96.6 L132.0,97.0 L139.2,96.6 L146.3,95.5 L153.3,93.7 L160.0,91.1 L166.5,87.9 L172.6,84.0 L178.2,79.6 L183.4,74.5 L188.0,69.0 L188.0,69.0 L192.9,69.2 L197.7,69.9 L202.5,70.9 L207.2,72.4 L211.7,74.2 L216.0,76.5 L220.1,79.1 L224.0,82.1 L227.6,85.4 L230.9,89.0 L233.9,92.9 L236.5,97.0 L238.8,101.3 L240.6,105.8 L242.1,110.5 L243.1,115.3 L243.8,120.1 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+    </g>
+</g>
+</svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                多角形が直線の上を滑ることなく転がるとき、多角形の頂点は「そのとき接地して回転の中心となっている頂点」を中心とする円弧を順に描く。正方形の場合、1回の回転角はつねに90°なので、描かれる弧はすべて四分円（中心角90°）である。<br><br>
+
+                <strong>【頂点Aの動きの追跡】</strong><br>
+                ・1回目の回転: 中心は頂点B。半径はAB＝2（辺の長さ）<br>
+                ・2回目の回転: 中心は頂点C。半径はAC＝対角線＝2&#8730;2 ≈ 2.83<br>
+                ・3回目の回転: 中心は頂点D。半径はAD＝2（辺の長さ）<br>
+                ・4回目の回転: 回転の中心がA自身になるため、<strong>Aは動かず弧を描かない</strong><br><br>
+
+                したがって軌跡は「四分円が3つ」で、<strong>中央の弧だけが半径2&#8730;2と大きく、最も高くふくらむ</strong>。<br><br>
+
+                <div class="figure-container">
+                    <div class="figure-title">【解説図】頂点Aの軌跡（数値は各弧の半径）</div>
+                    <div class="figure-content">
+<svg width="300" height="175" viewBox="0 0 300 175">
+    <g transform="translate(15, 20)">
+        <line x1="0" y1="125" x2="264" y2="125" stroke="black" stroke-width="1.5"/>
+        <line x1="76" y1="125" x2="76" y2="69" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="132" y1="125" x2="76" y2="69" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="188" y1="125" x2="188" y2="69" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <path d="M20.0,125.0 L20.2,120.1 L20.9,115.3 L21.9,110.5 L23.4,105.8 L25.2,101.3 L27.5,97.0 L30.1,92.9 L33.1,89.0 L36.4,85.4 L40.0,82.1 L43.9,79.1 L48.0,76.5 L52.3,74.2 L56.8,72.4 L61.5,70.9 L66.3,69.9 L71.1,69.2 L76.0,69.0 L76.0,69.0 L81.1,64.3 L86.6,60.1 L92.4,56.4 L98.5,53.2 L104.9,50.6 L111.5,48.5 L118.2,47.0 L125.1,46.1 L132.0,45.8 L138.9,46.1 L145.8,47.0 L152.5,48.5 L159.1,50.6 L165.5,53.2 L171.6,56.4 L177.4,60.1 L182.9,64.3 L188.0,69.0 L188.0,69.0 L192.9,69.2 L197.7,69.9 L202.5,70.9 L207.2,72.4 L211.7,74.2 L216.0,76.5 L220.1,79.1 L224.0,82.1 L227.6,85.4 L230.9,89.0 L233.9,92.9 L236.5,97.0 L238.8,101.3 L240.6,105.8 L242.1,110.5 L243.1,115.3 L243.8,120.1 L244.0,125.0" fill="none" stroke="black" stroke-width="2"/>
+        <circle cx="20" cy="125" r="3.5" fill="black"/>
+        <circle cx="76" cy="125" r="3" fill="black"/>
+        <circle cx="132" cy="125" r="3" fill="black"/>
+        <circle cx="188" cy="125" r="3" fill="black"/>
+        <circle cx="244" cy="125" r="3.5" fill="black"/>
+        <text x="8" y="145" class="svg-text" font-size="12">A</text>
+        <text x="68" y="145" class="svg-text" font-size="12">中心1</text>
+        <text x="124" y="145" class="svg-text" font-size="12">中心2</text>
+        <text x="180" y="145" class="svg-text" font-size="12">中心3</text>
+        <text x="81" y="95" class="svg-text" font-size="12">2</text>
+        <text x="92" y="88" class="svg-text" font-size="12">2&#8730;2</text>
+        <text x="193" y="100" class="svg-text" font-size="12">2</text>
+    </g>
+</svg>
+                    </div>
+                </div>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 半円の山が2つ → 円が転がるとき（サイクロイド）との混同。正方形では弧は3つで中央だけ大きい → 不正解<br>
+                ・(2) 中央が水平な直線 → 2回目の回転でもAは中心Cから2&#8730;2の距離を保って弧を描くので、水平移動にはならない → 不正解<br>
+                ・(3) 四分円3つ・中央だけ半径が大きい → 上の追跡と一致 → <strong>正解</strong><br>
+                ・(4) 全体が1つの大きな半円 → 回転の中心が3回入れ替わることを無視している → 不正解<br>
+                ・(5) 中央がへこんだ形 → 中央の弧は半径2&#8730;2で両端の弧より高くなるはずで、へこむことはない → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の【図2】のように、縦の辺の長さが1、横の辺の長さが2の長方形PQRSが、直線&#8467;の上を滑ることなく矢印の向きに回転しながら進み、長方形が再びもとの向き（頂点Pが左下にくる向き）になったところで止まる。このとき、頂点Pが描く軌跡の長さとして正しいものを、下の(1)〜(5)のうちから1つ選べ。ただし、円周率をπとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 360x150px / viewBox: 0 0 360 150
+                - 直線ℓ: y=105、長方形: (60,49)-(172,105) 横112×縦56px（1単位=56px）
+                - 頂点P=左下(60,105)に黒丸
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】</div>
+                    <div class="figure-content">
+<svg width="360" height="150" viewBox="0 0 360 150">
+    <line x1="20" y1="105" x2="340" y2="105" stroke="black" stroke-width="2"/>
+    <text x="330" y="127" class="svg-text">&#8467;</text>
+    <rect x="60" y="49" width="112" height="56" fill="none" stroke="black" stroke-width="2"/>
+    <circle cx="60" cy="105" r="4" fill="black"/>
+    <text x="47" y="125" class="svg-text">P</text>
+    <text x="168" y="125" class="svg-text">Q</text>
+    <text x="177" y="45" class="svg-text">R</text>
+    <text x="46" y="45" class="svg-text">S</text>
+    <text x="110" y="42" class="svg-text" font-size="13">2</text>
+    <text x="42" y="82" class="svg-text" font-size="13">1</text>
+    <path d="M200,58 A45,45 0 0 1 260,80" fill="none" stroke="black" stroke-width="2"/>
+    <polygon points="260,80 249,72 254,86" fill="black"/>
+    <text x="272" y="66" class="svg-text" font-size="13">転がる向き</text>
+</svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア（数値選択肢） -->
+                <div class="options">
+                    (1)&nbsp;&nbsp;5π/2<br>
+                    (2)&nbsp;&nbsp;(2＋&#8730;5)π/2<br>
+                    (3)&nbsp;&nbsp;(4＋&#8730;5)π/2<br>
+                    (4)&nbsp;&nbsp;(3＋&#8730;5)π/2<br>
+                    (5)&nbsp;&nbsp;(3＋&#8730;5)π
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                長方形が直線の上を滑ることなく転がるときも、頂点Pは「接地して回転の中心となっている頂点」を中心とする円弧を順に描く。長方形の内角は90°なので、1回の回転角はつねに90°（四分円）である。弧の長さは「半径 × π/2」で求められる。<br><br>
+
+                <strong>【頂点Pの動きの追跡】</strong><br>
+                ・1回目の回転: 中心は頂点Q。半径はPQ＝2（横の辺） → 弧長 2・(π/2)＝π<br>
+                ・2回目の回転: 中心は頂点R。半径はPR＝対角線＝&#8730;(2²＋1²)＝&#8730;5 → 弧長 &#8730;5・(π/2)＝&#8730;5π/2<br>
+                ・3回目の回転: 中心は頂点S。半径はPS＝1（縦の辺） → 弧長 1・(π/2)＝π/2<br>
+                ・4回目の回転: 回転の中心がP自身になるため、Pは動かず長さは0<br><br>
+
+                よって軌跡の長さは<br>
+                　π ＋ &#8730;5π/2 ＋ π/2 ＝ (2＋&#8730;5＋1)π/2 ＝ <strong>(3＋&#8730;5)π/2</strong>（≈ 8.22）<br><br>
+
+                <div class="figure-container">
+                    <div class="figure-title">【解説図】頂点Pの軌跡（数値は各弧の半径）</div>
+                    <div class="figure-content">
+<svg width="300" height="165" viewBox="0 0 300 165">
+    <g transform="translate(15, 10)">
+        <line x1="0" y1="115" x2="266" y2="115" stroke="black" stroke-width="1.5"/>
+        <line x1="97" y1="115" x2="97" y2="43" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="133" y1="115" x2="97" y2="43" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <line x1="205" y1="115" x2="205" y2="79" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+        <path d="M25.0,115.0 L25.3,108.7 L26.1,102.5 L27.5,96.4 L29.3,90.4 L31.7,84.6 L34.6,79.0 L38.0,73.7 L41.8,68.7 L46.1,64.1 L50.7,59.8 L55.7,56.0 L61.0,52.6 L66.6,49.7 L72.4,47.3 L78.4,45.5 L84.5,44.1 L90.7,43.3 L97.0,43.0 L97.0,43.0 L103.4,40.1 L110.0,37.8 L116.9,36.1 L123.8,35.0 L130.8,34.5 L137.8,34.6 L144.8,35.4 L151.7,36.7 L158.5,38.6 L165.0,41.1 L171.3,44.2 L177.4,47.8 L183.0,51.9 L188.3,56.5 L193.2,61.6 L197.7,67.0 L201.6,72.9 L205.0,79.0 L205.0,79.0 L208.1,79.1 L211.3,79.5 L214.3,80.2 L217.3,81.2 L220.2,82.4 L223.0,83.8 L225.6,85.5 L228.1,87.4 L230.5,89.5 L232.6,91.9 L234.5,94.4 L236.2,97.0 L237.6,99.8 L238.8,102.7 L239.8,105.7 L240.5,108.7 L240.9,111.9 L241.0,115.0" fill="none" stroke="black" stroke-width="2"/>
+        <circle cx="25" cy="115" r="3.5" fill="black"/>
+        <circle cx="97" cy="115" r="3" fill="black"/>
+        <circle cx="133" cy="115" r="3" fill="black"/>
+        <circle cx="205" cy="115" r="3" fill="black"/>
+        <circle cx="241" cy="115" r="3.5" fill="black"/>
+        <text x="13" y="135" class="svg-text" font-size="12">P</text>
+        <text x="89" y="135" class="svg-text" font-size="12">Q</text>
+        <text x="127" y="135" class="svg-text" font-size="12">R</text>
+        <text x="197" y="135" class="svg-text" font-size="12">S</text>
+        <text x="84" y="85" class="svg-text" font-size="12">2</text>
+        <text x="110" y="72" class="svg-text" font-size="12">&#8730;5</text>
+        <text x="209" y="100" class="svg-text" font-size="12">1</text>
+    </g>
+</svg>
+                    </div>
+                </div>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 5π/2 ＝ (2＋2＋1)π/2 → 2回目の半径を対角線&#8730;5ではなく辺の2としてしまった誤り → 不正解<br>
+                ・(2) (2＋&#8730;5)π/2 → 3回目の半径1の弧を見落とした誤り → 不正解<br>
+                ・(3) (4＋&#8730;5)π/2 → 4回目にも半径1の弧を描くと誤って加えたもの（4回目はP自身が中心で動かない） → 不正解<br>
+                ・(4) (3＋&#8730;5)π/2 → 上の計算と一致 → <strong>正解</strong><br>
+                ・(5) (3＋&#8730;5)π → 各回転を180°（半円）として計算した誤り（実際は90°） → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
