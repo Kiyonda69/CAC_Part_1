@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                同じ大きさの立方体を、縦3マス×横3マスの範囲の床の上にすき間なく積み重ねて立体を作った。この立体を正面から見た図と、右側面から見た図は、下の【図1】のようになった。立方体は床のマス目に沿って置かれ、上の段の立方体は必ず下の段の立方体の真上に載っている。また、立方体が1個も置かれていないマスがあってもよい。このとき、この立体を作るのに必要な立方体の個数として、考えられる最も少ない個数はどれか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x230px / viewBox: 0 0 500 230
+            - 1マス=35px、床の線 y=190
+            - 正面図: 列x=100,135,170 高さ(左3,中1,右2)
+            - 右側面図: 列x=310,345,380 高さ(手前1,中3,奥2)※左が手前側
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】立体の見え方</div>
+                <div class="figure-content">
+                    <svg width="500" height="230" viewBox="0 0 500 230">
+                        <text x="152" y="50" class="svg-text" text-anchor="middle" font-weight="bold">正面から見た図</text>
+                        <g fill="white" stroke="black" stroke-width="2">
+                            <rect x="100" y="85" width="35" height="35"/>
+                            <rect x="100" y="120" width="35" height="35"/>
+                            <rect x="100" y="155" width="35" height="35"/>
+                            <rect x="135" y="155" width="35" height="35"/>
+                            <rect x="170" y="120" width="35" height="35"/>
+                            <rect x="170" y="155" width="35" height="35"/>
+                        </g>
+                        <line x1="90" y1="190" x2="215" y2="190" stroke="black" stroke-width="3"/>
+                        <text x="152" y="212" class="svg-text" text-anchor="middle" font-size="12">（床）</text>
+
+                        <text x="362" y="50" class="svg-text" text-anchor="middle" font-weight="bold">右側面から見た図</text>
+                        <g fill="white" stroke="black" stroke-width="2">
+                            <rect x="310" y="155" width="35" height="35"/>
+                            <rect x="345" y="85" width="35" height="35"/>
+                            <rect x="345" y="120" width="35" height="35"/>
+                            <rect x="345" y="155" width="35" height="35"/>
+                            <rect x="380" y="120" width="35" height="35"/>
+                            <rect x="380" y="155" width="35" height="35"/>
+                        </g>
+                        <line x1="300" y1="190" x2="425" y2="190" stroke="black" stroke-width="3"/>
+                        <text x="327" y="212" class="svg-text" text-anchor="middle" font-size="12">手前側</text>
+                        <text x="397" y="212" class="svg-text" text-anchor="middle" font-size="12">奥側</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 4)">
+                    <span class="option-label">(1)</span>3個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 4)">
+                    <span class="option-label">(2)</span>4個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 4)">
+                    <span class="option-label">(3)</span>5個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 4)">
+                    <span class="option-label">(4)</span>6個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 4)">
+                    <span class="option-label">(5)</span>7個
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (4)）</div>
+                <div class="explanation-content">
+                    <p>積み木の投影図問題では、床のマス目を上から見た3×3の表を考え、各マスに積む立方体の個数（高さ）を書き込んで考える。</p>
+                    <br>
+                    <p><strong>【条件の整理】</strong></p>
+                    <p>・正面から見た図より、左・中央・右の各列の最も高い積み方は、それぞれ3個・1個・2個。</p>
+                    <p>・右側面から見た図より、手前・中央・奥の各行の最も高い積み方は、それぞれ1個・3個・2個。</p>
+                    <p>・つまり、各列（左右方向）の最大の高さが 3・1・2、各行（奥行き方向）の最大の高さが 2・3・1（奥から順）になればよい。</p>
+                    <br>
+                    <p><strong>【最少個数の考え方】</strong></p>
+                    <p>・左の列には高さ3の積み方が少なくとも1マス必要で、その1マスだけで立方体3個を使う。同様に中央の列は1個、右の列は2個が最低限必要。列どうしは重ならないので、少なくとも 3＋1＋2＝6個は必要である。</p>
+                    <p>・6個で実現できるかを確かめる。高さの内訳は正面図（3・1・2）と側面図（2・3・1）でどちらも「3・2・1が1つずつ」なので、同じ高さどうしを交差するマスに割り当てればよい。</p>
+                    <br>
+                    <p><strong>【6個の配置例】</strong>（上から見た表・数字は積む個数、0は置かない）</p>
+                    <p>・高さ3 → 左の列×中央の行の交点に3個</p>
+                    <p>・高さ2 → 右の列×奥の行の交点に2個</p>
+                    <p>・高さ1 → 中央の列×手前の行の交点に1個</p>
+                    <p style="font-family: monospace; margin-left: 20px;">
+                        奥　　： 0　0　2<br>
+                        中央　： 3　0　0<br>
+                        手前　： 0　1　0<br>
+                        　　　　（左・中央・右）
+                    </p>
+                    <p>この配置は列の最大が左から 3・1・2、行の最大が奥から 2・3・1 となり、両方の見え方を満たす。使う立方体は 3＋2＋1＝6個。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 3個 → 最も高い列の3個だけでは、右の列（高さ2）や中央の列（高さ1）が作れない</p>
+                    <p>・(2) 4個 → 左の列の3個と中央の1個だけでは、右の列の高さ2が作れない</p>
+                    <p>・(3) 5個 → 各列に必要な最低数 3＋1＋2＝6個を下回るため不可能</p>
+                    <p>・(4) 6個 → 上記の配置例により実現可能で、これより少なくはできない（正解）</p>
+                    <p>・(5) 7個 → 実現可能だが最少ではない</p>
+                    <br>
+                    <p>したがって、正解は<strong>(4)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                同じ大きさの立方体を、縦3マス×横3マスの範囲の床の上にすき間なく積み重ねて立体を作った。真上から見ると、9つのマスすべてに立方体が見えた（どのマスにも少なくとも1個は積まれている）。この立体を正面から見た図と、右側面から見た図は、下の【図2】のようになった。立方体は床のマス目に沿って置かれ、上の段の立方体は必ず下の段の立方体の真上に載っている。このとき、この立体を作るのに使われた立方体の個数について、考えられる最も多い個数と最も少ない個数の差はいくらか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x250px / viewBox: 0 0 500 250
+            - 1マス=32px、床の線 y=200
+            - 正面図: 列x=100,132,164 高さ(左2,中4,右3)
+            - 右側面図: 列x=310,342,374 高さ(手前3,中2,奥4)※左が手前側
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】立体の見え方</div>
+                <div class="figure-content">
+                    <svg width="500" height="250" viewBox="0 0 500 250">
+                        <text x="148" y="40" class="svg-text" text-anchor="middle" font-weight="bold">正面から見た図</text>
+                        <g fill="white" stroke="black" stroke-width="2">
+                            <rect x="100" y="136" width="32" height="32"/>
+                            <rect x="100" y="168" width="32" height="32"/>
+                            <rect x="132" y="72" width="32" height="32"/>
+                            <rect x="132" y="104" width="32" height="32"/>
+                            <rect x="132" y="136" width="32" height="32"/>
+                            <rect x="132" y="168" width="32" height="32"/>
+                            <rect x="164" y="104" width="32" height="32"/>
+                            <rect x="164" y="136" width="32" height="32"/>
+                            <rect x="164" y="168" width="32" height="32"/>
+                        </g>
+                        <line x1="90" y1="200" x2="206" y2="200" stroke="black" stroke-width="3"/>
+                        <text x="148" y="222" class="svg-text" text-anchor="middle" font-size="12">（床）</text>
+
+                        <text x="358" y="40" class="svg-text" text-anchor="middle" font-weight="bold">右側面から見た図</text>
+                        <g fill="white" stroke="black" stroke-width="2">
+                            <rect x="310" y="104" width="32" height="32"/>
+                            <rect x="310" y="136" width="32" height="32"/>
+                            <rect x="310" y="168" width="32" height="32"/>
+                            <rect x="342" y="136" width="32" height="32"/>
+                            <rect x="342" y="168" width="32" height="32"/>
+                            <rect x="374" y="72" width="32" height="32"/>
+                            <rect x="374" y="104" width="32" height="32"/>
+                            <rect x="374" y="136" width="32" height="32"/>
+                            <rect x="374" y="168" width="32" height="32"/>
+                        </g>
+                        <line x1="300" y1="200" x2="416" y2="200" stroke="black" stroke-width="3"/>
+                        <text x="326" y="222" class="svg-text" text-anchor="middle" font-size="12">手前側</text>
+                        <text x="390" y="222" class="svg-text" text-anchor="middle" font-size="12">奥側</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢（テキスト形式） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 1)">
+                    <span class="option-label">(1)</span>8個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 1)">
+                    <span class="option-label">(2)</span>9個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 1)">
+                    <span class="option-label">(3)</span>10個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 1)">
+                    <span class="option-label">(4)</span>11個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 1)">
+                    <span class="option-label">(5)</span>12個
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (1)）</div>
+                <div class="explanation-content">
+                    <p>問1と同じく、上から見た3×3の表に各マスの高さを書き込んで考える。正面図より各列の最大の高さは左から 2・4・3、右側面図より各行の最大の高さは奥から 4・2・3。さらに真上から見て9マスすべてに立方体が見えるので、どのマスも高さ1以上である。</p>
+                    <br>
+                    <p><strong>【最も多い場合】</strong></p>
+                    <p>各マスの高さは、そのマスが属する列の最大値と行の最大値のどちらも超えられない。よって各マスの最大の高さは「列の値と行の値の小さい方」となる。</p>
+                    <p style="font-family: monospace; margin-left: 20px;">
+                        奥(4)　： 2　4　3 → 計9<br>
+                        中央(2)： 2　2　2 → 計6<br>
+                        手前(3)： 2　3　3 → 計8<br>
+                        　　　　　（左2・中央4・右3）
+                    </p>
+                    <p>この配置は各列の最大が 2・4・3、各行の最大が 4・2・3 となり、実際に両方の見え方を満たす。よって最多個数は 9＋6＋8＝<strong>23個</strong>。</p>
+                    <br>
+                    <p><strong>【最も少ない場合】</strong></p>
+                    <p>・9マスすべてに1個以上必要なので、まず9個は必ず使う。</p>
+                    <p>・高さの内訳は正面図（2・4・3）と側面図（4・2・3）でどちらも「4・3・2が1つずつ」なので、同じ高さどうしを交差するマスに割り当てられる。高さ4は中央の列×奥の行、高さ3は右の列×手前の行、高さ2は左の列×中央の行の交点に置き、残りの6マスは1個ずつでよい。</p>
+                    <p style="font-family: monospace; margin-left: 20px;">
+                        奥(4)　： 1　4　1<br>
+                        中央(2)： 2　1　1<br>
+                        手前(3)： 1　1　3<br>
+                        　　　　　（左2・中央4・右3）
+                    </p>
+                    <p>この配置も両方の見え方を満たし、合計は 4＋3＋2＋1×6＝<strong>15個</strong>。9マスの1個分に加えて、高さ4・3・2の柱に必要な上積み 3＋2＋1＝6個は必ずかかるため、これより少なくはできない。</p>
+                    <br>
+                    <p><strong>【差の計算】</strong></p>
+                    <p>最多 23個 − 最少 15個 ＝ <strong>8個</strong></p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 8個 → 23−15＝8（正解）</p>
+                    <p>・(2) 9個 → 最少を14個などと数え落とした場合の誤り</p>
+                    <p>・(3) 10個 → 最少で高さの共有を1か所しか使わなかった場合の誤り</p>
+                    <p>・(4) 11個 → 最少を12個（高さの合計だけ）とした場合の誤り</p>
+                    <p>・(5) 12個 → 最多・最少の両方を誤った場合の値</p>
+                    <br>
+                    <p>したがって、正解は<strong>(1)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考267/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
