@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図1のように、底面の円の半径が3cm、母線の長さが12cmの円錐がある。この円錐を、頂点Oの位置を床の上の1点に固定したまま、滑らないように床の上を転がしたところ、円錐は何回か自転しながらOのまわりを回り、はじめて最初の位置に戻った。最初の位置に戻るまでに、この円錐は何回自転したか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x270px / viewBox: 0 0 620 270 / 余白: 上下左右20px以上
+                座標系定義:
+                - 左パネル〔見取り図〕: 床の線 y=200・縮尺15px/cm。頂点O(70,200)、
+                  接地する母線(70,200)-(250,200)=180px(12cm)、上側の母線(70,200)-(227,113)
+                  （床との角度2θ≒29°、sinθ=3/12）、底面の楕円 中心(238,156) rx=12 ry=45 rotate(-14.5°)
+                - 右パネル〔真上から見た図〕: 中心O(480,140)・縮尺7px/cm。跡の円 半径84px(12cm)破線、
+                  円錐の投影はOから±14°方向の2本の線と円弧で表す
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】円錐の転がし方</div>
+                    <div class="figure-content">
+                        <svg width="620" height="270" viewBox="0 0 620 270">
+                            <defs>
+                                <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                    <path d="M0,0 L6,3 L0,6 Z" fill="black"/>
+                                </marker>
+                            </defs>
+                            <!-- 左パネル: 見取り図 -->
+                            <text x="170" y="30" class="svg-text" text-anchor="middle" font-weight="bold">〔見取り図〕</text>
+                            <line x1="30" y1="200" x2="315" y2="200" stroke="black" stroke-width="1.5"/>
+                            <text x="305" y="220" class="svg-text" text-anchor="end" font-size="12">床</text>
+                            <!-- 円錐（横倒し・母線が床に接する） -->
+                            <line x1="70" y1="200" x2="250" y2="200" stroke="black" stroke-width="2.5"/>
+                            <line x1="70" y1="200" x2="227" y2="113" stroke="black" stroke-width="2"/>
+                            <ellipse cx="238" cy="156" rx="12" ry="45" transform="rotate(-14.5 238 156)" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="238" y1="156" x2="250" y2="200" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                            <circle cx="70" cy="200" r="4" fill="black"/>
+                            <text x="58" y="222" class="svg-text">O</text>
+                            <text x="150" y="190" class="svg-text" font-size="13" text-anchor="middle">母線 12cm</text>
+                            <text x="256" y="184" class="svg-text" font-size="13">半径 3cm</text>
+                            <text x="170" y="248" class="svg-text" font-size="12" text-anchor="middle">頂点Oは床の上の1点に固定する</text>
+                            <!-- 右パネル: 真上から見た図 -->
+                            <text x="480" y="30" class="svg-text" text-anchor="middle" font-weight="bold">〔真上から見た図〕</text>
+                            <circle cx="480" cy="140" r="84" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <path d="M 480 140 L 561.5 119.7 A 84 84 0 0 1 561.5 160.3 Z" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                            <circle cx="480" cy="140" r="4" fill="black"/>
+                            <text x="464" y="134" class="svg-text">O</text>
+                            <path d="M 528 56.9 A 96 96 0 0 1 567 99.4" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+                            <text x="612" y="85" class="svg-text" font-size="12" text-anchor="end">転がる向き</text>
+                            <text x="480" y="252" class="svg-text" font-size="12" text-anchor="middle">底面の円が通る跡</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <div class="options">
+                    (1)　2回転<br>
+                    (2)　3回転<br>
+                    (3)　4回転<br>
+                    (4)　6回転<br>
+                    (5)　8回転
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                円錐を、頂点Oを固定したまま滑らないように床の上を転がす問題である。<br><br>
+
+                <strong>【転がった跡に着目する】</strong><br>
+                ・円錐が床に接するのは、頂点Oから底面の円周上の点までの線分（母線）である。<br>
+                ・したがって、底面の円周上の点（接地点）は、Oを中心とする<strong>半径が母線の長さ12cmに等しい円</strong>の上を動く。<br>
+                ・転がった跡の円周＝2π×12＝24π（cm）<br>
+                ・底面の円周＝2π×3＝6π（cm）<br><br>
+
+                <strong>【自転の回数を求める】</strong><br>
+                滑らないように転がるとき、円錐が1回自転するごとに、底面の円周1周分（6π cm）だけ跡が進む。<br>
+                よって、最初の位置に戻るまでの自転の回数は、<br>
+                　　24π ÷ 6π ＝ <strong>4回転</strong><br><br>
+
+                <strong>【別解（側面の展開図で確かめる）】</strong><br>
+                側面の展開図は半径12cmのおうぎ形で、その中心角は 360°×(3/12)＝90°。<br>
+                円錐が1回自転するたびに、床にはこのおうぎ形1枚分（90°）が写し取られるから、<br>
+                360°÷90°＝4回でちょうどOのまわりを1周する。これは上の結果と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2回転 → 母線12cmを底面の直径6cmで割った誤り。<br>
+                ・(2) 3回転 → 「1周まわる分を差し引いて4−1＝3」とする誤り。頂点を固定した円錐の転がりでは、跡の円周を底面の円周で割ればよい。<br>
+                ・(3) 4回転 → 24π÷6π＝4。正しい。<br>
+                ・(4) 6回転 → 母線の長さ12cmを2で割るなど、根拠のない計算による誤り。<br>
+                ・(5) 8回転 → 跡の円の直径24cmを底面の半径3cmで割った誤り。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある円錐を、頂点Oの位置を床の上の1点に固定したまま、滑らないように床の上を転がしたところ、円錐はちょうど3回自転して、はじめて最初の位置に戻った。この円錐の母線の長さが18cmであるとき、図2に示すア（底面の円の半径）、イ（側面の展開図の中心角）、ウ（円錐の高さ）の値の組合せとして正しいものはどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x245px / viewBox: 0 0 620 245 / 余白: 上下左右20px以上
+                座標系定義:
+                - 左パネル〔円錐〕: 頂点O(150,40)、底面の楕円 中心(150,185) rx=75 ry=18、
+                  母線(150,40)-(225,185)・(150,40)-(75,185)、高さ・半径は破線
+                - 右パネル〔側面の展開図〕: おうぎ形の中心C(460,55)・半径130px、
+                  2本の半径は角度30°・165°方向（描画上の開き135°は模式的なもの）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】円錐とその側面の展開図（模式図）</div>
+                    <div class="figure-content">
+                        <svg width="620" height="245" viewBox="0 0 620 245">
+                            <!-- 左パネル: 円錐 -->
+                            <text x="150" y="30" class="svg-text" text-anchor="middle">O</text>
+                            <line x1="150" y1="40" x2="75" y2="185" stroke="black" stroke-width="2"/>
+                            <line x1="150" y1="40" x2="225" y2="185" stroke="black" stroke-width="2"/>
+                            <ellipse cx="150" cy="185" rx="75" ry="18" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="150" y1="40" x2="150" y2="185" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                            <line x1="150" y1="185" x2="225" y2="185" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                            <circle cx="150" cy="185" r="2.5" fill="black"/>
+                            <text x="212" y="110" class="svg-text" font-size="13">母線 18cm</text>
+                            <text x="143" y="120" class="svg-text" font-size="13" text-anchor="end">高さ（ウ）</text>
+                            <text x="187" y="215" class="svg-text" font-size="13" text-anchor="middle">半径（ア）</text>
+                            <!-- 右パネル: 側面の展開図（おうぎ形） -->
+                            <text x="460" y="25" class="svg-text" text-anchor="middle" font-weight="bold">〔側面の展開図〕</text>
+                            <line x1="460" y1="55" x2="572.6" y2="120" stroke="black" stroke-width="2"/>
+                            <line x1="460" y1="55" x2="334.4" y2="88.6" stroke="black" stroke-width="2"/>
+                            <path d="M 572.6 120 A 130 130 0 0 1 334.4 88.6" fill="none" stroke="black" stroke-width="2"/>
+                            <path d="M 480.8 67 A 24 24 0 0 1 436.8 61.2" fill="none" stroke="black" stroke-width="1"/>
+                            <text x="455" y="100" class="svg-text" font-size="13" text-anchor="middle">（イ）</text>
+                            <text x="532" y="82" class="svg-text" font-size="13">18cm</text>
+                            <text x="310" y="238" class="svg-text" font-size="12" text-anchor="middle">※図は模式図であり、長さや角度の比は正確ではない。</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 選択肢エリア -->
+                <table class="option-table">
+                    <tr><th></th><th>ア（底面の半径）</th><th>イ（中心角）</th><th>ウ（高さ）</th></tr>
+                    <tr><td>(1)</td><td>9cm</td><td>180°</td><td>9√3 cm</td></tr>
+                    <tr><td>(2)</td><td>6cm</td><td>240°</td><td>12√2 cm</td></tr>
+                    <tr><td>(3)</td><td>9cm</td><td>120°</td><td>9√3 cm</td></tr>
+                    <tr><td>(4)</td><td>6cm</td><td>120°</td><td>12√3 cm</td></tr>
+                    <tr><td>(5)</td><td>6cm</td><td>120°</td><td>12√2 cm</td></tr>
+                </table>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                問1と同じ転がし方で、今度は自転の回数から円錐の形を逆に求める問題である。<br><br>
+
+                <strong>【ア：底面の円の半径】</strong><br>
+                頂点Oを固定して転がすと、接地点はOを中心とする半径18cm（母線）の円の上を動く。<br>
+                ちょうど3回自転して1周したから、<br>
+                　　（跡の円周）＝（底面の円周）×3　すなわち　2π×18＝3×2π×（ア）<br>
+                　　よって（ア）＝18÷3＝<strong>6cm</strong><br><br>
+
+                <strong>【イ：側面の展開図の中心角】</strong><br>
+                おうぎ形の弧の長さは底面の円周に等しいから、<br>
+                　　（イ）＝360°×（半径6cm）／（母線18cm）＝360°×(1/3)＝<strong>120°</strong><br>
+                （1回の自転で床を120°ずつ写し取り、3回でちょうど360°になることとも一致する。）<br><br>
+
+                <strong>【ウ：円錐の高さ】</strong><br>
+                母線・底面の半径・高さは直角三角形をなすから、三平方の定理より、<br>
+                　　（ウ）＝√(18²−6²)＝√(324−36)＝√288＝<strong>12√2 cm</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア9cm・イ180°・ウ9√3cm → 「2回自転」と誤読した場合の値。3回自転ならア＝6cm。<br>
+                ・(2) イ240° → 360°から120°を引いた残りの角を答える誤り。<br>
+                ・(3) ア9cm・ウ9√3cm → アを誤ると（18÷2＝9）、ウも連動して誤る。<br>
+                ・(4) ウ12√3cm → √288＝12√2を12√3と誤る根号の計算ミス。<br>
+                ・(5) ア6cm・イ120°・ウ12√2cm → すべて正しい。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
