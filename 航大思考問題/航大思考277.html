@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+
+            <!-- 問題ヘッダー: 問題番号と配点 -->
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <!-- 問題文 -->
+            <div class="question-text">
+                図1のように、底面の円の半径が3cm、母線の長さが12cmの円錐がある。この円錐を、頂点Oの位置を床の上の1点に固定したまま、滑らないように床の上を転がしたところ、円錐は何回か自転しながらOのまわりを回り、はじめて最初の位置に戻った。最初の位置に戻るまでに、この円錐は何回自転したか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x270px / viewBox: 0 0 620 270 / 余白: 上下左右20px以上
+            座標系定義:
+            - 左パネル〔見取り図〕: 床の線 y=200・縮尺15px/cm。頂点O(70,200)、
+              接地する母線(70,200)-(250,200)=180px(12cm)、上側の母線(70,200)-(227,113)
+              （床との角度2θ≒29°、sinθ=3/12）、底面の楕円 中心(238,156) rx=12 ry=45 rotate(-14.5°)
+            - 右パネル〔真上から見た図〕: 中心O(480,140)・縮尺7px/cm。跡の円 半径84px(12cm)破線、
+              円錐の投影はOから±14°方向の2本の線と円弧で表す
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】円錐の転がし方</div>
+                <div class="figure-content">
+                    <svg width="620" height="270" viewBox="0 0 620 270">
+                        <defs>
+                            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                                <path d="M0,0 L6,3 L0,6 Z" fill="black"/>
+                            </marker>
+                        </defs>
+                        <!-- 左パネル: 見取り図 -->
+                        <text x="170" y="30" class="svg-text" text-anchor="middle" font-weight="bold">〔見取り図〕</text>
+                        <line x1="30" y1="200" x2="315" y2="200" stroke="black" stroke-width="1.5"/>
+                        <text x="305" y="220" class="svg-text" text-anchor="end" font-size="12">床</text>
+                        <!-- 円錐（横倒し・母線が床に接する） -->
+                        <line x1="70" y1="200" x2="250" y2="200" stroke="black" stroke-width="2.5"/>
+                        <line x1="70" y1="200" x2="227" y2="113" stroke="black" stroke-width="2"/>
+                        <ellipse cx="238" cy="156" rx="12" ry="45" transform="rotate(-14.5 238 156)" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="238" y1="156" x2="250" y2="200" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="70" cy="200" r="4" fill="black"/>
+                        <text x="58" y="222" class="svg-text">O</text>
+                        <text x="150" y="190" class="svg-text" font-size="13" text-anchor="middle">母線 12cm</text>
+                        <text x="256" y="184" class="svg-text" font-size="13">半径 3cm</text>
+                        <text x="170" y="248" class="svg-text" font-size="12" text-anchor="middle">頂点Oは床の上の1点に固定する</text>
+                        <!-- 右パネル: 真上から見た図 -->
+                        <text x="480" y="30" class="svg-text" text-anchor="middle" font-weight="bold">〔真上から見た図〕</text>
+                        <circle cx="480" cy="140" r="84" fill="none" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                        <path d="M 480 140 L 561.5 119.7 A 84 84 0 0 1 561.5 160.3 Z" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                        <circle cx="480" cy="140" r="4" fill="black"/>
+                        <text x="464" y="134" class="svg-text">O</text>
+                        <path d="M 528 56.9 A 96 96 0 0 1 567 99.4" fill="none" stroke="black" stroke-width="1.5" marker-end="url(#arrow1)"/>
+                        <text x="612" y="85" class="svg-text" font-size="12" text-anchor="end">転がる向き</text>
+                        <text x="480" y="252" class="svg-text" font-size="12" text-anchor="middle">底面の円が通る跡</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 3)">
+                    <span class="option-label">(1)</span>2回転
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 3)">
+                    <span class="option-label">(2)</span>3回転
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 3)">
+                    <span class="option-label">(3)</span>4回転
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 3)">
+                    <span class="option-label">(4)</span>6回転
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 3)">
+                    <span class="option-label">(5)</span>8回転
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>円錐を、頂点Oを固定したまま滑らないように床の上を転がす問題である。</p>
+                    <br>
+                    <p><strong>【転がった跡に着目する】</strong></p>
+                    <p>・円錐が床に接するのは、頂点Oから底面の円周上の点までの線分（母線）である。</p>
+                    <p>・したがって、底面の円周上の点（接地点）は、Oを中心とする<strong>半径が母線の長さ12cmに等しい円</strong>の上を動く。</p>
+                    <p>・転がった跡の円周＝2π×12＝24π（cm）</p>
+                    <p>・底面の円周＝2π×3＝6π（cm）</p>
+                    <br>
+                    <p><strong>【自転の回数を求める】</strong></p>
+                    <p>滑らないように転がるとき、円錐が1回自転するごとに、底面の円周1周分（6π cm）だけ跡が進む。よって、最初の位置に戻るまでの自転の回数は、</p>
+                    <p>　　24π ÷ 6π ＝ <strong>4回転</strong></p>
+                    <br>
+                    <p><strong>【別解（側面の展開図で確かめる）】</strong></p>
+                    <p>側面の展開図は半径12cmのおうぎ形で、その中心角は 360°×(3/12)＝90°。円錐が1回自転するたびに、床にはこのおうぎ形1枚分（90°）が写し取られるから、360°÷90°＝4回でちょうどOのまわりを1周する。これは上の結果と一致する。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 2回転 → 母線12cmを底面の直径6cmで割った誤り。</p>
+                    <p>・(2) 3回転 → 「1周まわる分を差し引いて4−1＝3」とする誤り。頂点を固定した円錐の転がりでは、跡の円周を底面の円周で割ればよい。</p>
+                    <p>・(3) 4回転 → 24π÷6π＝4。正しい。</p>
+                    <p>・(4) 6回転 → 母線の長さ12cmを2で割るなど、根拠のない計算による誤り。</p>
+                    <p>・(5) 8回転 → 跡の円の直径24cmを底面の半径3cmで割った誤り。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <!-- ナビゲーションボタン -->
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある円錐を、頂点Oの位置を床の上の1点に固定したまま、滑らないように床の上を転がしたところ、円錐はちょうど3回自転して、はじめて最初の位置に戻った。この円錐の母線の長さが18cmであるとき、図2に示すア（底面の円の半径)、イ（側面の展開図の中心角）、ウ（円錐の高さ）の値の組合せとして正しいものはどれか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 620x245px / viewBox: 0 0 620 245 / 余白: 上下左右20px以上
+            座標系定義:
+            - 左パネル〔円錐〕: 頂点O(150,40)、底面の楕円 中心(150,185) rx=75 ry=18、
+              母線(150,40)-(225,185)・(150,40)-(75,185)、高さ・半径は破線
+            - 右パネル〔側面の展開図〕: おうぎ形の中心C(460,55)・半径130px、
+              2本の半径は角度30°・165°方向（描画上の開き135°は模式的なもの）
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】円錐とその側面の展開図（模式図）</div>
+                <div class="figure-content">
+                    <svg width="620" height="245" viewBox="0 0 620 245">
+                        <!-- 左パネル: 円錐 -->
+                        <text x="150" y="30" class="svg-text" text-anchor="middle">O</text>
+                        <line x1="150" y1="40" x2="75" y2="185" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="40" x2="225" y2="185" stroke="black" stroke-width="2"/>
+                        <ellipse cx="150" cy="185" rx="75" ry="18" fill="none" stroke="black" stroke-width="2"/>
+                        <line x1="150" y1="40" x2="150" y2="185" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                        <line x1="150" y1="185" x2="225" y2="185" stroke="black" stroke-width="1" stroke-dasharray="4,3"/>
+                        <circle cx="150" cy="185" r="2.5" fill="black"/>
+                        <text x="212" y="110" class="svg-text" font-size="13">母線 18cm</text>
+                        <text x="143" y="120" class="svg-text" font-size="13" text-anchor="end">高さ（ウ）</text>
+                        <text x="187" y="215" class="svg-text" font-size="13" text-anchor="middle">半径（ア）</text>
+                        <!-- 右パネル: 側面の展開図（おうぎ形） -->
+                        <text x="460" y="25" class="svg-text" text-anchor="middle" font-weight="bold">〔側面の展開図〕</text>
+                        <line x1="460" y1="55" x2="572.6" y2="120" stroke="black" stroke-width="2"/>
+                        <line x1="460" y1="55" x2="334.4" y2="88.6" stroke="black" stroke-width="2"/>
+                        <path d="M 572.6 120 A 130 130 0 0 1 334.4 88.6" fill="none" stroke="black" stroke-width="2"/>
+                        <path d="M 480.8 67 A 24 24 0 0 1 436.8 61.2" fill="none" stroke="black" stroke-width="1"/>
+                        <text x="455" y="100" class="svg-text" font-size="13" text-anchor="middle">（イ）</text>
+                        <text x="532" y="82" class="svg-text" font-size="13">18cm</text>
+                        <text x="310" y="238" class="svg-text" font-size="12" text-anchor="middle">※図は模式図であり、長さや角度の比は正確ではない。</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 選択肢エリア（テキスト選択肢） -->
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 5)">
+                    <span class="option-label">(1)</span>ア: 9cm　イ: 180°　ウ: 9√3 cm
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 5)">
+                    <span class="option-label">(2)</span>ア: 6cm　イ: 240°　ウ: 12√2 cm
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 5)">
+                    <span class="option-label">(3)</span>ア: 9cm　イ: 120°　ウ: 9√3 cm
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 5)">
+                    <span class="option-label">(4)</span>ア: 6cm　イ: 120°　ウ: 12√3 cm
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 5)">
+                    <span class="option-label">(5)</span>ア: 6cm　イ: 120°　ウ: 12√2 cm
+                </button>
+            </div>
+
+            <!-- 解説セクション -->
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p>問1と同じ転がし方で、今度は自転の回数から円錐の形を逆に求める問題である。</p>
+                    <br>
+                    <p><strong>【ア：底面の円の半径】</strong></p>
+                    <p>頂点Oを固定して転がすと、接地点はOを中心とする半径18cm（母線）の円の上を動く。ちょうど3回自転して1周したから、</p>
+                    <p>　　（跡の円周）＝（底面の円周）×3　すなわち　2π×18＝3×2π×（ア）</p>
+                    <p>　　よって（ア）＝18÷3＝<strong>6cm</strong></p>
+                    <br>
+                    <p><strong>【イ：側面の展開図の中心角】</strong></p>
+                    <p>おうぎ形の弧の長さは底面の円周に等しいから、</p>
+                    <p>　　（イ）＝360°×（半径6cm）／（母線18cm）＝360°×(1/3)＝<strong>120°</strong></p>
+                    <p>（1回の自転で床を120°ずつ写し取り、3回でちょうど360°になることとも一致する。）</p>
+                    <br>
+                    <p><strong>【ウ：円錐の高さ】</strong></p>
+                    <p>母線・底面の半径・高さは直角三角形をなすから、三平方の定理より、</p>
+                    <p>　　（ウ）＝√(18²−6²)＝√(324−36)＝√288＝<strong>12√2 cm</strong></p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) ア9cm・イ180°・ウ9√3cm → 「2回自転」と誤読した場合の値。3回自転ならア＝6cm。</p>
+                    <p>・(2) イ240° → 360°から120°を引いた残りの角を答える誤り。</p>
+                    <p>・(3) ア9cm・ウ9√3cm → アを誤ると（18÷2＝9）、ウも連動して誤る。</p>
+                    <p>・(4) ウ12√3cm → √288＝12√2を12√3と誤る根号の計算ミス。</p>
+                    <p>・(5) ア6cm・イ120°・ウ12√2cm → すべて正しい。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考277/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
