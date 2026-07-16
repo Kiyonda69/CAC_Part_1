@@ -1,0 +1,815 @@
+<!--
+================================================================================
+template_dynamic.html - 動的問題テンプレート（インタラクティブ版）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+インタラクティブに表示・解答できる形式のHTMLファイルです。
+ユーザーが選択肢をクリックすると、正解/不正解が表示され、
+解説が自動的に展開されます。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. selectAnswer() の引数で正解番号を設定
+4. recordAnswer() の問題名を適切に変更
+
+【注意事項】
+- 問題名は「YYYY_MM/航大思考N/問Q」の形式で指定すること
+- SVG図表は適切なサイズとviewBoxを設定すること
+- 選択肢の data-option 属性は1から順番に設定すること
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <main class="main-content">
+
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <div class="screen active" id="q1-question">
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                1辺の長さが6cmの立方体がある。図1のように、各辺を3等分する点のうち頂点に近い方の点（頂点から2cmの点）を通る平面で、8つの頂点をすべて切り落とす。切り口どうしは互いに交わらない。このときにできる立体の面の数、辺の数、頂点の数の組合せとして正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x260px / viewBox: 0 0 460 260
+            座標系定義:
+            - 立方体前面: (80,90)-(200,90)-(200,210)-(80,210) / 奥行き: (+50,-35)
+            - 頂点B(200,90)を3等分点(40px)で切断: P1(160,90), P2(200,130), P3(217,78)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】頂点の切り落とし方（1つの頂点の例）</div>
+                <div class="figure-content">
+                    <svg width="460" height="260" viewBox="0 0 460 260">
+                        <line x1="80" y1="210" x2="130" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="130" y1="175" x2="130" y2="55" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="130" y1="175" x2="250" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="80" y1="90" x2="160" y2="90" stroke="black" stroke-width="2"/>
+                        <line x1="200" y1="130" x2="200" y2="210" stroke="black" stroke-width="2"/>
+                        <line x1="200" y1="210" x2="80" y2="210" stroke="black" stroke-width="2"/>
+                        <line x1="80" y1="210" x2="80" y2="90" stroke="black" stroke-width="2"/>
+                        <line x1="80" y1="90" x2="130" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="217" y1="78" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="130" y1="55" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="250" y1="55" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                        <line x1="200" y1="210" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                        <line x1="160" y1="90" x2="200" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="200" y1="90" x2="200" y2="130" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="200" y1="90" x2="217" y2="78" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <polygon points="160,90 200,130 217,78" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                        <circle cx="160" cy="90" r="3.5" fill="black"/>
+                        <circle cx="200" cy="130" r="3.5" fill="black"/>
+                        <circle cx="217" cy="78" r="3.5" fill="black"/>
+                        <text x="178" y="84" class="svg-text" text-anchor="middle" font-size="12">2cm</text>
+                        <text x="140" y="230" class="svg-text" text-anchor="middle" font-size="13">6cm</text>
+                        <text x="300" y="105" class="svg-text" font-size="13">切り口</text>
+                        <line x1="297" y1="100" x2="215" y2="95" stroke="black" stroke-width="1"/>
+                        <text x="280" y="150" class="svg-text" font-size="12" fill="#555">灰色の破線部分を</text>
+                        <text x="280" y="168" class="svg-text" font-size="12" fill="#555">切り落とす</text>
+                    </svg>
+                    <p style="font-size: 13px; color: #555; margin-top: 8px;">※図は1つの頂点を切り落とした様子。実際には8つの頂点すべてを同じように切り落とす。</p>
+                </div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 2)">
+                    <span class="option-label">(1)</span>面 14・辺 36・頂点 16
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 2)">
+                    <span class="option-label">(2)</span>面 14・辺 36・頂点 24
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 2)">
+                    <span class="option-label">(3)</span>面 14・辺 24・頂点 12
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 2)">
+                    <span class="option-label">(4)</span>面 12・辺 36・頂点 24
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 2)">
+                    <span class="option-label">(5)</span>面 14・辺 30・頂点 20
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">問1（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p>頂点を1つ切り落とすたびに「面・辺・頂点がどう増減するか」を整理して数える。</p>
+                    <br>
+                    <p><strong>【面の数】</strong></p>
+                    <p>・もとの立方体の6つの正方形の面は、四隅が欠けて八角形になるが、面としては残る → 6面</p>
+                    <p>・切り口として、頂点1つにつき三角形の面が1つ現れる → 8面</p>
+                    <p>・よって 面 = 6 + 8 = <strong>14</strong></p>
+                    <br>
+                    <p><strong>【頂点の数】</strong></p>
+                    <p>・もとの8つの頂点はすべて切り取られて消え、代わりに切り口の三角形の頂点が1か所につき3個できる</p>
+                    <p>・よって 頂点 = 8 × 3 = <strong>24</strong></p>
+                    <br>
+                    <p><strong>【辺の数】</strong></p>
+                    <p>・もとの12本の辺は、両端が2cmずつ切られて中央の2cmだけ残る → 12本</p>
+                    <p>・切り口の三角形の辺が1か所につき3本できる → 8 × 3 = 24本</p>
+                    <p>・よって 辺 = 12 + 24 = <strong>36</strong></p>
+                    <br>
+                    <p><strong>【検算：オイラーの多面体定理】</strong></p>
+                    <p>（頂点）−（辺）＋（面）= 24 − 36 + 14 = 2 となり、定理が成り立つことからも確認できる。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 頂点16は「8個が2個ずつに増える」とした誤り → 不正解</p>
+                    <p>・(2) 面14・辺36・頂点24 → <strong>正解</strong></p>
+                    <p>・(3) 面14・辺24・頂点12は、切り口が辺の中点まで達する場合（問2）の値 → 不正解</p>
+                    <p>・(4) 面12はもとの面と切り口の合計を誤ったもの → 不正解</p>
+                    <p>・(5) 辺30・頂点20はもとの辺の一部が消えるとした誤り → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                問1と同じ1辺6cmの立方体を、今度は図2のように各辺の中点（頂点から3cmの点）を通る平面で、8つの頂点をすべて切り落とす。このときにできる立体の面の数、辺の数、頂点の数の組合せとして正しいものを、次の(1)〜(5)のうちから1つ選べ。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 460x260px / viewBox: 0 0 460 260
+            座標系定義:
+            - 立方体前面: (80,90)-(200,90)-(200,210)-(80,210) / 奥行き: (+50,-35)
+            - 頂点A(80,90)とB(200,90)を中点(60px)で切断:
+              共有点M(140,90) / A側: (80,150),(105,73) / B側: (200,150),(225,73)
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】頂点の切り落とし方（隣り合う2つの頂点の例）</div>
+                <div class="figure-content">
+                    <svg width="460" height="260" viewBox="0 0 460 260">
+                        <line x1="80" y1="210" x2="130" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="130" y1="175" x2="130" y2="55" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="130" y1="175" x2="250" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                        <line x1="200" y1="150" x2="200" y2="210" stroke="black" stroke-width="2"/>
+                        <line x1="200" y1="210" x2="80" y2="210" stroke="black" stroke-width="2"/>
+                        <line x1="80" y1="210" x2="80" y2="150" stroke="black" stroke-width="2"/>
+                        <line x1="105" y1="73" x2="130" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="225" y1="73" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="130" y1="55" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                        <line x1="250" y1="55" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                        <line x1="200" y1="210" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                        <line x1="80" y1="90" x2="140" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="80" y1="90" x2="80" y2="150" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="80" y1="90" x2="105" y2="73" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="140" y1="90" x2="200" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="200" y1="90" x2="200" y2="150" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <line x1="200" y1="90" x2="225" y2="73" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <polygon points="140,90 80,150 105,73" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                        <polygon points="140,90 200,150 225,73" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                        <circle cx="140" cy="90" r="4" fill="black"/>
+                        <text x="140" y="80" class="svg-text" text-anchor="middle" font-size="12">中点M</text>
+                        <text x="140" y="230" class="svg-text" text-anchor="middle" font-size="13">6cm</text>
+                        <text x="290" y="110" class="svg-text" font-size="12" fill="#555">隣り合う切り口は</text>
+                        <text x="290" y="128" class="svg-text" font-size="12" fill="#555">辺の中点で接する</text>
+                        <line x1="287" y1="105" x2="148" y2="92" stroke="#555" stroke-width="1"/>
+                    </svg>
+                    <p style="font-size: 13px; color: #555; margin-top: 8px;">※図は隣り合う2つの頂点を切り落とした様子。実際には8つの頂点すべてを同じように切り落とす。</p>
+                </div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 3)">
+                    <span class="option-label">(1)</span>面 14・辺 36・頂点 24
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 3)">
+                    <span class="option-label">(2)</span>面 14・辺 24・頂点 24
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 3)">
+                    <span class="option-label">(3)</span>面 14・辺 24・頂点 12
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 3)">
+                    <span class="option-label">(4)</span>面 12・辺 24・頂点 12
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 3)">
+                    <span class="option-label">(5)</span>面 14・辺 36・頂点 12
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">問2（正解: (3)）</div>
+                <div class="explanation-content">
+                    <p>問1と同じ要領で数えたくなるが、切り口が辺の<strong>中点</strong>まで達すると状況が変わることに注意する。</p>
+                    <br>
+                    <p><strong>【もとの辺が消える】</strong></p>
+                    <p>・問1では、もとの辺は両端が2cmずつ切られて中央部分が残った</p>
+                    <p>・今回は両端が3cmずつ切られるため、残る長さは 6 − 3 − 3 = 0cm</p>
+                    <p>・つまり、隣り合う切り口が辺の中点で接し、<strong>もとの12本の辺はすべて消える</strong></p>
+                    <br>
+                    <p><strong>【面の数】</strong></p>
+                    <p>・もとの6つの面は、各辺の中点4つを結んだ「45°傾いた正方形」として残る → 6面</p>
+                    <p>・切り口の三角形 → 8面</p>
+                    <p>・よって 面 = 6 + 8 = <strong>14</strong>（問1と同じ）</p>
+                    <br>
+                    <p><strong>【頂点の数】</strong></p>
+                    <p>・立体の頂点として残るのは各辺の中点だけである</p>
+                    <p>・立方体の辺は12本なので 頂点 = <strong>12</strong></p>
+                    <br>
+                    <p><strong>【辺の数】</strong></p>
+                    <p>・切り口の三角形の辺 8 × 3 = 24本がこの立体のすべての辺になる</p>
+                    <p>・（正方形の面の辺は、すべて隣の三角形と共有されるため二重に数えない）</p>
+                    <p>・よって 辺 = <strong>24</strong></p>
+                    <br>
+                    <p><strong>【検算：オイラーの多面体定理】</strong></p>
+                    <p>（頂点）−（辺）＋（面）= 12 − 24 + 14 = 2 で成り立つ。</p>
+                    <p>なお、この立体は正方形6面と正三角形8面からなる「立方八面体」と呼ばれる半正多面体である。</p>
+                    <br>
+                    <p><strong>【選択肢の検討】</strong></p>
+                    <p>・(1) 問1と同じ方法で「もとの辺12本と頂点24個が残る」とした誤り → 不正解</p>
+                    <p>・(2) 辺の消滅には気づいたが、頂点を8×3=24のままとした誤り → 不正解</p>
+                    <p>・(3) 面14・辺24・頂点12 → <strong>正解</strong></p>
+                    <p>・(4) 面12はもとの面と切り口の合計を誤ったもの → 不正解</p>
+                    <p>・(5) 辺36は消えた辺を数えたままの誤り → 不正解</p>
+                    <br>
+                    <p>したがって、正解は<strong>(3)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考282/問${questionNum}`,  // ← ファイルに応じて変更すること
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
