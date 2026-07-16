@@ -1,0 +1,545 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．1辺の長さが6cmの立方体がある。図1のように、各辺を3等分する点のうち頂点に近い方の点（頂点から2cmの点）を通る平面で、8つの頂点をすべて切り落とす。切り口どうしは互いに交わらない。このときにできる立体の面の数、辺の数、頂点の数の組合せとして正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x260px / viewBox: 0 0 460 260
+                座標系定義:
+                - 立方体前面: (80,90)-(200,90)-(200,210)-(80,210)
+                - 奥行きオフセット: (+50,-35)
+                - 頂点B(200,90)を3等分点(1/3=40px)で切断:
+                  P1(160,90), P2(200,130), P3(217,78)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】頂点の切り落とし方（1つの頂点の例）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="260" viewBox="0 0 460 260">
+                            <!-- 隠れた辺（破線） -->
+                            <line x1="80" y1="210" x2="130" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="130" y1="175" x2="130" y2="55" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="130" y1="175" x2="250" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <!-- 見える辺（頂点B付近は切除部を除く） -->
+                            <line x1="80" y1="90" x2="160" y2="90" stroke="black" stroke-width="2"/>
+                            <line x1="200" y1="130" x2="200" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="200" y1="210" x2="80" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="210" x2="80" y2="90" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="90" x2="130" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="217" y1="78" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="130" y1="55" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="55" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                            <line x1="200" y1="210" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                            <!-- 切り落とされる角（グレー） -->
+                            <line x1="160" y1="90" x2="200" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="200" y1="90" x2="200" y2="130" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="200" y1="90" x2="217" y2="78" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <!-- 切り口（正三角形） -->
+                            <polygon points="160,90 200,130 217,78" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                            <circle cx="160" cy="90" r="3.5" fill="black"/>
+                            <circle cx="200" cy="130" r="3.5" fill="black"/>
+                            <circle cx="217" cy="78" r="3.5" fill="black"/>
+                            <!-- 寸法ラベル -->
+                            <text x="178" y="84" class="svg-text" text-anchor="middle" font-size="12">2cm</text>
+                            <text x="140" y="230" class="svg-text" text-anchor="middle" font-size="13">6cm</text>
+                            <!-- 注記 -->
+                            <text x="300" y="105" class="svg-text" font-size="13">切り口</text>
+                            <line x1="297" y1="100" x2="215" y2="95" stroke="black" stroke-width="1"/>
+                            <text x="280" y="150" class="svg-text" font-size="12" fill="#555">灰色の破線部分を</text>
+                            <text x="280" y="168" class="svg-text" font-size="12" fill="#555">切り落とす</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※図は1つの頂点を切り落とした様子を示す。実際には8つの頂点すべてを同じように切り落とす。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　面 14・辺 36・頂点 16<br>
+                    (2)　面 14・辺 36・頂点 24<br>
+                    (3)　面 14・辺 24・頂点 12<br>
+                    (4)　面 12・辺 36・頂点 24<br>
+                    (5)　面 14・辺 30・頂点 20
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(2))</strong><br>
+                頂点を1つ切り落とすたびに「面・辺・頂点がどう増減するか」を整理して数える。<br><br>
+
+                <strong>【面の数】</strong><br>
+                ・もとの立方体の6つの正方形の面は、四隅が欠けて八角形になるが、面としては残る → 6面<br>
+                ・切り口として、頂点1つにつき三角形の面が1つ現れる → 8面<br>
+                ・よって 面 = 6 + 8 = <strong>14</strong><br><br>
+
+                <strong>【頂点の数】</strong><br>
+                ・もとの8つの頂点はすべて切り取られて消える<br>
+                ・代わりに、切り口の三角形の頂点が1か所につき3個できる<br>
+                ・よって 頂点 = 8 × 3 = <strong>24</strong><br><br>
+
+                <strong>【辺の数】</strong><br>
+                ・もとの12本の辺は、両端が2cmずつ切られて中央の2cmだけ残る → 12本<br>
+                ・切り口の三角形の辺が1か所につき3本できる → 8 × 3 = 24本<br>
+                ・よって 辺 = 12 + 24 = <strong>36</strong><br><br>
+
+                <strong>【検算：オイラーの多面体定理】</strong><br>
+                （頂点）−（辺）＋（面）= 24 − 36 + 14 = 2 となり、定理が成り立つことからも確認できる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 頂点16は「8個が2個ずつに増える」とした誤り → 不正解<br>
+                ・(2) 面14・辺36・頂点24 → <strong>正解</strong><br>
+                ・(3) 面14・辺24・頂点12は、切り口が辺の中点まで達する場合（問2）の値 → 不正解<br>
+                ・(4) 面12は切り口8面ともとの面6面の合計を誤ったもの → 不正解<br>
+                ・(5) 辺30・頂点20はもとの辺の一部が消えるとした誤り → 不正解<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ1辺6cmの立方体を、今度は図2のように各辺の中点（頂点から3cmの点）を通る平面で、8つの頂点をすべて切り落とす。このときにできる立体の面の数、辺の数、頂点の数の組合せとして正しいものを、次の(1)〜(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x260px / viewBox: 0 0 460 260
+                座標系定義:
+                - 立方体前面: (80,90)-(200,90)-(200,210)-(80,210)
+                - 奥行きオフセット: (+50,-35)
+                - 頂点A(80,90)とB(200,90)を中点(1/2=60px)で切断:
+                  共有点M(140,90) / A側: (80,150),(105,73) / B側: (200,150),(225,73)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】頂点の切り落とし方（隣り合う2つの頂点の例）</div>
+                    <div class="figure-content">
+                        <svg width="460" height="260" viewBox="0 0 460 260">
+                            <!-- 隠れた辺（破線） -->
+                            <line x1="80" y1="210" x2="130" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="130" y1="175" x2="130" y2="55" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <line x1="130" y1="175" x2="250" y2="175" stroke="black" stroke-width="1.5" stroke-dasharray="5,4"/>
+                            <!-- 見える辺（頂点A・B付近は切除部を除く） -->
+                            <line x1="200" y1="150" x2="200" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="200" y1="210" x2="80" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="80" y1="210" x2="80" y2="150" stroke="black" stroke-width="2"/>
+                            <line x1="105" y1="73" x2="130" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="225" y1="73" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="130" y1="55" x2="250" y2="55" stroke="black" stroke-width="2"/>
+                            <line x1="250" y1="55" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                            <line x1="200" y1="210" x2="250" y2="175" stroke="black" stroke-width="2"/>
+                            <!-- 切り落とされる角（グレー・A側） -->
+                            <line x1="80" y1="90" x2="140" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="80" y1="90" x2="80" y2="150" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="80" y1="90" x2="105" y2="73" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <!-- 切り落とされる角（グレー・B側） -->
+                            <line x1="140" y1="90" x2="200" y2="90" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="200" y1="90" x2="200" y2="150" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <line x1="200" y1="90" x2="225" y2="73" stroke="#999" stroke-width="1.5" stroke-dasharray="3,3"/>
+                            <!-- 切り口（正三角形×2） -->
+                            <polygon points="140,90 80,150 105,73" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                            <polygon points="140,90 200,150 225,73" fill="#d8d8d8" stroke="black" stroke-width="2"/>
+                            <circle cx="140" cy="90" r="4" fill="black"/>
+                            <!-- ラベル -->
+                            <text x="140" y="80" class="svg-text" text-anchor="middle" font-size="12">中点M</text>
+                            <text x="140" y="230" class="svg-text" text-anchor="middle" font-size="13">6cm</text>
+                            <text x="290" y="110" class="svg-text" font-size="12" fill="#555">隣り合う切り口は</text>
+                            <text x="290" y="128" class="svg-text" font-size="12" fill="#555">辺の中点で接する</text>
+                            <line x1="287" y1="105" x2="148" y2="92" stroke="#555" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※図は隣り合う2つの頂点を切り落とした様子を示す。実際には8つの頂点すべてを同じように切り落とす。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　面 14・辺 36・頂点 24<br>
+                    (2)　面 14・辺 24・頂点 24<br>
+                    (3)　面 14・辺 24・頂点 12<br>
+                    (4)　面 12・辺 24・頂点 12<br>
+                    (5)　面 14・辺 36・頂点 12
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                問1と同じ要領で数えたくなるが、切り口が辺の<strong>中点</strong>まで達すると状況が変わることに注意する。<br><br>
+
+                <strong>【もとの辺が消える】</strong><br>
+                ・問1では、もとの辺は両端が2cmずつ切られて中央部分が残った<br>
+                ・今回は両端が3cmずつ切られるため、残る長さは 6 − 3 − 3 = 0cm<br>
+                ・つまり、隣り合う切り口が辺の中点で接し、<strong>もとの12本の辺はすべて消える</strong><br><br>
+
+                <strong>【面の数】</strong><br>
+                ・もとの6つの面は、各辺の中点4つを結んだ「45°傾いた正方形」として残る → 6面<br>
+                ・切り口の三角形 → 8面<br>
+                ・よって 面 = 6 + 8 = <strong>14</strong>（問1と同じ）<br><br>
+
+                <strong>【頂点の数】</strong><br>
+                ・立体の頂点として残るのは各辺の中点だけである<br>
+                ・立方体の辺は12本なので 頂点 = <strong>12</strong><br><br>
+
+                <strong>【辺の数】</strong><br>
+                ・切り口の三角形の辺 8 × 3 = 24本がこの立体のすべての辺になる<br>
+                ・（正方形の面の辺は、すべて隣の三角形と共有されるため二重に数えない）<br>
+                ・よって 辺 = <strong>24</strong><br><br>
+
+                <strong>【検算：オイラーの多面体定理】</strong><br>
+                （頂点）−（辺）＋（面）= 12 − 24 + 14 = 2 で成り立つ。<br>
+                なお、この立体は正方形6面と正三角形8面からなる「立方八面体」と呼ばれる半正多面体である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 問1と同じ方法で「もとの辺12本と頂点24個が残る」とした誤り → 不正解<br>
+                ・(2) 辺の消滅には気づいたが、頂点を8×3=24のままとした誤り → 不正解<br>
+                ・(3) 面14・辺24・頂点12 → <strong>正解</strong><br>
+                ・(4) 面12はもとの面と切り口の合計を誤ったもの → 不正解<br>
+                ・(5) 辺36は消えた辺を数えたままの誤り → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
