@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．向かい合う面の目の数の和がいずれも7である同じ大きさのサイコロ4個を、図1のように左右一列にすき間なく貼り合わせたところ、接する面（貼り合わされた面）の目の数の和はいずれも6になった。左端のサイコロの左側面の目の数が5であるとき、右端のサイコロの右側面（図1のアの面）の目の数はいくらか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 560x250px / viewBox: 0 0 560 250
+                座標系定義:
+                - 斜め右上から見た図（奥行きベクトル: +26, -20）
+                - 前面正方形: 70x70px、y=140〜210、x=80/150/220/290
+                - 上面: 各前面上辺から奥行きベクトル分の平行四辺形（タイル整合検証済み）
+                - 右端の右側面: (360,140)(386,120)(386,190)(360,210)
+                - 左側面の別図: 60x60正方形 (430,130)、5の目ピップ
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】4個のサイコロを貼り合わせた立体</div>
+                    <div class="figure-content">
+                        <svg width="560" height="250" viewBox="0 0 560 250">
+                            <!-- 上面（左から順に） -->
+                            <polygon points="80,140 150,140 176,120 106,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="150,140 220,140 246,120 176,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="220,140 290,140 316,120 246,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="290,140 360,140 386,120 316,120" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 右端のサイコロの右側面（ア） -->
+                            <polygon points="360,140 386,120 386,190 360,210" fill="white" stroke="black" stroke-width="2"/>
+                            <text x="374" y="171" class="svg-text" text-anchor="middle" font-size="16" font-weight="bold">ア</text>
+                            <!-- 前面（左から順に） -->
+                            <rect x="80" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="150" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="220" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="290" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 端のラベル -->
+                            <text x="115" y="235" class="svg-text" text-anchor="middle" font-size="13">左端</text>
+                            <text x="325" y="235" class="svg-text" text-anchor="middle" font-size="13">右端</text>
+                            <!-- 左端のサイコロを左から見た図（5の目） -->
+                            <rect x="430" y="130" width="60" height="60" fill="white" stroke="black" stroke-width="2"/>
+                            <circle cx="445" cy="145" r="5" fill="black"/>
+                            <circle cx="475" cy="145" r="5" fill="black"/>
+                            <circle cx="460" cy="160" r="5" fill="black"/>
+                            <circle cx="445" cy="175" r="5" fill="black"/>
+                            <circle cx="475" cy="175" r="5" fill="black"/>
+                            <text x="460" y="212" class="svg-text" text-anchor="middle" font-size="13">左端のサイコロを</text>
+                            <text x="460" y="230" class="svg-text" text-anchor="middle" font-size="13">左から見た図</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options" style="margin-left: 0; text-align: center;">
+                    (1)　2　　　(2)　3　　　(3)　4　　　(4)　5　　　(5)　6
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                サイコロの左側面と右側面は互いに向かい合う面（対面）だから、その目の数の和は必ず7である。この性質と「接する面の和は6」を交互に使うと、左端から順にすべての側面の目が確定する。<br><br>
+
+                <strong>【手順】</strong><br>
+                ・左端（1個目）: 左側面 = 5 → 右側面 = 7 − 5 = 2<br>
+                ・2個目: 左側面 = 6 − 2 = 4 → 右側面 = 7 − 4 = 3<br>
+                ・3個目: 左側面 = 6 − 3 = 3 → 右側面 = 7 − 3 = 4<br>
+                ・右端（4個目）: 左側面 = 6 − 4 = 2 → 右側面 = 7 − 2 = <strong>5</strong><br><br>
+
+                <strong>【別解（規則の発見）】</strong><br>
+                隣のサイコロへ移るたびに、右側面の目は 7 − 6 = 1 ずつ増える。左端の右側面が2だから、右端の右側面は 2 → 3 → 4 → 5 と3回増えて5になる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2 → 左端のサイコロの右側面（チェーンの起点）で止めた誤り<br>
+                ・(2) 3 → 2個目のサイコロの右側面（途中経過）<br>
+                ・(3) 4 → 3個目のサイコロの右側面（1手前で止めた誤り）<br>
+                ・(4) 5 → 正解<br>
+                ・(5) 6 → 「1ずつ増える」規則の起点を3と取り違えた誤り<br><br>
+
+                なお、上下・前後の面の向きは自由に選べるが、左右方向の面の並びは上の手順で一通りに定まる。サイコロ4個の全姿勢（24<sup>4</sup>通り）の総当たり検証でも、条件を満たすすべての配置でアの面の目は5であることが確認されている。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．向かい合う面の目の数の和がいずれも7である同じ大きさのサイコロ4個を、図2のように机の上に左右一列にすき間なく並べて置く。このとき、外から見ることができない面は、サイコロどうしが接している6面と、机に接している4面の計10面である。4個のサイコロの向きをそれぞれ自由に決めてよいとき、見ることができない10面の目の数の和として考えられる最小の値はいくらか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 560x250px / viewBox: 0 0 560 250
+                座標系定義: 問1と同一の斜め右上視点（奥行きベクトル: +26, -20）
+                - 机: 前縁の水平線 y=210（x=40〜520）と右端の奥行き線
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】机の上に一列に並べた4個のサイコロ</div>
+                    <div class="figure-content">
+                        <svg width="560" height="250" viewBox="0 0 560 250">
+                            <!-- 机（前縁と奥行きの線） -->
+                            <line x1="40" y1="210" x2="520" y2="210" stroke="black" stroke-width="2"/>
+                            <line x1="520" y1="210" x2="546" y2="190" stroke="black" stroke-width="2"/>
+                            <line x1="40" y1="210" x2="66" y2="190" stroke="black" stroke-width="2"/>
+                            <!-- 上面（左から順に） -->
+                            <polygon points="80,140 150,140 176,120 106,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="150,140 220,140 246,120 176,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="220,140 290,140 316,120 246,120" fill="white" stroke="black" stroke-width="2"/>
+                            <polygon points="290,140 360,140 386,120 316,120" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 右端のサイコロの右側面 -->
+                            <polygon points="360,140 386,120 386,190 360,210" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- 前面（左から順に） -->
+                            <rect x="80" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="150" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="220" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <rect x="290" y="140" width="70" height="70" fill="white" stroke="black" stroke-width="2"/>
+                            <!-- ラベル -->
+                            <text x="480" y="235" class="svg-text" text-anchor="middle" font-size="13">机</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options" style="margin-left: 0; text-align: center;">
+                    (1)　20　　　(2)　22　　　(3)　24　　　(4)　25　　　(5)　28
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                見えない10面を「中間の2個」と「両端の2個」に分けて考えるのがポイントである。<br><br>
+
+                <strong>【中間の2個のサイコロ】</strong><br>
+                中間のサイコロは左右の両隣と接しているが、この左右2つの側面は互いに向かい合う面（対面）だから、目の数の和はどんな向きに置いても必ず 7 になる（小さくすることはできない）。<br>
+                残りの隠れる面は机に接する底面だけである。左右方向の軸に1の目を使わない向き（例えば3と4を左右に向ける）にすれば、底面は最小の 1 にできる。<br>
+                → 中間の1個あたりの最小: 7 + 1 = 8<br><br>
+
+                <strong>【両端の2個のサイコロ】</strong><br>
+                端のサイコロで隠れるのは、内側の接する面1面と底面1面の計2面である。この2面は同じサイコロの隣り合う面だから、対面ではなく、同じ目にもならない。<br>
+                → 最小の組み合わせは 1 と 2 で、和は 1 + 2 = 3（例: 接する面を1、底面を2にする）<br><br>
+
+                <strong>【合計】</strong><br>
+                最小値 = 3 + 8 + 8 + 3 = <strong>22</strong><br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 20 → 両端の2面も 1 + 1 にできるとした誤り。接する面と底面は隣り合う面なので、両方を1にはできない<br>
+                ・(2) 22 → 正解<br>
+                ・(3) 24 → 中間のサイコロの底面の最小を2と誤ったもの（3 + 9 + 9 + 3）<br>
+                ・(4) 25 → 「接する面どうしの目の和は7」と対面の規則を誤って適用したもの（7×3 + 1×4）<br>
+                ・(5) 28 → どのサイコロも「隠れる面の目の和は7」と大づかみに考えたもの（7×4）<br><br>
+
+                4個のサイコロの全姿勢（24<sup>4</sup> ≒ 33万通り）の総当たり検証により、見えない10面の和の最小値が22であること（最大値は48）が確認されている。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
