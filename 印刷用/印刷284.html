@@ -1,0 +1,590 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．【図1】のような1辺3cmの立方体ABCD−EFGHがある。各面には1cmごとに目盛りの線が引かれており、この線に沿って立方体全体を1辺1cmの小立方体27個に分割して考える。いま、この立方体を3つの頂点B、D、Eを通る平面で切断するとき、切断される小立方体は何個あるか。ただし、平面がある小立方体の内部を通って2つの部分に分けるとき、その小立方体は「切断される」ということにし、平面が頂点だけで接する小立方体は切断されないものとする。（6点）</div>
+
+                <!--
+                図表仕様（図1）:
+                - SVGサイズ: 340x285px / viewBox: 0 0 340 285
+                - 斜投影: x軸(右)=50px/cm・z軸(上)=50px/cm・奥行き1cm=(+20,-8)px
+                - 頂点: A(50,250) B(200,250) C(260,226) D(110,226) E(50,100) F(200,100) G(260,76) H(110,76)
+                - 切断面: 三角形BDE（BEは前面上で可視・BD/DEは隠れ線で破線）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】1辺3cmの立方体（面の線は1cmごとの目盛り）と頂点B・D・Eを通る切断面</div>
+                    <div class="figure-content">
+                        <svg width="340" height="285" viewBox="0 0 340 285">
+                            <g stroke="#aaa" stroke-width="1">
+                                <line x1="100" y1="250" x2="100" y2="100"/><line x1="150" y1="250" x2="150" y2="100"/>
+                                <line x1="50" y1="200" x2="200" y2="200"/><line x1="50" y1="150" x2="200" y2="150"/>
+                                <line x1="220" y1="242" x2="220" y2="92"/><line x1="240" y1="234" x2="240" y2="84"/>
+                                <line x1="200" y1="200" x2="260" y2="176"/><line x1="200" y1="150" x2="260" y2="126"/>
+                                <line x1="100" y1="100" x2="160" y2="76"/><line x1="150" y1="100" x2="210" y2="76"/>
+                                <line x1="70" y1="92" x2="220" y2="92"/><line x1="90" y1="84" x2="240" y2="84"/>
+                            </g>
+                            <polygon points="200,250 110,226 50,100" fill="#999" opacity="0.3"/>
+                            <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,4" fill="none">
+                                <line x1="50" y1="250" x2="110" y2="226"/><line x1="110" y1="226" x2="260" y2="226"/>
+                                <line x1="110" y1="226" x2="110" y2="76"/>
+                            </g>
+                            <g stroke="#000" stroke-width="2" fill="none">
+                                <line x1="50" y1="250" x2="200" y2="250"/><line x1="200" y1="250" x2="260" y2="226"/>
+                                <line x1="50" y1="250" x2="50" y2="100"/><line x1="200" y1="250" x2="200" y2="100"/>
+                                <line x1="260" y1="226" x2="260" y2="76"/><line x1="50" y1="100" x2="200" y2="100"/>
+                                <line x1="200" y1="100" x2="260" y2="76"/><line x1="260" y1="76" x2="110" y2="76"/>
+                                <line x1="110" y1="76" x2="50" y2="100"/>
+                            </g>
+                            <line x1="200" y1="250" x2="50" y2="100" stroke="#000" stroke-width="2.5"/>
+                            <g stroke="#000" stroke-width="2.5" stroke-dasharray="7,4">
+                                <line x1="200" y1="250" x2="110" y2="226"/><line x1="110" y1="226" x2="50" y2="100"/>
+                            </g>
+                            <circle cx="200" cy="250" r="4" fill="#000"/><circle cx="110" cy="226" r="4" fill="#000"/><circle cx="50" cy="100" r="4" fill="#000"/>
+                            <g class="svg-text" font-size="15">
+                                <text x="38" y="266">A</text><text x="202" y="268">B</text><text x="268" y="234">C</text><text x="92" y="221">D</text>
+                                <text x="36" y="94">E</text><text x="206" y="94">F</text><text x="266" y="72">G</text><text x="94" y="72">H</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　5個<br>
+                    (2)　6個<br>
+                    (3)　7個<br>
+                    (4)　8個<br>
+                    (5)　9個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                分割した小立方体が平面で何個切られるかを数えるときは、立方体を<strong>高さ1cmごとの3つの段に分け、段ごとに真上から見て「平面が通り抜ける帯」を描く</strong>のが定石である。<br><br>
+
+                切断面の三角形BDEの切り口は、底面（高さ0cm）では対角線BDであり、高さが1cm上がるごとに、BDと平行なまま頂点Aの真上の角へ1マスぶんずつ近づき、高さ3cmでは頂点Eの1点に集まる。したがって各段の中では、平面は「段の下面での切り口の線」と「段の上面での切り口の線」にはさまれた帯を斜めに通り抜ける。【参考図1】のように帯が内部を通るマスを段ごとに数えると、<br>
+                ・下の段（Aを含む段）: <strong>5個</strong><br>
+                ・中の段: <strong>3個</strong><br>
+                ・上の段（Eを含む段）: <strong>1個</strong><br>
+                となり、合計 5＋3＋1＝<strong>9個</strong>である。<br><br>
+
+                <!--
+                図表仕様（参考図1）: SVGサイズ 470x160 / viewBox 0 0 470 160
+                - 3×3方眼×3段（1マス30px）を translate(25,30)/(190,30)/(355,30) に配置
+                - 網かけ=切断されるマス（下段5・中段3・上段1）・破線=各段の上下面での切り口
+                -->
+                <div class="figure-container" style="margin: 10px 0; padding: 10px;">
+                    <div class="figure-title">【参考図1】各段を真上から見た図（左下の角が頂点A・Eの側。網かけが切断される小立方体、破線は段の下面・上面での切り口）</div>
+                    <div class="figure-content">
+                        <svg width="470" height="160" viewBox="0 0 470 160">
+                            <g transform="translate(25,30)">
+                                <rect x="30" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="0" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="30" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="90" y1="90" x2="0" y2="0"/><line x1="60" y1="90" x2="0" y2="30"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">下の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">5個</text>
+                                <text x="-8" y="102" text-anchor="middle" font-size="13" font-family="sans-serif">A</text>
+                            </g>
+                            <g transform="translate(190,30)">
+                                <rect x="0" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="30" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="60" y1="90" x2="0" y2="30"/><line x1="30" y1="90" x2="0" y2="60"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">中の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">3個</text>
+                            </g>
+                            <g transform="translate(355,30)">
+                                <rect x="0" y="60" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="30" y1="90" x2="0" y2="60"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">上の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">1個</text>
+                                <text x="-8" y="102" text-anchor="middle" font-size="13" font-family="sans-serif">E</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                なお、網かけのない角のマス（Aの角の小立方体や、立方体の中央の小立方体など）は、平面がマスの角の点をかすめるだけで内部は通らないので、切断されない。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 5個 → 下の段だけを数えたもの。平面は3つの段すべてを通り抜ける。<br>
+                ・(2) 6個 → 各段で切られるマスを3個・2個・1個と数えた誤り。帯は斜めに通るため、下の段では5個のマスの内部を通る。<br>
+                ・(3) 7個 → 下の段や中の段での数え落とし。<br>
+                ・(4) 8個 → 下の段の帯の端のマスを見落とすなどの数え落とし。<br>
+                ・(5) 9個 → 5＋3＋1＝9個。正解。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ、小立方体27個に分割して考えた1辺3cmの立方体ABCD−EFGHがある。今度は、【図2】に●印で示した6本の辺の中点をすべて通る平面でこの立方体を切断する。この平面は、頂点Aと頂点Gを結ぶ対角線AGに垂直で立方体の中心を通り、切り口は正六角形になる。このとき、切断されない小立方体は何個あるか。ただし、「切断される」の意味は問1と同じとする。（6点）</div>
+
+                <!--
+                図表仕様（図2）:
+                - SVGサイズ: 340x285px / viewBox: 0 0 340 285（図1と同じ斜投影）
+                - 切断面: 正六角形（頂点=辺BC・CD・DH・EH・EF・BFの中点）
+                  P1(230,238) P2(185,226) P3(110,151) P4(80,88) P5(125,100) P6(200,175)
+                - P4P5(上面)・P5P6(前面)・P6P1(右面)は可視、P1P2・P2P3・P3P4は隠れ線
+                - 対角線AG(50,250)-(260,76)は細点線
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】6本の辺の中点（●印）を通る切断面（対角線AGに垂直で中心を通る）</div>
+                    <div class="figure-content">
+                        <svg width="340" height="285" viewBox="0 0 340 285">
+                            <g stroke="#aaa" stroke-width="1">
+                                <line x1="100" y1="250" x2="100" y2="100"/><line x1="150" y1="250" x2="150" y2="100"/>
+                                <line x1="50" y1="200" x2="200" y2="200"/><line x1="50" y1="150" x2="200" y2="150"/>
+                                <line x1="220" y1="242" x2="220" y2="92"/><line x1="240" y1="234" x2="240" y2="84"/>
+                                <line x1="200" y1="200" x2="260" y2="176"/><line x1="200" y1="150" x2="260" y2="126"/>
+                                <line x1="100" y1="100" x2="160" y2="76"/><line x1="150" y1="100" x2="210" y2="76"/>
+                                <line x1="70" y1="92" x2="220" y2="92"/><line x1="90" y1="84" x2="240" y2="84"/>
+                            </g>
+                            <line x1="50" y1="250" x2="260" y2="76" stroke="#666" stroke-width="1" stroke-dasharray="3,3"/>
+                            <polygon points="230,238 185,226 110,151 80,88 125,100 200,175" fill="#999" opacity="0.3"/>
+                            <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,4" fill="none">
+                                <line x1="50" y1="250" x2="110" y2="226"/><line x1="110" y1="226" x2="260" y2="226"/>
+                                <line x1="110" y1="226" x2="110" y2="76"/>
+                            </g>
+                            <g stroke="#000" stroke-width="2" fill="none">
+                                <line x1="50" y1="250" x2="200" y2="250"/><line x1="200" y1="250" x2="260" y2="226"/>
+                                <line x1="50" y1="250" x2="50" y2="100"/><line x1="200" y1="250" x2="200" y2="100"/>
+                                <line x1="260" y1="226" x2="260" y2="76"/><line x1="50" y1="100" x2="200" y2="100"/>
+                                <line x1="200" y1="100" x2="260" y2="76"/><line x1="260" y1="76" x2="110" y2="76"/>
+                                <line x1="110" y1="76" x2="50" y2="100"/>
+                            </g>
+                            <g stroke="#000" stroke-width="2.5" fill="none">
+                                <line x1="80" y1="88" x2="125" y2="100"/><line x1="125" y1="100" x2="200" y2="175"/><line x1="200" y1="175" x2="230" y2="238"/>
+                            </g>
+                            <g stroke="#000" stroke-width="2.5" stroke-dasharray="7,4" fill="none">
+                                <line x1="230" y1="238" x2="185" y2="226"/><line x1="185" y1="226" x2="110" y2="151"/><line x1="110" y1="151" x2="80" y2="88"/>
+                            </g>
+                            <g fill="#000">
+                                <circle cx="230" cy="238" r="3.5"/><circle cx="185" cy="226" r="3.5"/><circle cx="110" cy="151" r="3.5"/>
+                                <circle cx="80" cy="88" r="3.5"/><circle cx="125" cy="100" r="3.5"/><circle cx="200" cy="175" r="3.5"/>
+                            </g>
+                            <g class="svg-text" font-size="15">
+                                <text x="38" y="266">A</text><text x="202" y="268">B</text><text x="268" y="234">C</text><text x="92" y="221">D</text>
+                                <text x="36" y="94">E</text><text x="206" y="94">F</text><text x="266" y="72">G</text><text x="94" y="72">H</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　4個<br>
+                    (2)　6個<br>
+                    (3)　7個<br>
+                    (4)　8個<br>
+                    (5)　19個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(4))</strong><br>
+                問1と同じように、<strong>高さ1cmごとの3つの段に分けて真上から見る</strong>。切断面は立方体の中心を通るので、切り口の帯は3つの段すべてを斜めに横切る。段の下面・上面での切り口の線を描き、帯が内部を通るマスを数えると【参考図2】のようになり、<br>
+                ・下の段: 6個　・中の段: 7個　・上の段: 6個<br>
+                で、切断される小立方体は 6＋7＋6＝<strong>19個</strong>である。<br><br>
+
+                問われているのは<strong>切断されない</strong>小立方体の個数だから、<br>
+                <strong>27−19＝8個</strong>　…（答）<br><br>
+
+                <!--
+                図表仕様（参考図2）: SVGサイズ 470x160 / viewBox 0 0 470 160
+                - 3×3方眼×3段（1マス30px）を translate(25,30)/(190,30)/(355,30) に配置
+                - 網かけ=切断されるマス（下段6・中段7・上段6）・白=切断されないマス（3・2・3）
+                -->
+                <div class="figure-container" style="margin: 10px 0; padding: 10px;">
+                    <div class="figure-title">【参考図2】各段を真上から見た図（左下の角が頂点A・Eの側。網かけが切断される小立方体、破線は段の下面・上面での切り口）</div>
+                    <div class="figure-content">
+                        <svg width="470" height="160" viewBox="0 0 470 160">
+                            <g transform="translate(25,30)">
+                                <rect x="60" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="0" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="0" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="0" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="90" y1="45" x2="45" y2="0"/><line x1="90" y1="75" x2="15" y2="0"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">下の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">6個</text>
+                                <text x="-8" y="102" text-anchor="middle" font-size="13" font-family="sans-serif">A</text>
+                            </g>
+                            <g transform="translate(190,30)">
+                                <rect x="30" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="0" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="0" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="90" y1="75" x2="15" y2="0"/><line x1="75" y1="90" x2="0" y2="15"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">中の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">7個</text>
+                            </g>
+                            <g transform="translate(355,30)">
+                                <rect x="0" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="30" y="30" width="30" height="30" fill="#bdbdbd"/><rect x="60" y="60" width="30" height="30" fill="#bdbdbd"/><rect x="0" y="0" width="30" height="30" fill="#bdbdbd"/>
+                                <g stroke="#999" stroke-width="1"><line x1="30" y1="0" x2="30" y2="90"/><line x1="60" y1="0" x2="60" y2="90"/><line x1="0" y1="30" x2="90" y2="30"/><line x1="0" y1="60" x2="90" y2="60"/></g>
+                                <rect x="0" y="0" width="90" height="90" fill="none" stroke="#333" stroke-width="1.5"/>
+                                <g stroke="#333" stroke-width="1.5" stroke-dasharray="5,3"><line x1="75" y1="90" x2="0" y2="15"/><line x1="45" y1="90" x2="0" y2="45"/></g>
+                                <text x="45" y="-12" text-anchor="middle" font-size="14" font-family="sans-serif">上の段</text>
+                                <text x="45" y="112" text-anchor="middle" font-size="14" font-family="sans-serif">6個</text>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+                <strong>【対称性による確認】</strong><br>
+                参考図2で白く残ったマスは、下の段の3個（Aの角のまわり）・中の段の2個・上の段の3個（Gの角のまわり）である。位置を立体的に見ると、切断されないのは「<strong>頂点Aの角の小立方体とそれに面で接する3個</strong>」の計4個と、「<strong>頂点Gの角の小立方体とそれに面で接する3個</strong>」の計4個である。平面は中心を通り対角線AGに垂直だから、平面から最も遠い両端の角に、切られない小立方体が4個ずつ対称に残ると考えれば、4＋4＝8個が直接確認できる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 4個 → A側（またはG側）の4個だけを数え、反対側の角の4個を忘れたもの。<br>
+                ・(2) 6個 → 両端に3個ずつと数えた誤り。角の小立方体自身も切断されないので、各端4個ずつある。<br>
+                ・(3) 7個 → 中の段の白いマスの数え落としなど。<br>
+                ・(4) 8個 → 27−19＝8個（または4＋4＝8個）。正解。<br>
+                ・(5) 19個 → 「切断される」小立方体の個数。問われているのは「切断されない」個数である。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
