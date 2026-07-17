@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．白と黒の2種類の、1辺1cmの立方体がたくさんある。下の図1のように、面と面が接する立方体どうしが必ず異なる色になるように、これらの立方体をすきまなく積み上げて1辺n cmの立方体を作り、これを第n番目の立体とする。ただし、nが奇数のときは、8つのかど（頂点）の位置にある立方体がすべて黒になるようにする。このとき、第7番目の立体に使われている黒い立方体の個数として正しいものを、次の(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 520x200px / viewBox: 0 0 520 200
+                - 等角投影: 格子点(x,y,z) -> (ox+(x-y)cos30·16, oy+(x+y)sin30·16-16z)
+                - 第1番目(中心x=70)・第2番目(x=200)・第3番目(x=380)を横に配置
+                - 可視面: 上面(z=n)・左前面(y=n)・右前面(x=n)
+                - 黒立方体=#333、白立方体=#fff（かど(1,1,1)が黒となる市松模様）
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】第1番目～第3番目の立体</div>
+                    <div class="figure-content">
+                        <svg width="520" height="200" viewBox="0 0 520 200">
+                        <polygon points="70.0,126.0 83.86,134.0 70.0,142.0 56.14,134.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="56.14,150.0 70.0,158.0 70.0,142.0 56.14,134.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="83.86,150.0 70.0,158.0 70.0,142.0 83.86,134.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="200.0,102.0 213.86,110.0 200.0,118.0 186.14,110.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="186.14,110.0 200.0,118.0 186.14,126.0 172.29,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="213.86,110.0 227.71,118.0 213.86,126.0 200.0,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="200.0,118.0 213.86,126.0 200.0,134.0 186.14,126.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="172.29,150.0 186.14,158.0 186.14,142.0 172.29,134.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="172.29,134.0 186.14,142.0 186.14,126.0 172.29,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="186.14,158.0 200.0,166.0 200.0,150.0 186.14,142.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="186.14,142.0 200.0,150.0 200.0,134.0 186.14,126.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="227.71,150.0 213.86,158.0 213.86,142.0 227.71,134.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="227.71,134.0 213.86,142.0 213.86,126.0 227.71,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="213.86,158.0 200.0,166.0 200.0,150.0 213.86,142.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="213.86,142.0 200.0,150.0 200.0,134.0 213.86,126.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="380.0,78.0 393.86,86.0 380.0,94.0 366.14,86.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="366.14,86.0 380.0,94.0 366.14,102.0 352.29,94.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="352.29,94.0 366.14,102.0 352.29,110.0 338.43,102.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="393.86,86.0 407.71,94.0 393.86,102.0 380.0,94.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="380.0,94.0 393.86,102.0 380.0,110.0 366.14,102.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="366.14,102.0 380.0,110.0 366.14,118.0 352.29,110.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="407.71,94.0 421.57,102.0 407.71,110.0 393.86,102.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="393.86,102.0 407.71,110.0 393.86,118.0 380.0,110.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="380.0,110.0 393.86,118.0 380.0,126.0 366.14,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="338.43,150.0 352.29,158.0 352.29,142.0 338.43,134.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="338.43,134.0 352.29,142.0 352.29,126.0 338.43,118.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="338.43,118.0 352.29,126.0 352.29,110.0 338.43,102.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="352.29,158.0 366.14,166.0 366.14,150.0 352.29,142.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="352.29,142.0 366.14,150.0 366.14,134.0 352.29,126.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="352.29,126.0 366.14,134.0 366.14,118.0 352.29,110.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="366.14,166.0 380.0,174.0 380.0,158.0 366.14,150.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="366.14,150.0 380.0,158.0 380.0,142.0 366.14,134.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="366.14,134.0 380.0,142.0 380.0,126.0 366.14,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="421.57,150.0 407.71,158.0 407.71,142.0 421.57,134.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="421.57,134.0 407.71,142.0 407.71,126.0 421.57,118.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="421.57,118.0 407.71,126.0 407.71,110.0 421.57,102.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="407.71,158.0 393.86,166.0 393.86,150.0 407.71,142.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="407.71,142.0 393.86,150.0 393.86,134.0 407.71,126.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="407.71,126.0 393.86,134.0 393.86,118.0 407.71,110.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="393.86,166.0 380.0,174.0 380.0,158.0 393.86,150.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="393.86,150.0 380.0,158.0 380.0,142.0 393.86,134.0" fill="#fff" stroke="#000" stroke-width="0.8"/>
+                        <polygon points="393.86,134.0 380.0,142.0 380.0,126.0 393.86,118.0" fill="#333" stroke="#000" stroke-width="0.8"/>
+                        <text x="70" y="185" font-size="14" text-anchor="middle">第1番目</text>
+                        <text x="200" y="185" font-size="14" text-anchor="middle">第2番目</text>
+                        <text x="380" y="185" font-size="14" text-anchor="middle">第3番目</text>
+                        <text x="480" y="110" font-size="20" text-anchor="middle">…</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　164個<br>
+                    (2)　168個<br>
+                    (3)　171個<br>
+                    (4)　172個<br>
+                    (5)　175個<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                第7番目の立体を、下から1段目、2段目、…、7段目の7つの段（各段は7×7＝49個の立方体）に分けて数える。<br><br>
+
+                <strong>【規則の把握】</strong><br>
+                ・面と面が接する立方体は必ず異なる色なので、各段の中では立方体の色が市松模様（いちまつもよう）に並び、さらに上下に隣り合う段では配色がそっくり反転する。<br>
+                ・したがって各段は、「四隅が黒の段」と「四隅が白の段」の2種類しかなく、この2種類が交互に積み重なる。<br><br>
+
+                <strong>【段ごとの数え上げ】</strong><br>
+                ・7×7＝49マスの市松模様では、四隅と同じ色が25マス、もう一方の色が24マスである。<br>
+                ・四隅が黒の段：黒25個・白24個<br>
+                ・四隅が白の段：黒24個・白25個<br>
+                ・かどの立方体は黒だから、1段目は四隅が黒の段である。以下、交互に現れるので、四隅が黒の段は1・3・5・7段目の4段、四隅が白の段は2・4・6段目の3段。<br><br>
+
+                <strong>【計算】</strong><br>
+                黒い立方体の総数 ＝ 25×4 ＋ 24×3 ＝ 100 ＋ 72 ＝ <strong>172個</strong><br>
+                （検算：総数343個、白は24×4＋25×3＝171個で、172＋171＝343。黒がかどを含む分だけ白より1個多く、つじつまが合う。）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 164個 → どの数え方とも一致しない。<br>
+                ・(2) 168個 ＝ 24×7 → すべての段を「黒24個の段」として数えた誤り。<br>
+                ・(3) 171個 ＝ 25×3＋24×4 → 2種類の段の枚数を逆にした誤り（これは白の個数）。<br>
+                ・(4) 172個 → 正しい。<br>
+                ・(5) 175個 ＝ 25×7 → すべての段を「黒25個の段」として数えた誤り。<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1の規則で作った第7番目の立体から、立体の表面に少なくとも1つの面が現れている立方体をすべて取り除くと、下の図2のように、内部に1辺5cmの立方体の形をした立体が残る。残った立体に使われている白い立方体の個数として正しいものを、次の(1)～(5)のうちから1つ選べ。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x230px / viewBox: 0 0 460 230
+                - 等角投影: 格子点(x,y,z) -> (ox+(x-y)cos30·11, oy+(x+y)sin30·11-11z)
+                - 外側の1辺7cmの立方体: 可視9辺を実線で描画
+                - 内部の1辺5cmの立方体（格子1～6の位置）: 12辺を破線で描画
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】表面の立方体を取り除いた後に内部に残る立体</div>
+                    <div class="figure-content">
+                        <svg width="460" height="230" viewBox="0 0 460 230">
+                        <line x1="230.0" y1="185.0" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2"/>
+                        <line x1="296.68" y1="146.5" x2="230.0" y2="185.0" stroke="#000" stroke-width="1.2"/>
+                        <line x1="163.32" y1="146.5" x2="230.0" y2="185.0" stroke="#000" stroke-width="1.2"/>
+                        <line x1="296.68" y1="146.5" x2="296.68" y2="69.5" stroke="#000" stroke-width="1.2"/>
+                        <line x1="163.32" y1="146.5" x2="163.32" y2="69.5" stroke="#000" stroke-width="1.2"/>
+                        <line x1="230.0" y1="31.0" x2="296.68" y2="69.5" stroke="#000" stroke-width="1.2"/>
+                        <line x1="230.0" y1="31.0" x2="163.32" y2="69.5" stroke="#000" stroke-width="1.2"/>
+                        <line x1="296.68" y1="69.5" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2"/>
+                        <line x1="163.32" y1="69.5" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2"/>
+                        <line x1="230.0" y1="108.0" x2="277.63" y2="135.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="277.63" y1="135.5" x2="230.0" y2="163.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="230.0" y1="163.0" x2="182.37" y2="135.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="182.37" y1="135.5" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="230.0" y1="53.0" x2="277.63" y2="80.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="277.63" y1="80.5" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="230.0" y1="108.0" x2="182.37" y2="80.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="182.37" y1="80.5" x2="230.0" y2="53.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="230.0" y1="108.0" x2="230.0" y2="53.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="277.63" y1="135.5" x2="277.63" y2="80.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="230.0" y1="163.0" x2="230.0" y2="108.0" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <line x1="182.37" y1="135.5" x2="182.37" y2="80.5" stroke="#000" stroke-width="1.2" stroke-dasharray="4,3"/>
+                        <text x="230" y="215" font-size="13" text-anchor="middle">外側の立体（実線・1辺7cm）と内部に残る立体（破線・1辺5cm）</text>
+                        <text x="306.68" y="108.0" font-size="12">7cm</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　54個<br>
+                    (2)　58個<br>
+                    (3)　60個<br>
+                    (4)　62個<br>
+                    (5)　63個<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                立方体の位置を、たて・よこ・高さの順に(x, y, z)（各1～7の整数）で表して考える。<br><br>
+
+                <strong>【残る立体の把握】</strong><br>
+                ・表面に面が現れているのは、x、y、zのどれかが1または7である立方体。<br>
+                ・したがって残るのは、x、y、zがすべて2～6の範囲にある立方体で、ちょうど5×5×5＝125個の立方体からなる1辺5cmの立方体である。<br><br>
+
+                <strong>【かどの色に注意（最大のポイント）】</strong><br>
+                ・面で接するたびに色が入れ替わるから、立方体の色は座標の和 x＋y＋z の偶奇だけで決まる。かど(1, 1, 1)は和が3（奇数）で黒なので、「和が奇数＝黒、和が偶数＝白」である。<br>
+                ・残った立体のかどは(2, 2, 2)など8か所で、座標の和はいずれも偶数。つまり、<strong>残った立体は「かどが白」の市松模様</strong>であり、第7番目の立体全体（かどが黒）とは配色が逆になる。<br><br>
+
+                <strong>【段ごとの数え上げ】</strong><br>
+                ・残った立体の各段は5×5＝25個。四隅と同じ色が13個、もう一方の色が12個である。<br>
+                ・最下段（z＝2の段）は四隅が白なので、白13個・黒12個。上下に隣り合う段では配色が反転するから、白13個の段はz＝2, 4, 6の3段、白12個の段はz＝3, 5の2段。<br>
+                ・白い立方体の総数 ＝ 13×3 ＋ 12×2 ＝ 39 ＋ 24 ＝ <strong>63個</strong><br>
+                （検算：黒は12×3＋13×2＝62個で、63＋62＝125。かどを含む白が黒より1個多く、つじつまが合う。）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 54個・(2) 58個 → どの数え方とも一致しない。<br>
+                ・(3) 60個 ＝ 12×5 → すべての段を「白12個の段」として数えた誤り。<br>
+                ・(4) 62個 → 残った立体も問1と同じ「かどが黒」の配色だと思い込んで数えた誤り（そのときの白の個数）。実際には配色が反転している。<br>
+                ・(5) 63個 → 正しい。<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
