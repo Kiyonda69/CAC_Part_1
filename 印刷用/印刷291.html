@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある商品に、原価の何割かの利益を見込んで定価をつけた。この商品を定価の1割5分引きで売ると原価の1割9分の利益があり、定価から550円引いて売ると原価の3割の利益がある。この商品の原価はいくらか。次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="options">
+                    (1) 6,545円&nbsp;&nbsp;&nbsp;(2) 7,700円&nbsp;&nbsp;&nbsp;(3) 5,000円&nbsp;&nbsp;&nbsp;(4) 5,500円&nbsp;&nbsp;&nbsp;(5) 7,150円
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                原価も定価も未知数であるうえ、一方の条件は「定価に対する割引率」、もう一方は「定価からの値引き額」で与えられ、利益はどちらも「原価に対する割合」で示されている。基準の異なる割合が混在しているため、原価を <em>x</em> 円、定価を <em>y</em> 円とおいて正確に立式する。<br><br>
+
+                <strong>【立式】</strong><br>
+                ・定価の1割5分引きで売ると原価の1割9分の利益 → 0.85<em>y</em> = 1.19<em>x</em> …①<br>
+                ・定価から550円引いて売ると原価の3割の利益 → <em>y</em> − 550 = 1.3<em>x</em> …②<br><br>
+
+                <strong>【求解】</strong><br>
+                ①より <em>y</em> = 1.19<em>x</em> ÷ 0.85 = 1.4<em>x</em>（1.19 = 0.85 × 1.4 に気づけば、定価は原価の4割増しと分かる）<br>
+                これを②に代入して 1.4<em>x</em> − 550 = 1.3<em>x</em> → 0.1<em>x</em> = 550 → <em>x</em> = <strong>5,500円</strong>（定価 <em>y</em> = 7,700円）<br><br>
+
+                <strong>【別解（利益の差に着目）】</strong><br>
+                2つの売り方の利益の差は 1.3<em>x</em> − 1.19<em>x</em> = 0.11<em>x</em>。売価の差は (<em>y</em> − 550) − 0.85<em>y</em> = 0.15<em>y</em> − 550。<em>y</em> = 1.4<em>x</em> を使うと 0.21<em>x</em> − 550 = 0.11<em>x</em> となり、同じく <em>x</em> = 5,500円。<br><br>
+
+                <strong>【検算】</strong><br>
+                定価7,700円の1割5分引き = 6,545円。利益 6,545 − 5,500 = 1,045円 = 5,500 × 0.19 → 原価の1割9分で一致。<br>
+                定価から550円引き = 7,150円。利益 7,150 − 5,500 = 1,650円 = 5,500 × 0.3 → 原価の3割で一致。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 6,545円 → 1割5分引きの売価（0.85 × 7,700）との取り違え。不正解<br>
+                ・(2) 7,700円 → 定価との取り違え。不正解<br>
+                ・(3) 5,000円 → 2つの売価が異なることを見落とし、利益の差だけで 0.11<em>x</em> = 550 と誤って立式した値。不正解<br>
+                ・(4) 5,500円 → ①②をともに満たす。正解<br>
+                ・(5) 7,150円 → 550円引きの売価（7,700 − 550）との取り違え。不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある店で、同じ商品を360個仕入れ、原価の5割の利益を見込んで定価をつけて売り出した。何個かは定価で売れたが、その後、定価の2割引にしたところ、定価で売れた個数より30個少ない個数が売れた。さらに、売れ残りのうち10個は汚損が見つかったため廃棄し、それ以外はすべて定価の半額にして売り切った。その結果、全体の利益は仕入総額のちょうど17.5％となった。定価の半額で売った個数は何個か。次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="options">
+                    (1) 115個&nbsp;&nbsp;&nbsp;(2) 145個&nbsp;&nbsp;&nbsp;(3) 80個&nbsp;&nbsp;&nbsp;(4) 100個&nbsp;&nbsp;&nbsp;(5) 90個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                原価の実額は与えられていないが、利益の条件が仕入総額に対する割合で示されているため、原価を1個あたり <em>x</em> 円とおけば <em>x</em> は式の両辺から消える。定価で売れた個数を <em>n</em> 個とおくと、2割引で売れた個数は <em>n</em> − 30 個、廃棄が10個なので、半額で売った個数は 360 − <em>n</em> − (<em>n</em> − 30) − 10 = 380 − 2<em>n</em> 個と表せる。廃棄した10個は売上ゼロのまま原価だけが掛かる点に注意する。<br><br>
+
+                <strong>【各売価を整理】</strong><br>
+                ・定価 = 1.5<em>x</em> 円 → 1個あたりの利益 0.5<em>x</em> 円<br>
+                ・2割引の売価 = 1.5<em>x</em> × 0.8 = 1.2<em>x</em> 円 → 1個あたりの利益 0.2<em>x</em> 円<br>
+                ・半額の売価 = 1.5<em>x</em> × 0.5 = 0.75<em>x</em> 円 → 1個あたり 0.25<em>x</em> 円の<strong>損失</strong><br>
+                ・廃棄 → 1個あたり <em>x</em> 円の<strong>損失</strong>（原価がまるごと損になる）<br><br>
+
+                <strong>【立式と求解】</strong><br>
+                全体の利益 = 0.5<em>x</em> × <em>n</em> + 0.2<em>x</em> × (<em>n</em> − 30) − 0.25<em>x</em> × (380 − 2<em>n</em>) − <em>x</em> × 10<br>
+                = (0.5<em>n</em> + 0.2<em>n</em> − 6 − 95 + 0.5<em>n</em> − 10)<em>x</em> = (1.2<em>n</em> − 111)<em>x</em> 円<br>
+                これが仕入総額 360<em>x</em> 円の17.5％、すなわち 63<em>x</em> 円に等しいので、<br>
+                1.2<em>n</em> − 111 = 63 → 1.2<em>n</em> = 174 → <em>n</em> = 145個<br>
+                よって、半額で売った個数 = 380 − 2 × 145 = <strong>90個</strong>（2割引は115個、廃棄10個で計360個）<br><br>
+
+                <strong>【検算】</strong><br>
+                原価を800円とすると、仕入総額 = 288,000円。定価1,200円で145個 → 174,000円、960円で115個 → 110,400円、600円で90個 → 54,000円、廃棄10個 → 0円。売上合計 = 338,400円。<br>
+                総利益 = 338,400 − 288,000 = 50,400円。50,400 ÷ 288,000 = 0.175 = 17.5％ となり、条件と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 115個 → 2割引で売れた個数（145 − 30）との取り違え。不正解<br>
+                ・(2) 145個 → 定価で売れた個数 <em>n</em> との取り違え。設問は半額で売った個数を問うている。不正解<br>
+                ・(3) 80個 → 半額で売った90個から廃棄の10個を誤ってさらに差し引いた値。廃棄分は半額販売とは別に数える。不正解<br>
+                ・(4) 100個 → 売れ残り全体（半額90個＋廃棄10個）との取り違え。不正解<br>
+                ・(5) 90個 → 1.2<em>n</em> = 174 → <em>n</em> = 145 から導かれる値。正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
