@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．ある商品に、原価の3割の利益を見込んで定価をつけた。しかし売れなかったので、定価の2割引にして売ったところ、120円の利益が得られた。この商品の原価はいくらか。次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="options">
+                    (1) 2,400円&nbsp;&nbsp;&nbsp;(2) 1,200円&nbsp;&nbsp;&nbsp;(3) 3,000円&nbsp;&nbsp;&nbsp;(4) 6,000円&nbsp;&nbsp;&nbsp;(5) 4,000円
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                原価を <em>x</em> 円とおき、定価と実際の売価を順に式で表す。<br><br>
+
+                <strong>【立式】</strong><br>
+                ・定価：原価の3割の利益を見込む → 定価 = <em>x</em> × (1 + 0.3) = 1.3<em>x</em> 円<br>
+                ・売価：定価の2割引 → 売価 = 1.3<em>x</em> × (1 − 0.2) = 1.3<em>x</em> × 0.8 = 1.04<em>x</em> 円<br>
+                ・利益：売価 − 原価 = 1.04<em>x</em> − <em>x</em> = 0.04<em>x</em> 円<br><br>
+
+                <strong>【求解】</strong><br>
+                0.04<em>x</em> = 120 より <em>x</em> = 120 ÷ 0.04 = <strong>3,000円</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                原価3,000円 → 定価 3,000 × 1.3 = 3,900円 → 売価 3,900 × 0.8 = 3,120円<br>
+                利益 = 3,120 − 3,000 = 120円 となり、条件と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 2,400円 → 利益率を0.05と計算した誤り（120 ÷ 0.05）。不正解<br>
+                ・(2) 1,200円 → 「3割 − 2割 = 1割の利益」と誤り、0.1<em>x</em> = 120 とした値。割引は定価（1.3<em>x</em>）に掛かるため誤り。不正解<br>
+                ・(3) 3,000円 → 0.04<em>x</em> = 120 を満たす。正解<br>
+                ・(4) 6,000円 → 1.3 × 0.8 を 1.02 と誤計算した値（120 ÷ 0.02)。不正解<br>
+                ・(5) 4,000円 → 1.3 × 0.8 を 1.03 と誤計算した値（120 ÷ 0.03)。不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．ある店で、同じ商品を240個仕入れ、原価の2割5分の利益を見込んで定価をつけて売り出した。何個かは定価で売れたが、売れ残りが出たため、売れ残った分はすべて定価の2割引にして売り切った。その結果、全体の利益は仕入総額のちょうど15％となった。定価で売れた個数は何個か。次の(1)〜(5)から1つ選べ。（6点）</div>
+
+                <div class="options">
+                    (1) 120個&nbsp;&nbsp;&nbsp;(2) 96個&nbsp;&nbsp;&nbsp;(3) 180個&nbsp;&nbsp;&nbsp;(4) 192個&nbsp;&nbsp;&nbsp;(5) 144個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(5))</strong><br>
+                原価の実額は与えられていないが、利益の条件が仕入総額に対する割合で示されているため、原価を1個あたり <em>x</em> 円とおけば <em>x</em> は式の両辺から消える。定価で売れた個数を <em>n</em> 個とおく。<br><br>
+
+                <strong>【1個あたりの利益を整理】</strong><br>
+                ・定価 = <em>x</em> × 1.25 = 1.25<em>x</em> 円 → 定価で売れた分の利益は1個あたり 0.25<em>x</em> 円<br>
+                ・割引後の売価 = 1.25<em>x</em> × 0.8 = <em>x</em> 円 → <strong>割引後の売価は原価とちょうど等しい</strong><br>
+                　つまり、売れ残って割引で売った分の利益は1個あたり0円である。<br><br>
+
+                <strong>【立式と求解】</strong><br>
+                全体の利益 = 定価で売れた分の利益のみ = 0.25<em>x</em> × <em>n</em> 円<br>
+                仕入総額 = 240<em>x</em> 円 なので、条件より<br>
+                0.25<em>x</em> × <em>n</em> = 240<em>x</em> × 0.15 = 36<em>x</em><br>
+                両辺を <em>x</em> で割って 0.25<em>n</em> = 36 → <em>n</em> = 36 ÷ 0.25 = <strong>144個</strong><br><br>
+
+                <strong>【検算】</strong><br>
+                原価を800円とすると、仕入総額 = 192,000円。定価1,000円で144個 → 利益 200 × 144 = 28,800円。割引価格800円で96個 → 利益0円。<br>
+                総利益28,800円 ÷ 192,000円 = 0.15 = 15％ となり、条件と一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 120個 → 割引販売分にも「2割5分 − 2割 = 5分」の利益が残ると誤り、0.25<em>n</em> + 0.05(240 − <em>n</em>) = 36 とした値。2割引は定価1.25<em>x</em>に掛かるため利益は0。不正解<br>
+                ・(2) 96個 → 売れ残り（割引で売った）個数 240 − 144 = 96 との取り違え。不正解<br>
+                ・(3) 180個 → 利益率15％の基準を仕入総額でなく定価売上（1.25<em>x</em> × 240）と誤った値。不正解<br>
+                ・(4) 192個 → 「2割引だから2割が売れ残った」と早合点した 240 × 0.8 の値。不正解<br>
+                ・(5) 144個 → 0.25<em>n</em> = 36 を満たす。正解<br><br>
+
+                したがって、正解は<strong>(5)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
