@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の図のような、底面が横6cm、奥行5cmの長方形で高さが8cmの直方体の容器があり、底には横3cm、奥行5cm、高さ4cmの直方体のおもりが、右側の壁と底にぴったりつけて置かれている。この容器に、毎秒6cm³の割合で静かに水を注ぐとき、水を注ぎ始めてからの時間と水面の高さの関係を表すグラフとして、最も妥当なのはどれか。ただし、おもりは水を注いでも動かず、水を吸収しないものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 430x335px / viewBox: 0 0 430 335
+                座標系定義:
+                - 1cm=25px、奥行方向は右上へ1cm=12px
+                - 容器前面: 左下(60,280)、幅150px(6cm)×高さ200px(8cm)
+                - 奥行5cm=(+60,-60)。おもり前面: x135-210, y180-280(3cm×4cm)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】容器とおもりのようす</div>
+                    <div class="figure-content">
+                        <svg width="430" height="335" viewBox="0 0 430 335">
+                            <!-- 隠れ線(破線) -->
+                            <line x1="60" y1="280" x2="120" y2="220" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="120" y1="220" x2="270" y2="220" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="120" y1="220" x2="120" y2="20" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <!-- おもり(前面・上面・右面) -->
+                            <polygon points="135,180 195,120 270,120 210,180" fill="#e0e0e0" stroke="black" stroke-width="1.5"/>
+                            <polygon points="210,180 270,120 270,220 210,280" fill="#c8c8c8" stroke="black" stroke-width="1.5"/>
+                            <polygon points="135,180 210,180 210,280 135,280" fill="#f0f0f0" stroke="black" stroke-width="1.5"/>
+                            <text x="172" y="238" class="svg-text" text-anchor="middle" font-size="13">おもり</text>
+                            <!-- 容器の見える線 -->
+                            <rect x="60" y="80" width="150" height="200" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="60" y1="80" x2="120" y2="20" stroke="black" stroke-width="2"/>
+                            <line x1="210" y1="80" x2="270" y2="20" stroke="black" stroke-width="2"/>
+                            <line x1="120" y1="20" x2="270" y2="20" stroke="black" stroke-width="2"/>
+                            <line x1="270" y1="20" x2="270" y2="120" stroke="black" stroke-width="2"/>
+                            <!-- 注水の矢印 -->
+                            <line x1="140" y1="28" x2="140" y2="58" stroke="black" stroke-width="2"/>
+                            <polygon points="135,56 145,56 140,68" fill="black"/>
+                            <text x="152" y="42" class="svg-text" font-size="13">注水（毎秒6cm³）</text>
+                            <!-- 寸法: 底面の横 -->
+                            <line x1="60" y1="292" x2="135" y2="292" stroke="black" stroke-width="1"/>
+                            <line x1="135" y1="292" x2="210" y2="292" stroke="black" stroke-width="1"/>
+                            <line x1="60" y1="287" x2="60" y2="297" stroke="black" stroke-width="1"/>
+                            <line x1="135" y1="287" x2="135" y2="297" stroke="black" stroke-width="1"/>
+                            <line x1="210" y1="287" x2="210" y2="297" stroke="black" stroke-width="1"/>
+                            <text x="97" y="308" class="svg-text" text-anchor="middle" font-size="12">3cm</text>
+                            <text x="172" y="308" class="svg-text" text-anchor="middle" font-size="12">3cm</text>
+                            <line x1="60" y1="318" x2="210" y2="318" stroke="black" stroke-width="1"/>
+                            <line x1="60" y1="313" x2="60" y2="323" stroke="black" stroke-width="1"/>
+                            <line x1="210" y1="313" x2="210" y2="323" stroke="black" stroke-width="1"/>
+                            <text x="135" y="333" class="svg-text" text-anchor="middle" font-size="12">6cm</text>
+                            <!-- 寸法: 高さ8cm -->
+                            <line x1="47" y1="80" x2="47" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="42" y1="80" x2="52" y2="80" stroke="black" stroke-width="1"/>
+                            <line x1="42" y1="280" x2="52" y2="280" stroke="black" stroke-width="1"/>
+                            <text x="28" y="185" class="svg-text" text-anchor="middle" font-size="12">8cm</text>
+                            <!-- 寸法: おもりの高さ4cm -->
+                            <line x1="127" y1="180" x2="127" y2="280" stroke="black" stroke-width="1"/>
+                            <line x1="122" y1="180" x2="132" y2="180" stroke="black" stroke-width="1"/>
+                            <line x1="122" y1="280" x2="132" y2="280" stroke="black" stroke-width="1"/>
+                            <text x="108" y="235" class="svg-text" text-anchor="middle" font-size="12">4cm</text>
+                            <!-- 寸法: 奥行5cm -->
+                            <line x1="218" y1="288" x2="278" y2="228" stroke="black" stroke-width="1"/>
+                            <text x="272" y="262" class="svg-text" text-anchor="middle" font-size="12">5cm</text>
+                        </svg>
+                    </div>
+                </div>
+                <!--
+                選択肢グラフ仕様:
+                - SVGサイズ: 600x300px / 各セル180x130px(3列+2列)
+                - セル内座標系: 原点(35,105)、横軸=時間(1秒=4px,30秒=155)、縦軸=水位(1cm=10px,8cm=25)
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="300" viewBox="0 0 600 300">
+                            <!-- 選択肢(1): 途中で停滞する形 -->
+                            <g transform="translate(10, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(1)</text>
+                                <line x1="35" y1="25" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="29" class="svg-text" font-size="10" text-anchor="end">8</text>
+                                <text x="30" y="69" class="svg-text" font-size="10" text-anchor="end">4</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="75" y1="65" x2="75" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="115" y1="65" x2="115" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="65" x2="75" y2="65" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="75" y="117" class="svg-text" font-size="10" text-anchor="middle">10</text>
+                                <text x="115" y="117" class="svg-text" font-size="10" text-anchor="middle">20</text>
+                                <text x="155" y="117" class="svg-text" font-size="10" text-anchor="middle">30</text>
+                                <polyline points="35,105 75,65 115,65 155,25" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(2): 緩→急の形 -->
+                            <g transform="translate(210, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(2)</text>
+                                <line x1="35" y1="25" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="29" class="svg-text" font-size="10" text-anchor="end">8</text>
+                                <text x="30" y="69" class="svg-text" font-size="10" text-anchor="end">4</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="115" y1="65" x2="115" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="65" x2="115" y2="65" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="115" y="117" class="svg-text" font-size="10" text-anchor="middle">20</text>
+                                <text x="155" y="117" class="svg-text" font-size="10" text-anchor="middle">30</text>
+                                <polyline points="35,105 115,65 155,25" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(3): 直線 -->
+                            <g transform="translate(410, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(3)</text>
+                                <line x1="35" y1="25" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="29" class="svg-text" font-size="10" text-anchor="end">8</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <text x="155" y="117" class="svg-text" font-size="10" text-anchor="middle">30</text>
+                                <polyline points="35,105 155,25" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(4): 急→緩の形(正解) -->
+                            <g transform="translate(110, 158)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(4)</text>
+                                <line x1="35" y1="25" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="29" class="svg-text" font-size="10" text-anchor="end">8</text>
+                                <text x="30" y="69" class="svg-text" font-size="10" text-anchor="end">4</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="75" y1="65" x2="75" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="65" x2="75" y2="65" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="75" y="117" class="svg-text" font-size="10" text-anchor="middle">10</text>
+                                <text x="155" y="117" class="svg-text" font-size="10" text-anchor="middle">30</text>
+                                <polyline points="35,105 75,65 155,25" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(5): だんだん急になる曲線 -->
+                            <g transform="translate(310, 158)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(5)</text>
+                                <line x1="35" y1="25" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="29" class="svg-text" font-size="10" text-anchor="end">8</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <text x="155" y="117" class="svg-text" font-size="10" text-anchor="middle">30</text>
+                                <path d="M35,105 Q95,105 155,25" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">横軸：時間（秒）　縦軸：水面の高さ（cm）</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                水面の高さによって「水がたまる部分の底面積」が変わることに着目し、注水を2つの段階に分けて考える。<br><br>
+
+                <strong>【第1段階：水面の高さが0cm〜4cmの間】</strong><br>
+                おもり（高さ4cm）があるため、水はおもりの左側の空間にたまる。<br>
+                ・水がたまる部分の底面積 ＝ 容器の底面積 − おもりの底面積 ＝ 6×5 − 3×5 ＝ 30 − 15 ＝ 15cm²<br>
+                ・水面の上昇の速さ ＝ 6cm³/秒 ÷ 15cm² ＝ 毎秒0.4cm<br>
+                ・高さ4cmに達するまでの水の体積 ＝ 15×4 ＝ 60cm³ → 60 ÷ 6 ＝ <strong>10秒</strong><br><br>
+
+                <strong>【第2段階：水面の高さが4cm〜8cmの間】</strong><br>
+                水面がおもりの上面をこえると、底面積は容器全体の広さになる。<br>
+                ・水がたまる部分の底面積 ＝ 6×5 ＝ 30cm²<br>
+                ・水面の上昇の速さ ＝ 6cm³/秒 ÷ 30cm² ＝ 毎秒0.2cm（第1段階の半分）<br>
+                ・4cmから8cmまでの水の体積 ＝ 30×4 ＝ 120cm³ → 120 ÷ 6 ＝ 20秒<br>
+                ・満水になるのは 10 ＋ 20 ＝ <strong>30秒後</strong><br><br>
+
+                <strong>【グラフの形】</strong><br>
+                グラフは、(0秒, 0cm)から(10秒, 4cm)までは急な直線、(10秒, 4cm)から(30秒, 8cm)までは傾きが半分の緩やかな直線となる折れ線である。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 途中で水位が一定になる区間があるのは、水が別の場所へ流れこむ場合（仕切りのある容器など）であり、本問では起こらない → 不正解<br>
+                ・(2) 「緩→急」と傾きの変化が逆。狭い部分ほど水面は速く上がる → 不正解<br>
+                ・(3) 底面積がずっと一定の場合のグラフ。おもりの影響が反映されていない → 不正解<br>
+                ・(4) 「急→緩」で折れ目が(10秒, 4cm)、満水が(30秒, 8cm) → 正解<br>
+                ・(5) 上昇がなめらかに速くなる曲線は、容器が上にいくほど連続的に狭くなる場合の形 → 不正解<br><br>
+
+                したがって、正解は<strong>(4)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の図のような、底面が横8cm、奥行5cmの長方形で高さが9cmの直方体の容器があり、内部には左側の壁から2cmの位置に、底面に垂直で奥行方向いっぱいの仕切り板（高さ6cm、厚さは考えない）が取り付けられている。仕切り板の左側の部分をA、右側の部分をBとする。Aの真上から毎秒10cm³の割合で静かに水を注ぐとき、水を注ぎ始めてからの時間とA側の水面の高さの関係を表すグラフとして、最も妥当なのはどれか。ただし、仕切り板をこえた水はB側へ流れこみ、水は容器の外へあふれないものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 430x350px / viewBox: 0 0 430 350
+                座標系定義:
+                - 1cm=22px、奥行方向は右上へ1cm=11px
+                - 容器前面: 左下(70,290)、幅176px(8cm)×高さ198px(9cm)
+                - 奥行5cm=(+55,-55)。仕切り板前縁: x=114(左壁から2cm)、高さ132px(6cm)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】仕切り板のある容器のようす</div>
+                    <div class="figure-content">
+                        <svg width="430" height="350" viewBox="0 0 430 350">
+                            <!-- 隠れ線(破線) -->
+                            <line x1="70" y1="290" x2="125" y2="235" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="125" y1="235" x2="301" y2="235" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="125" y1="235" x2="125" y2="37" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="246" y1="290" x2="301" y2="235" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <line x1="301" y1="235" x2="301" y2="37" stroke="black" stroke-width="1" stroke-dasharray="5,4"/>
+                            <!-- 仕切り板 -->
+                            <polygon points="114,158 169,103 169,235 114,290" fill="#e6e6e6" stroke="black" stroke-width="1.5"/>
+                            <line x1="145" y1="120" x2="200" y2="68" stroke="black" stroke-width="0.8"/>
+                            <text x="203" y="64" class="svg-text" font-size="12">仕切り板</text>
+                            <!-- 容器の見える線 -->
+                            <rect x="70" y="92" width="176" height="198" fill="none" stroke="black" stroke-width="2"/>
+                            <line x1="70" y1="92" x2="125" y2="37" stroke="black" stroke-width="2"/>
+                            <line x1="246" y1="92" x2="301" y2="37" stroke="black" stroke-width="2"/>
+                            <line x1="125" y1="37" x2="301" y2="37" stroke="black" stroke-width="2"/>
+                            <!-- 注水の矢印 -->
+                            <line x1="100" y1="48" x2="100" y2="72" stroke="black" stroke-width="2"/>
+                            <polygon points="95,70 105,70 100,82" fill="black"/>
+                            <text x="114" y="58" class="svg-text" font-size="13">注水（毎秒10cm³）</text>
+                            <!-- A・Bのラベル -->
+                            <text x="92" y="270" class="svg-text" text-anchor="middle" font-size="15" font-weight="bold">A</text>
+                            <text x="180" y="270" class="svg-text" text-anchor="middle" font-size="15" font-weight="bold">B</text>
+                            <!-- 寸法: 仕切り板の高さ6cm -->
+                            <line x1="124" y1="158" x2="124" y2="290" stroke="black" stroke-width="1"/>
+                            <line x1="119" y1="158" x2="129" y2="158" stroke="black" stroke-width="1"/>
+                            <text x="131" y="230" class="svg-text" font-size="12">6cm</text>
+                            <!-- 寸法: 底面の横 -->
+                            <line x1="70" y1="302" x2="114" y2="302" stroke="black" stroke-width="1"/>
+                            <line x1="114" y1="302" x2="246" y2="302" stroke="black" stroke-width="1"/>
+                            <line x1="70" y1="297" x2="70" y2="307" stroke="black" stroke-width="1"/>
+                            <line x1="114" y1="297" x2="114" y2="307" stroke="black" stroke-width="1"/>
+                            <line x1="246" y1="297" x2="246" y2="307" stroke="black" stroke-width="1"/>
+                            <text x="92" y="318" class="svg-text" text-anchor="middle" font-size="12">2cm</text>
+                            <text x="180" y="318" class="svg-text" text-anchor="middle" font-size="12">6cm</text>
+                            <line x1="70" y1="327" x2="246" y2="327" stroke="black" stroke-width="1"/>
+                            <line x1="70" y1="322" x2="70" y2="332" stroke="black" stroke-width="1"/>
+                            <line x1="246" y1="322" x2="246" y2="332" stroke="black" stroke-width="1"/>
+                            <text x="158" y="343" class="svg-text" text-anchor="middle" font-size="12">8cm</text>
+                            <!-- 寸法: 高さ9cm -->
+                            <line x1="55" y1="92" x2="55" y2="290" stroke="black" stroke-width="1"/>
+                            <line x1="50" y1="92" x2="60" y2="92" stroke="black" stroke-width="1"/>
+                            <line x1="50" y1="290" x2="60" y2="290" stroke="black" stroke-width="1"/>
+                            <text x="38" y="195" class="svg-text" text-anchor="middle" font-size="12">9cm</text>
+                            <!-- 寸法: 奥行5cm -->
+                            <line x1="254" y1="298" x2="309" y2="243" stroke="black" stroke-width="1"/>
+                            <text x="303" y="278" class="svg-text" text-anchor="middle" font-size="12">5cm</text>
+                        </svg>
+                    </div>
+                </div>
+                <!--
+                選択肢グラフ仕様:
+                - SVGサイズ: 600x300px / 各セル180x130px(3列+2列)
+                - セル内座標系: 原点(35,105)、横軸=時間(1秒=3.5px,36秒=161)、縦軸=水位(1cm=9px,9cm=24)
+                -->
+                <div class="figure-container" style="border: none; box-shadow: none;">
+                    <div class="figure-content">
+                        <svg width="600" height="300" viewBox="0 0 600 300">
+                            <!-- 選択肢(1): 緩→停滞→急(AとBの取り違え) -->
+                            <g transform="translate(10, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(1)</text>
+                                <line x1="35" y1="20" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="28" class="svg-text" font-size="10" text-anchor="end">9</text>
+                                <text x="30" y="55" class="svg-text" font-size="10" text-anchor="end">6</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="98" y1="51" x2="98" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="119" y1="51" x2="119" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="51" x2="98" y2="51" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="94" y="117" class="svg-text" font-size="10" text-anchor="middle">18</text>
+                                <text x="123" y="117" class="svg-text" font-size="10" text-anchor="middle">24</text>
+                                <text x="161" y="117" class="svg-text" font-size="10" text-anchor="middle">36</text>
+                                <polyline points="35,105 98,51 119,51 161,24" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(2): 停滞なし -->
+                            <g transform="translate(210, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(2)</text>
+                                <line x1="35" y1="20" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="28" class="svg-text" font-size="10" text-anchor="end">9</text>
+                                <text x="30" y="55" class="svg-text" font-size="10" text-anchor="end">6</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="56" y1="51" x2="56" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="51" x2="56" y2="51" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="56" y="117" class="svg-text" font-size="10" text-anchor="middle">6</text>
+                                <text x="161" y="117" class="svg-text" font-size="10" text-anchor="middle">36</text>
+                                <polyline points="35,105 56,51 161,24" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(3): 急→停滞→緩(正解) -->
+                            <g transform="translate(410, 10)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(3)</text>
+                                <line x1="35" y1="20" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="28" class="svg-text" font-size="10" text-anchor="end">9</text>
+                                <text x="30" y="55" class="svg-text" font-size="10" text-anchor="end">6</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="56" y1="51" x2="56" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="119" y1="51" x2="119" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="51" x2="56" y2="51" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="56" y="117" class="svg-text" font-size="10" text-anchor="middle">6</text>
+                                <text x="119" y="117" class="svg-text" font-size="10" text-anchor="middle">24</text>
+                                <text x="161" y="117" class="svg-text" font-size="10" text-anchor="middle">36</text>
+                                <polyline points="35,105 56,51 119,51 161,24" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(4): 6cmのまま変わらない -->
+                            <g transform="translate(110, 158)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(4)</text>
+                                <line x1="35" y1="20" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="28" class="svg-text" font-size="10" text-anchor="end">9</text>
+                                <text x="30" y="55" class="svg-text" font-size="10" text-anchor="end">6</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="56" y1="51" x2="56" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="51" x2="56" y2="51" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="56" y="117" class="svg-text" font-size="10" text-anchor="middle">6</text>
+                                <text x="161" y="117" class="svg-text" font-size="10" text-anchor="middle">36</text>
+                                <polyline points="35,105 56,51 161,51" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                            <!-- 選択肢(5): はじめ0のまま、途中から上昇 -->
+                            <g transform="translate(310, 158)">
+                                <text x="90" y="16" class="svg-text" text-anchor="middle">(5)</text>
+                                <line x1="35" y1="20" x2="35" y2="105" stroke="black" stroke-width="1.2"/>
+                                <line x1="35" y1="105" x2="168" y2="105" stroke="black" stroke-width="1.2"/>
+                                <text x="30" y="28" class="svg-text" font-size="10" text-anchor="end">9</text>
+                                <text x="30" y="55" class="svg-text" font-size="10" text-anchor="end">6</text>
+                                <text x="30" y="117" class="svg-text" font-size="10" text-anchor="end">0</text>
+                                <line x1="119" y1="51" x2="119" y2="105" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <line x1="35" y1="51" x2="119" y2="51" stroke="#777" stroke-width="0.8" stroke-dasharray="3,2"/>
+                                <text x="56" y="117" class="svg-text" font-size="10" text-anchor="middle">6</text>
+                                <text x="119" y="117" class="svg-text" font-size="10" text-anchor="middle">24</text>
+                                <text x="161" y="117" class="svg-text" font-size="10" text-anchor="middle">36</text>
+                                <polyline points="35,105 56,105 119,51 161,24" fill="none" stroke="black" stroke-width="2.2"/>
+                            </g>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">横軸：時間（秒）　縦軸：A側の水面の高さ（cm）</div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                仕切り板があるため、A側の水面の変化は3つの段階に分かれる。各部分の底面積を先に整理する。<br>
+                ・Aの底面積 ＝ 2×5 ＝ 10cm²　・Bの底面積 ＝ 6×5 ＝ 30cm²　・容器全体 ＝ 8×5 ＝ 40cm²<br><br>
+
+                <strong>【第1段階：Aの水面が0cm〜6cm（仕切り板の高さ）まで】</strong><br>
+                ・必要な水の体積 ＝ 10×6 ＝ 60cm³ → 60 ÷ 10 ＝ <strong>6秒</strong><br>
+                ・上昇の速さ ＝ 10 ÷ 10 ＝ 毎秒1cm（急な直線）<br><br>
+
+                <strong>【第2段階：水が仕切り板をこえてB側へ流れこむ間】</strong><br>
+                Aの水面は仕切り板の高さ6cmのまま変わらず、注いだ水はすべてB側にたまる。<br>
+                ・Bが6cmになるまでの体積 ＝ 30×6 ＝ 180cm³ → 180 ÷ 10 ＝ 18秒<br>
+                ・この段階が終わるのは 6 ＋ 18 ＝ <strong>24秒後</strong>（グラフは水平）<br><br>
+
+                <strong>【第3段階：A・B一体で6cm〜9cmまで】</strong><br>
+                両側の水面がそろい、容器全体（40cm²）として上昇する。<br>
+                ・必要な体積 ＝ 40×3 ＝ 120cm³ → 120 ÷ 10 ＝ 12秒<br>
+                ・満水は 24 ＋ 12 ＝ <strong>36秒後</strong>。上昇の速さ ＝ 毎秒0.25cm（緩やかな直線）<br>
+                ・検算：容器全体の体積 8×5×9 ＝ 360cm³ ＝ 10cm³/秒 × 36秒 で一致する。<br><br>
+
+                <strong>【グラフの形】</strong><br>
+                「急な上昇（0→6秒）」→「水平（6→24秒）」→「緩やかな上昇（24→36秒）」の3段階の折れ線となる。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) はじめの上昇が緩やかで停滞が18〜24秒。AとBの底面積を取り違えた形 → 不正解<br>
+                ・(2) 水平の区間がない。B側へ流れこむ間、Aの水面が止まることを見落としている → 不正解<br>
+                ・(3) 急な上昇→(6秒, 6cm)、水平→(24秒, 6cm)、緩やかな上昇→(36秒, 9cm) → 正解<br>
+                ・(4) 24秒以降もAの水面が6cmのまま。B側が6cmに達したあと、両側がいっしょに上昇する第3段階を見落としている → 不正解<br>
+                ・(5) はじめ0cmのままで途中から上昇する形。これはB側の水面の高さのグラフである → 不正解<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
