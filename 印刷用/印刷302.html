@@ -1,0 +1,513 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．同じ大きさの球を、下の図のように、上から第1段目に1個、第2段目に3個、第3段目に6個、…と、各段の球が正三角形状にすき間なく並ぶように積み上げて、第1番目、第2番目、第3番目、…と規則的に立体を作っていく。n段からなる立体を第n番目の立体と呼ぶと、第1番目の立体には1個、第2番目の立体には4個、第3番目の立体には10個の球が使われている。このとき、第6番目の立体に使われている球は全部で何個か。（6点）</div>
+                <div class="figure-container">
+                    <div class="figure-title">【図1】規則的に作っていく立体（第1番目〜第3番目）</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 500x270px / viewBox: 0 0 500 270
+                        - 余白: 上下左右20px以上を確保
+
+                        座標系定義（擬似等角投影・球の半径r=16px）:
+                        - 段内の横方向(a): 画面(+32, 0) / 奥行き方向(b): 画面(+16, -12)
+                        - 1段上がるごと(d): 画面(+16, -29)
+                        - 各立体の最下段・最前列・左端の球の中心: 第1番目(60,200)・第2番目(190,200)・第3番目(360,200)
+                        - 描画順: 下の段から、各段は奥の列から手前の列へ（手前の球が前面）
+                        - 奥の列の球は薄いグレー(#eeeeee)で塗り、立体感を表現
+                        -->
+                        <svg width="500" height="270" viewBox="0 0 500 270">
+                            <!-- 第1番目: 球1個 -->
+                            <circle cx="60" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <text x="60" y="245" class="svg-text" text-anchor="middle">第1番目</text>
+                            <text x="60" y="263" class="svg-text" text-anchor="middle" font-size="12">（1個）</text>
+
+                            <!-- 第2番目: 下段3個 + 上段1個 -->
+                            <circle cx="206" cy="188" r="16" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                            <circle cx="190" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="222" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="206" cy="171" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <text x="206" y="245" class="svg-text" text-anchor="middle">第2番目</text>
+                            <text x="206" y="263" class="svg-text" text-anchor="middle" font-size="12">（4個）</text>
+
+                            <!-- 第3番目: 下段6個 + 中段3個 + 上段1個 -->
+                            <circle cx="392" cy="176" r="16" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                            <circle cx="376" cy="188" r="16" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                            <circle cx="408" cy="188" r="16" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                            <circle cx="360" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="392" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="424" cy="200" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="392" cy="159" r="16" fill="#eeeeee" stroke="black" stroke-width="1.5"/>
+                            <circle cx="376" cy="171" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="408" cy="171" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <circle cx="392" cy="142" r="16" fill="#ffffff" stroke="black" stroke-width="1.5"/>
+                            <text x="392" y="245" class="svg-text" text-anchor="middle">第3番目</text>
+                            <text x="392" y="263" class="svg-text" text-anchor="middle" font-size="12">（10個）</text>
+                        </svg>
+                    </div>
+                </div>
+                <div class="options">
+                    (1)　56個<br>
+                    (2)　66個<br>
+                    (3)　84個<br>
+                    (4)　91個<br>
+                    (5)　120個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(1))</strong><br>
+                各段の球の個数の規則を見つけ、第6番目の立体（6段）まで合計する問題である。<br><br>
+
+                <strong>【規則の発見】</strong><br>
+                ・各段の球は正三角形状に並ぶので、上から第m段目の球の個数は<br>
+                　1＋2＋3＋…＋m ＝ m(m＋1)/2（個）となる。<br>
+                ・すなわち各段の球数は、第1段目から順に 1, 3, 6, 10, 15, 21, …（個）。<br>
+                ・隣り合う段の球数の差が 2, 3, 4, 5, 6, … と1つずつ増えていることからも確認できる。<br><br>
+
+                <strong>【計算】</strong><br>
+                第n番目の立体の球の総数は、第1段目から第n段目までの球数の合計である。<br>
+                ・第1番目：1個<br>
+                ・第2番目：1＋3＝4個<br>
+                ・第3番目：4＋6＝10個<br>
+                ・第4番目：10＋10＝20個<br>
+                ・第5番目：20＋15＝35個<br>
+                ・第6番目：35＋21＝<strong>56個</strong><br>
+                （第1〜3番目の値が問題文の 1個・4個・10個 と一致することも確認できる）<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 56個 → 上記の計算どおり。正解<br>
+                ・(2) 66個 → 途中の累計を重複して加えるなどの計算ミス（56＋10）<br>
+                ・(3) 84個 → 第7番目の立体の球数。1段多く数えている<br>
+                ・(4) 91個 → 各段を「1辺m個の正方形状（m×m個）」と誤解した場合の合計（1＋4＋9＋16＋25＋36）<br>
+                ・(5) 120個 → 第8番目の立体の球数。2段多く数えている<br><br>
+
+                したがって、正解は<strong>(1)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ規則で球を12段に積み上げて、第12番目の立体を作る。この立体は、下の図のように、底面1つと斜面3つの合わせて4つの面をもつ三角錐の形になり、それぞれの面には球が正三角形状に並んで現れている。第12番目の立体に使われている球のうち、これら4つの面のいずれの上にもない球（外から見えず、立体の内部に完全に隠れている球）は全部で何個か。（6点）</div>
+                <div class="figure-container">
+                    <div class="figure-title">【図2】第12番目の立体の形（三角錐）と4つの面</div>
+                    <div class="figure-content">
+                        <!--
+                        図表仕様:
+                        - SVGサイズ: 500x230px / viewBox: 0 0 500 230
+                        - 余白: 上下左右20px以上を確保
+
+                        座標系定義（三角錐の見取り図）:
+                        - 頂点A(170,30) / 底面の手前左B(60,190)・手前右C(280,190)・奥D(215,140)
+                        - 実線: 外から見える辺 A-B, A-C, A-D, B-C
+                        - 破線: 隠れている底面の奥の辺 B-D, C-D
+                        - 引き出し線で「斜面」(手前の面ABC付近)と「底面」(下側)を注記
+                        -->
+                        <svg width="500" height="230" viewBox="0 0 500 230">
+                            <!-- 見える辺（実線） -->
+                            <line x1="170" y1="30" x2="60" y2="190" stroke="black" stroke-width="2"/>
+                            <line x1="170" y1="30" x2="280" y2="190" stroke="black" stroke-width="2"/>
+                            <line x1="170" y1="30" x2="215" y2="140" stroke="black" stroke-width="2"/>
+                            <line x1="60" y1="190" x2="280" y2="190" stroke="black" stroke-width="2"/>
+                            <!-- 隠れている底面の辺（破線） -->
+                            <line x1="60" y1="190" x2="215" y2="140" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <line x1="280" y1="190" x2="215" y2="140" stroke="black" stroke-width="1.5" stroke-dasharray="6,4"/>
+                            <!-- 注記: 斜面 -->
+                            <line x1="175" y1="115" x2="330" y2="80" stroke="#555" stroke-width="1"/>
+                            <text x="338" y="78" class="svg-text">斜面（3つ）</text>
+                            <text x="338" y="98" class="svg-text" font-size="12">正面・右奥・左奥の3面</text>
+                            <!-- 注記: 底面 -->
+                            <line x1="185" y1="173" x2="330" y2="185" stroke="#555" stroke-width="1"/>
+                            <text x="338" y="190" class="svg-text">底面（1つ）</text>
+                            <!-- 補足 -->
+                            <text x="170" y="222" class="svg-text" font-size="12" text-anchor="middle">※どの面にも、球が正三角形状に並んで現れている</text>
+                        </svg>
+                    </div>
+                </div>
+                <div class="options">
+                    (1)　56個<br>
+                    (2)　84個<br>
+                    (3)　120個<br>
+                    (4)　165個<br>
+                    (5)　220個
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(3))</strong><br>
+                「内部に隠れている球」を段ごとに数え上げる問題である。<br><br>
+
+                <strong>【考え方：段ごとに内部の球を数える】</strong><br>
+                ・最下段（第12段目）の球は、すべて底面の上にあるから、内部の球は0個。<br>
+                ・上から第m段目（m≦11）は、1辺m個の正三角形状に球が並んでいる。この三角形の周（3つの辺）の上にある球は、3つの斜面のいずれかに現れて外から見える。<br>
+                ・内部に隠れるのは、周を除いた内側の球だけであり、それらは1辺が(m−3)個の正三角形状に並ぶから、その個数は<br>
+                　(m−3)(m−2)/2（個）　（m≧4。m≦3の段では0個）<br><br>
+
+                <strong>【計算】</strong><br>
+                第4段目から第11段目までの内部の球を合計すると、<br>
+                ・第4段目：1個　・第5段目：3個　・第6段目：6個　・第7段目：10個<br>
+                ・第8段目：15個　・第9段目：21個　・第10段目：28個　・第11段目：36個<br>
+                合計　1＋3＋6＋10＋15＋21＋28＋36＝<strong>120個</strong><br><br>
+
+                <strong>【別解】</strong><br>
+                内部の球の各段の個数 1, 3, 6, 10, … は問1の各段の球数と同じ並びである。つまり内部の球だけを取り出すと、ちょうど第(12−4)＝8番目の立体と同じ形（8段の三角錐）になり、その総数は<br>
+                　8×9×10÷6＝120（個）<br>
+                と求めることもできる（各斜面で1段分ずつ、底面と最上部で合わせて4段分小さくなる）。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 56個 → 第6番目の立体の総数（内部を2段分小さく見積もった誤り）<br>
+                ・(2) 84個 → 第7番目の立体の総数。内部の立体を7段と誤った場合<br>
+                ・(3) 120個 → 上記の計算どおり。正解<br>
+                ・(4) 165個 → 最下段の内側の球45個を「隠れている」と誤って加えた場合（120＋45）<br>
+                ・(5) 220個 → 第10番目の立体の総数。斜面上の球の除外が不完全な場合<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
