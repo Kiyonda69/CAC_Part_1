@@ -1,0 +1,499 @@
+<!--
+================================================================================
+template_static.html - 静的問題テンプレート（印刷用）
+================================================================================
+
+【概要】
+このテンプレートは、航空大学校入学試験の思考パズル問題を
+印刷用のA4サイズページ形式で表示するHTMLファイルです。
+インタラクティブな機能はなく、問題と解説を紙に印刷して
+使用することを想定しています。
+
+【使用方法】
+1. このファイルをコピーして新しい問題ファイルを作成
+2. 問題文、図表、選択肢、解説を編集
+3. ページ数に応じて .question-section を追加
+
+【ファイル構造】
+- 問題ページと解説ページは別々の .question-section で作成
+- 各セクションはA4サイズ（800px幅）で固定
+- 画面サイズに応じて自動スケーリング
+- 収まりきらない場合はページを追加して分割してよい
+
+【印刷時の注意】
+- ブラウザの印刷機能（Ctrl+P / Cmd+P）を使用
+- 各ページが自動的に改ページされる
+- 背景色は印刷時に白になる
+================================================================================
+-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．下の【図1】のような立方体ABCD−EFGHがあり、底面がABCD、上面がEFGHで、頂点Eは頂点Aの真上にある。辺ABと残り11本の辺との位置関係を考えるとき、辺ABと平行な辺の本数（ア）と、辺ABとねじれの位置にある辺の本数（イ）の組合せとして正しいものはどれか。ただし、辺どうしの位置関係は、それぞれの辺を含む直線どうしの位置関係で考えるものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 420x300px / viewBox: 0 0 420 300
+                - 立方体: 前面ABFE(90,90)-(250,250)・奥行きオフセット(+70,-50)
+                - 隠れ線: 頂点Dに集まるAD・DC・DHを破線で表示
+                - 辺ABは太線(幅4.5)で強調
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】立方体ABCD−EFGH</div>
+                    <div class="figure-content">
+                        <svg width="420" height="300" viewBox="0 0 420 300">
+<line x1="90" y1="250" x2="160" y2="200" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="160" y1="200" x2="320" y2="200" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="160" y1="200" x2="160" y2="40" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="250" y1="250" x2="320" y2="200" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="90" x2="250" y2="90" stroke="black" stroke-width="1.5"/>
+<line x1="250" y1="90" x2="320" y2="40" stroke="black" stroke-width="1.5"/>
+<line x1="320" y1="40" x2="160" y2="40" stroke="black" stroke-width="1.5"/>
+<line x1="160" y1="40" x2="90" y2="90" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="250" x2="90" y2="90" stroke="black" stroke-width="1.5"/>
+<line x1="250" y1="250" x2="250" y2="90" stroke="black" stroke-width="1.5"/>
+<line x1="320" y1="200" x2="320" y2="40" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="250" x2="250" y2="250" stroke="black" stroke-width="4.5"/>
+<text x="76" y="268" class="svg-text" font-size="16" text-anchor="middle">A</text>
+<text x="264" y="268" class="svg-text" font-size="16" text-anchor="middle">B</text>
+<text x="338" y="206" class="svg-text" font-size="16" text-anchor="middle">C</text>
+<text x="154" y="188" class="svg-text" font-size="16" text-anchor="middle">D</text>
+<text x="76" y="82" class="svg-text" font-size="16" text-anchor="middle">E</text>
+<text x="266" y="78" class="svg-text" font-size="16" text-anchor="middle">F</text>
+<text x="336" y="34" class="svg-text" font-size="16" text-anchor="middle">G</text>
+<text x="160" y="30" class="svg-text" font-size="16" text-anchor="middle">H</text>
+<text x="170" y="282" class="svg-text" font-size="14" text-anchor="middle">辺AB</text>
+</svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　ア：2本　イ：5本<br>
+                    (2)　ア：3本　イ：2本<br>
+                    (3)　ア：3本　イ：8本<br>
+                    (4)　ア：3本　イ：4本<br>
+                    (5)　ア：1本　イ：6本<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(4))</strong><br>
+                空間内の2直線の位置関係は、「交わる」「平行」「ねじれの位置」の3種類に分類される。2直線が同一平面上にあれば「交わる」か「平行」のどちらかであり、同一平面上にないとき、その2直線は「ねじれの位置」にある。辺ABを含む直線と、残り11本の辺を含む直線との関係を、もれなく重複なく数え上げればよい。<br>
+                <br>
+                <strong>【数え上げ】</strong><br>
+                ・<strong>平行な辺（ア）</strong>：辺ABと同じ向きの辺は、DC・EF・HG の<strong>3本</strong>。同じ面内にあるDC・EFは気づきやすいが、上面の奥にあるHGを見落としやすい。<br>
+                ・<strong>交わる辺</strong>：頂点Aを共有する AD・AE と、頂点Bを共有する BC・BF の4本。<br>
+                ・<strong>ねじれの位置にある辺（イ）</strong>：残りの CG・DH・EH・FG の<strong>4本</strong>。いずれも辺ABと平行でなく、延長しても交わらない（同一平面上にない）。<br>
+                ・検算：3＋4＋4＝11本で、残りの辺の総数と一致する。<br>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア2本・イ5本 → 上面の奥のHGを平行と気づかず、ねじれに数えた誤り<br>
+                ・(2) ア3本・イ2本 → ねじれをCG・DHの2本だけとし、EH・FGを見落とした誤り<br>
+                ・(3) ア3本・イ8本 → 「平行でない辺はすべてねじれ」とし、頂点で交わる4本まで含めた誤り<br>
+                ・(4) ア3本・イ4本 → 正しい<br>
+                ・(5) ア1本・イ6本 → 平行を同じ面内のDCだけとし、EF・HGをねじれに数えた誤り<br>
+                <br>
+                したがって、正解は<strong>(4)</strong>である。<br>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．下の【図2】のような正六角柱ABCDEF−GHIJKLがあり、底面ABCDEFと上面GHIJKLはともに正六角形で、頂点Gは頂点Aの真上にある。辺ABと残り17本の辺との位置関係を考えるとき、辺ABと交わる辺の本数（ア）と、辺ABとねじれの位置にある辺の本数（イ）の組合せとして正しいものはどれか。ただし、辺どうしの位置関係は、それぞれの辺を含む直線どうしの位置関係で考えるものとする。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 440x330px / viewBox: 0 0 440 330
+                - 正六角柱: 中心x=220・水平スケール130・奥行きスケール44
+                - 底面y=250・上面y=95・正六角形の頂点A,Bを手前に配置
+                - 隠れ線: 底面奥のCD・DE・EFと奥の側辺DJ・EKを破線で表示
+                - 辺ABは太線(幅4.5)で強調
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】正六角柱ABCDEF−GHIJKL</div>
+                    <div class="figure-content">
+                        <svg width="440" height="330" viewBox="0 0 440 330">
+<line x1="350" y1="250" x2="285" y2="212" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="285" y1="212" x2="155" y2="212" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="155" y1="212" x2="90" y2="250" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="285" y1="212" x2="285" y2="57" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="155" y1="212" x2="155" y2="57" stroke="black" stroke-width="1.5" stroke-dasharray="6,5"/>
+<line x1="285" y1="288" x2="350" y2="250" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="250" x2="155" y2="288" stroke="black" stroke-width="1.5"/>
+<line x1="155" y1="133" x2="285" y2="133" stroke="black" stroke-width="1.5"/>
+<line x1="285" y1="133" x2="350" y2="95" stroke="black" stroke-width="1.5"/>
+<line x1="350" y1="95" x2="285" y2="57" stroke="black" stroke-width="1.5"/>
+<line x1="285" y1="57" x2="155" y2="57" stroke="black" stroke-width="1.5"/>
+<line x1="155" y1="57" x2="90" y2="95" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="95" x2="155" y2="133" stroke="black" stroke-width="1.5"/>
+<line x1="155" y1="288" x2="155" y2="133" stroke="black" stroke-width="1.5"/>
+<line x1="285" y1="288" x2="285" y2="133" stroke="black" stroke-width="1.5"/>
+<line x1="350" y1="250" x2="350" y2="95" stroke="black" stroke-width="1.5"/>
+<line x1="90" y1="250" x2="90" y2="95" stroke="black" stroke-width="1.5"/>
+<line x1="155" y1="288" x2="285" y2="288" stroke="black" stroke-width="4.5"/>
+<text x="139" y="304" class="svg-text" font-size="16" text-anchor="middle">A</text>
+<text x="139" y="125" class="svg-text" font-size="16" text-anchor="middle">G</text>
+<text x="301" y="304" class="svg-text" font-size="16" text-anchor="middle">B</text>
+<text x="301" y="125" class="svg-text" font-size="16" text-anchor="middle">H</text>
+<text x="368" y="258" class="svg-text" font-size="16" text-anchor="middle">C</text>
+<text x="368" y="95" class="svg-text" font-size="16" text-anchor="middle">I</text>
+<text x="301" y="210" class="svg-text" font-size="16" text-anchor="middle">D</text>
+<text x="299" y="47" class="svg-text" font-size="16" text-anchor="middle">J</text>
+<text x="139" y="210" class="svg-text" font-size="16" text-anchor="middle">E</text>
+<text x="141" y="47" class="svg-text" font-size="16" text-anchor="middle">K</text>
+<text x="72" y="258" class="svg-text" font-size="16" text-anchor="middle">F</text>
+<text x="72" y="95" class="svg-text" font-size="16" text-anchor="middle">L</text>
+<text x="220" y="318" class="svg-text" font-size="14" text-anchor="middle">辺AB</text>
+</svg>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　ア：6本　イ：8本<br>
+                    (2)　ア：4本　イ：10本<br>
+                    (3)　ア：6本　イ：4本<br>
+                    (4)　ア：8本　イ：6本<br>
+                    (5)　ア：4本　イ：12本<br>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(1))</strong><br>
+                問1と同じ分類を正六角柱で行う高難度版である。最大のポイントは、「辺として離れていても、同一平面上にあって平行でなければ、直線として延長すると必ず交わる＝ねじれの位置ではない」という点である。<br>
+                <br>
+                <strong>【数え上げ】</strong><br>
+                ・<strong>平行な辺</strong>：底面で向かい合う DE、真上の GH、その向かいの JK の3本。（正六角形では、向かい合う辺どうしだけが平行である。）<br>
+                ・<strong>交わる辺（ア）</strong>：頂点を共有する FA・BC（底面）と AG・BH（側面の縦の辺）の4本に加えて、<strong>CD・EF</strong> の2本、合わせて<strong>6本</strong>。CDやEFは辺ABと離れているが、どちらも辺ABと同じ底面上にあり、平行ではないので、直線として延長すると必ず交わる。ここを「離れているからねじれ」と誤ると(2)を選んでしまう。<br>
+                ・<strong>ねじれの位置にある辺（イ）</strong>：上面の HI・IJ・KL・LG の4本と、側面の縦の辺 CI・DJ・EK・FL の4本、合わせて<strong>8本</strong>。上面の4本は底面と平行な別の平面上にあって辺ABと平行でないため、また縦の4本は辺ABと同一平面上にないため、いずれも延長しても交わらない。<br>
+                ・検算：3＋6＋8＝17本で、残りの辺の総数と一致する。<br>
+                <br>
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) ア6本・イ8本 → 正しい<br>
+                ・(2) ア4本・イ10本 → CD・EFを「離れているからねじれ」と誤分類した誤り（最大の罠）<br>
+                ・(3) ア6本・イ4本 → ねじれを上面の4本だけとし、側面の縦の辺CI・DJ・EK・FLを見落とした誤り<br>
+                ・(4) ア8本・イ6本 → 縦の辺CI・FLを「頂点C・FがA・Bのとなりだから交わる」と誤解した誤り<br>
+                ・(5) ア4本・イ12本 → CD・EFに加えGH・JK（平行）までねじれに数えた誤り<br>
+                <br>
+                なお、各辺の位置関係は、座標を定めてベクトルの計算（平行判定と同一平面判定）を行うことでも確かめられる。<br>
+                <br>
+                したがって、正解は<strong>(1)</strong>である。<br>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
