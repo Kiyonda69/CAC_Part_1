@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問1．図Ⅰのように、三角柱、四角柱、五角柱、…と、底面の辺の数を1本ずつ増やした角柱を順につくる。各角柱について、2つの頂点を結ぶ線分のうち、どの面の上にもない線分を「空間対角線」と呼ぶことにする。空間対角線の本数を数えると、三角柱は0本、四角柱は4本、五角柱は10本である。この規則が続くとき、十角柱の空間対角線の本数として、正しいものはどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 620x235px / viewBox: 0 0 620 235
+                - 余白: 上下左右20px以上
+                座標系定義:
+                - 各角柱: 上面中心y=55・底面中心y=150・正n角形をy方向0.35倍
+                - 三角柱cx=95(rx=40)・四角柱cx=300(rx=42)・五角柱cx=510(rx=44)
+                - 隠れ線(奥側の辺)は破線、空間対角線は細い灰色線
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図Ⅰ】角柱と空間対角線</div>
+                    <div class="figure-content">
+                        <svg width="620" height="235" viewBox="0 0 620 235">
+                            <!-- 三角柱（空間対角線0本） -->
+                            <polygon points="95.0,69.0 60.4,48.0 129.6,48.0" fill="none" stroke="black" stroke-width="1.5"/>
+                            <line x1="95.0" y1="164.0" x2="60.4" y2="143.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="60.4" y1="143.0" x2="129.6" y2="143.0" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="129.6" y1="143.0" x2="95.0" y2="164.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="95.0" y1="69.0" x2="95.0" y2="164.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="60.4" y1="48.0" x2="60.4" y2="143.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="129.6" y1="48.0" x2="129.6" y2="143.0" stroke="black" stroke-width="1.5"/>
+                            <text x="95" y="192" class="svg-text" text-anchor="middle">三角柱</text>
+                            <text x="95" y="212" class="svg-text" text-anchor="middle" font-size="13">空間対角線 0本</text>
+
+                            <!-- 四角柱（空間対角線4本をすべて図示） -->
+                            <polygon points="300.0,69.7 258.0,55.0 300.0,40.3 342.0,55.0" fill="none" stroke="black" stroke-width="1.5"/>
+                            <line x1="300.0" y1="164.7" x2="258.0" y2="150.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="258.0" y1="150.0" x2="300.0" y2="135.3" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="300.0" y1="135.3" x2="342.0" y2="150.0" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="342.0" y1="150.0" x2="300.0" y2="164.7" stroke="black" stroke-width="1.5"/>
+                            <line x1="300.0" y1="69.7" x2="300.0" y2="164.7" stroke="black" stroke-width="1.5"/>
+                            <line x1="258.0" y1="55.0" x2="258.0" y2="150.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="300.0" y1="40.3" x2="300.0" y2="135.3" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="342.0" y1="55.0" x2="342.0" y2="150.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="300.0" y1="69.7" x2="300.0" y2="135.3" stroke="#777" stroke-width="1"/>
+                            <line x1="258.0" y1="55.0" x2="342.0" y2="150.0" stroke="#777" stroke-width="1"/>
+                            <line x1="300.0" y1="40.3" x2="300.0" y2="164.7" stroke="#777" stroke-width="1"/>
+                            <line x1="342.0" y1="55.0" x2="258.0" y2="150.0" stroke="#777" stroke-width="1"/>
+                            <text x="300" y="192" class="svg-text" text-anchor="middle">四角柱</text>
+                            <text x="300" y="212" class="svg-text" text-anchor="middle" font-size="13">空間対角線 4本</text>
+
+                            <!-- 五角柱（頂点Aから出る空間対角線2本のみ図示） -->
+                            <polygon points="510.0,70.4 468.2,59.8 484.1,42.5 535.9,42.5 551.8,59.8" fill="none" stroke="black" stroke-width="1.5"/>
+                            <line x1="510.0" y1="165.4" x2="468.2" y2="154.8" stroke="black" stroke-width="1.5"/>
+                            <line x1="468.2" y1="154.8" x2="484.1" y2="137.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="484.1" y1="137.5" x2="535.9" y2="137.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="535.9" y1="137.5" x2="551.8" y2="154.8" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="551.8" y1="154.8" x2="510.0" y2="165.4" stroke="black" stroke-width="1.5"/>
+                            <line x1="510.0" y1="70.4" x2="510.0" y2="165.4" stroke="black" stroke-width="1.5"/>
+                            <line x1="468.2" y1="59.8" x2="468.2" y2="154.8" stroke="black" stroke-width="1.5"/>
+                            <line x1="484.1" y1="42.5" x2="484.1" y2="137.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="535.9" y1="42.5" x2="535.9" y2="137.5" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="551.8" y1="59.8" x2="551.8" y2="154.8" stroke="black" stroke-width="1.5"/>
+                            <line x1="510.0" y1="70.4" x2="484.1" y2="137.5" stroke="#777" stroke-width="1"/>
+                            <line x1="510.0" y1="70.4" x2="535.9" y2="137.5" stroke="#777" stroke-width="1"/>
+                            <text x="523" y="80" class="svg-text" font-size="13">A</text>
+                            <text x="510" y="192" class="svg-text" text-anchor="middle">五角柱</text>
+                            <text x="510" y="212" class="svg-text" text-anchor="middle" font-size="13">空間対角線 10本</text>
+                        </svg>
+                        <div class="legend">
+                            <div class="legend-item">※ 破線は隠れて見えない辺、灰色の細線は空間対角線を表す。</div>
+                            <div class="legend-item">※ 五角柱の図では、10本のうち頂点Aから出る空間対角線2本のみを示している。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　35本<br>
+                    (2)　54本<br>
+                    (3)　70本<br>
+                    (4)　80本<br>
+                    (5)　140本
+                </div>
+            </div><!-- /.question -->
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(3))</strong><br>
+                空間対角線の本数を順に並べ、増え方（階差）に注目する。<br><br>
+
+                <strong>【規則の発見】</strong><br>
+                ・三角柱 0本 → 四角柱 4本 → 五角柱 10本 と増えており、増え方は 4本、6本。<br>
+                ・増え方が「2ずつ大きくなる」（4、6、8、10、…）と考えて先へ延ばすと、<br>
+                　三角柱0 → 四角柱4 → 五角柱10 → 六角柱18 → 七角柱28 → 八角柱40 → 九角柱54 → <strong>十角柱70</strong><br>
+                ・よって十角柱の空間対角線は <strong>70本</strong> である。<br><br>
+
+                <strong>【別解：数え上げによる確認】</strong><br>
+                ・十角柱の頂点は上下10個ずつの計20個。1つの頂点Aから他の頂点へ引いた線分のうち、<br>
+                　同じ底面上の9頂点へ引いたもの（辺2本・底面の対角線7本）はすべて面の上にある。<br>
+                ・もう一方の底面の10頂点のうち、Aの真上（真下）の1頂点へは側面の辺、その両どなりの<br>
+                　2頂点へは側面の対角線となるから、空間対角線は 10−3＝7本。<br>
+                ・各頂点から7本ずつ、両端で2回ずつ数えているので、20×7÷2＝<strong>70本</strong>。<br>
+                ・一般に n角柱の空間対角線は n(n−3)本 となり、図の 0本・4本・10本とも一致する。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 35本 → 多角形の対角線の公式 n(n−3)÷2 をそのまま使った誤り（頂点は2n個ある）。<br>
+                ・(2) 54本 → 九角柱の本数。階差を1回分早く止めた誤り。<br>
+                ・(3) 70本 → 上記のとおり正解。<br>
+                ・(4) 80本 → 1頂点から引ける本数を10−2＝8本と数え、側面の対角線2本を含めた誤り。<br>
+                ・(5) 140本 → 20×7＝140本のまま、両端の2重数えを2で割り忘れた誤り。<br><br>
+
+                したがって、正解は<strong>(3)</strong>である。
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+                <div class="question-number">問2．問1と同じ角柱の列について、今度は、2つの頂点を結ぶ線分のうち辺ではないものすべて、すなわち、面の上にある対角線（面の対角線）と空間対角線を合わせた「対角線の総数」を数える。図Ⅱのように、1つの頂点からは面の対角線と空間対角線が引け、対角線の総数は、三角柱は6本、四角柱は16本、五角柱は30本である。この規則が続くとき、対角線の総数が初めて200本を超えるのは、どの角柱か。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 460x250px / viewBox: 0 0 460 250
+                - 余白: 上下左右20px以上
+                座標系定義:
+                - 四角柱(拡大): 上面中心(130,60)・底面中心(130,175)・rx=60・ry=21
+                - 上面頂点: (130,81)(70,60)(130,39)(190,60) / 底面は+115
+                - A=左頂点(70,60)。面の対角線=細い灰色線、空間対角線=太い灰色線
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図Ⅱ】四角柱の例（頂点Aから引ける対角線）と対角線の総数</div>
+                    <div class="figure-content">
+                        <svg width="460" height="250" viewBox="0 0 460 250">
+                            <!-- 四角柱の骨格 -->
+                            <polygon points="130.0,81.0 70.0,60.0 130.0,39.0 190.0,60.0" fill="none" stroke="black" stroke-width="1.5"/>
+                            <line x1="130.0" y1="196.0" x2="70.0" y2="175.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="70.0" y1="175.0" x2="130.0" y2="154.0" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="130.0" y1="154.0" x2="190.0" y2="175.0" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="190.0" y1="175.0" x2="130.0" y2="196.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="130.0" y1="81.0" x2="130.0" y2="196.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="70.0" y1="60.0" x2="70.0" y2="175.0" stroke="black" stroke-width="1.5"/>
+                            <line x1="130.0" y1="39.0" x2="130.0" y2="154.0" stroke="black" stroke-width="1.5" stroke-dasharray="4,3"/>
+                            <line x1="190.0" y1="60.0" x2="190.0" y2="175.0" stroke="black" stroke-width="1.5"/>
+
+                            <!-- Aからの面の対角線（上面）: A(70,60)→(190,60) -->
+                            <line x1="70.0" y1="60.0" x2="190.0" y2="60.0" stroke="#888" stroke-width="1.5"/>
+                            <!-- Aからの面の対角線（側面）: A(70,60)→(130,196) -->
+                            <line x1="70.0" y1="60.0" x2="130.0" y2="196.0" stroke="#888" stroke-width="1.5"/>
+                            <!-- Aからの空間対角線: A(70,60)→(190,175) -->
+                            <line x1="70.0" y1="60.0" x2="190.0" y2="175.0" stroke="#666" stroke-width="2.5"/>
+
+                            <text x="52" y="58" class="svg-text" font-size="14">A</text>
+                            <text x="200" y="52" class="svg-text" font-size="13">面の対角線（上面）</text>
+                            <text x="200" y="182" class="svg-text" font-size="13">空間対角線（太線）</text>
+                            <text x="142" y="214" class="svg-text" font-size="13">面の対角線（側面）</text>
+                        </svg>
+                        <table class="figure-table" style="margin-top: 10px;">
+                            <tr>
+                                <th>角柱</th>
+                                <td>三角柱</td>
+                                <td>四角柱</td>
+                                <td>五角柱</td>
+                                <td>…</td>
+                            </tr>
+                            <tr>
+                                <th>対角線の総数</th>
+                                <td>6本</td>
+                                <td>16本</td>
+                                <td>30本</td>
+                                <td>…</td>
+                            </tr>
+                        </table>
+                        <div class="legend">
+                            <div class="legend-item">※ 三角柱の底面（三角形）には面の対角線がないため、総数6本はすべて側面の対角線である。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1)　十一角柱<br>
+                    (2)　十二角柱<br>
+                    (3)　十三角柱<br>
+                    (4)　十五角柱<br>
+                    (5)　十六角柱
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                対角線の総数の増え方（階差）から規則を見つけ、200本を初めて超える角柱を探す。<br><br>
+
+                <strong>【規則の発見】</strong><br>
+                ・総数は 6本 → 16本 → 30本 と増えており、増え方は 10本、14本。<br>
+                ・増え方が「4ずつ大きくなる」（10、14、18、22、…）と考えて表を延ばすと、<br><br>
+                <table class="figure-table" style="font-size: 14px;">
+                    <tr><th>角柱</th><td>三</td><td>四</td><td>五</td><td>六</td><td>七</td><td>八</td><td>九</td><td>十</td><td>十一</td><td>十二</td></tr>
+                    <tr><th>総数</th><td>6</td><td>16</td><td>30</td><td>48</td><td>70</td><td>96</td><td>126</td><td>160</td><td><strong>198</strong></td><td><strong>240</strong></td></tr>
+                </table><br>
+                ・十一角柱は198本で200本を超えない（あと2本足りない）。<br>
+                ・十二角柱で240本となり、初めて200本を超える。<br><br>
+
+                <strong>【別解：公式による確認】</strong><br>
+                ・n角柱の頂点は2n個。2つの頂点の結び方は全部で 2n(2n−1)÷2＝n(2n−1)通りあり、<br>
+                　このうち辺は3n本だから、対角線の総数＝n(2n−1)−3n＝2n(n−2)本。<br>
+                　（三角柱 2×3×1＝6本、四角柱 2×4×2＝16本、五角柱 2×5×3＝30本と一致）<br>
+                ・2n(n−2)＞200 すなわち n(n−2)＞100 となる最小のnを探すと、<br>
+                　n＝11では 11×9＝99 で足りず、n＝12で 12×10＝120 となり初めて満たす。<br><br>
+
+                <strong>【選択肢の検討】</strong><br>
+                ・(1) 十一角柱 → 198本。200本にあと2本届かない。表の見誤りに注意（最大の罠）。<br>
+                ・(2) 十二角柱 → 240本で初めて200本を超える。正解。<br>
+                ・(3) 十三角柱 → 286本で200本は超えるが、「初めて」ではない。<br>
+                ・(4) 十五角柱 → 空間対角線を数え忘れ、面の対角線だけ（n²−n本）で計算した場合の誤り。<br>
+                ・(5) 十六角柱 → 面の対角線を数え忘れ、空間対角線だけ（n(n−3)本）で計算した場合の誤り。<br><br>
+
+                したがって、正解は<strong>(2)</strong>である。
+            </div>
+        </div>
+    </div>
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
