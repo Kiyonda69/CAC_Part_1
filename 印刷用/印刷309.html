@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．ある店では、1種類の商品を毎日一定の価格で販売している。下図は、1日の販売個数と、その日の売上高および総費用（商品の仕入代金と、販売個数に関係なく毎日かかる固定費との合計）の関係を表したものである。1日の利益が15,000円になるのは、この商品を何個売ったときか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x340px
+                - viewBox: 0 0 500 340
+                - 余白: 左右各45px以上、上下20px以上
+
+                座標系定義:
+                - 原点（0個・0円）: (85, 260)
+                - X軸: 右方向, 1個 = 1.2px（n個 → x = 85 + n*1.2）
+                  0個→85 / 50個→145 / 100個→205 / 150個→265
+                  200個→325 / 250個→385 / 300個→445
+                - Y軸: 上方向, 10,000円 = 10px（v円 → y = 260 - v*0.001）
+                  0円→260 / 30,000円→230 / 60,000円→200 / 90,000円→170
+                  120,000円→140 / 150,000円→110 / 180,000円→80 / 210,000円→50
+                - 売上高（実線）: (0個,0円)=(85,260) → (300個,210,000円)=(445,50)
+                - 総費用（破線）: (0個,30,000円)=(85,230) → (300個,150,000円)=(445,110)
+                - 2直線の交点: (100個,70,000円)=(205,190)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図】1日の販売個数と売上高・総費用</div>
+                    <div class="figure-content">
+                        <svg width="500" height="340" viewBox="0 0 500 340">
+                            <!-- 横の目盛線（30,000円ごと） -->
+                            <line x1="85" y1="230" x2="455" y2="230" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="200" x2="455" y2="200" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="170" x2="455" y2="170" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="140" x2="455" y2="140" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="110" x2="455" y2="110" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="80" x2="455" y2="80" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="85" y1="50" x2="455" y2="50" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 縦の目盛線（50個ごと） -->
+                            <line x1="145" y1="45" x2="145" y2="260" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="205" y1="45" x2="205" y2="260" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="265" y1="45" x2="265" y2="260" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="325" y1="45" x2="325" y2="260" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="385" y1="45" x2="385" y2="260" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="445" y1="45" x2="445" y2="260" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 金額の目盛ラベル -->
+                            <text class="svg-text" x="77" y="265" text-anchor="end">0</text>
+                            <text class="svg-text" x="77" y="235" text-anchor="end">30,000</text>
+                            <text class="svg-text" x="77" y="205" text-anchor="end">60,000</text>
+                            <text class="svg-text" x="77" y="175" text-anchor="end">90,000</text>
+                            <text class="svg-text" x="77" y="145" text-anchor="end">120,000</text>
+                            <text class="svg-text" x="77" y="115" text-anchor="end">150,000</text>
+                            <text class="svg-text" x="77" y="85" text-anchor="end">180,000</text>
+                            <text class="svg-text" x="77" y="55" text-anchor="end">210,000</text>
+                            <text class="svg-text" x="77" y="35" text-anchor="end">（円）</text>
+
+                            <!-- 売上高（実線） -->
+                            <line x1="85" y1="260" x2="445" y2="50" stroke="#000000" stroke-width="2.5"/>
+                            <!-- 総費用（破線） -->
+                            <line x1="85" y1="230" x2="445" y2="110" stroke="#000000" stroke-width="2.5" stroke-dasharray="8,5"/>
+
+                            <!-- グラフ名の引き出し -->
+                            <text class="svg-text" x="370" y="62" text-anchor="middle">売上高</text>
+                            <text class="svg-text" x="400" y="152" text-anchor="middle">総費用</text>
+
+                            <!-- X軸・Y軸 -->
+                            <line x1="85" y1="40" x2="85" y2="260" stroke="#000000" stroke-width="2"/>
+                            <line x1="85" y1="260" x2="460" y2="260" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 販売個数の目盛ラベル -->
+                            <text class="svg-text" x="85" y="282" text-anchor="middle">0</text>
+                            <text class="svg-text" x="145" y="282" text-anchor="middle">50</text>
+                            <text class="svg-text" x="205" y="282" text-anchor="middle">100</text>
+                            <text class="svg-text" x="265" y="282" text-anchor="middle">150</text>
+                            <text class="svg-text" x="325" y="282" text-anchor="middle">200</text>
+                            <text class="svg-text" x="385" y="282" text-anchor="middle">250</text>
+                            <text class="svg-text" x="445" y="282" text-anchor="middle">300</text>
+                            <text class="svg-text" x="270" y="308" text-anchor="middle">販売個数（個）</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※実線は売上高、破線は総費用を表す。</div>
+                        <div class="legend-item">※利益とは、売上高から総費用を引いた額をいう。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 50個&nbsp;&nbsp;&nbsp;(2) 100個&nbsp;&nbsp;&nbsp;(3) 225個&nbsp;&nbsp;&nbsp;(4) 250個&nbsp;&nbsp;&nbsp;(5) 150個
+                </div>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                売上高と総費用の2本の直線が与えられているので、まずそれぞれの直線から<strong>1個あたりの売値・1個あたりの原価・固定費</strong>を読み取る。<br><br>
+
+                <strong>1．グラフから3つの数値を読み取る</strong><br>
+                売上高の直線は原点を通り、300個のとき210,000円である。よって<br>
+                　1個あたりの売値＝210,000÷300＝<strong>700円</strong><br>
+                総費用の直線は、0個のときすでに30,000円である。これが販売個数に関係なくかかる<br>
+                　<strong>固定費＝30,000円</strong><br>
+                300個のとき総費用は150,000円だから、300個分の仕入代金は 150,000−30,000＝120,000円。よって<br>
+                　1個あたりの原価＝120,000÷300＝<strong>400円</strong><br><br>
+
+                <strong>2．1個あたりの利益を求める</strong><br>
+                700−400＝<strong>300円</strong>　（これは2直線の傾きの差にあたる）<br><br>
+
+                <strong>3．方程式を立てる</strong><br>
+                売った個数を x 個とすると<br>
+                　利益＝300x−30,000<br>
+                これが15,000円になるので<br>
+                　300x−30,000＝15,000　→　300x＝45,000　→　x＝<strong>150個</strong>　…（5）<br><br>
+
+                <strong>4．検算</strong><br>
+                売上高＝700×150＝105,000円<br>
+                総費用＝30,000＋400×150＝30,000＋60,000＝90,000円<br>
+                利益＝105,000−90,000＝15,000円となり一致する。グラフ上でも150個のところで実線と破線の縦の差が15,000円（＝目盛半分）になっている。<br><br>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ（続き） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5)) 解説の続き</strong><br><br>
+
+                <strong>解法のポイント</strong><br>
+                この形式のグラフでは、<strong>2直線の縦の差が利益</strong>を表す。2直線が交わる点（本問では100個）は売上高と総費用が等しくなる点、すなわち<strong>損益分岐点</strong>であり、そこから右へ1個進むごとに差が300円ずつ広がっていく。したがって「損益分岐点から、あと何個多く売れば15,000円の差がつくか」と考えて 15,000÷300＝50個、100＋50＝150個 と求めることもできる。<br><br>
+
+                <strong>誤答の分析</strong><br>
+                ・(1) 50個：固定費30,000円を見落とし、15,000÷300＝50個としたもの。総費用の直線が原点を通っていないことを見落とした誤りである。<br>
+                ・(2) 100個：2直線の交点の個数、すなわち利益が0円になる損益分岐点を答えたもの。<br>
+                ・(3) 225個：総費用の傾きを、原点と（300個、150,000円）を結んだ「1個あたり平均500円」と誤読したもの。(700−500)x−30,000＝15,000 から225個となる。総費用の直線は原点を通らないので、傾きは平均費用とは一致しない。<br>
+                ・(4) 250個：総費用にすでに固定費が含まれているのに、さらに固定費30,000円を引いてしまった二重減算。300x−60,000＝15,000 から250個となる。
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．ある店では、1種類の商品を1個あたり一定の原価で仕入れ、原価の5割増しの定価をつけて販売している。ただし、1日の販売個数が100個を超えた分については、定価から一定の割合を値引きして売っている。下図は、1日の販売個数と、その日の利益（売上高から、商品の仕入代金と固定費との合計を引いた額）の関係を表したものである。この商品1個あたりの原価アと、100個を超えた分の値引き率イの組合せとして正しいのはどれか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x340px
+                - viewBox: 0 0 500 340
+                - 余白: 左右各40px以上、上下20px以上
+
+                座標系定義:
+                - 原点（0個・0円）: (90, 200)
+                - X軸: 右方向, 1個 = 1.8px（n個 → x = 90 + n*1.8）
+                  0個→90 / 50個→180 / 100個→270 / 150個→360 / 200個→450
+                - Y軸: 上方向, 10,000円 = 40px（v円 → y = 200 - v*0.004）
+                  -20,000円→280 / -10,000円→240 / 0円→200
+                  10,000円→160 / 20,000円→120 / 22,000円→112 / 30,000円→80
+                - 折れ線: (0個,-20,000円)=(90,280) → (100個,10,000円)=(270,160)
+                          → (200個,22,000円)=(450,112)
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図】1日の販売個数と利益</div>
+                    <div class="figure-content">
+                        <svg width="500" height="340" viewBox="0 0 500 340">
+                            <!-- 横の目盛線（10,000円ごと） -->
+                            <line x1="90" y1="280" x2="465" y2="280" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="90" y1="240" x2="465" y2="240" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="90" y1="160" x2="465" y2="160" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="90" y1="120" x2="465" y2="120" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="90" y1="80" x2="465" y2="80" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 縦の目盛線（50個ごと） -->
+                            <line x1="180" y1="75" x2="180" y2="290" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="270" y1="75" x2="270" y2="290" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="360" y1="75" x2="360" y2="290" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="450" y1="75" x2="450" y2="290" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 金額の目盛ラベル -->
+                            <text class="svg-text" x="82" y="285" text-anchor="end">−20,000</text>
+                            <text class="svg-text" x="82" y="245" text-anchor="end">−10,000</text>
+                            <text class="svg-text" x="82" y="196" text-anchor="end">0</text>
+                            <text class="svg-text" x="82" y="165" text-anchor="end">10,000</text>
+                            <text class="svg-text" x="82" y="125" text-anchor="end">20,000</text>
+                            <text class="svg-text" x="82" y="85" text-anchor="end">30,000</text>
+                            <text class="svg-text" x="82" y="62" text-anchor="end">（円）</text>
+
+                            <!-- 利益の折れ線 -->
+                            <polyline points="90,280 270,160 450,112" fill="none" stroke="#000000" stroke-width="2.5"/>
+                            <circle cx="90" cy="280" r="4" fill="#000000"/>
+                            <circle cx="270" cy="160" r="4" fill="#000000"/>
+                            <circle cx="450" cy="112" r="4" fill="#000000"/>
+
+                            <!-- 頂点の値のラベル -->
+                            <text class="svg-text" x="258" y="147" text-anchor="end">10,000円</text>
+                            <text class="svg-text" x="450" y="103" text-anchor="middle">22,000円</text>
+                            <text class="svg-text" x="102" y="297" text-anchor="start">−20,000円</text>
+
+                            <!-- X軸（利益0円の線）・Y軸 -->
+                            <line x1="90" y1="70" x2="90" y2="292" stroke="#000000" stroke-width="2"/>
+                            <line x1="90" y1="200" x2="470" y2="200" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 販売個数の目盛ラベル -->
+                            <text class="svg-text" x="90" y="312" text-anchor="middle">0</text>
+                            <text class="svg-text" x="180" y="312" text-anchor="middle">50</text>
+                            <text class="svg-text" x="270" y="312" text-anchor="middle">100</text>
+                            <text class="svg-text" x="360" y="312" text-anchor="middle">150</text>
+                            <text class="svg-text" x="450" y="312" text-anchor="middle">200</text>
+                            <text class="svg-text" x="278" y="334" text-anchor="middle">販売個数（個）</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※折れ線は1日の利益を表し、100個のところで傾きが変わっている。</div>
+                        <div class="legend-item">※固定費は販売個数に関係なく毎日一定額かかるものとする。</div>
+                    </div>
+                </div>
+
+                <table class="option-table">
+                    <tr><th></th><th>ア（1個あたりの原価）</th><th>イ（値引き率）</th></tr>
+                    <tr><td>(1)</td><td>300円</td><td>2割引</td></tr>
+                    <tr><td>(2)</td><td>600円</td><td>2割引</td></tr>
+                    <tr><td>(3)</td><td>600円</td><td>4割引</td></tr>
+                    <tr><td>(4)</td><td>600円</td><td>8割引</td></tr>
+                    <tr><td>(5)</td><td>900円</td><td>2割引</td></tr>
+                </table>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                利益のグラフでは、<strong>折れ線の傾きが「商品1個あたりの利益」</strong>を表す。この点に着目して、原価と値引き後の売値を順に求める。<br><br>
+
+                <strong>1．グラフから3つの数値を読み取る</strong><br>
+                販売個数0個のとき利益は−20,000円である。1個も売らなくても固定費だけはかかるので<br>
+                　<strong>固定費＝20,000円</strong><br>
+                0個から100個までの傾きは<br>
+                　{10,000−(−20,000)}÷100＝30,000÷100＝<strong>300円</strong>　…（定価で売った1個の利益）<br>
+                100個から200個までの傾きは<br>
+                　(22,000−10,000)÷100＝12,000÷100＝<strong>120円</strong>　…（値引きして売った1個の利益）<br><br>
+
+                <strong>2．原価アを求める</strong><br>
+                定価は原価の5割増しだから<br>
+                　定価＝原価×1.5<br>
+                　定価−原価＝原価×0.5<br>
+                この「定価−原価」が定価で売ったときの1個の利益300円にあたるので<br>
+                　原価×0.5＝300　→　原価＝<strong>600円</strong>　（定価は600×1.5＝900円）<br><br>
+
+                <strong>3．値引き率イを求める</strong><br>
+                値引きして売ったときの1個の利益が120円だから<br>
+                　値引き後の売値＝原価＋120＝600＋120＝<strong>720円</strong><br>
+                定価900円に対する割合は<br>
+                　720÷900＝0.8　→　定価の8割の値段<br>
+                したがって値引き率は 1−0.8＝0.2、すなわち<strong>2割引</strong>である。<br><br>
+                よって ア＝600円、イ＝2割引 …（2）<br><br>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ（続き） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2)) 解説の続き</strong><br><br>
+
+                <strong>4．検算</strong><br>
+                200個売ったときの売上高＝900×100＋720×100＝90,000＋72,000＝162,000円<br>
+                総費用＝20,000＋600×200＝20,000＋120,000＝140,000円<br>
+                利益＝162,000−140,000＝22,000円となり、グラフの値と一致する。<br><br>
+
+                <strong>解法のポイント</strong><br>
+                縦軸が「売上高」ではなく「利益」であることが本問の核心である。利益のグラフでは<strong>切片が固定費（の符号を変えた値）、傾きが1個あたりの利益</strong>を表す。値引き後も傾きが正（120円）なので、値引きしても原価割れはしていないことも読み取れる。<br><br>
+
+                <strong>誤答の分析</strong><br>
+                ・(1) 300円：傾き300円をそのまま原価としたもの。300円は「定価−原価」すなわち1個あたりの利益であって原価ではない。「原価の5割増し」から原価×0.5＝300 と立式する一手間が必要である。<br>
+                ・(3) 4割引：傾きの比 120÷300＝0.4 を値引き率としたもの。傾きが表すのは利益であって売値ではないので、比をとっても値引き率にはならない。<br>
+                ・(4) 8割引：720÷900＝0.8 から「8割引」としたもの。0.8は「定価の8割の値段」を意味するので、値引き率は 1−0.8＝2割である。「割合」と「割引率」の混同による最も多い誤答である。<br>
+                ・(5) 900円：原価600円から正しく定価900円まで求めながら、答えるべき原価と定価を取り違えたもの。
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+    <!-- ==================== JavaScript ==================== -->
+    <!--
+    印刷用テンプレートのJavaScriptは最小限
+    - ページのスケーリング機能のみ
+    - インタラクティブな機能は不要
+    -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
