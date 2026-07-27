@@ -1,0 +1,878 @@
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル: ブラウザタブに表示される -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセットして統一された表示を実現 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box; /* パディングとボーダーを幅に含める */
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語フォント設定: 明朝体を優先 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8; /* 読みやすい行間 */
+            background-color: #f5f5f5; /* 薄いグレーの背景 */
+            min-height: 100vh; /* ビューポート全体の高さ */
+        }
+
+        /* ==================== メインコンテンツエリア ==================== */
+        /* 中央寄せのコンテンツ領域 */
+        .main-content {
+            max-width: 800px; /* 最大幅を制限 */
+            margin: 0 auto; /* 左右中央揃え */
+            padding: 20px 20px 40px;
+        }
+
+        /* ==================== 画面（スクリーン）システム ==================== */
+        /* 問題を切り替えるための画面コンテナ */
+        .screen {
+            display: none; /* デフォルトは非表示 */
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* 影で浮き上がり効果 */
+        }
+
+        /* アクティブな画面のみ表示 */
+        .screen.active {
+            display: block;
+        }
+
+        /* ==================== 問題ヘッダー ==================== */
+        /* 問題番号と配点・目安時間を表示するエリア */
+        .question-header {
+            display: flex;
+            justify-content: space-between; /* 左右に分散配置 */
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #333; /* 下線で区切り */
+        }
+
+        .question-number {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .question-meta {
+            font-size: 14px;
+            color: #666; /* グレーテキスト */
+        }
+
+        /* ==================== 問題文 ==================== */
+        .question-text {
+            margin-bottom: 20px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むコンテナ */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキストスタイル */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テキスト選択肢ボタン ==================== */
+        /* テキスト形式の選択肢用コンテナ */
+        .options-container {
+            margin: 20px 0;
+        }
+
+        /* 各選択肢ボタン */
+        .option-button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px;
+            margin: 10px 0;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease; /* スムーズなアニメーション */
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        /* ホバー時のスタイル（無効化されていない場合） */
+        .option-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        /* 選択された状態 */
+        .option-button.selected {
+            border-color: #2196F3; /* 青色 */
+            background-color: #e3f2fd;
+        }
+
+        /* 正解の状態 */
+        .option-button.correct {
+            border-color: #4CAF50; /* 緑色 */
+            background-color: #e8f5e9;
+        }
+
+        /* 不正解の状態 */
+        .option-button.incorrect {
+            border-color: #f44336; /* 赤色 */
+            background-color: #ffebee;
+        }
+
+        /* 無効化された状態 */
+        .option-button.disabled {
+            cursor: default;
+            opacity: 0.8;
+        }
+
+        .option-button .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* ==================== 図形選択肢 ==================== */
+        /* SVG図形を選択肢として使用する場合のレイアウト */
+        .options-figure {
+            display: flex;
+            flex-wrap: wrap; /* 折り返し可能 */
+            justify-content: center;
+            gap: 2%; /* 選択肢間の隙間 */
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        /* 各図形選択肢ボタン */
+        .option-figure-button {
+            flex: 0 1 calc(20% - 2%); /* 5つ横並び */
+            min-width: 80px;
+            max-width: 120px;
+            padding: 8px;
+            background-color: white;
+            border: 3px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-figure-button svg {
+            width: 100%;
+            height: auto;
+        }
+
+        .option-figure-button:hover:not(.disabled) {
+            border-color: #666;
+            background-color: #f9f9f9;
+        }
+
+        .option-figure-button.selected {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+
+        .option-figure-button.correct {
+            border-color: #4CAF50;
+            background-color: #e8f5e9;
+        }
+
+        .option-figure-button.incorrect {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .option-figure-button.disabled {
+            cursor: default;
+        }
+
+        /* ==================== レスポンシブ対応（小画面） ==================== */
+        @media (max-width: 600px) {
+            .option-figure-button {
+                flex: 0 1 calc(33% - 2%); /* 3つ横並びに変更 */
+                min-width: 60px;
+            }
+        }
+
+        /* ==================== 汎用ボタンスタイル ==================== */
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-family: inherit;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* プライマリボタン（主要なアクション用） */
+        .btn-primary {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976D2;
+        }
+
+        /* セカンダリボタン（副次的なアクション用） */
+        .btn-secondary {
+            background-color: #666; /* グレー */
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #555;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        /* 問題の下に展開表示される解説エリア */
+        .explanation-section {
+            display: none; /* デフォルトは非表示 */
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        /* 表示状態 */
+        .explanation-section.show {
+            display: block;
+        }
+
+        .explanation-header {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #333;
+        }
+
+        .explanation-content {
+            line-height: 2; /* 解説は読みやすいように広めの行間 */
+        }
+
+        .explanation-content strong {
+            color: #333;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== プログレスバー ==================== */
+        /* 問題の進捗を示すドット表示 */
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* 各問題を表すドット */
+        .progress-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* 円形 */
+            background-color: #ddd;
+            cursor: pointer; /* クリック可能 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+
+        .progress-dot:hover {
+            transform: scale(1.1); /* ホバーで少し拡大 */
+        }
+
+        /* 現在表示中の問題 */
+        .progress-dot.active {
+            background-color: #2196F3; /* 青色 */
+            color: white;
+        }
+
+        /* 正解した問題 */
+        .progress-dot.completed {
+            background-color: #4CAF50; /* 緑色 */
+            color: white;
+        }
+
+        /* 不正解だった問題 */
+        .progress-dot.incorrect-dot {
+            background-color: #f44336; /* 赤色 */
+            color: white;
+        }
+
+        /* ==================== ナビゲーションボタン ==================== */
+        /* 問題間移動用のボタンエリア */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-buttons .btn {
+            min-width: 120px;
+        }
+
+        /* 非表示ボタン（スペース確保用） */
+        .nav-buttons .btn.hidden {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== メインコンテンツ ==================== -->
+    <main class="main-content">
+
+        <!-- ==================== プログレスバー ==================== -->
+        <!--
+        問題の進捗を表示するドット
+        - クリックで該当問題に移動可能
+        - 問題数に応じてドットを追加/削除する
+        - onclick="goToQuestion(N)" でN番目の問題に移動
+        -->
+        <div class="progress-bar">
+            <div class="progress-dot" id="progress-1" onclick="goToQuestion(1)">1</div>
+            <div class="progress-dot" id="progress-2" onclick="goToQuestion(2)">2</div>
+            <!-- 問題数に応じて追加: -->
+            <!-- <div class="progress-dot" id="progress-3" onclick="goToQuestion(3)">3</div> -->
+        </div>
+
+        <!-- ========== 問1 問題画面 ========== -->
+        <!--
+        各問題は .screen クラスを持つ div で囲む
+        - id="q{N}-question" の形式でIDを付与
+        - 最初の問題には active クラスを付与
+        -->
+        <div class="screen active" id="q1-question">
+
+            <div class="question-header">
+                <span class="question-number">問1</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 3分</span>
+            </div>
+
+            <div class="question-text">
+                ある店で商品A・B・Cを仕入れた。1個あたりの原価と仕入個数は下図のとおりである。3商品とも原価の5割増しの定価をつけたが、商品Aは全て定価で、商品Bは定価の2割引で、商品Cは定価の4割引で売り、いずれも売れ残りなく完売した。このとき、3商品全体の利益はいくらか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x300px
+            - viewBox: 0 0 500 300
+            座標系定義:
+            - 原点（金額0円の位置）: (70, 250)
+            - Y軸: 上方向, 100円 = 40px（v円 → y = 250 - v*0.4）
+            - 棒の幅: 50px、中心 A=135, B=255, C=375
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図】1個あたりの原価と仕入個数</div>
+                <div class="figure-content">
+                    <svg width="500" height="300" viewBox="0 0 500 300">
+                        <!-- Y軸の目盛線（100円ごと） -->
+                        <line x1="70" y1="210" x2="450" y2="210" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="170" x2="450" y2="170" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="130" x2="450" y2="130" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="90" x2="450" y2="90" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="50" x2="450" y2="50" stroke="#cccccc" stroke-width="1"/>
+
+                        <!-- 目盛ラベル -->
+                        <text class="svg-text" x="62" y="255" text-anchor="end">0</text>
+                        <text class="svg-text" x="62" y="215" text-anchor="end">100</text>
+                        <text class="svg-text" x="62" y="175" text-anchor="end">200</text>
+                        <text class="svg-text" x="62" y="135" text-anchor="end">300</text>
+                        <text class="svg-text" x="62" y="95" text-anchor="end">400</text>
+                        <text class="svg-text" x="62" y="55" text-anchor="end">500</text>
+                        <text class="svg-text" x="62" y="32" text-anchor="end">（円）</text>
+
+                        <!-- 棒グラフ（原価 A=200円, B=300円, C=400円） -->
+                        <rect x="110" y="170" width="50" height="80" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                        <rect x="230" y="130" width="50" height="120" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                        <rect x="350" y="90" width="50" height="160" fill="#666666" stroke="#000000" stroke-width="2"/>
+
+                        <!-- 棒の上の数値 -->
+                        <text class="svg-text" x="135" y="163" text-anchor="middle">200円</text>
+                        <text class="svg-text" x="255" y="123" text-anchor="middle">300円</text>
+                        <text class="svg-text" x="375" y="83" text-anchor="middle">400円</text>
+
+                        <!-- X軸・Y軸 -->
+                        <line x1="70" y1="40" x2="70" y2="250" stroke="#000000" stroke-width="2"/>
+                        <line x1="70" y1="250" x2="450" y2="250" stroke="#000000" stroke-width="2"/>
+
+                        <!-- 商品名と仕入個数 -->
+                        <text class="svg-text" x="135" y="272" text-anchor="middle">商品A</text>
+                        <text class="svg-text" x="255" y="272" text-anchor="middle">商品B</text>
+                        <text class="svg-text" x="375" y="272" text-anchor="middle">商品C</text>
+                        <text class="svg-text" x="135" y="292" text-anchor="middle">40個</text>
+                        <text class="svg-text" x="255" y="292" text-anchor="middle">30個</text>
+                        <text class="svg-text" x="375" y="292" text-anchor="middle">25個</text>
+                    </svg>
+                </div>
+                <div style="font-size: 13px; text-align: left; margin-top: 10px;">※棒グラフは1個あたりの原価、その下の数値は仕入個数を表す。</div>
+            </div>
+
+            <div class="options-container" id="q1-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(1, 1, 5)">
+                    <span class="option-label">(1)</span>1,800円
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(1, 2, 5)">
+                    <span class="option-label">(2)</span>5,100円
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(1, 3, 5)">
+                    <span class="option-label">(3)</span>5,800円
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(1, 4, 5)">
+                    <span class="option-label">(4)</span>6,800円
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(1, 5, 5)">
+                    <span class="option-label">(5)</span>4,800円
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q1-explanation">
+                <div class="explanation-header">解説（正解: (5)）</div>
+                <div class="explanation-content">
+                    <p><strong>問1（正解: (5)）</strong></p>
+                    <br>
+                    <p>定価は原価の5割増しなので、<strong>定価＝原価×1.5</strong>である。図から原価は商品A＝200円、商品B＝300円、商品C＝400円、仕入個数はそれぞれ40個・30個・25個と読み取れる。</p>
+                    <br>
+                    <p><strong>【1. 商品ごとの1個あたりの利益】</strong></p>
+                    <p>・商品A：定価 200×1.5＝300円。定価のまま売るので利益は 300−200＝100円。100円×40個＝<strong>4,000円</strong></p>
+                    <p>・商品B：定価 300×1.5＝450円。2割引の売値は 450×0.8＝360円。利益は 360−300＝60円。60円×30個＝<strong>1,800円</strong></p>
+                    <p>・商品C：定価 400×1.5＝600円。4割引の売値は 600×0.6＝360円。売値360円は原価400円を下回るので1個40円の損失。−40円×25個＝<strong>−1,000円</strong></p>
+                    <br>
+                    <p><strong>【2. 合計】</strong></p>
+                    <p>4,000＋1,800−1,000＝<strong>4,800円</strong></p>
+                    <br>
+                    <p><strong>【3. 検算（売上総額−仕入総額）】</strong></p>
+                    <p>売上総額＝300×40＋360×30＋360×25＝12,000＋10,800＋9,000＝31,800円</p>
+                    <p>仕入総額＝200×40＋300×30＋400×25＝8,000＋9,000＋10,000＝27,000円</p>
+                    <p>31,800−27,000＝4,800円となり一致する。</p>
+                    <br>
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>値引き後の売値が原価を下回る場合があることが本問の核心である。値引き後の売値は原価の 1.5×(1−値引き率) 倍となるので、商品Bは 1.5×0.8＝1.2 倍で利益が出るが、商品Cは 1.5×0.6＝<strong>0.9 倍</strong>で原価割れとなる。1.5×(1−r)＝1 となるのは r＝1/3 なので、3割3分3厘を超える値引きは必ず損失になる。</p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) 1,800円：商品Cの「4割引」を「定価の4割の値段（240円）」と読み違えた場合。4割引は定価の6割の値段である。</p>
+                    <p>・(2) 5,100円：商品Bと商品Cの値引き率を取り違えた場合。</p>
+                    <p>・(3) 5,800円：商品Cが損失であることに気づかず0円として無視した場合。</p>
+                    <p>・(4) 6,800円：商品Cの1,000円を損失ではなく利益として加えた場合。符号の取り違えによる最も多い誤答である。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(5)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q1-nav" style="display: none;">
+                <button class="btn btn-secondary hidden">前の問題</button>
+                <button class="btn btn-primary" onclick="goToQuestion(2)">問2へ</button>
+            </div>
+        </div>
+
+        <!-- ========== 問2 問題画面 ========== -->
+        <div class="screen" id="q2-question">
+            <div class="question-header">
+                <span class="question-number">問2</span>
+                <span class="question-meta">配点: 6点 / 目安時間: 5分</span>
+            </div>
+
+            <div class="question-text">
+                ある店で商品P・Q・Rを仕入れた。1個あたりの原価と仕入個数は図1のとおりで、3商品とも原価の6割増しの定価をつけた。3商品の売れ方の内訳は図2のとおりで、いずれも売れ残りなく完売した。3商品全体の利益が仕入総額の4割にあたる額であったとき、アはいくらか。
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 500x270px
+            - viewBox: 0 0 500 270
+            座標系定義:
+            - 原点（金額0円の位置）: (70, 225)
+            - Y軸: 上方向, 100円 = 32px（v円 → y = 225 - v*0.32）
+            - 棒の幅: 50px、中心 P=135, Q=255, R=375
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図1】1個あたりの原価と仕入個数</div>
+                <div class="figure-content">
+                    <svg width="500" height="270" viewBox="0 0 500 270">
+                        <!-- Y軸の目盛線（100円ごと） -->
+                        <line x1="70" y1="193" x2="450" y2="193" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="161" x2="450" y2="161" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="129" x2="450" y2="129" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="97" x2="450" y2="97" stroke="#cccccc" stroke-width="1"/>
+                        <line x1="70" y1="65" x2="450" y2="65" stroke="#cccccc" stroke-width="1"/>
+
+                        <!-- 目盛ラベル -->
+                        <text class="svg-text" x="62" y="230" text-anchor="end">0</text>
+                        <text class="svg-text" x="62" y="198" text-anchor="end">100</text>
+                        <text class="svg-text" x="62" y="166" text-anchor="end">200</text>
+                        <text class="svg-text" x="62" y="134" text-anchor="end">300</text>
+                        <text class="svg-text" x="62" y="102" text-anchor="end">400</text>
+                        <text class="svg-text" x="62" y="70" text-anchor="end">500</text>
+                        <text class="svg-text" x="62" y="38" text-anchor="end">（円）</text>
+
+                        <!-- 棒グラフ（原価 P=250円, Q=300円, R=500円） -->
+                        <rect x="110" y="145" width="50" height="80" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                        <rect x="230" y="129" width="50" height="96" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                        <rect x="350" y="65" width="50" height="160" fill="#666666" stroke="#000000" stroke-width="2"/>
+
+                        <!-- 棒の上の数値 -->
+                        <text class="svg-text" x="135" y="138" text-anchor="middle">250円</text>
+                        <text class="svg-text" x="255" y="122" text-anchor="middle">300円</text>
+                        <text class="svg-text" x="375" y="58" text-anchor="middle">500円</text>
+
+                        <!-- X軸・Y軸 -->
+                        <line x1="70" y1="45" x2="70" y2="225" stroke="#000000" stroke-width="2"/>
+                        <line x1="70" y1="225" x2="450" y2="225" stroke="#000000" stroke-width="2"/>
+
+                        <!-- 商品名と仕入個数 -->
+                        <text class="svg-text" x="135" y="247" text-anchor="middle">商品P</text>
+                        <text class="svg-text" x="255" y="247" text-anchor="middle">商品Q</text>
+                        <text class="svg-text" x="375" y="247" text-anchor="middle">商品R</text>
+                        <text class="svg-text" x="135" y="265" text-anchor="middle">80個</text>
+                        <text class="svg-text" x="255" y="265" text-anchor="middle">100個</text>
+                        <text class="svg-text" x="375" y="265" text-anchor="middle">60個</text>
+                    </svg>
+                </div>
+                <div style="font-size: 13px; text-align: left; margin-top: 10px;">※棒グラフは1個あたりの原価、その下の数値は仕入個数を表す。</div>
+            </div>
+
+            <!--
+            図表仕様:
+            - SVGサイズ: 580x205px
+            - viewBox: 0 0 580 205
+            座標系定義:
+            - 帯の左端: x=130、1個 = 4px（P:320px / Q:400px / R:240px）
+            - 帯の高さ: 28px、上端 P=28 / Q=88 / R=148
+            -->
+            <div class="figure-container">
+                <div class="figure-title">【図2】売れ方の内訳（帯の長さは個数に比例）</div>
+                <div class="figure-content">
+                    <svg width="580" height="205" viewBox="0 0 580 205">
+                        <!-- 商品P: 80個すべて定価 -->
+                        <text class="svg-text" x="122" y="47" text-anchor="end">商品P（80個）</text>
+                        <rect x="130" y="28" width="320" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                        <text class="svg-text" x="290" y="47" text-anchor="middle">定価</text>
+                        <text class="svg-text" x="290" y="73" text-anchor="middle">80個</text>
+
+                        <!-- 商品Q: 定価60個 + 2割5分引き40個 -->
+                        <text class="svg-text" x="122" y="107" text-anchor="end">商品Q（100個）</text>
+                        <rect x="130" y="88" width="240" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                        <rect x="370" y="88" width="160" height="28" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                        <text class="svg-text" x="250" y="107" text-anchor="middle">定価</text>
+                        <text class="svg-text" x="450" y="107" text-anchor="middle">2割5分引き</text>
+                        <text class="svg-text" x="250" y="133" text-anchor="middle">60個</text>
+                        <text class="svg-text" x="450" y="133" text-anchor="middle">40個</text>
+
+                        <!-- 商品R: 定価ア個 + 半額(60-ア)個（区切り位置は仮） -->
+                        <text class="svg-text" x="122" y="167" text-anchor="end">商品R（60個）</text>
+                        <rect x="130" y="148" width="130" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                        <rect x="260" y="148" width="110" height="28" fill="#dddddd" stroke="#000000" stroke-width="2"/>
+                        <text class="svg-text" x="195" y="167" text-anchor="middle">定価</text>
+                        <text class="svg-text" x="315" y="167" text-anchor="middle">半額</text>
+                        <text class="svg-text" x="195" y="193" text-anchor="middle">ア個</text>
+                        <text class="svg-text" x="315" y="193" text-anchor="middle">(60−ア)個</text>
+                    </svg>
+                </div>
+                <div style="font-size: 13px; text-align: left; margin-top: 10px;">※商品Rの区切りの位置は実際の個数の比を表すものではない。</div>
+            </div>
+
+            <div class="options-container" id="q2-options">
+                <button class="option-button" data-option="1" onclick="selectAnswer(2, 1, 2)">
+                    <span class="option-label">(1)</span>20個
+                </button>
+                <button class="option-button" data-option="2" onclick="selectAnswer(2, 2, 2)">
+                    <span class="option-label">(2)</span>32個
+                </button>
+                <button class="option-button" data-option="3" onclick="selectAnswer(2, 3, 2)">
+                    <span class="option-label">(3)</span>25個
+                </button>
+                <button class="option-button" data-option="4" onclick="selectAnswer(2, 4, 2)">
+                    <span class="option-label">(4)</span>28個
+                </button>
+                <button class="option-button" data-option="5" onclick="selectAnswer(2, 5, 2)">
+                    <span class="option-label">(5)</span>46個
+                </button>
+            </div>
+
+            <div class="explanation-section" id="q2-explanation">
+                <div class="explanation-header">解説（正解: (2)）</div>
+                <div class="explanation-content">
+                    <p><strong>問2（正解: (2)）</strong></p>
+                    <br>
+                    <p>定価は原価の6割増しなので、<strong>定価＝原価×1.6</strong>である。図1から原価と仕入個数を読み取り、まず定価を求める。</p>
+                    <br>
+                    <p><strong>【1. 定価と仕入総額】</strong></p>
+                    <p>・商品P：原価250円 → 定価 250×1.6＝400円（80個）</p>
+                    <p>・商品Q：原価300円 → 定価 300×1.6＝480円（100個）</p>
+                    <p>・商品R：原価500円 → 定価 500×1.6＝800円（60個）</p>
+                    <p>仕入総額＝250×80＋300×100＋500×60＝20,000＋30,000＋30,000＝<strong>80,000円</strong></p>
+                    <br>
+                    <p><strong>【2. 売上総額を確定させる】</strong></p>
+                    <p>利益が仕入総額の4割なので、利益＝80,000×0.4＝32,000円。</p>
+                    <p>売上総額＝80,000＋32,000＝<strong>112,000円</strong></p>
+                    <br>
+                    <p><strong>【3. P・Qの売上からRの売上を逆算する】</strong></p>
+                    <p>・商品P：400×80＝32,000円</p>
+                    <p>・商品Q：定価分 480×60＝28,800円、値引き分は 480×(1−0.25)＝360円なので 360×40＝14,400円。合計 43,200円</p>
+                    <p>・商品R：112,000−32,000−43,200＝<strong>36,800円</strong></p>
+                    <br>
+                    <p><strong>【4. アを求める】</strong></p>
+                    <p>商品Rは定価800円がア個、半額400円が(60−ア)個なので</p>
+                    <p>　800ア＋400(60−ア)＝36,800</p>
+                    <p>　400ア＋24,000＝36,800</p>
+                    <p>　400ア＝12,800　→　ア＝<strong>32個</strong></p>
+                    <br>
+                    <p><strong>【別解（差で考える）】</strong></p>
+                    <p>商品Rが60個すべて定価で売れたとすると売上は 800×60＝48,000円。実際は36,800円だから11,200円少ない。1個を半額にするごとに売上は400円ずつ減るので、半額で売れたのは 11,200÷400＝28個。よって定価で売れたのは 60−28＝32個。</p>
+                    <br>
+                    <p><strong>【検算】</strong></p>
+                    <p>商品Rの売上＝800×32＋400×28＝25,600＋11,200＝36,800円</p>
+                    <p>売上総額＝32,000＋43,200＋36,800＝112,000円、利益＝112,000−80,000＝32,000円</p>
+                    <p>32,000÷80,000＝0.4 となり、仕入総額の4割に一致する。</p>
+                    <br>
+                    <p><strong>【解法のポイント】</strong></p>
+                    <p>原価も定価も個数も具体的な数値が与えられているため、<strong>「利益率 → 売上総額」の向きに変換してから逆算する</strong>のが最短である。利益率のまま扱おうとすると式が複雑になる。また、未知なのは商品Rだけなので、確定している商品P・Qの売上を先に計算して差し引く手順が有効である。</p>
+                    <br>
+                    <p><strong>【誤答の分析】</strong></p>
+                    <p>・(1) 20個：商品Qの値引きを見落とし、100個すべてが定価480円で売れたとした場合。図2の帯グラフを読み落とすと生じる誤りである。</p>
+                    <p>・(3) 25個：商品Rの「半額」を「定価の4割引（480円）」と読み違えた場合。半額は5割引である。</p>
+                    <p>・(4) 28個：商品Rの定価販売分と半額販売分を取り違えた場合。正解と対になる数（32＋28＝60）であり、問われているのが定価で売れた個数であることの確認が必要である。</p>
+                    <p>・(5) 46個：半額で売った分の売上を0円としてしまった場合。半額であっても売上は発生している。</p>
+                    <br>
+                    <p>したがって、正解は<strong>(2)</strong>である。</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons" id="q2-nav" style="display: none;">
+                <button class="btn btn-secondary" onclick="goToQuestion(1)">問1へ</button>
+                <button class="btn btn-secondary hidden">（空欄）</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- ==================== JavaScript ==================== -->
+    <script>
+        // ==================== 状態管理オブジェクト ====================
+        /**
+         * アプリケーションの状態を管理
+         * - currentQuestion: 現在表示中の問題番号
+         * - answers: 各問題の解答状況（問題番号 → 選択した選択肢番号）
+         */
+        const state = {
+            currentQuestion: 1,
+            answers: {}
+        };
+
+        // ==================== 画面切り替え関数 ====================
+        /**
+         * 指定されたIDの画面を表示する
+         * @param {string} screenId - 表示する画面のID
+         */
+        function showScreen(screenId) {
+            // 全画面からactiveクラスを削除
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            // 指定画面にactiveクラスを追加
+            document.getElementById(screenId).classList.add('active');
+            // ページ先頭にスクロール
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== 問題間移動関数 ====================
+        /**
+         * 指定された問題番号に移動する
+         * @param {number} questionNum - 移動先の問題番号
+         */
+        function goToQuestion(questionNum) {
+            state.currentQuestion = questionNum;
+            showScreen(`q${questionNum}-question`);
+
+            // プログレスドットのアクティブ状態を更新（未解答の問題のみ）
+            if (state.answers[questionNum] === undefined) {
+                document.querySelectorAll('.progress-dot').forEach(dot => {
+                    const dotNum = parseInt(dot.textContent);
+                    // 未解答の問題からactiveを外す
+                    if (state.answers[dotNum] === undefined) {
+                        dot.classList.remove('active');
+                    }
+                });
+                // 移動先をactiveに
+                document.getElementById(`progress-${questionNum}`).classList.add('active');
+            }
+        }
+
+        // ==================== 問題開始関数（初回用） ====================
+        /**
+         * 問題を開始する（goToQuestionのラッパー）
+         * @param {number} questionNum - 開始する問題番号
+         */
+        function startQuestion(questionNum) {
+            goToQuestion(questionNum);
+        }
+
+        // ==================== 解答選択関数 ====================
+        /**
+         * 選択肢をクリックした時の処理
+         * @param {number} questionNum - 問題番号
+         * @param {number} selectedOption - 選択した選択肢番号
+         * @param {number} correctOption - 正解の選択肢番号
+         *
+         * 【動作説明】
+         * 1. 既に解答済みの場合 → 選択解除（再解答可能に）
+         * 2. 未解答の場合 → 解答を記録し、正誤判定、解説表示
+         */
+        function selectAnswer(questionNum, selectedOption, correctOption) {
+            const optionsContainer = document.getElementById(`q${questionNum}-options`);
+            const buttons = optionsContainer.querySelectorAll('.option-figure-button, .option-button');
+
+            // ========== 選択解除処理 ==========
+            // 既に選択済みの場合はクリックで選択解除
+            if (state.answers[questionNum] !== undefined) {
+                // 状態をリセット
+                state.answers[questionNum] = undefined;
+
+                // スタイルをリセット
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'correct', 'incorrect');
+                });
+
+                // 解説を非表示
+                const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+                explanationSection.classList.remove('show');
+
+                // ナビゲーションを非表示
+                document.getElementById(`q${questionNum}-nav`).style.display = 'none';
+
+                // プログレスを未解答状態に戻す
+                const progressDot = document.getElementById(`progress-${questionNum}`);
+                progressDot.classList.remove('completed', 'incorrect-dot');
+                progressDot.classList.add('active');
+
+                return; // 処理終了
+            }
+
+            // ========== 新規解答処理 ==========
+            // 解答を記録
+            state.answers[questionNum] = selectedOption;
+            const isCorrect = selectedOption === correctOption;
+
+            // ========== 親フレームへの解答記録 ==========
+            /**
+             * index.html（親フレーム）に解答を送信
+             * 【重要】問題名は「YYYY_MM/航大思考N/問Q」形式で指定すること
+             * この形式がrecords.htmlの検索キーと一致する必要がある
+             */
+            try {
+                if (window.parent && window.parent.recordAnswer) {
+                    window.parent.recordAnswer(
+                        `2026_07/航大思考308/問${questionNum}`,
+                        selectedOption,
+                        correctOption,
+                        isCorrect
+                    );
+                }
+            } catch (e) {
+                // 親フレームへのアクセスが制限されている場合は無視
+                // （直接ファイルを開いた場合など）
+            }
+
+            // ========== 選択肢のスタイル更新 ==========
+            buttons.forEach(btn => {
+                btn.classList.remove('selected', 'correct', 'incorrect');
+                const option = parseInt(btn.dataset.option);
+
+                // 選択した選択肢をマーク
+                if (option === selectedOption) {
+                    btn.classList.add('selected');
+                    if (!isCorrect) {
+                        btn.classList.add('incorrect'); // 不正解の場合は赤く
+                    }
+                }
+                // 正解の選択肢を緑でマーク
+                if (option === correctOption) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            // ========== プログレスドット更新 ==========
+            const progressDot = document.getElementById(`progress-${questionNum}`);
+            progressDot.classList.remove('active');
+            progressDot.classList.add(isCorrect ? 'completed' : 'incorrect-dot');
+
+            // ========== 解説の自動展開 ==========
+            const explanationSection = document.getElementById(`q${questionNum}-explanation`);
+            explanationSection.classList.add('show');
+
+            // ナビゲーションボタンも表示
+            document.getElementById(`q${questionNum}-nav`).style.display = 'flex';
+
+            // ========== スムーズスクロール ==========
+            // 少し遅延させてから解説セクションまでスクロール
+            setTimeout(() => {
+                explanationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // ==================== 初期化処理 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            // 問1のプログレスドットをアクティブに
+            document.getElementById('progress-1').classList.add('active');
+        });
+    </script>
+</body>
+</html>
