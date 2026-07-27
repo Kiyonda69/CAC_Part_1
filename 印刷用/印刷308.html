@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- ==================== メタ情報 ==================== -->
+    <!-- 文字エンコーディング: UTF-8を使用 -->
+    <meta charset="UTF-8">
+    <!-- レスポンシブ対応のためのビューポート設定 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ページタイトル -->
+    <title>航空大学校入学試験 総合Part I 思考パズル問題</title>
+
+    <style>
+        /* ==================== CSSリセット ==================== */
+        /* ブラウザのデフォルトスタイルをリセット */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ==================== 基本ボディスタイル ==================== */
+        body {
+            /* 日本語明朝体フォント設定 */
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 16px;
+            line-height: 1.8;
+            /* 画面表示時はグレー背景（紙のプレビュー効果） */
+            background-color: #888;
+            /* ページを中央に縦並びで配置 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* ==================== ページコンテナ（A4サイズ） ==================== */
+        /*
+        各問題/解説ページを囲むコンテナ
+        - 固定幅800pxでA4比率（297/210）の高さ
+        - 画面幅に応じてスケーリング（JavaScriptで制御）
+        */
+        .question-section {
+            background-color: white;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 紙の影 */
+            /* A4比率: 幅800px、高さは800 × (297/210) ≈ 1131px */
+            width: 800px;
+            height: calc(800px * 297 / 210);
+            overflow: hidden; /* はみ出し防止 */
+            position: relative;
+            flex-shrink: 0; /* フレックスで縮まない */
+            /* スケーリングの基準点を上中央に */
+            transform-origin: top center;
+        }
+
+        /* ==================== ページ内コンテンツラッパー ==================== */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ==================== 改ページ制御 ==================== */
+        /* 印刷時にページ区切りを入れる */
+        .question-page {
+            page-break-after: always;
+        }
+
+        /* ==================== 解説セクション ==================== */
+        .explanation {
+            padding: 20px 0;
+        }
+
+        /* ==================== 問題コンテナ ==================== */
+        .question {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* 問題の途中で改ページしない */
+        }
+
+        /* ==================== 問題番号 ==================== */
+        /*
+        問題番号と問題文を含むタイトル部分
+        例: 「問1．下図のように...」
+        */
+        .question-number {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* ==================== 問題文本文 ==================== */
+        .question-text {
+            margin-bottom: 15px;
+            text-align: justify; /* 両端揃え */
+        }
+
+        /* ==================== 選択肢リスト ==================== */
+        /* テキスト形式の選択肢用 */
+        .options {
+            margin-left: 20px;
+            line-height: 2; /* 読みやすい行間 */
+        }
+
+        /* ==================== 選択肢テーブル ==================== */
+        /* 表形式で選択肢を並べる場合 */
+        .option-table {
+            margin: 15px 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .option-table td, .option-table th {
+            padding: 8px 15px;
+            text-align: center;
+        }
+
+        .option-table th {
+            font-weight: bold;
+        }
+
+        /* ==================== 下線・空欄スタイル ==================== */
+        /* 穴埋め問題などで使用 */
+        .underline {
+            text-decoration: underline;
+        }
+
+        .blank {
+            display: inline-block;
+            min-width: 80px;
+            height: 20px;
+            border: 2px solid #000;
+            margin: 0 5px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 20px;
+        }
+
+        /* ==================== 図表コンテナ ==================== */
+        /* SVGや表を囲むエリア */
+        .figure-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #dddddd;
+            text-align: center;
+        }
+
+        /* 図表のタイトル */
+        .figure-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .figure-content {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== SVG基本スタイル ==================== */
+        svg {
+            max-width: 100%; /* レスポンシブ対応 */
+            height: auto;
+        }
+
+        /* SVG内のテキスト */
+        .svg-text {
+            font-family: "ヒラギノ明朝 ProN", "Hiragino Mincho ProN", "游明朝", "Yu Mincho", serif;
+            font-size: 14px;
+        }
+
+        /* ==================== テーブル形式の図表 ==================== */
+        /* 表を使った図表表示用 */
+        .figure-table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: white;
+        }
+
+        .figure-table td {
+            border: 2px solid #333;
+            padding: 15px 20px;
+            min-width: 80px;
+            min-height: 60px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .figure-table th {
+            border: 2px solid #333;
+            padding: 10px 15px;
+            background-color: #e8e8e8;
+            font-weight: bold;
+        }
+
+        /* ==================== 凡例（レジェンド） ==================== */
+        /* 図表の注釈や記号説明用 */
+        .legend {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .legend-item {
+            margin: 5px 0;
+        }
+
+        /* ==================== グリッド/座標系コンテナ ==================== */
+        /* 格子状の図表を配置する場合 */
+        .grid-container {
+            display: inline-block;
+            margin: 10px auto;
+        }
+
+        /* ==================== 印刷用メディアクエリ ==================== */
+        /*
+        印刷時のスタイル調整
+        - 背景を白に
+        - 影を消す
+        - ページサイズを自動調整
+        - スケーリングを無効化
+        */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+                min-height: auto;
+                display: block; /* フレックスを解除 */
+            }
+
+            .question-section {
+                box-shadow: none; /* 影を消す */
+                page-break-after: always; /* ページ区切り */
+                page-break-inside: avoid; /* 途中で切らない */
+                transform: none !important; /* スケーリング解除 */
+                width: 100%;
+                height: auto;
+                min-height: auto;
+                margin: 0;
+                padding: 20px;
+                overflow: visible; /* はみ出し許可 */
+            }
+
+            .page-content {
+                height: auto;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ========== 問1 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問1．ある店で商品A・B・Cを仕入れた。1個あたりの原価と仕入個数は下図のとおりである。3商品とも原価の5割増しの定価をつけたが、商品Aは全て定価で、商品Bは定価の2割引で、商品Cは定価の4割引で売り、いずれも売れ残りなく完売した。このとき、3商品全体の利益はいくらか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x300px
+                - viewBox: 0 0 500 300
+                - 余白: 上下左右20px
+
+                座標系定義:
+                - 原点（金額0円の位置）: (70, 250)
+                - Y軸: 上方向, 100円 = 40px（v円 → y = 250 - v*0.4）
+                  0円→y=250 / 100円→y=210 / 200円→y=170
+                  300円→y=130 / 400円→y=90 / 500円→y=50
+                - 棒の幅: 50px、中心 A=135, B=255, C=375
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図】1個あたりの原価と仕入個数</div>
+                    <div class="figure-content">
+                        <svg width="500" height="300" viewBox="0 0 500 300">
+                            <!-- Y軸の目盛線（100円ごと） -->
+                            <line x1="70" y1="210" x2="450" y2="210" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="170" x2="450" y2="170" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="130" x2="450" y2="130" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="90" x2="450" y2="90" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="50" x2="450" y2="50" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 目盛ラベル -->
+                            <text class="svg-text" x="62" y="255" text-anchor="end">0</text>
+                            <text class="svg-text" x="62" y="215" text-anchor="end">100</text>
+                            <text class="svg-text" x="62" y="175" text-anchor="end">200</text>
+                            <text class="svg-text" x="62" y="135" text-anchor="end">300</text>
+                            <text class="svg-text" x="62" y="95" text-anchor="end">400</text>
+                            <text class="svg-text" x="62" y="55" text-anchor="end">500</text>
+                            <text class="svg-text" x="62" y="32" text-anchor="end">（円）</text>
+
+                            <!-- 棒グラフ（原価 A=200円, B=300円, C=400円） -->
+                            <rect x="110" y="170" width="50" height="80" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                            <rect x="230" y="130" width="50" height="120" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                            <rect x="350" y="90" width="50" height="160" fill="#666666" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 棒の上の数値 -->
+                            <text class="svg-text" x="135" y="163" text-anchor="middle">200円</text>
+                            <text class="svg-text" x="255" y="123" text-anchor="middle">300円</text>
+                            <text class="svg-text" x="375" y="83" text-anchor="middle">400円</text>
+
+                            <!-- X軸・Y軸 -->
+                            <line x1="70" y1="40" x2="70" y2="250" stroke="#000000" stroke-width="2"/>
+                            <line x1="70" y1="250" x2="450" y2="250" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 商品名と仕入個数 -->
+                            <text class="svg-text" x="135" y="272" text-anchor="middle">商品A</text>
+                            <text class="svg-text" x="255" y="272" text-anchor="middle">商品B</text>
+                            <text class="svg-text" x="375" y="272" text-anchor="middle">商品C</text>
+                            <text class="svg-text" x="135" y="292" text-anchor="middle">40個</text>
+                            <text class="svg-text" x="255" y="292" text-anchor="middle">30個</text>
+                            <text class="svg-text" x="375" y="292" text-anchor="middle">25個</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※棒グラフは1個あたりの原価、その下の数値は仕入個数を表す。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 1,800円&nbsp;&nbsp;&nbsp;(2) 5,100円&nbsp;&nbsp;&nbsp;(3) 5,800円&nbsp;&nbsp;&nbsp;(4) 6,800円&nbsp;&nbsp;&nbsp;(5) 4,800円
+                </div>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問1 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問1(正解:(5))</strong><br>
+                定価は原価の5割増しなので、<strong>定価＝原価×1.5</strong>である。図から1個あたりの原価は商品A＝200円、商品B＝300円、商品C＝400円、仕入個数はそれぞれ40個・30個・25個と読み取れる。<br><br>
+
+                <strong>1．商品ごとに「1個あたりの利益」を求める</strong><br>
+                商品A：定価 200×1.5＝300円。定価のまま売るので、1個の利益は 300−200＝<strong>100円</strong>。<br>
+                　　　　100円×40個＝4,000円<br>
+                商品B：定価 300×1.5＝450円。2割引なので売値は 450×0.8＝360円。1個の利益は 360−300＝<strong>60円</strong>。<br>
+                　　　　60円×30個＝1,800円<br>
+                商品C：定価 400×1.5＝600円。4割引なので売値は 600×0.6＝360円。売値360円は原価400円を下回るため、1個あたり 400−360＝<strong>40円の損失</strong>。<br>
+                　　　　−40円×25個＝−1,000円<br><br>
+
+                <strong>2．合計する</strong><br>
+                4,000＋1,800−1,000＝<strong>4,800円</strong>　…（5）<br><br>
+
+                <strong>3．検算（売上総額−仕入総額）</strong><br>
+                売上総額＝300×40＋360×30＋360×25＝12,000＋10,800＋9,000＝31,800円<br>
+                仕入総額＝200×40＋300×30＋400×25＝8,000＋9,000＋10,000＝27,000円<br>
+                利益＝31,800−27,000＝4,800円となり一致する。<br><br>
+
+                <strong>解法のポイント</strong><br>
+                値引き後の売値が原価を下回る場合があることが本問の核心である。定価は原価の1.5倍だから、値引き後の売値は原価の 1.5×(1−値引き率) 倍となる。商品Bは 1.5×0.8＝1.2 倍で利益が出るが、商品Cは 1.5×0.6＝<strong>0.9 倍</strong>で原価を下回り損失となる。1.5×(1−r)＝1 となるのは r＝1/3（3割3分3厘引き）で、これより大きい値引きは必ず損失になる。<br><br>
+
+                <strong>誤答の分析</strong><br>
+                (1) 1,800円：商品Cの「4割引」を「定価の4割の値段（240円）」と読み違えた場合。1個160円の損失となり 4,000＋1,800−4,000＝1,800円。「4割引」は定価の6割の値段である。<br>
+                (2) 5,100円：商品Bと商品Cの値引き率を取り違えた場合。商品B（4割引）で900円の損失、商品C（2割引）で2,000円の利益となり 4,000−900＋2,000＝5,100円。<br>
+                (3) 5,800円：商品Cが損失であることに気づかず、利益を0円として無視した場合。<br>
+                (4) 6,800円：商品Cの1,000円を損失ではなく利益として加えた場合。符号の取り違えによる最も多い誤答である。
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 問題ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="question">
+
+                <div class="question-number">問2．ある店で商品P・Q・Rを仕入れた。1個あたりの原価と仕入個数は図1のとおりで、3商品とも原価の6割増しの定価をつけた。3商品の売れ方の内訳は図2のとおりで、いずれも売れ残りなく完売した。3商品全体の利益が仕入総額の4割にあたる額であったとき、アはいくらか。（6点）</div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 500x270px
+                - viewBox: 0 0 500 270
+
+                座標系定義:
+                - 原点（金額0円の位置）: (70, 225)
+                - Y軸: 上方向, 100円 = 32px（v円 → y = 225 - v*0.32）
+                  0円→y=225 / 100円→y=193 / 200円→y=161
+                  300円→y=129 / 400円→y=97 / 500円→y=65
+                - 棒の幅: 50px、中心 P=135, Q=255, R=375
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図1】1個あたりの原価と仕入個数</div>
+                    <div class="figure-content">
+                        <svg width="500" height="270" viewBox="0 0 500 270">
+                            <!-- Y軸の目盛線（100円ごと） -->
+                            <line x1="70" y1="193" x2="450" y2="193" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="161" x2="450" y2="161" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="129" x2="450" y2="129" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="97" x2="450" y2="97" stroke="#cccccc" stroke-width="1"/>
+                            <line x1="70" y1="65" x2="450" y2="65" stroke="#cccccc" stroke-width="1"/>
+
+                            <!-- 目盛ラベル -->
+                            <text class="svg-text" x="62" y="230" text-anchor="end">0</text>
+                            <text class="svg-text" x="62" y="198" text-anchor="end">100</text>
+                            <text class="svg-text" x="62" y="166" text-anchor="end">200</text>
+                            <text class="svg-text" x="62" y="134" text-anchor="end">300</text>
+                            <text class="svg-text" x="62" y="102" text-anchor="end">400</text>
+                            <text class="svg-text" x="62" y="70" text-anchor="end">500</text>
+                            <text class="svg-text" x="62" y="38" text-anchor="end">（円）</text>
+
+                            <!-- 棒グラフ（原価 P=250円, Q=300円, R=500円） -->
+                            <rect x="110" y="145" width="50" height="80" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                            <rect x="230" y="129" width="50" height="96" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                            <rect x="350" y="65" width="50" height="160" fill="#666666" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 棒の上の数値 -->
+                            <text class="svg-text" x="135" y="138" text-anchor="middle">250円</text>
+                            <text class="svg-text" x="255" y="122" text-anchor="middle">300円</text>
+                            <text class="svg-text" x="375" y="58" text-anchor="middle">500円</text>
+
+                            <!-- X軸・Y軸 -->
+                            <line x1="70" y1="45" x2="70" y2="225" stroke="#000000" stroke-width="2"/>
+                            <line x1="70" y1="225" x2="450" y2="225" stroke="#000000" stroke-width="2"/>
+
+                            <!-- 商品名と仕入個数 -->
+                            <text class="svg-text" x="135" y="247" text-anchor="middle">商品P</text>
+                            <text class="svg-text" x="255" y="247" text-anchor="middle">商品Q</text>
+                            <text class="svg-text" x="375" y="247" text-anchor="middle">商品R</text>
+                            <text class="svg-text" x="135" y="265" text-anchor="middle">80個</text>
+                            <text class="svg-text" x="255" y="265" text-anchor="middle">100個</text>
+                            <text class="svg-text" x="375" y="265" text-anchor="middle">60個</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※棒グラフは1個あたりの原価、その下の数値は仕入個数を表す。</div>
+                    </div>
+                </div>
+
+                <!--
+                図表仕様:
+                - SVGサイズ: 580x205px
+                - viewBox: 0 0 580 205
+
+                座標系定義:
+                - 帯の左端: x=130、1個 = 4px（P:320px / Q:400px / R:240px）
+                - 帯の高さ: 28px、上端 P=28 / Q=88 / R=148
+                - 商品名ラベル: x=122 右揃え
+                -->
+                <div class="figure-container">
+                    <div class="figure-title">【図2】売れ方の内訳（帯の長さは個数に比例）</div>
+                    <div class="figure-content">
+                        <svg width="580" height="205" viewBox="0 0 580 205">
+                            <!-- 商品P: 80個すべて定価 -->
+                            <text class="svg-text" x="122" y="47" text-anchor="end">商品P（80個）</text>
+                            <rect x="130" y="28" width="320" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                            <text class="svg-text" x="290" y="47" text-anchor="middle">定価</text>
+                            <text class="svg-text" x="290" y="73" text-anchor="middle">80個</text>
+
+                            <!-- 商品Q: 定価60個 + 2割5分引き40個 -->
+                            <text class="svg-text" x="122" y="107" text-anchor="end">商品Q（100個）</text>
+                            <rect x="130" y="88" width="240" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                            <rect x="370" y="88" width="160" height="28" fill="#bbbbbb" stroke="#000000" stroke-width="2"/>
+                            <text class="svg-text" x="250" y="107" text-anchor="middle">定価</text>
+                            <text class="svg-text" x="450" y="107" text-anchor="middle">2割5分引き</text>
+                            <text class="svg-text" x="250" y="133" text-anchor="middle">60個</text>
+                            <text class="svg-text" x="450" y="133" text-anchor="middle">40個</text>
+
+                            <!-- 商品R: 定価ア個 + 半額(60-ア)個（区切り位置は仮） -->
+                            <text class="svg-text" x="122" y="167" text-anchor="end">商品R（60個）</text>
+                            <rect x="130" y="148" width="130" height="28" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+                            <rect x="260" y="148" width="110" height="28" fill="#dddddd" stroke="#000000" stroke-width="2"/>
+                            <text class="svg-text" x="195" y="167" text-anchor="middle">定価</text>
+                            <text class="svg-text" x="315" y="167" text-anchor="middle">半額</text>
+                            <text class="svg-text" x="195" y="193" text-anchor="middle">ア個</text>
+                            <text class="svg-text" x="315" y="193" text-anchor="middle">(60−ア)個</text>
+                        </svg>
+                    </div>
+                    <div class="legend">
+                        <div class="legend-item">※商品Rの区切りの位置は実際の個数の比を表すものではない。</div>
+                    </div>
+                </div>
+
+                <div class="options">
+                    (1) 20個&nbsp;&nbsp;&nbsp;(2) 32個&nbsp;&nbsp;&nbsp;(3) 25個&nbsp;&nbsp;&nbsp;(4) 28個&nbsp;&nbsp;&nbsp;(5) 46個
+                </div>
+
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))</strong><br>
+                定価は原価の6割増しなので、<strong>定価＝原価×1.6</strong>である。図1から原価と仕入個数を読み取り、まず定価を求める。<br><br>
+
+                <strong>1．定価と仕入総額</strong><br>
+                商品P：原価250円 → 定価 250×1.6＝400円（80個）<br>
+                商品Q：原価300円 → 定価 300×1.6＝480円（100個）<br>
+                商品R：原価500円 → 定価 500×1.6＝800円（60個）<br>
+                仕入総額＝250×80＋300×100＋500×60＝20,000＋30,000＋30,000＝<strong>80,000円</strong><br><br>
+
+                <strong>2．売上総額を確定させる</strong><br>
+                利益が仕入総額の4割なので、利益＝80,000×0.4＝32,000円。<br>
+                売上総額＝80,000＋32,000＝<strong>112,000円</strong><br><br>
+
+                <strong>3．P・Qの売上を求め、Rの売上を逆算する</strong><br>
+                商品P：400×80＝32,000円<br>
+                商品Q：定価分 480×60＝28,800円、値引き分は 480×(1−0.25)＝360円なので 360×40＝14,400円。合計 43,200円<br>
+                商品R：112,000−32,000−43,200＝<strong>36,800円</strong><br><br>
+
+                <strong>4．アを求める</strong><br>
+                商品Rは定価800円がア個、半額400円が(60−ア)個なので<br>
+                　800ア＋400(60−ア)＝36,800<br>
+                　400ア＋24,000＝36,800<br>
+                　400ア＝12,800　→　ア＝<strong>32個</strong>　…（2）<br><br>
+
+                <strong>別解（差で考える）</strong><br>
+                商品Rが60個すべて定価で売れたとすると売上は 800×60＝48,000円。実際は36,800円だから 11,200円少ない。1個を半額にするごとに売上は400円ずつ減るので、半額で売れたのは 11,200÷400＝28個。よって定価で売れたのは 60−28＝32個。<br><br>
+
+                <strong>検算</strong><br>
+                商品Rの売上＝800×32＋400×28＝25,600＋11,200＝36,800円。<br>
+                売上総額＝32,000＋43,200＋36,800＝112,000円、利益＝112,000−80,000＝32,000円。<br>
+                32,000÷80,000＝0.4 となり、仕入総額の4割に一致する。
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+
+    <!-- ========== 問2 解説ページ（続き） ========== -->
+    <div class="question-section question-page">
+        <div class="page-content">
+            <div class="explanation">
+                <strong>問2(正解:(2))　解説の続き</strong><br><br>
+
+                <strong>解法のポイント</strong><br>
+                原価も定価も個数も具体的な数値が与えられているため、<strong>「利益率 → 売上総額」の向きに変換してから逆算する</strong>のが最短である。利益率のまま扱おうとすると式が複雑になる。また、商品Rだけが未知なので、確定している商品P・Qの売上を先に計算して差し引く手順が有効である。<br><br>
+
+                <strong>誤答の分析</strong><br>
+                (1) 20個：商品Qの値引きを見落とし、100個すべてが定価480円で売れたとした場合。商品Qの売上を48,000円としてしまうと 800ア＋400(60−ア)＝32,000 となり、ア＝20個。図2の帯グラフを読み落とすと生じる誤りである。<br>
+                (3) 25個：商品Rの「半額」を「定価の4割引（480円）」と読み違えた場合。480×(60−ア)として計算すると ア＝25個となる。半額は5割引である。<br>
+                (4) 28個：商品Rの定価販売分と半額販売分を取り違え、半額がア個であるとした場合。これは正解と対になる数であり（32＋28＝60）、問われているのが定価で売れた個数であることの確認が必要である。<br>
+                (5) 46個：売れ残り分（半額で売った分）の売上を0円としてしまった場合。半額であっても売上は発生している。
+            </div>
+        </div><!-- /.page-content -->
+    </div><!-- /.question-section -->
+    <script>
+        /**
+         * ページをビューポートサイズに合わせてスケーリング
+         *
+         * 【動作説明】
+         * - 800px幅の固定サイズページを、画面幅に応じて縮小表示
+         * - 印刷時は @media print でスケーリングが解除される
+         * - リサイズ時に自動的に再計算される
+         */
+        function scalePages() {
+            const pages = document.querySelectorAll('.question-section');
+            const baseWidth = 800; // ページの基準幅（px）
+            const viewportWidth = window.innerWidth; // 現在のビューポート幅
+            const padding = 40; // 左右の余白（px）
+
+            // スケール計算
+            // - 最大1.0（拡大はしない）
+            // - ビューポートに収まるように縮小
+            const scale = Math.min(1, (viewportWidth - padding) / baseWidth);
+
+            pages.forEach(page => {
+                // CSS transformでスケーリング適用
+                page.style.transform = `scale(${scale})`;
+
+                // スケーリング後の実際の高さを計算してマージン調整
+                // （縮小するとページ間の隙間が狭くなるため）
+                const originalHeight = page.offsetHeight / scale;
+                const scaledHeight = originalHeight * scale;
+                page.style.marginBottom = `${20 - (originalHeight - scaledHeight)}px`;
+            });
+        }
+
+        // ==================== イベントリスナー ====================
+        // ページ読み込み完了時にスケーリング実行
+        window.addEventListener('load', scalePages);
+        // ウィンドウリサイズ時に再スケーリング
+        window.addEventListener('resize', scalePages);
+    </script>
+</body>
+</html>
